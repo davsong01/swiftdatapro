@@ -25,6 +25,13 @@ return new class extends Migration
                         $table->string('app_version', 20)->nullable()->after('id');
                     });
                 }
+
+                if (!Schema::hasColumn($t->$qur, 'created_at') && Schema::hasTable($t->$qur)) {
+                    Schema::table($t->$qur, function (Blueprint $table) {
+                        $table->timestamps();
+                    });
+                }
+
             }
         } catch (\Throwable $th) {
             dd($th->getMessage());

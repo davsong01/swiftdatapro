@@ -3,6 +3,9 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use Carbon\Carbon;
+use App\Models\Transactions;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,6 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Seeder to convert all date in final transactions to timestamp
+        $transactions = Transactions::all();
+        foreach($transactions as $t){
+            $da = str_replace(" ", "", $t->buyer_date);
+            $carbonDate = Carbon::createFromFormat('d-M-y h:i A', $da);
+            
+            $t->update(['created_at' => $carbonDate]);
+        }
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([

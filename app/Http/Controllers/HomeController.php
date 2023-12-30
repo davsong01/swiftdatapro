@@ -478,7 +478,7 @@ class HomeController extends Controller
         }else{
             $nextbtn = '';
         }
-        // dd($transactions->get());
+    
         if($transactions->count() < 1){
             $transactionx = '<div class="alert" style="background-color: #fff;border-radius: 10px 5px;color:black">No Transaction Record Yet</div>';
         }else{
@@ -553,5 +553,200 @@ class HomeController extends Controller
         }
       
         return view('customer.wallets', compact('transaction'));
+    }
+
+    public function salesAnalysis(Request $request, JsonResponseService $response){
+        if(empty($request->start) || empty($request->end)){
+            $analysis = $this->analizeSales();
+        }else{
+            $analysis = $this->analizeSales($request->start, $request->end);
+
+        }
+
+        if ($request->ajax()) {
+            return response()->json($analysis);
+        }
+
+        return view('customer.sales_analysis', compact('analysis'));
+
+    }
+
+    public function analizeSales($start = null, $end = null){
+        $start = empty($start) ? Carbon::today() : Carbon::parse($start);
+        $end = empty($end) ? Carbon::now() : Carbon::parse($end);
+
+        $transaction = "";
+
+        // sme data
+        $seltdatabyte = $this->getSingleAnalysis('mtn-sme', $start, $end);
+        $total_smedatacost = $seltdatabyte['cost'];
+        $total_smedata = $seltdatabyte['data'];
+
+        ////MTN-CG
+        $seltdatabyte = $this->getSingleAnalysis('mtn-cg', $start, $end);
+        $total_mtncgdatacost = $seltdatabyte['cost'];
+        $total_mtncgdata = $seltdatabyte['data'];
+        ///
+
+        ////AIRTEL-CG
+        $seltdatabyte = $this->getSingleAnalysis('airtel-cg', $start, $end);
+        $total_airtelcgdata = $seltdatabyte['data'];
+        $total_airtelcgdatacost = $seltdatabyte['cost'];
+
+        ////AIRTEL
+        $seltdatabyte = $this->getSingleAnalysis('airtel', $start, $end);
+        $total_airteldata = $seltdatabyte['data'];
+        $total_airteldatacost = $seltdatabyte['cost'];
+       
+        ////GLO
+        $seltdatabyte = $this->getSingleAnalysis('glo', $start, $end);
+        $total_glodata = $seltdatabyte['data'];
+        $total_glodatacost = $seltdatabyte['cost'];
+        
+        ////9MOBILE
+        $seltdatabyte = $this->getSingleAnalysis('9mobile', $start, $end);
+        $total_mobiledata = $seltdatabyte['data'];
+        $total_mobiledatacost = $seltdatabyte['cost'];
+
+        ////AIRTIME-VTU
+        $seltdatabyte = $this->getSingleAnalysis('vtu', $start, $end, 'vtu');
+        $total_vtucost = $seltdatabyte['cost'];
+
+        ////AIRTIME-SNS
+        $seltdatabyte = $this->getSingleAnalysis('sns', $start, $end, 'sns');
+        $total_snscost = $seltdatabyte['cost'];
+
+        ////BILLS
+        $seltdatabyte = $this->getSingleAnalysis('electric', $start, $end, 'electric');
+        $total_billscost = $seltdatabyte['cost'];
+       
+        ////CABLETV
+        $seltdatabyte1 = $this->getSingleAnalysis('gotv', $start, $end, 'gotv')['cost'];
+        $seltdatabyte2 = $this->getSingleAnalysis('dstv', $start, $end, 'dstv')['cost'];
+        $seltdatabyte3 = $this->getSingleAnalysis('showmax', $start, $end, 'showmax')['cost'];
+        $total_cablecost = $seltdatabyte1 + $seltdatabyte2 + $seltdatabyte3;
+
+        ////E-PINS
+        $seltdatabyte1 = $this->getSingleAnalysis('neco', $start, $end, 'neco')['cost'];
+        $seltdatabyte2 = $this->getSingleAnalysis('waec', $start, $end, 'waec')['cost'];
+        $seltdatabyte3 = $this->getSingleAnalysis('nabteb', $start, $end, 'nabteb')['cost'];
+        $total_pincost = $seltdatabyte1 + $seltdatabyte2 + $seltdatabyte3;
+
+        ////WITHDRAW
+        $total_withdraw  = $this->getSingleAnalysis('WITHDRAWTOWALLET', $start, $end, 'WITHDRAWTOWALLET')['cost'];
+
+        // GLO CG
+        $seltdatabyte  = $this->getSingleAnalysis('glo-cg', $start, $end);
+        
+        $total_glo_cg = $seltdatabyte['data'];
+        $total_glo_cg_cost = $seltdatabyte['cost'];
+
+        // MTN DATA CARD
+        $seltdatabyte  = $this->getSingleAnalysis('mtn_data_card', $start, $end);
+        $total_mtn_data_card = $seltdatabyte['data'];
+        $total_mtn_data_card_cost = $seltdatabyte['cost'];
+
+        //9MOBILE SME
+        $seltdatabyte  = $this->getSingleAnalysis('apimobile-sme', $start, $end);
+        $total_mobile_sme_data = $seltdatabyte['data'];
+        $total_mobile_sme_cost = $seltdatabyte['cost'];
+
+        $transaction = '
+        <div>
+        MTN SME DATA => ' . $total_smedata . 'GB <span style="float: right;">N' . number_format($total_smedatacost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        MTN CG DATA => ' . $total_mtncgdata . 'GB <span style="float: right;">N' . number_format($total_mtncgdatacost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        MTN DATA CARD => ' . $total_mtn_data_card . 'GB <span style="float: right;">N' . number_format($total_mtn_data_card_cost, 2) . '</span>
+        </div>
+        <hr/>
+        
+        <div>
+        AIRTEL GIFT. DATA => ' . $total_airteldata . 'GB <span style="float: right;">N' . number_format($total_airteldatacost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        AIRTEL CG DATA => ' . $total_airtelcgdata . 'GB <span style="float: right;">N' . number_format($total_airtelcgdatacost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        GLO GIFT. DATA => ' . $total_glodata . 'GB <span style="float: right;">N' . number_format($total_glodatacost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        GLO CG => ' . $total_glo_cg . 'GB <span style="float: right;">N' . number_format($total_glo_cg_cost, 2) . '</span>
+        </div>
+        <hr/>
+        
+        <div>
+        9MOBILE GIFT. DATA => ' . $total_mobiledata . 'GB <span style="float: right;">N' . number_format($total_mobiledatacost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        9MOBILE SME => ' . $total_mobile_sme_data . 'GB <span style="float: right;">N' . number_format($total_mobile_sme_cost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        AIRTIME VTU => <span style="float: right;">N' . number_format($total_vtucost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        AIRTIME SNS => <span style="float: right;">N' . number_format($total_snscost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        BILLS PAYMENT => <span style="float: right;">N' . number_format($total_billscost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        CABLETV PAYMENT => <span style="float: right;">N' . number_format($total_cablecost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        E-PINS PURCHASE => <span style="float: right;">N' . number_format($total_pincost, 2) . '</span>
+        </div>
+        <hr/>
+        <div>
+        BONUS WITHDRAW => <span style="float: right;">N' . number_format($total_withdraw, 2) . '</span>
+        </div>';
+        
+        return $transaction;
+        
+    }
+
+    public function getSingleAnalysis($buyer_service, $start, $end, $like = null){
+        
+        if(!empty($like)){
+            $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])->where('buyer_service', 'LIKE','%'.$like.'%')->whereBetween('created_at', [$start, $end])->get();
+        }else{
+            $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
+
+            // if($buyer_service == 'glo'){
+            //     $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
+
+            //     $total_smedatacost = $seltdatabyte->sum('buyer_amount+0');
+            //     $total_smedata = $seltdatabyte->sum('databyte+0') > 0 ? $seltdatabyte->sum('databyte') / 1000 : 0;
+            //     // dd($total_smedata);
+            //     // dd($total_smedatacost, $total_smedata, );
+            // }
+
+        }
+
+        try {
+            //code...
+            $total_smedatacost = $seltdatabyte->sum('buyer_amount+0');
+            $total_smedata = $seltdatabyte->sum('databyte+0') > 0 ? $seltdatabyte->sum('databyte') / 1000 : 0;
+        } catch (\Throwable $th) {
+            dd($th->getMessage(), $buyer_service);
+        }
+
+        return [
+            'cost' => $total_smedatacost ?? 0,
+            'data' => $total_smedata ?? 0,
+        ];
     }
 }

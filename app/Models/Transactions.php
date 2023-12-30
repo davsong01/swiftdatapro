@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Transactions extends Model
 {
     use HasFactory;
-    public $timestamps = false;
+    // public $timestamps = false;
 
     protected $table = 'final_transactions';
 

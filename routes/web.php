@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('customer/transactions', [HomeController::class, 'customerTransactions']);
     Route::get('reference/{reference?}', [HomeController::class, 'customerTransactions']);
     Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
+    Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
 
     
     
