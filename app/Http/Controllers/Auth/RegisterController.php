@@ -33,7 +33,7 @@ class RegisterController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::DASHBOARD;
+    protected $redirectTo = RouteServiceProvider::HOME;
 
     /**
      * Create a new controller instance.
@@ -52,7 +52,7 @@ class RegisterController extends Controller
         } else {
             $myrefferal = "ADMIN";
         }
-   
+
         return view('auth.register', compact('myrefferal'));
     }
     /**
@@ -70,7 +70,7 @@ class RegisterController extends Controller
             'last_name' => ['required', 'string', 'max:255'],
             'mobile' => ['required', 'string', 'max:11', 'min:11', 'unique:users'],
             'username' => ['required', 'string', 'max:255', 'unique:users'],
-            'gender' => ['required', 'string', 'in:Male,Female','max:10'],
+            'gender' => ['required', 'string', 'in:Male,Female', 'max:10'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:5'],
         ]);
@@ -86,12 +86,12 @@ class RegisterController extends Controller
     {
         // Get referral
         $myrefferal = User::where('ref_code', $data['referral'])->first();
-        
+
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $users_sid = base64_encode(uniqid() . time() . mt_rand(10000000, 90000000));
         $sk_token = base64_encode($data['email']) . uniqid();
-       
+
         // Create user
         $user = User::create([
             'full_name' => $data['full_name'],
@@ -143,7 +143,7 @@ class RegisterController extends Controller
 
         // Update referral
         $myrefferal->update(['referral' => $myrefferal->referral + 1]);
-       
+
         // Send verification email
         $this->sendRegistrationEmail($user);
         // Send Admin Notification email
@@ -153,13 +153,14 @@ class RegisterController extends Controller
             'user_id' => $user->id,
             'token' => $user->users_sid
         ]);
-        
+
         return $user;
     }
 
-    public function resendEmailVerificationLink($email){
+    public function resendEmailVerificationLink($email)
+    {
         $user = User::where('email', $email)->first();
-        if(!$user){
+        if (!$user) {
             return redirect()->route('login');
         }
 
@@ -169,13 +170,14 @@ class RegisterController extends Controller
             ->with('message', 'We have re-sent your activation link, please check your email for the link');
     }
 
-    public function sendRegistrationEmail($user){
-        $verify_link = url('/') . '/email/verify/'.$user->users_sid;
+    public function sendRegistrationEmail($user)
+    {
+        $verify_link = url('/') . '/email/verify/' . $user->users_sid;
         $subject = "Welcome To " . config('app.name');
         $body = '<p>Hello! ' . $user->full_name . '</p>';
         $body .= '<p>Ready to take your business to the next level ?<br/> You can unlock special perks by just purchasing Data Bundles, AirtimeVTU, Cable Subscription, Billspayment e.t.c. on ' . config('app.name') . ' <br/><b>To have you fully on our platform, click the link below to activate your account</b><br/>' . $verify_link . '<br/><br/>You Are Welcome,<br/>Your Customer Support at ' . config('app.name') . '.</p>';
 
-        \Log::info(['email'=> $body]);
+        \Log::info(['email' => $body]);
         $this->sendEmail($user->email, $subject, $body);
     }
 
@@ -189,7 +191,7 @@ class RegisterController extends Controller
           Registration Date: ' . $user->created_at . '<br>
           Referral : ' . $user->refferal . '
           ';
-        
+
         $this->sendEmail($user->email, $subject, $body);
     }
 }

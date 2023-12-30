@@ -28,7 +28,7 @@ class VerificationController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = RouteServiceProvider::DASHBOARD;
+    protected $redirectTo = RouteServiceProvider::HOME;
 
     /**
      * Create a new controller instance.
@@ -45,13 +45,14 @@ class VerificationController extends Controller
     public function verifyAccount($token)
     {
         $verifyUser = UserVerify::where('token', $token)->first();
-        
-        $message = 'Sorry your email cannot be identified.';
 
+        $message = 'Sorry your email cannot be identified.';
+       
         if (!is_null($verifyUser)) {
             $user = $verifyUser->user;
 
             if (!$user->email_verified_at) {
+                
                 $verifyUser->user->email_verified_at = Carbon::now();
                 $verifyUser->user->status = 1;
                 $verifyUser->user->save();

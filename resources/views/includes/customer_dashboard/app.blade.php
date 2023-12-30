@@ -1,3 +1,7 @@
+<?php 
+    use App\Models\WebSetting;
+    $web_settings = WebSetting::first();
+?>
 <!DOCTYPE html>
 <html lang="english">
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
@@ -140,8 +144,8 @@
                 </a>
                 <ul>
                     <li><a href="{{url('/').'/transactions' }}">All Transactions</a></li>
-                    <li><a href="{{url('/').'/success_transactions' }}">Success Transactions</a></li>
-                    <li><a href="{{url('/').'/fail_transactions' }}">Failed Transactions</a></li>
+                    <li><a href="{{url('/').'/transactions/success' }}">Success Transactions</a></li>
+                    <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
                     <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
                     <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li>
                 </ul>
@@ -257,7 +261,7 @@
             </li>
 
             <li>
-                <a href="<?php echo $baseurl; ?>/logout" aria-expanded="false">
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-power-off"></i>
                     </div>
@@ -265,6 +269,11 @@
                         <span>Logout </span>
                     </div>
                 </a>
+
+
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                    @csrf
+                </form>
             </li>
 
         </ul>
@@ -288,6 +297,7 @@
                                 <li>
                                 </li>
                                 <?php
+                                
                                     if (auth()->user()->level == 1){
                                         $social_link = $web_settings->group_link;
                                     }else {   
@@ -326,7 +336,10 @@
                                     <div class="profile_info_details">
                                         <a href="<?php echo $baseurl; ?>/profile">My Profile </a>
                                         <a href="<?php echo $baseurl; ?>/change_password">Settings</a>
-                                        <a href="<?php echo $baseurl; ?>/logout">Log Out </a>
+                                        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log Out </a>
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
                                     </div>
 
                                 </div>
@@ -480,6 +493,23 @@
     @endif
     <div class="alert">
         @yield('header')
+        <div class="col-xl-12">
+        <div class="alert"
+            style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;">
+
+            <div id="response" style="text-align: left;">
+                <span>Available Balance
+                    <span style="float: right;"></span>
+                </span>
+                <br />
+
+                <span style="color: #940798;font-weight: bold;font-size: 25px;">₦
+                    <?php echo number_format(auth()->user()->wallets, 2); ?></span>
+
+            </div>
+
+        </div>
+    </div>
         @yield('body')
     </div>
     @yield('scripts')
@@ -544,65 +574,65 @@
 </div>-->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
-<script src="backend/js/jquery1-3.4.1.min.js"></script>
+<script src="{{ asset('backend/js/jquery1-3.4.1.min.js') }}"></script>
 
-<script src="backend/js/popper1.min.js"></script>
+<script src="{{ asset('backend/js/popper1.min.js') }}"></script>
 
-<script src="backend/js/bootstrap1.min.js"></script>
+<script src="{{ asset('backend/js/bootstrap1.min.js') }}"></script>
 
-<script src="backend/js/metisMenu.js"></script>
+<script src="{{ asset('backend/js/metisMenu.js') }}"></script>
 
-<script src="backend/vendors/count_up/jquery.waypoints.min.js"></script>
+<script src="{{ asset('backend/vendors/count_up/jquery.waypoints.min.js') }}"></script>
 
-<script src="backend/vendors/chartlist/Chart.min.js"></script>
+<script src="{{ asset('backend/vendors/chartlist/Chart.min.js') }}"></script>
 
-<script src="backend/vendors/count_up/jquery.counterup.min.js"></script>
+<script src="{{ asset('backend/vendors/count_up/jquery.counterup.min.js') }}"></script>
 
-<script src="backend/vendors/niceselect/js/jquery.nice-select.min.js"></script>
+<script src="{{ asset('backend/vendors/niceselect/js/jquery.nice-select.min.js') }}"></script>
 
-<script src="backend/vendors/owl_carousel/js/owl.carousel.min.js"></script>
+<script src="{{ asset('backend/vendors/owl_carousel/js/owl.carousel.min.js') }}"></script>
 
-<script src="backend/vendors/datatable/js/jquery.dataTables.min.js"></script>
-<script src="backend/vendors/datatable/js/dataTables.responsive.min.js"></script>
-<script src="backend/vendors/datatable/js/dataTables.buttons.min.js"></script>
-<script src="backend/vendors/datatable/js/buttons.flash.min.js"></script>
-<script src="backend/vendors/datatable/js/jszip.min.js"></script>
-<script src="backend/vendors/datatable/js/pdfmake.min.js"></script>
-<script src="backend/vendors/datatable/js/vfs_fonts.js"></script>
-<script src="backend/vendors/datatable/js/buttons.html5.min.js"></script>
-<script src="backend/vendors/datatable/js/buttons.print.min.js"></script>
+<script src="{{ asset('backend/vendors/datatable/js/jquery.dataTables.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/dataTables.responsive.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/dataTables.buttons.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/buttons.flash.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/jszip.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/pdfmake.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/vfs_fonts.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/datatable/js/buttons.print.min.js') }}"></script>
 
-<script src="backend/vendors/datepicker/datepicker.js"></script>
-<script src="backend/vendors/datepicker/datepicker.en.js"></script>
-<script src="backend/vendors/datepicker/datepicker.custom.js"></script>
-<script src="backend/js/chart.min.js"></script>
-<script src="backend/vendors/chartjs/roundedBar.min.js"></script>
+<script src="{{ asset('backend/vendors/datepicker/datepicker.js') }}"></script>
+<script src="{{ asset('backend/vendors/datepicker/datepicker.en.js') }}"></script>
+<script src="{{ asset('backend/vendors/datepicker/datepicker.custom.js') }}"></script>
+<script src="{{ asset('backend/js/chart.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/chartjs/roundedBar.min.js') }}"></script>
 
-<script src="backend/vendors/progressbar/jquery.barfiller.js"></script>
+<script src="{{ asset('backend/vendors/progressbar/jquery.barfiller.js') }}"></script>
 
-<script src="backend/vendors/tagsinput/tagsinput.js"></script>
+<script src="{{ asset('backend/vendors/tagsinput/tagsinput.js') }}"></script>
 
-<script src="backend/vendors/text_editor/summernote-bs4.js"></script>
-<script src="backend/vendors/am_chart/amcharts.js"></script>
+<script src="{{ asset('backend/vendors/text_editor/summernote-bs4.js') }}"></script>
+<script src="{{ asset('backend/vendors/am_chart/amcharts.js') }}"></script>
 
-<script src="backend/vendors/scroll/perfect-scrollbar.min.js"></script>
-<script src="backend/vendors/scroll/scrollable-custom.js"></script>
+<script src="{{ asset('backend/vendors/scroll/perfect-scrollbar.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/scroll/scrollable-custom.js') }}"></script>
 
-<script src="backend/vendors/vectormap-home/vectormap-2.0.2.min.js"></script>
-<script src="backend/vendors/vectormap-home/vectormap-world-mill-en.js"></script>
+<script src="{{ asset('backend/vendors/vectormap-home/vectormap-2.0.2.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/vectormap-home/vectormap-world-mill-en.js') }}"></script>
 
-<script src="backend/vendors/apex_chart/apex-chart2.js"></script>
-<script src="backend/vendors/apex_chart/apex_dashboard.js"></script>
-<script src="backend/vendors/echart/echarts.min.js"></script>
-<script src="backend/vendors/chart_am/core.js"></script>
-<script src="backend/vendors/chart_am/charts.js"></script>
-<script src="backend/vendors/chart_am/animated.js"></script>
-<script src="backend/vendors/chart_am/kelly.js"></script>
-<script src="backend/vendors/chart_am/chart-custom.js"></script>
+<script src="{{ asset('backend/vendors/apex_chart/apex-chart2.js') }}"></script>
+<script src="{{ asset('backend/vendors/apex_chart/apex_dashboard.js') }}"></script>
+<script src="{{ asset('backend/vendors/echart/echarts.min.js') }}"></script>
+<script src="{{ asset('backend/vendors/chart_am/core.js') }}"></script>
+<script src="{{ asset('backend/vendors/chart_am/charts.js') }}"></script>
+<script src="{{ asset('backend/vendors/chart_am/animated.js') }}"></script>
+<script src="{{ asset('backend/vendors/chart_am/kelly.js') }}"></script>
+<script src="{{ asset('backend/vendors/chart_am/chart-custom.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js">
 </script>
-<script src="backend/js/dashboard_init.js"></script>
-<script src="backend/js/custom.js"></script>
+<script src="{{ asset('backend/js/dashboard_init.js') }}"></script>
+<script src="{{ asset('backend/js/custom.js') }}"></script>
 
 <script>
     var url = 'https://wati-integration-service.clare.ai/ShopifyWidget/shopifyWidget.js?66890';
