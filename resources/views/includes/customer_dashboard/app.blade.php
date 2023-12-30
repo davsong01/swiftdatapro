@@ -166,7 +166,7 @@
                 </ul>
             </li>
             <li>
-                <a href="{{url('/').'/data' }}" aria-expanded="false">
+                <a href="{{ route('buy', 'data')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-signal"></i>
                     </div>
@@ -177,7 +177,7 @@
             </li>
 
             <li>
-                <a href="{{url('/').'/airtime_vtu' }}" aria-expanded="false">
+                <a href="{{ route('buy', 'airtime-vtu')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-mobile-button"></i>
                     </div>

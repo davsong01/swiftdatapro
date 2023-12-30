@@ -37,7 +37,7 @@
         var start = $("#start").val();
         var end = $("#end").val();
        
-        // $.LoadingOverlay("show");
+        $.LoadingOverlay("show");
         $.ajax({
             url: '?start=' + start + '&end=' + end,
             dataType: 'json',

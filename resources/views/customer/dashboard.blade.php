@@ -233,7 +233,7 @@
     $("#contactus").click(function () {
         var message_report = $("#message").val();
         var req_token = $("#req_token").val();
-        $.LoadingOverlay("show");
+        // $.LoadingOverlay("show");
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

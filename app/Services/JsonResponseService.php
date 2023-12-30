@@ -16,4 +16,28 @@ class JsonResponseService
     {
         echo json_encode($data);
     }
+
+    static function build($data){
+        // Normal Customers
+        if ($data['status'] == "success") {
+            $response = array(
+                'title' => 'COMPLETED',
+                'icon' => 'success',
+                'status' => 'success',
+                'message' => $data['message'],
+                'extra' => $data['extra']
+            );
+        }else{
+            $response = array(
+                'title' => 'FAILED',
+                'icon' => 'error',
+                'status' => 'fail',
+                'message' => '<div class="alert alert-danger">' . $data['message'] . '</div>',
+            );
+        }
+
+        return response()->json($response);
+    }
+
+
 }

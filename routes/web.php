@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
 
@@ -41,7 +42,18 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('reference/{reference?}', [HomeController::class, 'customerTransactions']);
     Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
     Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
+    Route::get('ref_downlines', [HomeController::class, 'downlines']);
+    Route::get('cashback_earn', [HomeController::class, 'cashbackEarned']);
 
+    // Transactions
+    Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
+    Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
+    Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
+    Route::get('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
+
+
+
+    
     
     
     

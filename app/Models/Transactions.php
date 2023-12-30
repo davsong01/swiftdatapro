@@ -35,6 +35,13 @@ class Transactions extends Model
         'databyte',
         'app_version',
         'domain_name',
-        'ip_address'
+        'ip_address',
+        'post_fields',
+        'provider',
+        'extra',
+        'charges',
+        'failure_reason',
+        'api_response',
+        'buyer_quantity',
     ];
 }

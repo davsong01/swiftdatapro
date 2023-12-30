@@ -70,8 +70,10 @@ class Controller extends BaseController
         $data['app_version'] = Session::get('app_version');
         $data['domain_name'] = Session::get('domain_name');
         $data['ip_address'] = Session::get('ip_address');
-        
-        Transactions::create($data);
+
+        $transaction = Transactions::create($data);
+
+        return $transaction;
     }
 
     public function getDomainDetails(){
@@ -99,6 +101,7 @@ class Controller extends BaseController
 
         $response = curl_exec($ch);
        
+        \Log::info([$url, $payload, $headers, $response]);
         return $response;
     }
 }

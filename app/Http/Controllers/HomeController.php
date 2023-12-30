@@ -749,4 +749,54 @@ class HomeController extends Controller
             'data' => $total_smedata ?? 0,
         ];
     }
+
+    public function downlines(Request $request, JsonResponseService $response){
+        
+        if($request->ajax()){
+            $load_id = $request->load_id;
+            $referral_code = strtoupper($request->referral_code);
+            $amount = 0;
+            $transaction = '<div class="col-md-12">';
+        
+            $lettr = User::where('ref_by', $referral_code)->orWhere('ref_by', auth()->user()->username)->orderBy('id', 'desc')->get();
+           
+            if(!empty($lettr)){
+                foreach($lettr as $l){
+                    if ($l->status == 1) {
+                        $actmode = "background-color: #199263";
+                        $actmodeNote = "Verified";
+                    } else {
+                        $actmode = "background-color: #DB1A22";
+                        $actmodeNote = "Not Verified";
+                    }
+
+                    $transaction .= '<div class="alert col-md-6 trans" style="' . $actmode . ';color:#fff;font-size:10px;cursor:pointer;">
+                    <div>
+                    <span>' . $actmodeNote . '</span><br/>
+                    <span>Username: ' . $l->username . '</span><br/>
+                    <span>Join Date: ' . $l->reg_date . '</small><br/>
+                    <span>Level: ' . $l->level . '</span><br/>
+                    </div></div>';
+                }
+            }else{
+                $transaction = '<div class="alert" style="background-color: #fff;border-radius: 10px 5px;color:black">You have not referred anyone on this platform.</div>';
+            }
+
+            $transaction .= '</div>';
+
+            $responseX = [
+                'message' => $transaction,
+                'count' => $amount,
+                'status' => 'success',
+            ];
+            return response()->json($responseX);
+
+        }
+        
+        return view('customer.downlines');
+    }
+
+    public function cashbackEarned(){
+        return view('customer.downlines');
+    }
 }
