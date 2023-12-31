@@ -434,7 +434,7 @@ class GongzoController extends Controller
 
     public function prepareParams(Request $request){
         $postdata = $this->getPostData($request->all());
-
+       
         $headers = [
             'Authorization: Token 3b24d3f969dd1aa39cc434ada0c4de75f54e4948',
             'Content-Type: application/json'
@@ -463,30 +463,35 @@ class GongzoController extends Controller
             $product = 'mtn-cg';
             $ntwk = 01;
             $url = 'https://www.gongozconcept.com/api/data/';
-        } elseif ($network == 'AIRTEL-CG') {
+        } elseif ($request['network_module'] == 'AIRTEL-CG') {
             $type = 'data';
             $product = 'airtel-cg';
             $ntwk = 4;
             $url = "https://www.gongozconcept.com/api/data/";
-
-        } elseif ($network == 'AIRTEL') {
+        } elseif ($request['network_module'] == 'AIRTEL') {
             $type = 'data';
             $product = 'airtel';
             $ntwk = 4;
             $url = "https://www.gongozconcept.com/api/data/";
 
-        } elseif ($network == 'GLO-CG') {
+        } elseif ($request['network_module'] == 'GLO-CG') {
             $type = 'data';
             $product = 'glo-cg';
             $ntwk = 2;
-
             $url = "https://www.gongozconcept.com/api/data/";
-        } elseif ($network == 'GLO') {
+        } elseif ($request['network_module'] == 'GLO') {
             $type = 'data';
             $product = 'glo';
             $ntwk = 2;
-        }
+            $url = 'https://www.gongozconcept.com/api/data/';
+        } else if ($request['network_module'] == 'MTN' || $request['network_module'] == 'MTN-SME') {
+            $type = 'data';
+            $product = 'mtn';
+            $ntwk = 01;
+            $url = 'https://www.gongozconcept.com/api/data/';
 
+        }
+        
         $postdata = [
             'url' => $url,
             'network' => $ntwk,
@@ -495,18 +500,19 @@ class GongzoController extends Controller
             'Ported_number' => true,
             'no_of_pins' => $request['no_of_pins'],
         ];
-
+        
         return $postdata;
 
     }
 
-    public function query($postdata){
+    public function query($postdata, $request, $type){
+       
         $resX = $this->advancedApiCall($postdata['url'], json_encode($postdata['payload']), $postdata['headers']);
         
         // $resX = '{"id":8796051,"ident":"Data3c8b22038-740","network":1,"apiresponse":"something went wrong please check back later","api_response":"something went wrong please check back later","balance_before":"3938.0","balance_after":"3711.0","mobile_number":"08149292337","plan":281,"Status":"success","plan_network":"MTN","plan_name":"1.0GB","plan_amount":"227.0","create_date":"2023-08-21T20:56:25.563155","Ported_number":true}';
        
         try {
-            $format = $this->processApiResponse($resX);
+            $format = $this->processApiResponse($resX,$request, $type);
             $format['api_response'] = $resX;          
         
         } catch (\Throwable $th) {
@@ -525,7 +531,7 @@ class GongzoController extends Controller
         return $format;
     }
 
-    public function processApiResponse($res){
+    public function processApiResponse($res, $request, $type){
        
         if(empty($res)){
             $formatted = [
@@ -538,39 +544,54 @@ class GongzoController extends Controller
         }else{
             try {
                 // Process APi call
-                $pinsx = [];
                 $result = json_decode($res, true);
                 
-                $res = str_replace(array(
-                    '\'', '"',
-                    '',
-                ), ' ', $result);
-                if (isset($result) && !empty($result)) {
-                    foreach ($result as $key => $value) {
-                        if (strpos($key, 'pin') !== false) {
-                            $pinsx[] = $value;
+                if($request['network_module'] == 'MTN' && $type == 'data'){
+                    $result['Status'] = isset($result['Status']) ? strtoupper($result['Status']) : null;
+
+                    if (isset($result['Status']) && $result['Status'] !== 'FAILED') {
+                        if ($result['Status'] == 'PROCESSING') {
+                            $result['apiresponse'] = '';
+                        }
+                        $status = 'success';
+                        $true_response = 'You have successfully shared data to ' . $request['mobile_no'] . '. ' . $result['api_response'];
+                    } else {
+                        $status = 'failed';
+                        $true_response = 'Something went wrong. ' . $result['api_response'];
+                    }
+                }else{
+                    $pinsx = [];
+                    $res = str_replace(array(
+                        '\'', '"',
+                        '',
+                    ), ' ', $result);
+                    if (isset($result) && !empty($result)) {
+                        foreach ($result as $key => $value) {
+                            if (strpos($key, 'pin') !== false) {
+                                $pinsx[] = $value;
+                            }
                         }
                     }
-                }
-    
-                $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
-                $true_response = isset($result['api_response']) ? str_replace("'", '', $result['api_response']) : '';
-                
-                $result['Status'] = isset($result['Status']) ? strtoupper($result['Status']) : null;
-                
-                if ((isset($result['Status']) && $result['Status'] !== 'FAILED' && !empty($result['Status']) || (isset($result['Status']) && $result['Status'] == 'NULL'))) {
-                    if ($result['Status'] == 'PROCESSING') {
-                        $true_response = '';
+        
+                    $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
+                    $true_response = isset($result['api_response']) ? str_replace("'", '', $result['api_response']) : '';
+                    
+                    $result['Status'] = isset($result['Status']) ? strtoupper($result['Status']) : null;
+                    
+                    if ((isset($result['Status']) && $result['Status'] !== 'FAILED' && !empty($result['Status']) || (isset($result['Status']) && $result['Status'] == 'NULL'))) {
+                        if ($result['Status'] == 'PROCESSING') {
+                            $true_response = '';
+                        }
+                        $status = 'success';
+                    } else {
+                        $status = 'failed';
                     }
-                    $status = 'success';
-                } else {
-                    $status = 'failed';
                 }
                 
                 $formatted = [
                     'status' => $status,
                     'response' => $true_response,
-                    'extra' => $pins,
+                    'extra' => $pins ?? null,
                     'error' => null,
                 ];
                
@@ -578,7 +599,7 @@ class GongzoController extends Controller
                 $formatted = [
                     'status' => 'attention-required',
                     'extra' => '',
-                    'response' => $th->getMessage(),
+                    'response' => $th->getMessage().' '.$th->getFile().' '.$th->getLine() ,
                     'error' => $th->getMessage(),
                 ];
     

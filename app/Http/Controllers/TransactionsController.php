@@ -383,7 +383,7 @@ class TransactionsController extends Controller
         
         // Check provider and access
         $api = $this->getProvider(strtolower($network));
-        
+       
         if($api){
             if ($api['individual_access'] == 0 || $api['personal_access'] == 0) {
                 $response =[
@@ -425,7 +425,7 @@ class TransactionsController extends Controller
         }
         
         $request['price'] = $service_price;
-
+       
         // Prepare params
         $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
 
@@ -446,7 +446,7 @@ class TransactionsController extends Controller
             'buyer_prebal' => $old_wallet,
             'buyer_postbal' => $new_wallet,
             'buyer_descr' => '',
-            'buyer_status' => 'PENDING',
+            'buyer_status' => 'INITIATED',
             'buyer_date' => $time,
             'timestring' => $timestring,
             'charge_from' => 'WALLET',
@@ -465,10 +465,55 @@ class TransactionsController extends Controller
         $transaction = $this->logTransaction($data);
         
         // Make Api call
-        $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response);
+        $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
         
         if($api_response['status'] == 'success'){
+        
+            $transaction->update([
+                'buyer_status' => 'SUCCESSFUL',
+                'api_response' => $api_response['api_response'] ,
+                'api_report' => 'DONE'
+            ]);
 
+            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+
+            $order_report = $report['order_report'];
+            $final_response = $report['final_response'];
+        }else if($api_response['status'] == 'attention-required'){
+            $transaction->update([
+                'buyer_status' => 'ATTENTION-REQUIRED',
+                'api_response' => $api_response['api_response'],
+                'api_report' => 'DONE',
+                'failure_reason' => $api_response['error']
+            ]);
+
+            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+
+            $order_report = $report['order_report'];
+            $final_response = $report['final_response'];
+        }else{
+            $transaction->update([
+                'buyer_status' => 'FAILED',
+                'buyer_postbal' => $old_wallet,
+                'api_response' => $api_response['api_response'],
+                'api_report' => 'FAILED',
+                'failure_reason' => $api_response['error'],
+            ]);
+
+            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+
+            $order_report = $report['order_report'];
+            $final_response = $report['final_response'];
+
+            $user->wallets = $old_wallet;
+            $user->save(); 
+        }
+        
+        return response()->json($final_response);
+    }
+
+    public function formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price,$api_response){
+        if ($api_response['status'] == 'success') {
             $order_report = strtoupper('Purchase Successful for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : '')) . '.' . $api_response['response'];
 
             $final_response = [
@@ -481,12 +526,6 @@ class TransactionsController extends Controller
                 'message' => $order_report,
                 'extra' => $api_response['extra'] ?? null,
             ];
-            
-            $transaction->update([
-                'buyer_status' => 'SUCCESSFUL',
-                'api_response' => $api_response['api_response'] ,
-                'api_report' => 'DONE'
-            ]);
         }else if($api_response['status'] == 'attention-required'){
             $order_report = strtoupper('Purchase pending for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : '')) . '.' . $api_response['response'];
 
@@ -499,23 +538,7 @@ class TransactionsController extends Controller
                 'amountPaid' => $service_price,
                 'message' => $order_report,
             ];
-
-            $transaction->update([
-                'buyer_status' => 'ATTENTION-REQUIRED',
-                'api_response' => $api_response['api_response'],
-                'api_report' => 'DONE',
-                'failure_reason' => $api_response['error']
-            ]);
-            
         }else{
-            $transaction->update([
-                'buyer_status' => 'FAILED',
-                'buyer_postbal' => $old_wallet,
-                'api_response' => $api_response['api_response'],
-                'api_report' => 'FAILED',
-                'failure_reason' => $api_response['error'],
-            ]);
-
             $order_report = strtoupper('Purchase failed for ' . $package_name . ' on ' . $mobile_no . ' Error: ' . $api_response['response']);
 
             $final_response = array(
@@ -526,14 +549,14 @@ class TransactionsController extends Controller
                 'time' => $time,
                 'message' => $order_report
             );
-
-            $user->wallets = $old_wallet;
-            $user->save(); 
         }
-        
-        return response()->json($final_response);
-    }
 
+        return [
+            'order_report' => $order_report,
+            'final_response' => $final_response
+        ];
+        
+    }
     // work on this later when working on apis
     function getPlanId($plan_name, $network, $plan_id)
     {

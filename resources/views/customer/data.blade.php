@@ -242,7 +242,7 @@
     if ($("#network_module").val() == 'SMILE-DATA') {
       return verifySmile();
     }
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
