@@ -85,39 +85,7 @@ class TransactionsController extends Controller
             'level4_charge' => $webSetting->level4_charge,
             'level4_adminch' => $webSetting->level4_adminch,
 
-            //DATA COMMISSION
-            'mdata_comm' => $webSetting->mdata_comm,
-            'mcdata_comm' => $webSetting->mcdata_comm,
-            'adata_comm' => $webSetting->adata_comm,
-            'acdata_comm' => $webSetting->acdata_comm,
-            'gdata_comm' => $webSetting->gdata_comm,
-            'modata_comm' => $webSetting->modata_comm,
-
-            //AIRTIME COMMISSION
-            'mair_comm' => $webSetting->mair_comm,
-            'gair_comm' => $webSetting->gair_comm,
-            'aair_comm' => $webSetting->aair_comm,
-            'moair_comm' => $webSetting->moair_comm,
-
-            //CABLE COMMISSION
-            'gotv_comm' => $webSetting->gotv_comm,
-            'dstv_comm' => $webSetting->dstv_comm,
-            'star_comm' => $webSetting->star_comm,
-
-            ///E-PINS COMMSSION
-            'waec_comm' => $webSetting->waec_comm,
-            'neco_comm' => $webSetting->neco_comm,
-            'nabteb_comm' => $webSetting->nabteb_comm,
-
-            //BILLS COMMSSION
-            'bills_comm' => $webSetting->bills_comm,
-
-            //SMS COMMSSION
-            'sms_comm' => $webSetting->sms_comm,
-            'smile_vtu_discount' => $webSetting->smile_vtu_discount,
-            'smile_lock' => $webSetting->smile_lock,
-            'smile_vtu_lock'  =>  $webSetting->smile_vtu_lock,
-            'nbais_lock' =>  $webSetting->nbais_lock,
+            
         ];
 
         if(!empty($needle)){
@@ -135,7 +103,7 @@ class TransactionsController extends Controller
         $api = $this->getProvider($service);
         $echo = '<option>No Available variations at the moment</option>';
         
-        if($api['individual_access'] == 0 || $api['personal_access'] == 0){
+        if($api['individual_access'] == 0 || $api['product_access'] == 0){
             return response()->json($echo);
         }
         
@@ -155,18 +123,17 @@ class TransactionsController extends Controller
 
     }
 
-
     public function getProvider($service, $user=null){
         $webSetting = WebSetting::first();
         $api = '';
         $user = $user ?? auth()->user();
-
+       
         if($service == "mtn"){
             $api = [
                 'provider_slug' => $webSetting->api_mtn,
                 'provider_name' => str_replace(".php", "",str_replace(" ", "", ucwords(str_replace("_"," ", $webSetting->api_mtn))).'Controller').'.php',
                 'individual_access' => $user->mtnsme_access,
-                'personal_access' => $this->getProductAccess('m_lock1'),
+                'product_access' => $this->getProductAccess('m_lock1'),
             ];
         }
 
@@ -175,7 +142,7 @@ class TransactionsController extends Controller
                 'provider_slug' => $webSetting->mtn_data_card,
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
                 'individual_access' => $user->mtnsme_access,
-                'personal_access' => $this->getProductAccess('m_lock1'),
+                'product_access' => $this->getProductAccess('m_lock1'),
             ];
         }
 
@@ -184,7 +151,7 @@ class TransactionsController extends Controller
                 'provider_slug' => $webSetting->mtn_data_card,
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
                 'individual_access' => 1,
-                'personal_access' => 1,
+                'product_access' => 1,
             ];
         }
 
@@ -194,7 +161,7 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gift))) . 'Controller') . '.php',
 
                 'individual_access' => $user->mtncg_access,
-                'personal_access' => $this->getProductAccess('mg_lock1'),
+                'product_access' => $this->getProductAccess('mg_lock1'),
             ];
         }
 
@@ -204,7 +171,17 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile))) . 'Controller') . '.php',
 
                 'individual_access' => $user->mobile_access,
-                'personal_access' => $this->getProductAccess('mo_lock1'),
+                'product_access' => $this->getProductAccess('mo_lock1'),
+            ];
+        }
+        
+        if ($service == "mobile-sme") {
+            $api = [
+                'provider_slug' => $webSetting->api_mobilesme,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
+
+                'individual_access' => $user->mobile_access,
+                'product_access' => $this->getProductAccess('mobilesme_lock'),
             ];
         }
 
@@ -214,7 +191,7 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel))) . 'Controller') . '.php',
 
                 'individual_access' => $user->airtel_access,
-                'personal_access' => $this->getProductAccess('a_lock1'),
+                'product_access' => $this->getProductAccess('a_lock1'),
             ];
         }
 
@@ -224,7 +201,7 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtelcg))) . 'Controller') . '.php',
 
                 'individual_access' => $user->airtelcg_access,
-                'personal_access' => $this->getProductAccess('ag_lock1'),
+                'product_access' => $this->getProductAccess('ag_lock1'),
             ];
         }
 
@@ -234,7 +211,7 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo))) . 'Controller') . '.php',
 
                 'individual_access' => $user->glo_access,
-                'personal_access' => $this->getProductAccess('g_lock1'),
+                'product_access' => $this->getProductAccess('g_lock1'),
             ];
         }
 
@@ -244,7 +221,7 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glocg))) . 'Controller') . '.php',
 
                 'individual_access' => $user->glo_access,
-                'personal_access' => $this->getProductAccess('gcg_lock1'),
+                'product_access' => $this->getProductAccess('gcg_lock1'),
             ];
         }
 
@@ -254,7 +231,7 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
 
                 'individual_access' => $user->mobile_access,
-                'personal_access' => $this->getProductAccess('mo_lock1'),
+                'product_access' => $this->getProductAccess('mo_lock1'),
             ];
         }
 
@@ -264,7 +241,7 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_spectranet))) . 'Controller') . '.php',
 
                 'individual_access' => 1,
-                'personal_access' => $this->getProductAccess('spectranet_lock'),
+                'product_access' => $this->getProductAccess('spectranet_lock'),
             ];
         }
 
@@ -274,12 +251,110 @@ class TransactionsController extends Controller
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
 
                 'individual_access' => 1,
-                'personal_access' => $this->getProductAccess('smile_lock'),
+                'product_access' => $this->getProductAccess('smile_lock'),
             ];
         }
 
-        if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php'])) {
+        if ($service == "mtn-vtu") {
+            $api = [
+                    'provider_slug' => $webSetting->api_mtn2,
+                    'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn2))) . 'Controller') . '.php',
+                    'individual_access' => $user->airtime_access,
+                    'product_access' => $this->getProductAccess('m_lock2'),
+                ];
+        }
+
+        if ($service == "glo-vtu") {
+            $api = [
+                'provider_slug' => $webSetting->api_glo2,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo2))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('g_lock2'),
+            ];
+        }
+
+        if ($service == "airtel-vtu") {
+            $api = [
+                'provider_slug' => $webSetting->api_airtel2,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel2))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('a_lock2'),
+            ];
+        }
+
+        if ($service == "9mobile-vtu" || $service == "eitsalat-vtu") {
+            $api = [
+                'provider_slug' => $webSetting->api_mobile2,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile2))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('mo_lock2'),
+            ];
+        }
+
+        if ($service == "mtn-sns") {
+            $api = [
+                'provider_slug' => $webSetting->api_mtn3,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn3))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('m_lock3'),
+            ];
+        }
+
+        if ($service == "glo-sns") {
+            $api = [
+                'provider_slug' => $webSetting->api_airtel3,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('g_lock3'),
+            ];
+        }
+
+        if ($service == "airtel-sns") {
+            $api = [
+                'provider_slug' => $webSetting->api_airtel3,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('a_lock3'),
+            ];
+        }
+
+        if ($service == "9mobile-sns") {
+            $api = [
+                'provider_slug' => $webSetting->api_mobile3,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('mo_lock3'),
+            ];
+        }
+
+        if ($service == "smile-vtu") {
+            $api = [
+                'provider_slug' => $webSetting->api_smile_vtu,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile_vtu))) . 'Controller') . '.php',
+                'individual_access' => 1,
+                'product_access' => $this->getProductAccess('mo_lock3'),
+            ];
+        }
+        
+        if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
             $api['provider_name'] = 'GongzoController';
+        }
+
+        if (in_array($api['provider_name'], ['MobileDonController.php'])) {
+            $api['provider_name'] = 'DonlesonController';
+        }
+
+
+        if (in_array($api['provider_name'], ['EasyAccessDataController.php'])) {
+            $api['provider_name'] = 'EasyAccessController';
+        }
+
+        if (in_array($api['provider_name'], ['MtnsmeDonController.php'])) {
+            $api['provider_name'] = 'DonlessonCntroller';
+        }
+
+        if (in_array($api['provider_name'], ['AirtimevtuVtpassController.php'])) {
+            $api['provider_name'] = 'VtpassController';
         }
        
         return $api;
@@ -319,16 +394,18 @@ class TransactionsController extends Controller
         $security_pin = $request->security_pin;
         $account_id = $request->account_id;
         $plan_code = $dataplanloader;
-        $request_id = strtoupper(time().rand(10000000, 90000000).mt_rand());
         $network = $network_module;
         $mobile = $mobile_no;
-        
+
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $timexx = $dateTime->format("YmdHi");
         $timestring = time();
         $api_reference = strtoupper($timexx . uniqid() . rand(10000, 90000));
+        $request_id = $api_reference;
         $checkBlacklistPhone = \DB::table('blacklist_mobiles')->where('add_mobile', $mobile_no)->first();
+
+        $request['request_id'] = $request_id;
 
         // checks
         if(!$user){
@@ -385,7 +462,7 @@ class TransactionsController extends Controller
         $api = $this->getProvider(strtolower($network));
        
         if($api){
-            if ($api['individual_access'] == 0 || $api['personal_access'] == 0) {
+            if ($api['individual_access'] == 0 || $api['product_access'] == 0) {
                 $response =[
                     'status' => 'fail',
                     'status_code' => '100',
@@ -405,15 +482,20 @@ class TransactionsController extends Controller
         }
 
         $request['plan_id'] = $dataplanloader;
+        $request['type'] = $type;
         $request['level'] = $user->level;
 
-        $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id']);
-      
- 
-        $service_price = $variations['price'] ?? null;
+        $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount']);
+
+        if(isset($variations['discount']) && $variations['discount'] > 0){
+            $discount_now = $variations['price'] * $variations['discount'] / 100;
+            $service_price = $variations['price'] - $discount_now;
+        }
+        
         $databyte = $variations['databyte'] ?? 0;
         $package_name = $variations['name'] ?? '';
-       
+        $serviceId = $variations['serviceId'] ?? '';
+
         $user = auth()->user();
         
         if ($user->wallets < $service_price) {
@@ -423,12 +505,14 @@ class TransactionsController extends Controller
                 'error' => 'Not enough wallet balance',
             ];
         }
-        
+
         $request['price'] = $service_price;
-       
+        $request['serviceId'] = $serviceId;
+        $request['no_of_pins'] = $no_of_pins;
         // Prepare params
         $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
 
+        
         // Charge customer
         $old_wallet = $user->wallets;
         $new_wallet = $user->wallets - $service_price;
@@ -458,7 +542,7 @@ class TransactionsController extends Controller
             'profit' => '0',
             'databyte' => $databyte,
             'buyer_quantity' => $no_of_pins,
-            'post_fields' => json_encode($response['postfields']),
+            'post_fields' => json_encode($response['postfields']['payload'] ?? []),
             'provider' => $response['provider'] ?? null,
         ];
 
@@ -469,41 +553,46 @@ class TransactionsController extends Controller
         
         if($api_response['status'] == 'success'){
         
+            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+
+            $order_report = $report['order_report'] ?? '';
+            $final_response = $report['final_response'];
+            
             $transaction->update([
                 'buyer_status' => 'SUCCESSFUL',
-                'api_response' => $api_response['api_response'] ,
+                'buyer_descr' => $order_report,
+                'api_response' => $api_response['api_response'],
                 'api_report' => 'DONE'
             ]);
+        }else if($api_response['status'] == 'attention-required'){
 
             $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
 
-            $order_report = $report['order_report'];
+            $order_report = $report['order_report'] ?? '';
             $final_response = $report['final_response'];
-        }else if($api_response['status'] == 'attention-required'){
+
             $transaction->update([
                 'buyer_status' => 'ATTENTION-REQUIRED',
+                'buyer_descr' => $order_report,
                 'api_response' => $api_response['api_response'],
                 'api_report' => 'DONE',
                 'failure_reason' => $api_response['error']
             ]);
 
+        }else{
             $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
 
             $order_report = $report['order_report'];
             $final_response = $report['final_response'];
-        }else{
+
             $transaction->update([
                 'buyer_status' => 'FAILED',
+                'buyer_descr' => $order_report,
                 'buyer_postbal' => $old_wallet,
                 'api_response' => $api_response['api_response'],
                 'api_report' => 'FAILED',
                 'failure_reason' => $api_response['error'],
             ]);
-
-            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
-
-            $order_report = $report['order_report'];
-            $final_response = $report['final_response'];
 
             $user->wallets = $old_wallet;
             $user->save(); 
@@ -550,13 +639,135 @@ class TransactionsController extends Controller
                 'message' => $order_report
             );
         }
-
+        
         return [
             'order_report' => $order_report,
             'final_response' => $final_response
         ];
         
     }
+
+    public function discounts(Request $request)
+    {
+        $service = strtolower($request->services);
+       
+        if ($service == "mtn-vtu") {
+            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mtn_discount;
+        }
+
+        if ($service == "glo-vtu") {
+            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->glo_discount;
+        }
+
+        if ($service == "airtel-vtu") {
+            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->airtel_discount;
+        }
+
+        if ($service == "9mobile-vtu") {
+            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mobile_discount;
+        }
+        ///AIRTIME VTU-END
+
+        //AIRTIME SNS-START
+
+        if ($service == "mtn-sns") {
+            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->mtn_discount;
+        }
+
+        if ($service == "glo-sns") {
+            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->glo_discount;
+        }
+
+        if ($service == "airtel-sns") {
+            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->airtel_discount;
+        }
+
+        if ($service == "9mobile-sns") {
+            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->mobile_discount;
+        }
+
+        //AIRTIME SWAP-START
+        if ($service == "mtn-swap") {
+            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mtn_rate;
+        }
+
+        if ($service == "glo-swap") {
+            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->glo_rate;
+        }
+
+        if ($service == "airtel-swap") {
+            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->airtel_rate;
+        }
+
+        if ($service == "9mobile-swap") {
+            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mobile_rate;
+        }
+
+        if($request->ajax()){
+            return response()->json($discount);
+        }else{
+            return $discount;
+        }
+    }
+
+    public function commissions($type, $product){
+        $product = strtoupper($product);
+        $webSetting = WebSetting::first();
+        
+        //DATA COMMISSION
+        if ($type == 'data' && ($product == "MTN")) {
+            $service_comm = $webSetting->mtn_discount;
+        }
+
+        if ($type == 'data' && ($product == "GLO")) {
+            $service_comm = $webSetting->gdata_comm;
+        }
+
+        // 'mdata_comm' => $webSetting->mdata_comm,
+        // 'mcdata_comm' => $webSetting->mcdata_comm,
+        // 'adata_comm' => $webSetting->adata_comm,
+        // 'acdata_comm' => $webSetting->acdata_comm,
+        // 'gdata_comm' => $webSetting->gdata_comm,
+        // 'modata_comm' => $webSetting->modata_comm,
+        // AIRTIME COMMISSION
+        if ($type == 'airtime' && ($product == "MTN-VTU" || $product == "MTN")) {
+            $service_comm = $webSetting->mair_comm;
+        }
+
+        if ($type == 'airtime' && ($product == "GLO-VTU" || $product == "GLO")) {
+            $service_comm = $webSetting->gair_comm;
+        }
+
+        if ($type == 'airtime' && ($product == "AIRTEL-VTU" || $product == "AIRTEL")) {
+            $service_comm = $webSetting->aair_comm;
+        }
+
+        if ($type == 'airtime' && ($product == "9MOBILE-VTU" || $product == "9MOBILE" || $product == "ETISALAT-VTU" || $product == "ETISALAT")) {
+            $service_comm = $webSetting->moair_comm;
+        }
+
+        // //CABLE COMMISSION
+        // 'gotv_comm' => $webSetting->gotv_comm,
+        // 'dstv_comm' => $webSetting->dstv_comm,
+        // 'star_comm' => $webSetting->star_comm,
+
+        // ///E-PINS COMMSSION
+        // 'waec_comm' => $webSetting->waec_comm,
+        // 'neco_comm' => $webSetting->neco_comm,
+        // 'nabteb_comm' => $webSetting->nabteb_comm,
+
+        // //BILLS COMMSSION
+        // 'bills_comm' => $webSetting->bills_comm,
+
+        // //SMS COMMSSION
+        // 'sms_comm' => $webSetting->sms_comm,
+        // 'smile_vtu_discount' => $webSetting->smile_vtu_discount,
+        // 'smile_lock' => $webSetting->smile_lock,
+        // 'smile_vtu_lock'  =>  $webSetting->smile_vtu_lock,
+        // 'nbais_lock' =>  $webSetting->nbais_lock,
+        return $service_comm;
+    }
+
     // work on this later when working on apis
     function getPlanId($plan_name, $network, $plan_id)
     {
@@ -615,6 +826,9 @@ class TransactionsController extends Controller
         }
         return $pId;
     }
+
+
+    
     /**
      * Display a listing of the resource.
      */

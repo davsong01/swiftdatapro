@@ -191,7 +191,7 @@
   $("#network_module").change(function() {
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
-      $.LoadingOverlay("show");
+    //   $.LoadingOverlay("show");
       $.ajax({
         url: '/variations?services=' + network_module + '&level={{ auth()->user()->level }}&&product=data',
         method: 'GET',
@@ -242,7 +242,7 @@
     if ($("#network_module").val() == 'SMILE-DATA') {
       return verifySmile();
     }
-    $.LoadingOverlay("show");
+    // $.LoadingOverlay("show");
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

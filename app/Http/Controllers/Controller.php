@@ -81,9 +81,12 @@ class Controller extends BaseController
     }
     public function advancedApiCall($url, $payload=[], $headers, $method = 'POST')
     {
+        \Log::info(['Begin connection...', $url, $payload, $headers]);
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+       
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
         if ($method == "GET") {
             curl_setopt($ch, CURLOPT_HTTPGET, true);
@@ -98,10 +101,10 @@ class Controller extends BaseController
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
+        
         $response = curl_exec($ch);
-       
-        \Log::info([$url, $payload, $headers, $response]);
+        
+        \Log::info(['End connection', $url, $payload, $headers, $response]);
         return $response;
     }
 }

@@ -177,7 +177,7 @@
             </li>
 
             <li>
-                <a href="{{ route('buy', 'airtime-vtu')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'airtime')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-mobile-button"></i>
                     </div>

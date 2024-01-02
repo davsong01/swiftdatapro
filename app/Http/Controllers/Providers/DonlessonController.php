@@ -1,0 +1,909 @@
+<?php
+
+namespace App\Http\Controllers\Providers;
+
+use App\Models\WebSetting;
+use Illuminate\Support\Arr;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class DonlessonController extends Controller
+{
+    public function getVariations($type, $product, $level, $plan_id=null)
+    {
+        // Not done
+        $response = [
+            'name' => '',
+            'price' => '',
+            'code' => '',
+            'val' => '',
+        ];
+        // dd($type, $product, $level);
+        if ($type == 'data' && $product == 'mtn-cg') {
+            $response = \DB::table('mtncgdata_plan')->where('id', $level)->select('easy_access125', 'easy_access126', 'easy_access127', 'easy_access45', 'easy_access46', 'easy_access47', 'easy_access48', 'easy_access49', 'easy_access88', 'easy_access89', 'easy_access90', 'easy_access141', 'easy_access142', 'easy_access143', 'easy_access144', 'easy_access145', 'easy_access146', 'easy_access147', 'easy_access148', 'easy_access149', 'easy_access150', 'easy_access151')->first();
+            
+            $response = [
+                [
+                    'name' => "MTN 50MB (CG) - 30days",
+                    'price' => $response->easy_access125,
+                    'code' => 125,
+                    'id' => 'easy_access125',
+                    'val' => 50,
+                ],
+                [
+                    'name' => "MTN 150MB (CG) - 30days",
+                    'price' => $response->easy_access126,
+                    'code' => 126,
+                    'id' => 'easy_access126',
+                    'val' => 150,
+                ],
+                [
+                    'name' => "MTN 250MB (CG) - 30days",
+                    'price' => $response->easy_access127,
+                    'code' => 127,
+                    'id' => 'easy_access127',
+                    'val' => 250,
+                ],
+                [
+                    'name' => "MTN 500MB (CG) - 30days",
+                    'val' => 500,
+                    'price' => $response->easy_access45,
+                    'code' => 45,
+                    'id' => 'easy_access45',
+                ],
+                [
+                    'name' => "MTN 1GB (CG) - 30days",
+                    'val' => 1000,
+                    'price' => $response->easy_access46,
+                    'code' => 46,
+                    'id' => 'easy_access46',
+                ],
+                [
+                    'name' => "MTN 2GB (CG) - 30days",
+                    'val' => 2000,
+                    'price' => $response->easy_access47,
+                    'code' => 47,
+                    'id' => 'easy_access47',
+                ],
+                [
+                    'name' => "MTN 3GB (CG) - 30days",
+                    'val' => 3000,
+                    'price' => $response->easy_access48,
+                    'code' => 48,
+                    'id' => 'easy_access48',
+                ],
+                [
+                    'name' => "MTN 5GB (CG) - 30days",
+                    'val' => 5000,
+                    'price' => $response->easy_access49,
+                    'code' => 49,
+                    'id' => 'easy_access49'
+                ],
+                [
+                    'name' => "MTN 10GB (CG) - 30days",
+                    'val' => 10000,
+                    'price' => $response->easy_access88,
+                    'code' => 88,
+                    'id' => 'easy_access88',
+                ],
+                [
+                    'name' => "MTN 12GB (CG) - 30days",
+                    'val' => 12000,
+                    'price' => $response->easy_access89,
+                    'code' => 89,
+                    'id' => 'easy_access89',
+                ],
+                [
+                    'name' => "MTN 15GB (CG) - 30days",
+                    'val' => 15000,
+                    'price' => $response->easy_access90,
+                    'code' => 90,
+                    'id' => 'easy_access90',
+                ],
+                [
+                    'name' => "MTN 20GB (CG) - 30days",
+                    'val' => 20000,
+                    'price' => $response->easy_access141,
+                    'code' => 141,
+                    'id' => 'easy_access141',
+                ],
+                [
+                    'name' => "MTN 25GB (CG) - 30days",
+                    'val' => 25000,
+                    'price' => $response->easy_access142,
+                    'code' => 142,
+                    'id' => 'easy_access142',
+                ],
+                [
+                    'name' => "MTN 30GB (CG) - 30days",
+                    'val' => 30000,
+                    'price' => $response->easy_access143,
+                    'code' => 143,
+                    'id' => 'easy_access143',
+                ],
+                [
+                    'name' => "MTN 40GB (CG) - 30days",
+                    'val' => 40000,
+                    'price' => $response->easy_access144,
+                    'code' => 144,
+                    'id' => 'easy_access144',
+                ],
+                [
+                    'name' => "MTN 50GB (CG) - 30days",
+                    'price' => $response->easy_access145,
+                    'val' => 50000,
+                    'code' => 145,
+                    'id' => 'easy_access145',
+                ],
+                [
+                    'name' => "MTN 60GB (CG) - 30days",
+                    'price' => $response->easy_access146,
+                    'val' => 60000,
+                    'code' => 146,
+                    'id' => 'easy_access146',
+                ],
+                [
+                    'name' => "MTN 70GB (CG) - 30days",
+                    'price' => $response->easy_access147,
+                    'val' => 70000,
+                    'code' => 147,
+                    'id' => 'easy_access147',
+                ],
+                [
+                    'name' => "MTN 75GB (CG) - 30days",
+                    'val' => 75000,
+                    'price' => $response->easy_access148,
+                    'code' => 148,
+                    'id' => 'easy_access148',
+                ],
+                [
+                    'name' => "MTN 80GB (CG) - 30days",
+                    'val' => 80000,
+                    'price' => $response->easy_access149,
+                    'code' => 149,
+                    'id' => 'easy_access149',
+                ],
+                [
+                    'name' => "MTN 90GB (CG) - 30days",
+                    'val' => 90000,
+                    'price' => $response->easy_access150,
+                    'code' => 150,
+                    'id' => 'easy_access150',
+                ],
+                [
+                    'name' => "MTN 100GB (CG) - 30days",
+                    'val' => 100000,
+                    'price' => $response->easy_access151,
+                    'code' => 151,
+                    'id' => 'easy_access151',
+                ],
+
+            ];
+        }
+
+        // MTN data
+        if ($type == "data" && $product == "mtn") {
+            $response = \DB::table('mtnsmedata_plan')->where('id', $level)->select('mtnsme_500', 'mtnsme_1', 'mtnsme_2', 'mtnsme_3', 'mtnsme_5', 'mtnsme_10')->first();
+
+            $response = [
+                [
+                    'name' => "MTN SME 500M",
+                    'price' => $response->mtnsme_500,                   
+                    'code' => 50,
+                    'id' => '',
+                    'val' => 500,
+                ],
+                [
+                    'name' => "MTN-SME 1GB",
+                    'price' => $response->mtnsme_1,                   
+                    'code' => 51,
+                    'id' => '',
+                    'val' => 1000,
+                ],
+                [
+                    'name' => "MTN-SME 2GB",
+                    'price' => $response->mtnsme_2,                   
+                    'code' => 52,
+                    'id' => '',
+                    'val' => 2000,
+                ],
+                [
+                    'name' => "MTN-SME 3GB",
+                    'price' => $response->mtnsme_3,                   
+                    'code' => 53,
+                    'id' => '',
+                    'val' => 3000,
+                ],
+                [
+                    'name' => "MTN-SME 5GB",
+                    'price' => $response->mtnsme_5,                   
+                    'code' => 54,
+                    'id' => '',
+                    'val' => 5000,
+                ],
+                [
+                    'name' => "MTN-SME 10GB",
+                    'price' => $response->mtnsme_10,                   
+                    'code' => 91,
+                    'id' => '',
+                    'val' => 10000,
+                ],
+
+            ];
+        }
+
+        // Airtel cg
+        if ($type == 'data' && $product == 'airtel-cg') {
+
+            $response = \DB::table('airtelcgdata_plan')->where('id', $level)->select('easy_access104', 'easy_access105', 'easy_access106', 'easy_access107', 'easy_access108', 'easy_access109', 'easy_access124', 'easy_access139', 'easy_access140')->first();
+
+            $response = [
+                [
+                    'name' => "AIRTEL 100MB (CG) - 7days",
+                    'val' => 100,
+                    'price' => $response->easy_access104,
+                    'code' => 104,
+                    'id' => 'easy_access104',
+                ],
+                [
+                    'name' => "AIRTEL 300MB (CG) - 7days",
+                    'price' => $response->easy_access105,
+                    'val' => 300,
+                    'code' => 105,
+                    'id' => 'easy_access105',
+                ],
+                [
+                    'name' => "AIRTEL 500MB (CG) - 30days",
+                    'val' => 500,
+                    'price' => $response->easy_access106,
+                    'code' => 106,
+                    'id' => 'easy_access106',
+                ],
+                [
+                    'name' => "AIRTEL 1GB (CG) - 30days",
+                    'val' => 1000,
+                    'price' => $response->easy_access107,
+                    'code' => 107,
+                    'id' => 'easy_access107',
+                ],
+                [
+                    'name' => "AIRTEL 2GB (CG) - 30days",
+                    'val' => 2000,
+                    'price' => $response->easy_access108,
+                    'code' => 108,
+                    'id' => 'easy_access108',
+                ],
+                [
+                    'name' => "AIRTEL 5GB (CG) - 30days",
+                    'val' => 5000,
+                    'price' => $response->easy_access109,
+                    'code' => 109,
+                    'id' => 'easy_access109',
+                ],
+                [
+                    'name' => "AIRTEL 10GB (CG) - 30days",
+                    'val' => 10000,
+                    'price' => $response->easy_access124,
+                    'code' => 124,
+                    'id' => 'easy_access124',
+                ],
+                [
+                    'name' => "AIRTEL 15GB (CG) - 30days",
+                    'price' => $response->easy_access139,
+                    'val' => 15000,
+                    'code' => 139,
+                    'id' => 'easy_access139'
+                ],
+                [
+                    'name' => "AIRTEL 20GB (CG) - 30days",
+                    'val' => 20000,
+                    'price' => $response->easy_access140,
+                    'code' => 140,
+                    'id' => 'easy_access140',
+                ],
+            ];
+        }
+
+        // Aitel
+        if ($type == 'data' && $product == 'airtel') {
+            $response = \DB::table('airteldata_plan')->where('id', $level)->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69', 'easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96', 'easy_access97', 'easy_access157')->first();
+
+            $response = [
+                [
+                    'name' => "750MB (Direct) - 14days",
+                    'val' => 750,
+                    'price' => $response->easy_access66,
+                    'code' => 66,
+                    'id' => 'easy_access66',
+                ],
+                [
+                    'name' => "1.5GB (Direct) - 30days",
+                    'price' => $response->easy_access67,
+                    'val' => 1500,
+                    'code' => 67,
+                    'id' => 'easy_access67',
+                ],
+                [
+                    'name' => "2GB (Direct) - 30days",
+                    'val' => 2000,
+                    'price' => $response->easy_access68,
+                    'code' => 68,
+                    'id' => 'easy_access68',
+                ],
+                [
+                    'name' => '3GB (Direct) - 30days',
+                    'val' => 3000,
+                    'price' => $response->easy_access69,
+                    'code' => 69,
+                    'id' => 'easy_access69',
+                ],
+                [
+                    'name' => "4.5GB (Direct) - 30days",
+                    'val' => 4500,
+                    'price' => $response->easy_access70,
+                    'code' => 70,
+                    'id' => 'easy_access70',
+                ],
+                [
+                    'name' => "6GB (Direct) - 30days",
+                    'val' => 6000,
+                    'price' => $response->easy_access71,
+                    'code' => 71,
+                    'id' => 'easy_access71',
+                ],
+                [
+                    'name' => "10GB (Direct) - 30days,",
+                    'price' => $response->easy_access72,
+                    'val' => 15000,
+                    'code' => 72,
+                    'id' => 'easy_access72'
+                ],
+
+                [
+                    'name' => "20GB (Direct) - 30days",
+                    'val' => 20000,
+                    'price' => $response->easy_access74,
+                    'code' => 74,
+                    'id' => 'easy_access74',
+                ],
+                [
+                    'name' => "40GB (Direct) - 30days",
+                    'val' => 40000,
+                    'price' => $response->easy_access96,
+                    'code' => 96,
+                    'id' => 'easy_access96',
+                ],
+                [
+                    'name' => "75GB (Direct) - 30days",
+                    'val' => 75000,
+                    'price' => $response->easy_access97,
+                    'code' => 97,
+                    'id' => 'easy_access97',
+                ],
+                [
+                    'name' => "120GB (Direct) - 30days",
+                    'val' => 120000,
+                    'price' => $response->easy_access157,
+                    'code' => 157,
+                    'id' => 'easy_access157',
+                ],
+
+            ];
+        }
+
+        // Glo 
+        if ($type == 'data' && $product == 'glo') {
+            $response = \DB::table('glodata_plan')->where('id', $level)->select('easy_access59', 'easy_access60', 'easy_access87', 'easy_access61', 'easy_access62', 'easy_access63', 'easy_access64', 'easy_access92', 'easy_access93', 'easy_access94', 'easy_access100', 'easy_access101', 'easy_access102')->first();
+            
+            $response = [
+                [
+                    'name' => "1.35GB (Direct) - 14days",
+                    'val' => 1500,
+                    'price' => $response->easy_access59,
+                    'code' => 59,
+                    'id' => 'easy_access59',
+                ],
+                [
+                    'name' => "2.9GB (Direct) - 30days",
+                    'price' => $response->easy_access60,
+                    'val' => 2900,
+                    'code' => 60,
+                    'id' => 'easy_access60',
+                ],
+                [
+                    'name' => "4.1GB (Direct) - 30days",
+                    'val' => 4100,
+                    'price' => $response->easy_access87,
+                    'code' => 87,
+                    'id' => 'easy_access87',
+                ],
+                [
+                    'name' => '5.8GB (Direct) - 30days',
+                    'val' => 5800,
+                    'price' => $response->easy_access61,
+                    'code' => 61,
+                    'id' => 'easy_access61',
+                ],
+                [
+                    'name' => "7.7GB (Direct) - 30days",
+                    'val' => 7700,
+                    'price' => $response->easy_access62,
+                    'code' => 62,
+                    'id' => 'easy_access62',
+                ],
+                [
+                    'name' => "10GB (Direct) - 30days",
+                    'val' => 10000,
+                    'price' => $response->easy_access63,
+                    'code' => 63,
+                    'id' => 'easy_access63',
+                ],
+                [
+                    'name' => "13.25GB (Direct) - 30days",
+                    'val' => 10000,
+                    'price' => $response->easy_access64,
+                    'code' => 64,
+                    'id' => 'easy_access64',
+                ],
+                [
+                    'name' => "18.25GB (Direct) - 30days",
+                    'val' => 18225,
+                    'price' => $response->easy_access92,
+                    'code' => 92,
+                    'id' => 'easy_access92',
+                ],
+                [
+                    'name' => "29.5GB (Direct) - 30days",
+                    'price' => $response->easy_access93,
+                    'code' => 29500,
+                    'code' => 93,
+                    'id' => 'easy_access93'
+                ],
+                [
+                    'name' => "50GB (Direct) - 30days",
+                    'val' => 50000,
+                    'price' => $response->easy_access94,
+                    'code' => 94,
+                    'id' => 'easy_access94',
+                ],
+                [
+                    'name' => "93GB (Direct) - 30days",
+                    'val' => 93000,
+                    'price' => $response->easy_access100,
+                    'code' => 100,
+                    'id' => 'easy_access100',
+                ],
+                [
+                    'name' => "119GB (Direct) - 30days",
+                    'val' => 119000,
+                    'price' => $response->easy_access101,
+                    'code' => 101,
+                    'id' => 'easy_access101',
+                ],
+                [
+                    'name' => "138GB (Direct) - 30days",
+                    'val' => 75000,
+                    'price' => $response->easy_access102,
+                    'code' => 102,
+                    'id' => 'easy_access102',
+                ],
+            ];
+        }
+
+        // GLo cg
+        if ($type == 'data' && $product == 'glo-cg') {
+            $response = \DB::table('glocgdata_plan')->where('id', $level)->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->first();
+
+            $response = [
+                [
+                    'name' => "GLO 200MB (CG) - 14days",
+                    'val' => 200,
+                    'price' => $response->easy_access158,
+                    'code' => 158,
+                    'id' => 'easy_access158',
+                ],
+                [
+                    'name' => "GLO 500MB (CG) - 30days",
+                    'val' => 500,
+                    'price' => $response->easy_access159,
+                    'code' => 159,
+                    'id' => 'easy_access159',
+                ],
+                [
+                    'name' => "GLO 1GB (CG) - 30days",
+                    'val' => 1000,
+                    'price' => $response->easy_access160,
+                    'code' => 160,
+                    'id' => 'easy_access160',
+                ],
+                [
+                    'name' => "GLO 2GB (CG) - 30days",
+                    'val' => 2000,
+                    'price' => $response->easy_access161,
+                    'code' => 161,
+                    'id' => 'easy_access161',
+                ],
+                [
+                    'name' => "GLO 3GB (CG) - 30days",
+                    'val' => 3000,
+                    'price' => $response->easy_access162,
+                    'code' => 162,
+                    'id' => 'easy_access162',
+                ],
+                [
+                    'name' => "GLO 5GB (CG) - 30days",
+                    'val' => 500,
+                    'price' => $response->easy_access163,
+                    'code' => 163,
+                    'id' => 'easy_access163',
+                ],
+                [
+                    'name' => "GLO 10GB (CG) - 30days",
+                    'val' => 10000,
+                    'price' => $response->easy_access164,
+                    'code' => 164,
+                    'id' => 'easy_access164',
+                ],
+            ];
+        }
+
+        // SMEs
+        if (($type == 'data' || $type = 'sme') && ($product == 'apimobile-sme' || $product == 'mobile-sme')) {
+            $response = \DB::table('mobilesmedata_plan')->where('id', $level)->select('easy_access166', 'easy_access167', 'easy_access168', 'easy_access128', 'easy_access129', 'easy_access130', 'easy_access131', 'easy_access132', 'easy_access169', 'easy_access134', 'easy_access135', 'easy_access170', 'easy_access136', 'easy_access171', 'easy_access137', 'easy_access138', 'easy_access172', 'easy_access173', 'easy_access174', 'easy_access175', 'easy_access176')->first();
+            
+            $response = [
+                [
+                    'name' => "9MOBILE 100MB (SME) - 30days",
+                    'val' => 100,
+                    'price' =>$response->easy_access166,
+                    'code' => 166,
+                    'id' => 'easy_access166',
+                ],
+                [
+                    'name' => "9MOBILE 300MB (SME) - 30days",
+                    'val' => 300,
+                    'price' =>$response->easy_access167,
+                    'code' => 167,
+                    'id' => 'easy_access167',
+                ],
+                [
+                    'name' => "9MOBILE 500MB (SME) - 30days",
+                    'val' => 500,
+                    'price' =>$response->easy_access168,
+                    'code' => 168,
+                    'id' => 'easy_access168',
+                ],
+                [
+                    'name' => "9MOBILE 1GB (SME) - N190 30days",
+                    'val' => 1000,
+                    'price' =>$response->easy_access128,
+                    'code' => 128,
+                    'id' => 'easy_access128',
+                ],
+                [
+                    'name' => "9MOBILE 1.5GB (SME) - 30days",
+                    'val' => 1500,
+                    'price' =>$response->easy_access129,
+                    'code' => 129,
+                    'id' => 'easy_access129',
+                ],
+                [
+                    'name' => "9MOBILE 2GB (SME) - 30days",
+                    'val' => 2000,
+                    'price' =>$response->easy_access130,
+                    'code' => 130,
+                    'id' => 'easy_access130',
+                ],
+                [
+                    'name' => "9MOBILE 2.5GB (SME) - 30days",
+                    'val' => 25000,
+                    'price' =>$response->easy_access131,
+                    'code' => 131,
+                    'id' => 'easy_access131'
+                ],
+
+                [
+                    'name' => "9MOBILE 3GB (SME) - 30days",
+                    'val' => 3000,
+                    'price' =>$response->easy_access132,
+                    'code' => 132,
+                    'id' => 'easy_access132',
+                ],
+                [
+                    'name' => "9MOBILE 4GB (SME) - 30days",
+                    'val' => 4000,
+                    'price' =>$response->easy_access169,
+                    'code' => 169,
+                    'id' => 'easy_access169',
+                ],
+                [
+                    'name' => "9MOBILE 5GB (SME) - 30days",
+                    'val' => 5000,
+                    'price' =>$response->easy_access134,
+                    'code' => 134,
+                    'id' => 'easy_access134',
+                ],
+                [
+                    'name' => "9MOBILE 6GB (SME) - 30days",
+                    'val' => 6000,
+                    'price' => $response->easy_access135,
+                    'code' => 135,
+                    'id' => 'easy_access135',
+                ],
+                [
+                    'name' => "9MOBILE 7.5GB (SME) - 30days",
+                    'val' => 7500,
+                    'price' => $response->easy_access170,
+                    'code' => 170,
+                    'id' => 'easy_access170',
+                ],
+                [
+                    'name' => "9MOBILE 10GB (SME) - 30days",
+                    'val' => 10000,
+                    'price' => $response->easy_access136,
+                    'code' => 136,
+                    'id' => 'easy_access136',
+                ],
+                [
+                    'name' => "9MOBILE 11GB (SME) - 30days",
+                    'val' => 11000,
+                    'price' => $response->easy_access171,
+                    'code' => 171,
+                    'id' => 'easy_access171',
+                ],
+                [
+                    'name' => "9MOBILE 15GB (SME) - 30days",
+                    'val' => 15000,
+                    'price' => $response->easy_access137,
+                    'code' => 137,
+                    'id' => 'easy_access137',
+                ],
+                [
+                    'name' => "9MOBILE 20GB (SME) - 30days",
+                    'val' => 20000,
+                    'price' => $response->easy_access138,
+                    'code' => 138,
+                    'id' => 'easy_access138',
+                ],
+                [
+                    'name' => "9MOBILE 25GB (SME) - 30days",
+                    'val' => 25000,
+                    'price' => $response->easy_access172,
+                    'code' => 172,
+                    'id' => 'easy_access172',
+                ],
+                [
+                    'name' => "9MOBILE 30GB (SME) - 30days",
+                    'val' => 30000,
+                    'price' => $response->easy_access173,
+                    'code' => 173,
+                    'id' => 'easy_access173',
+                ],
+                [
+                    'name' => "9MOBILE 40GB (SME) - 30days",
+                    'val' => 40000,
+                    'price' => $response->easy_access174,
+                    'code' => 174,
+                    'id' => 'easy_access174',
+                ],
+                [
+                    'name' => "9MOBILE 50GB (SME) - 30days",
+                    'val' => 50000,
+                    'price' => $response->easy_access175,
+                    'code' => 175,
+                    'id' => 'easy_access175',
+                ],
+                [
+                    'name' => "9MOBILE 100GB (SME) - 30days",
+                    'val' => 100000,
+                    'price' => $response->easy_access176,
+                    'code' => 176,
+                    'id' => 'easy_access176',
+                ],
+
+            ];
+        }
+
+        // Data card
+       
+        if ($type == 'data' && ($product == 'mtn-data-card' || $product == 'mtn-datacard')) {
+            $response = \DB::table('mtndata_card_plan')->where('id', $level)->first();
+           
+            $response = [
+                [
+                    'name' => "MTN 1.5GB (DATACARD) - 30days",
+                    'val' => 1500,
+                    'price' => $response->easy_access165,
+                    'code' => 165,
+                    'id' => 'easy_access165',
+                ],
+
+            ];
+        }
+
+        if (!empty($plan_id)) {
+            foreach ($response as $res) {
+                if ($plan_id == $res['code']) {
+                   
+                    $response = [
+                        'price' => $res['price'],
+                        'service' => $product,
+                        'databyte' => $res['val'],
+                        'name' => $res['name'],
+                        'code' => $res['code'],
+                    ];
+                }
+            }
+        }
+
+        return $response;
+    }
+
+    public function prepareParams(Request $request){
+        $postdata = $this->getPostData($request->all());
+        $easyaccess_token = WebSetting::first()->value('easyaccess_token');
+        $headers = [
+            "AuthorizationToken: ".$easyaccess_token."",
+            'cache-control: no-cache'
+        ];
+        
+        // Save post fields
+        $pstfields = [
+            'url' =>  $postdata['url'],
+            'payload' => $postdata,
+        ];
+       
+        $params = [
+            'url' => $postdata['url'],
+            'headers' => $headers,
+            'postfields' => $pstfields,
+            'payload' => Arr::except($postdata, 'url'),
+            'provider' => 'EASYACCESS',
+        ];
+     
+        return $params;
+    }
+
+    public function getPostData($request){
+        if ($request['network_module'] == 'MTN-CG' || $request['network_module'] == 'GIFTING') {
+            $type = 'data';
+            $product = 'mtn';
+            $ntwk = 01;
+            $url = "https://easyaccess.com.ng/api/data.php";
+        } elseif ($request['network_module'] == 'AIRTEL-CG') {
+            $type = 'data';
+            $product = 'airtel-cg';
+            $ntwk = 03;
+            $url = "https://easyaccess.com.ng/api/data.php";
+
+        } elseif ($request['network_module'] == 'AIRTEL') {
+            $type = 'data';
+            $product = 'airtel';
+            $ntwk = 03;
+            $url = "https://easyaccess.com.ng/api/data.php";
+        } elseif ($request['network_module'] == 'GLO-CG') {
+            $type = 'data';
+            $product = 'glo-cg';
+            $ntwk = 02;
+            $url = "https://easyaccess.com.ng/api/data.php";
+        } elseif ($request['network_module'] == 'GLO') {
+            $type = 'data';
+            $product = 'glo';
+            $ntwk = 02;
+            $url = "https://easyaccess.com.ng/api/data.php";
+        } elseif ($request['network_module'] == 'MOBILE-SME' || $request['network_module'] == 'MOBILE SME') {
+            $type = 'data';
+            $product = 'apimobile-sme';
+            $ntwk = 04;
+            $url = "https://easyaccess.com.ng/api/data.php";
+        } elseif ($request['network_module'] == 'MTN-DATACARD') {
+            $type = 'datacard';
+            $product = 'mtn-data-card';
+            $ntwk = 01;
+            $url = "https://easyaccess.com.ng/api/datacard.php";
+        }else if ($request['network_module'] == 'MTN' || $request['network_module'] == 'MTN-SME') {
+            $type = 'data';
+            $product = 'mtn';
+            $ntwk = 01;
+            $url = "https://easyaccess.com.ng/api/data.php";
+        }
+        $postdata = [
+            'url' => $url,
+            'network' => $ntwk,
+            'mobileno' =>  $request['mobile_no'] ?? '',
+            'dataplan' =>  $request['plan_id'],
+            'client_reference' => '',
+            'no_of_pins' => $request['no_of_pins'] ?? '',
+        ];
+       
+        return $postdata;
+
+    }
+
+    public function query($postdata, $request, $type){
+        $resX = $this->advancedApiCall($postdata['url'], $postdata['payload'], $postdata['headers']);
+
+        // $resX = '{"success": "true","message": "Data Card Purchase was Successful","network": "MTN","pin": "408335193S","pin2": "184305851S","dataplan": "1.5GB","amount": 574,"balance_before": "27833","balance_after": 27259,"transaction_date": "07-04-2023 07:57:47 pm","reference_no": "ID5345892220","client_reference": "client_ref84218868382855","status": "Successful","auto_refund_status": "success"}';
+        // dd($resX, $postdata['payload'], $postdata['headers']);
+    
+        try {
+            $format = $this->processApiResponse($resX,$request, $type);
+            $format['api_response'] = $resX;      
+        } catch (\Throwable $th) {
+
+            $format = [
+                'status' => 'attention-required',
+                'response' => '',
+                'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
+            ];
+            $format['api_response'] = $resX;  
+            
+            return $format;
+
+        }
+       
+        return $format;
+    }
+
+    public function processApiResponse($res, $request, $type){
+       
+        if(empty($res)){
+            $formatted = [
+                'status' => 'failed',
+                'extra' => '',
+                'response' => 'Something went wrong, please try again later',
+                'error' => 'Something went wrong, please try again later',
+            ];
+            
+        }else{
+            try {
+                // Process APi call
+                $result = json_decode($res);
+                
+                $pinsx = [];
+
+                if (isset($result) && !empty($result)) {
+                    foreach ($result as $key => $value) {
+                        if (strpos($key, 'pin') !== false) {
+                            $pinsx[] = $value;
+                        }
+                    }
+                }
+
+                $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
+                $true_response = $result->true_response ?? ($result->message ?? '');
+                
+                $status = isset($result->status) ? strtolower($result->status) : 'failed';
+                $auto_refund_status = isset($result->auto_refund_status) ? strtolower($result->auto_refund_status) : 'nil';
+             
+                if (isset($status) && $status !== "failed" && $auto_refund_status !== 'failed' && $auto_refund_status != 'nil') {
+                    $status = 'success';
+                    $true_response = $true_response;
+                    $extra = $pins;
+                } else {
+                    $true_response = isset($result->true_response) ? str_replace("'", "", $result->true_response) : ($result->true_response ?? '');
+                    $status = 'failed';
+                    $true_response = $result->message ?? $true_response ?? '';
+                }
+                
+                ////
+                $formatted = [
+                    'status' => $status,
+                    'response' => $true_response,
+                    'extra' => $extra ?? null,
+                    'error' => null,
+                ];
+            } catch (\Throwable $th) {
+                $formatted = [
+                    'status' => 'attention-required',
+                    'extra' => '',
+                    'response' => $th->getMessage().' '.$th->getFile().' '.$th->getLine() ,
+                    'error' => $th->getMessage(),
+                ];
+    
+            }
+        }
+        
+        return $formatted;
+    }
+}

@@ -295,48 +295,56 @@ class GongzoController extends Controller
                     'name' => "GLO (CG) 1.0 GB - 30days",
                     'price' => $response->gongzo_data321,
                     'code' => 321,
+                    'val' => 1000,
                     'id' => 'gongzo_data321',
                 ],
                 [
                     'name' => "GLO (CG) 2.0 GB - 30days",
                     'price' => $response->gongzo_data322,
                     'code' => 322,
+                    'val' => 2000,
                     'id' => 'gongzo_data322',
                 ],
                 [
                     'name' => "GLO (CG) 3.0 GB - 30days",
                     'price' => $response->gongzo_data323,
                     'code' => 323,
+                    'val' => 3000,
                     'id' => 'gongzo_data323',
                 ],
                 [
                     'name' => "GLO (CG) 5.0 GB - 30days",
                     'price' => $response->gongzo_data324,
                     'code' => 324,
+                    'val' => 5000,
                     'id' => 'gongzo_data324',
                 ],
                 [
                     'name' => "GLO (CG) 10.0 GB - 30days",
                     'price' => $response->gongzo_data325,
                     'code' => 325,
+                    'val' => 10000,
                     'id' => 'gongzo_data325',
                 ],
                 [
                     'name' => "GLO (CG) 500MB (CG) - 14days",
                     'price' => $response->gongzo_data326,
                     'code' => 326,
+                    'val' => 500,
                     'id' => 'gongzo_data326',
                 ],
                 [
                     'name' => "GLO 500MB (CG) - 30days",
                     'price' => $response->gongzo_data327,
                     'code' => 327,
+                    'val' => 500,
                     'id' => 'gongzo_data327',
                 ],
                 [
                     'name' => "GLO 200MB (CG) - 14days",
                     'price' => $response->gongzo_data337,
                     'code' => 337,
+                    'val' => 200,
                     'id' => 'gongzo_data337',
                 ],
             ];
@@ -350,66 +358,77 @@ class GongzoController extends Controller
                     'name' => "GLO 1.03GB",
                     'price' => $response->glo_105,
                     'code' => 252,
+                    'val' => 1000,
                     'id' => 'glo_105',
                 ],
                 [
                     'name' => "GLO 2.9GB",
                     'price' => $response->glo_29,
                     'code' => 253,
+                    'val' => 2900,
                     'id' => 'glo_29',
                 ],
                 [
                     'name' => "GLO 4.1GB",
                     'price' => $response->glo_41,
                     'code' => 254,
+                    'val' => 4100,
                     'id' => 'glo_41',
                 ],
                 [
                     'name' => "GLO 5.8GB",
                     'price' => $response->glo_58,
                     'code' => 256,
+                    'val' => 5800,
                     'id' => 'glo_58',
                 ],
                 [
                     'name' => "GLO 7.7GB",
                     'price' => $response->glo_77,
                     'code' => 205,
+                    'val' => 7700,
                     'id' => 'glo_77',
                 ],
                 [
                     'name' => "GLO 10GB",
                     'price' => $response->glo_10,
                     'code' => 257,
+                    'val' => 10000,
                     'id' => 'glo_10',
                 ],
                 [
                     'name' => "GLO 13.25GB",
                     'price' => $response->glo_1325,
                     'code' => 258,
+                    'val' => 13250,
                     'id' => 'glo_1325',
                 ],
                 [
                     'name' => "GLO 18.25GB",
                     'price' => $response->glo_1825,
                     'code' => 259,
+                    'val' => 18250,
                     'id' => 'glo_1825',
                 ],
                 [
                     'name' => "GLO 29G",
                     'price' => $response->glo_295,
                     'code' => 260,
+                    'val' => 29000,
                     'id' => 'glo_295',
                 ],
                 [
                     'name' => "GLO 50GB",
                     'price' => $response->glo_50,
                     'code' => 261,
+                    'val' => 50000,
                     'id' => 'glo_50',
                 ],
                 [
                     'name' => "GLO 93GB",
                     'price' => $response->glo_93,
                     'code' => 262,
+                    'val' => 93000,
                     'id' => 'glo_93',
                 ],
             ];
@@ -418,9 +437,10 @@ class GongzoController extends Controller
         if (!empty($plan_id)) {
             foreach ($response as $res) {
                 if ($plan_id == $res['code']) {
+                   
                     $response = [
                         'price' => $res['price'],
-                        'service' => "mtn-cg",
+                        'service' => $product,
                         'databyte' => $res['val'],
                         'name' => $res['name'],
                         'code' => $res['code'],
@@ -509,6 +529,7 @@ class GongzoController extends Controller
        
         $resX = $this->advancedApiCall($postdata['url'], json_encode($postdata['payload']), $postdata['headers']);
         
+        // dd($resX, $postdata)
         // $resX = '{"id":8796051,"ident":"Data3c8b22038-740","network":1,"apiresponse":"something went wrong please check back later","api_response":"something went wrong please check back later","balance_before":"3938.0","balance_after":"3711.0","mobile_number":"08149292337","plan":281,"Status":"success","plan_network":"MTN","plan_name":"1.0GB","plan_amount":"227.0","create_date":"2023-08-21T20:56:25.563155","Ported_number":true}';
        
         try {
@@ -520,14 +541,14 @@ class GongzoController extends Controller
             $format = [
                 'status' => 'attention-required',
                 'response' => '',
-                'error' => $th->getMessage(),
+                'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
             $format['api_response'] = $resX;  
             
             return $format;
 
         }
-        
+       
         return $format;
     }
 
@@ -560,20 +581,23 @@ class GongzoController extends Controller
                         $true_response = 'Something went wrong. ' . $result['api_response'];
                     }
                 }else{
-                    $pinsx = [];
-                    $res = str_replace(array(
-                        '\'', '"',
-                        '',
-                    ), ' ', $result);
-                    if (isset($result) && !empty($result)) {
-                        foreach ($result as $key => $value) {
-                            if (strpos($key, 'pin') !== false) {
-                                $pinsx[] = $value;
+                    try {
+                        $pinsx = [];
+                        $res = str_replace(array(
+                                '\'', '"',
+                                '',
+                            ), ' ', $result);
+                        if (isset($result) && !empty($result)) {
+                            foreach ($result as $key => $value) {
+                                if (strpos($key, 'pin') !== false) {
+                                    $pinsx[] = $value;
+                                }
                             }
                         }
-                    }
-        
-                    $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
+
+                        $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
+                    } catch (\Throwable $th) {}
+                    
                     $true_response = isset($result['api_response']) ? str_replace("'", '', $result['api_response']) : '';
                     
                     $result['Status'] = isset($result['Status']) ? strtoupper($result['Status']) : null;
@@ -585,16 +609,15 @@ class GongzoController extends Controller
                         $status = 'success';
                     } else {
                         $status = 'failed';
+                        $true_response = $result['error'][0] ?? ($true_response ?? '');
                     }
                 }
-                
                 $formatted = [
                     'status' => $status,
                     'response' => $true_response,
                     'extra' => $pins ?? null,
                     'error' => null,
                 ];
-               
             } catch (\Throwable $th) {
                 $formatted = [
                     'status' => 'attention-required',

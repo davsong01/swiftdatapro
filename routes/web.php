@@ -49,6 +49,7 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
     Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
     Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
+    Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
     Route::get('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
 
 
