@@ -14,6 +14,7 @@ class TransactionsController extends Controller
 
     public function initialize($service){
         $productAccess = $this->getProductAccess();
+        
         return view('customer.'.$service, compact('service','productAccess'));
     }
 
@@ -128,7 +129,7 @@ class TransactionsController extends Controller
         $webSetting = WebSetting::first();
         $api = '';
         $user = $user ?? auth()->user();
-       
+        
         if($service == "mtn"){
             $api = [
                 'provider_slug' => $webSetting->api_mtn,
@@ -346,7 +347,6 @@ class TransactionsController extends Controller
             $api['provider_name'] = 'DonlesonController';
         }
 
-
         if (in_array($api['provider_name'], ['EasyAccessDataController.php'])) {
             $api['provider_name'] = 'EasyAccessController';
         }
@@ -361,6 +361,10 @@ class TransactionsController extends Controller
 
         if (in_array($api['provider_name'], ['ClubkonnectController.php'])) {
             $api['provider_name'] = 'ClubkonnectController';
+        }
+
+        if (in_array($api['provider_name'], ['AirtimesnsSmsController.php'])) {
+            $api['provider_name'] = 'AirtimesnsSmsController';
         }
        
         return $api;
@@ -384,7 +388,6 @@ class TransactionsController extends Controller
 
     public function processBuy(Request $request, JsonResponseService $service, $type){
         $user = auth()->user();
-        
         // $level = $request->level ?? auth()->user()->level;
         // $network = $request->network_module;
         // $plan_name = $request->plan_name;
@@ -492,7 +495,6 @@ class TransactionsController extends Controller
         $request['level'] = $user->level;
 
         $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount']);
-        
        
         if(isset($variations['discount']) && $variations['discount'] > 0){
             $discount_now = $variations['price'] * $variations['discount'] / 100;
@@ -524,7 +526,7 @@ class TransactionsController extends Controller
         // Prepare params
         
         $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
-        
+        dd($response);
         // Charge customer
         $old_wallet = $user->wallets;
         $new_wallet = $user->wallets - $service_price;
