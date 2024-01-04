@@ -50,16 +50,33 @@ class VtpassController extends Controller
             ];
 
         }
-    
+       
         if($type == 'airtime'){
-            
+
             // $response = [
             //     'name' => strtoupper($product),
             //     'variation_code' => '',
             //     'product' => strtoupper($product),
             //     'price' => $amount,
             // ];
-        
+                
+            if ($product == "smile-vtu") {
+                $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
+                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
+                
+                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
+                $response = [
+                    'serviceId' => "smile-direct",
+                    'variation_code' => 'airtime',
+                    'name' => strtoupper($product),
+                    'product' => strtoupper($product),
+                    'discount' => $discount,
+                    'commission' => 0,
+                    'price' => $amount,
+                ];
+                
+            }
+            
             if ($product == "mtn-vtu" || $product == "mtn") {
                 $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
                 $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
@@ -137,6 +154,7 @@ class VtpassController extends Controller
                     'price' => $service_price,
                 ];
             }
+
         }
 
         if (!empty($plan_id)) {
@@ -154,7 +172,7 @@ class VtpassController extends Controller
                 }
             }
         }
-       
+        
         return $response;
     }
 
@@ -180,6 +198,8 @@ class VtpassController extends Controller
         if ($request['type'] == 'airtime') {
             $postdata = [
                 'serviceID' => $request['serviceId'],
+                'variation_code' => $request['variation_code'],
+                'billersCode' => $request['billersCode'],
                 'request_id' => $request['request_id'],
                 'amount' => $request['amount'] ?? $request['price'],
                 'phone' => $request['mobile_no'],
@@ -243,7 +263,7 @@ class VtpassController extends Controller
             ];
             
         }else{
-            $statusn= 'failed';
+            $status = 'failed';
             try {
                 // Process APi call
                 $result = json_decode($res, true);

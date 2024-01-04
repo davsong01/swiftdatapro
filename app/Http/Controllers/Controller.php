@@ -79,10 +79,10 @@ class Controller extends BaseController
     public function getDomainDetails(){
         
     }
-    public function advancedApiCall($url, $payload=[], $headers, $method = 'POST')
+    public function advancedApiCall($url, $payload=[], $headers, $method = 'POST', $status_code=null)
     {
         \Log::info(['Begin connection...', $url, $payload, $headers]);
-
+        
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -102,9 +102,17 @@ class Controller extends BaseController
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $response = curl_exec($ch);
-        
         \Log::info(['End connection', $url, $payload, $headers, $response]);
+        
+        if(isset($status_code)){
+            return [
+                'response' => $response,
+                'status_code' => $code
+            ];
+        }
+        
         return $response;
     }
 }

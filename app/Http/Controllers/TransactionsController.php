@@ -84,8 +84,8 @@ class TransactionsController extends Controller
             'level3_adminch' => $webSetting->level3_adminch,
             'level4_charge' => $webSetting->level4_charge,
             'level4_adminch' => $webSetting->level4_adminch,
-
-            'smile_vtu_lock'  =>  $webSetting->smile_vtu_lock,
+            'smile_vtu_lock' => $webSetting->smile_vtu_lock,
+            'smile_lock' => $webSetting->smile_lock,
 
         ];
 
@@ -147,14 +147,14 @@ class TransactionsController extends Controller
             ];
         }
 
-        if ($service == "mtn-datacard") {
-            $api = [
-                'provider_slug' => $webSetting->mtn_data_card,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
-                'individual_access' => 1,
-                'product_access' => 1,
-            ];
-        }
+        // if ($service == "mtn-datacard") {
+        //     $api = [
+        //         'provider_slug' => $webSetting->mtn_data_card,
+        //         'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
+        //         'individual_access' => 1,
+        //         'product_access' => 1,
+        //     ];
+        // }
 
         if ($service == "mtn-cg" || $service == "gifting" ) {
             $api = [
@@ -256,6 +256,16 @@ class TransactionsController extends Controller
             ];
         }
 
+        if ($service == "smile-vtu") {
+            $api = [
+                'provider_slug' => $webSetting->api_smile,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
+
+                'individual_access' => 1,
+                'product_access' => $this->getProductAccess('smile_vtu_lock'),
+            ];
+        }
+
         if ($service == "mtn-vtu") {
             $api = [
                     'provider_slug' => $webSetting->api_mtn2,
@@ -327,15 +337,6 @@ class TransactionsController extends Controller
                 'product_access' => $this->getProductAccess('mo_lock3'),
             ];
         }
-
-        if ($service == "smile-vtu") {
-            $api = [
-                'provider_slug' => $webSetting->api_smile_vtu,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile_vtu))) . 'Controller') . '.php',
-                'individual_access' => 1,
-                'product_access' => $this->getProductAccess('mo_lock3'),
-            ];
-        }
         
         if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
             $api['provider_name'] = 'GongzoController';
@@ -354,8 +355,12 @@ class TransactionsController extends Controller
             $api['provider_name'] = 'DonlessonCntroller';
         }
 
-        if (in_array($api['provider_name'], ['AirtimevtuVtpassController.php'])) {
+        if (in_array($api['provider_name'], ['AirtimevtuVtpassController.php','VtpassDataController.php'])) {
             $api['provider_name'] = 'VtpassController';
+        }
+
+        if (in_array($api['provider_name'], ['ClubkonnectController.php'])) {
+            $api['provider_name'] = 'ClubkonnectController';
         }
        
         return $api;
@@ -461,7 +466,7 @@ class TransactionsController extends Controller
         
         // Check provider and access
         $api = $this->getProvider(strtolower($network));
-       
+        
         if($api){
             if ($api['individual_access'] == 0 || $api['product_access'] == 0) {
                 $response =[
@@ -488,14 +493,18 @@ class TransactionsController extends Controller
 
         $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount']);
         
+       
         if(isset($variations['discount']) && $variations['discount'] > 0){
             $discount_now = $variations['price'] * $variations['discount'] / 100;
             $service_price = $variations['price'] - $discount_now;
+        }else{
+            $service_price = $variations['price'];
         }
-        
+      
         $databyte = $variations['databyte'] ?? 0;
         $package_name = $variations['name'] ?? '';
         $serviceId = $variations['serviceId'] ?? '';
+        $variation_code = $variations['variation_code'] ?? '';
 
         $user = auth()->user();
         
@@ -510,9 +519,11 @@ class TransactionsController extends Controller
         $request['price'] = $service_price;
         $request['serviceId'] = $serviceId;
         $request['no_of_pins'] = $no_of_pins;
+        $request['variation_code'] = $variation_code;
+        $request['billersCode'] = $account_id ?? $mobile_no;
         // Prepare params
+        
         $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
-
         
         // Charge customer
         $old_wallet = $user->wallets;
@@ -548,7 +559,7 @@ class TransactionsController extends Controller
         ];
 
         $transaction = $this->logTransaction($data);
-        
+       
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
         
@@ -636,7 +647,11 @@ class TransactionsController extends Controller
                 'message' => $order_report,
             ];
         }else{
-            $order_report = strtoupper('Purchase failed for ' . $package_name . ' on ' . $mobile_no . ' Error: ' . $api_response['response']);
+            if(!empty($api_response['response'])){
+                $order_report = strtoupper('Purchase failed for ' . $package_name . ' on ' . $mobile_no . ' Error: ' . $api_response['response']);
+            }else{
+                $order_report = strtoupper('Purchase failed for ' . $package_name . ' on ' . $mobile_no);
+            }
 
             if ($network == 'SMILE-DATA') {
                 $order_report = strtoupper($network. ' N' . $service_price . ' Purchase failed on ' . $mobile_no);
@@ -663,8 +678,9 @@ class TransactionsController extends Controller
 
     public function discounts(Request $request)
     {
+        $webSetting = webSetting::first(); 
         $service = strtolower($request->services);
-       
+        $discount = 0;
         if ($service == "mtn-vtu") {
             $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mtn_discount;
         }
@@ -679,6 +695,10 @@ class TransactionsController extends Controller
 
         if ($service == "9mobile-vtu") {
             $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mobile_discount;
+        }
+    
+        if ($service == "smile-vtu") {
+            $discount = $webSetting->smile_vtu_discount;
         }
         ///AIRTIME VTU-END
 
@@ -717,6 +737,7 @@ class TransactionsController extends Controller
             $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mobile_rate;
         }
 
+        
         if($request->ajax()){
             return response()->json($discount);
         }else{
@@ -727,7 +748,7 @@ class TransactionsController extends Controller
     public function commissions($type, $product){
         $product = strtoupper($product);
         $webSetting = WebSetting::first();
-        
+        $service_comm = 0;
         //DATA COMMISSION
         if ($type == 'data' && ($product == "MTN")) {
             $service_comm = $webSetting->mtn_discount;
