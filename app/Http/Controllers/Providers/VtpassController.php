@@ -12,7 +12,8 @@ class VtpassController extends Controller
     public function getVariations($type, $product, $level, $plan_id=null,$amount=null)
     {
         $environment = env('ENT');
-        
+        $product = strtolower($product);
+
         $response = [
             'name' => '',
             'price' => '',
@@ -117,7 +118,7 @@ class VtpassController extends Controller
                 ];
             }
 
-            if ($product == "9MOBILE-VTU" || $product == "9MOBILE" || $product == "ETISALAT-VTU" || $product == "ETISALAT") {
+            if ($product == "9mobile-vtu" || $product == "9mobile" || $product == "etisalat-vtu" || $product == "etisalat") {
                 $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
                 $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
 
@@ -210,30 +211,8 @@ class VtpassController extends Controller
             'secret-key: '.$postdata['headers']['secret-key'],    
         ];
 
-        // dd($postdata['headers']);
-        // curl_setopt_array($curl, array(
-        //     CURLOPT_URL => $postdata['url'],
-        //     CURLOPT_RETURNTRANSFER => true,
-        //     CURLOPT_ENCODING => '',
-        //     CURLOPT_MAXREDIRS => 10,
-        //     CURLOPT_TIMEOUT => 0,
-        //     CURLOPT_FOLLOWLOCATION => true,
-        //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        //     CURLOPT_CUSTOMREQUEST => 'POST',
-        //     CURLOPT_POSTFIELDS => $postdata['payload'],
-        //     CURLOPT_HTTPHEADER => $headers,
-        // ));
-
-        // $response = curl_exec($curl);
-        // dd($response);
-        // curl_close($curl);
-        // echo $response;
-
         $resX = $this->advancedApiCall($postdata['url'], $postdata['payload'], $headers);
 
-        // $resX = '{"success": "true","message": "Data Card Purchase was Successful","network": "MTN","pin": "408335193S","pin2": "184305851S","dataplan": "1.5GB","amount": 574,"balance_before": "27833","balance_after": 27259,"transaction_date": "07-04-2023 07:57:47 pm","reference_no": "ID5345892220","client_reference": "client_ref84218868382855","status": "Successful","auto_refund_status": "success"}';
-        'STOP HERE FOR TODAY';
-    
         try {
             $format = $this->processApiResponse($resX,$request, $type);
             $format['api_response'] = $resX;      
@@ -264,34 +243,29 @@ class VtpassController extends Controller
             ];
             
         }else{
+            $statusn= 'failed';
             try {
                 // Process APi call
-                $result = json_decode($res);
-                
-                $pinsx = [];
+                $result = json_decode($res, true);
+                $status = $result['content']['transactions']['status'];
+                $response_description = $result['response_description'];
+                $epin = isset($result['purchased_code']) ? $result['purchased_code'] : '';
+                $code = $result['code'] ?? '083';
 
-                if (isset($result) && !empty($result)) {
-                    foreach ($result as $key => $value) {
-                        if (strpos($key, 'pin') !== false) {
-                            $pinsx[] = $value;
-                        }
-                    }
+                $chargeableStatuses = ['pending', 'delivered'];
+                if (in_array($status, $chargeableStatuses)) {
+                    $status = "successful";
                 }
 
-                $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
-                $true_response = $result->true_response ?? ($result->message ?? '');
-                
-                $status = isset($result->status) ? strtolower($result->status) : 'failed';
-                $auto_refund_status = isset($result->auto_refund_status) ? strtolower($result->auto_refund_status) : 'nil';
-             
-                if (isset($status) && $status !== "failed" && $auto_refund_status !== 'failed' && $auto_refund_status != 'nil') {
+                $pinsx = [];
+
+                if ($status == "successful" && $code == '000') {
                     $status = 'success';
-                    $true_response = $true_response;
-                    $extra = $pins;
-                } else {
-                    $true_response = isset($result->true_response) ? str_replace("'", "", $result->true_response) : ($result->true_response ?? '');
+                    $true_response = $response_description;
+                    $extra = $epin;
+                } else {                    
                     $status = 'failed';
-                    $true_response = $result->message ?? $true_response ?? '';
+                    $true_response = $response_description;
                 }
                 
                 ////

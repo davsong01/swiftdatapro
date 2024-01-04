@@ -85,11 +85,12 @@ class TransactionsController extends Controller
             'level4_charge' => $webSetting->level4_charge,
             'level4_adminch' => $webSetting->level4_adminch,
 
-            
+            'smile_vtu_lock'  =>  $webSetting->smile_vtu_lock,
+
         ];
 
         if(!empty($needle)){
-            $access = $access[$needle];
+            $access = $access[$needle] ?? null;
         }
 
         return $access;
@@ -486,7 +487,7 @@ class TransactionsController extends Controller
         $request['level'] = $user->level;
 
         $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount']);
-
+        
         if(isset($variations['discount']) && $variations['discount'] > 0){
             $discount_now = $variations['price'] * $variations['discount'] / 100;
             $service_price = $variations['price'] - $discount_now;
@@ -603,7 +604,14 @@ class TransactionsController extends Controller
 
     public function formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price,$api_response){
         if ($api_response['status'] == 'success') {
-            $order_report = strtoupper('Purchase Successful for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : '')) . '.' . $api_response['response'];
+            $order_report = strtoupper('Purchase Successful for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : '')) . '. ' . $api_response['response'];
+            $extra = $api_response['extra'] ?? '';
+            
+            if ($network == 'SMILE-DATA') {
+                $order_report = strtoupper($package_name. ' N' . $service_price . ' Purchase Successful on ' . $mobile_no);
+            } elseif ($network == 'SEPCTRANET-DATA') {
+                $order_report = strtoupper($package_name. ' N' . $service_price . ' Purchase Successful on ' . $mobile_no . ' [' . $extra . ']');
+            } 
 
             $final_response = [
                 'status' => 'success',
@@ -616,7 +624,7 @@ class TransactionsController extends Controller
                 'extra' => $api_response['extra'] ?? null,
             ];
         }else if($api_response['status'] == 'attention-required'){
-            $order_report = strtoupper('Purchase pending for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : '')) . '.' . $api_response['response'];
+            $order_report = strtoupper('Purchase successful for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : ''));
 
             $final_response = [
                 'status' => 'success',
@@ -629,6 +637,12 @@ class TransactionsController extends Controller
             ];
         }else{
             $order_report = strtoupper('Purchase failed for ' . $package_name . ' on ' . $mobile_no . ' Error: ' . $api_response['response']);
+
+            if ($network == 'SMILE-DATA') {
+                $order_report = strtoupper($network. ' N' . $service_price . ' Purchase failed on ' . $mobile_no);
+            } elseif ($network == 'SEPCTRANET-DATA') {
+                $order_report = strtoupper($network. ' N' . $service_price . ' E-pin Purchase failed on ' . $mobile_no);
+            }
 
             $final_response = array(
                 'status' => 'fail',
