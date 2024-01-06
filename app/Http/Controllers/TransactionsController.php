@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BillersLog;
 use DateTime;
 use DateTimeZone;
 use App\Models\WebSetting;
@@ -14,7 +15,6 @@ class TransactionsController extends Controller
 
     public function initialize($service){
         $productAccess = $this->getProductAccess();
-        
         return view('customer.'.$service, compact('service','productAccess'));
     }
 
@@ -98,11 +98,58 @@ class TransactionsController extends Controller
         
     }
 
+    public function verify(Request $request){
+        $api = $this->getProvider($request->service_module);
+
+        $check = BillersLog::where('unique_element', $request->smart_no)->first();
+        if($check){
+            $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
+
+            $response = array(
+                'status' => 'success',
+                'status_code' => '200',
+                'message' => 'Account Name: ' . $check->customer_name . '<br/>Address: ' . $check->customer_address . ' <br/><br/>' . $button . '',
+                'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                'desc' => 'Account Name: ' . $check->customer_name . '<br/>Address: ' . $check->customer_address . ' <br/><br/>' . $button . '',
+                'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+            );
+            
+        }else{
+            $verify = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->verify($request->all());
+
+
+            if ($verify['status'] == 'success' && $verify['status_code'] == 200) {
+                BillersLog::updateOrCreate(['unique_element' => $request->smart_no, 'customer_name' => $verify['customerName']], [
+                    'customer_address' => $verify['customerAddress'],
+                    'category' => $request->type,
+                    'product' => $request->service_module,
+                    'provider' => $verify['provider'],
+                    'raw_response' => $verify['raw_response'] ?? null,
+                ]);
+            }
+
+            $response = array(
+                'status' => $verify['status'] ?? '',
+                'status_code' => $verify['status_code'] ?? '100',
+                'message' => $verify['message'] ?? '',
+                'title' => $verify['title'] ?? '',
+                'desc' => $verify['message'] ?? '',
+            );
+        }
+
+        
+
+        return response()->json($response);
+
+    }
+
     public function variations(Request $request){
         $service = strtolower($request->services);
         $product = strtolower($request->product);
+        
         $level = strtolower($request->level);
-        $api = $this->getProvider($service);
+        $api = $this->getProvider($service, $product);
         $echo = '<option>No Available variations at the moment</option>';
         
         if($api['individual_access'] == 0 || $api['product_access'] == 0){
@@ -110,7 +157,6 @@ class TransactionsController extends Controller
         }
         
         $variations = app('App\Http\Controllers\Providers\\'.$api['provider_name'])->getVariations($product, $service, $level);
-
         
         if (isset($variations) && !empty($variations)) {
             $echo = "";
@@ -125,7 +171,7 @@ class TransactionsController extends Controller
 
     }
 
-    public function getProvider($service, $user=null){
+    public function getProvider($service, $product = null, $user=null){
         $webSetting = WebSetting::first();
         $api = '';
         $user = $user ?? auth()->user();
@@ -147,15 +193,6 @@ class TransactionsController extends Controller
                 'product_access' => $this->getProductAccess('m_lock1'),
             ];
         }
-
-        // if ($service == "mtn-datacard") {
-        //     $api = [
-        //         'provider_slug' => $webSetting->mtn_data_card,
-        //         'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
-        //         'individual_access' => 1,
-        //         'product_access' => 1,
-        //     ];
-        // }
 
         if ($service == "mtn-cg" || $service == "gifting" ) {
             $api = [
@@ -338,7 +375,112 @@ class TransactionsController extends Controller
                 'product_access' => $this->getProductAccess('mo_lock3'),
             ];
         }
-        
+
+        if ($service == "9mobile-sns") {
+            $api = [
+                'provider_slug' => $webSetting->api_mobile3,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('mo_lock3'),
+            ];
+        }
+
+        if ($service == "abuja-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('mo_lock3'),
+            ];
+        }
+
+        if ($service == "eko-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('eko_lock'),
+            ];
+        }
+
+        if ($service == "ibadan-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('ibadan_lock'),
+            ];
+        }
+
+        if ($service == "ikeja-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('ikeja_lock'),
+            ];
+        }
+
+        if ($service == "kaduna-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('kaduna_lock'),
+            ];
+        }
+
+        if ($service == "kano-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('kano_lock'),
+            ];
+        }
+
+        if ($service == "jos-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('jos_lock'),
+            ];
+        }
+        if ($service == "portharcourt-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('port_lock'),
+            ];
+        }
+        if ($service == "benin-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('benin_lock'),
+            ];
+        }
+        \Log::info(['aaa'=> $service]);
+        if ($service == "enugu-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('enugu_lock'),
+            ];
+        }
+        if ($service == "aba-electric") {
+            $api = [
+                'provider_slug' => 'vtpass',
+                'provider_name' => 'VtpassController',
+                'individual_access' => $user->bills_access,
+                'product_access' => $this->getProductAccess('aba_lock'),
+            ];
+        }
+        \Log::info($service);
         if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
             $api['provider_name'] = 'GongzoController';
         }
@@ -354,8 +496,8 @@ class TransactionsController extends Controller
         if (in_array($api['provider_name'], ['MtnsmeDonController.php'])) {
             $api['provider_name'] = 'DonlessonCntroller';
         }
-
-        if (in_array($api['provider_name'], ['AirtimevtuVtpassController.php','VtpassDataController.php'])) {
+       
+        if (in_array($api['provider_name'], ['VtpassController','AirtimevtuVtpassController.php','VtpassDataController.php'])) {
             $api['provider_name'] = 'VtpassController';
         }
 
@@ -396,7 +538,7 @@ class TransactionsController extends Controller
         // $mobile_no = $request->mobile_no;
         $network_module = strtoupper($request->network_module);
         $product = strtolower($network_module);
-
+        
         $dataplanloader = $request->dataplanloader;
         $mobile_no = $request->mobile_no;
         $no_of_pins = $request->no_of_pins ?? 1;
@@ -404,8 +546,7 @@ class TransactionsController extends Controller
         $account_id = $request->account_id;
         $plan_code = $dataplanloader;
         $network = $network_module;
-        $mobile = $mobile_no;
-
+        
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $timexx = $dateTime->format("YmdHi");
@@ -425,7 +566,7 @@ class TransactionsController extends Controller
             );
             return $service->build($response);
         }
-
+       
         if (strlen($mobile_no) !== 11 || !is_numeric($mobile_no)) {
             $response = [
                 'status' => 'fail',
@@ -494,15 +635,15 @@ class TransactionsController extends Controller
         $request['type'] = $type;
         $request['level'] = $user->level;
 
-        $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount']);
-       
+        $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount'], $request['service_plan']);
+        
         if(isset($variations['discount']) && $variations['discount'] > 0){
             $discount_now = $variations['price'] * $variations['discount'] / 100;
             $service_price = $variations['price'] - $discount_now;
         }else{
             $service_price = $variations['price'];
         }
-      
+        
         $databyte = $variations['databyte'] ?? 0;
         $package_name = $variations['name'] ?? '';
         $serviceId = $variations['serviceId'] ?? '';
@@ -522,11 +663,15 @@ class TransactionsController extends Controller
         $request['serviceId'] = $serviceId;
         $request['no_of_pins'] = $no_of_pins;
         $request['variation_code'] = $variation_code;
-        $request['billersCode'] = $account_id ?? $mobile_no;
+
+        if(in_array($type, ['electricity','cable'])){
+            $request['billersCode'] = $request->smart_no;
+        }else{
+            $request['billersCode'] = $account_id ?? $mobile_no;
+        }
         // Prepare params
-        
         $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
-        dd($response);
+        
         // Charge customer
         $old_wallet = $user->wallets;
         $new_wallet = $user->wallets - $service_price;
@@ -561,7 +706,6 @@ class TransactionsController extends Controller
         ];
 
         $transaction = $this->logTransaction($data);
-       
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
         
@@ -739,6 +883,54 @@ class TransactionsController extends Controller
             $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mobile_rate;
         }
 
+        // Electricity
+        if ($service == "aba-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->aba_discount;
+        }
+
+        if ($service == "abuja-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->abuja_discount;
+        }
+
+        if ($service == "eko-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->eko_discount;
+        }
+
+        if ($service == "ibadan-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ibadan_discount;
+        }
+
+        if ($service == "ikeja-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ikeja_discount;
+        }
+
+        if ($service == "kaduna-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->kaduna_discount;
+        }
+
+        if ($service == "kano-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->kano_discount;
+        }
+
+        if ($service == "jos-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->jos_discount;
+        }
+
+        if ($service == "portharcourt-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->portharcourt_discount;
+        }
+
+        if ($service == "benin-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->benin_discount;
+        }
+
+        if ($service == "enugu-electric") {
+            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->enugu_discount;
+        }
+
+        // Gotv
+        // $data_query = mysqli_fetch_array(mysqli_query($con, "SELECT gotv_1,gotv_2, gotv_3, gotv_4, gotv_5, gotv_discount FROM gotv_planlist WHERE id='$level'"));
+
         
         if($request->ajax()){
             return response()->json($discount);
@@ -808,7 +1000,6 @@ class TransactionsController extends Controller
     // work on this later when working on apis
     function getPlanId($plan_name, $network, $plan_id)
     {
-
         $pId = $plan_id;
         $type = "data";
         $product = strtolower($network);
@@ -864,8 +1055,6 @@ class TransactionsController extends Controller
         return $pId;
     }
 
-
-    
     /**
      * Display a listing of the resource.
      */

@@ -200,7 +200,7 @@
             </li>
 
             <li>
-                <a href="<?php echo $baseurl; ?>/exchange_airtime" aria-expanded="false">
+                <a href="{{ route('buy', 'exchange_airtime')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
                     </div>
@@ -211,7 +211,7 @@
             </li>
 
             <li>
-                <a href="<?php echo $baseurl; ?>/cable" aria-expanded="false">
+                <a href="{{ route('buy', 'cable')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fas fa-tv"></i>
                     </div>
@@ -222,7 +222,7 @@
             </li>
 
             <li>
-                <a href="<?php echo $baseurl; ?>/bills" aria-expanded="false">
+                <a href="{{ route('buy', 'bills')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fas fa-lightbulb"></i>
                     </div>
