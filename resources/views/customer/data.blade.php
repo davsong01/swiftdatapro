@@ -193,7 +193,7 @@
       var network_module = $("#network_module").val();
     //   $.LoadingOverlay("show");
       $.ajax({
-        url: '/variations?services=' + network_module + '&level={{ auth()->user()->level }}&&product=data',
+        url: '/variations?services=' + network_module + '&level={{ auth()->user()->level }}&product=data',
         method: 'GET',
         success: function(RES_data) {
           $.LoadingOverlay("hide");

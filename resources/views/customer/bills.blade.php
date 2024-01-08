@@ -162,10 +162,12 @@
           }
       });
       $.ajax({
-        url: '/variations?services=' + service_module + '&level={{ auth()->user()->level }}&&product=electricity',
+        url: '/variations?services=' + service_module + '&level={{ auth()->user()->level }}&product=electricity&ajax=yes',
         method: 'GET',
         success: function (RES_data) {
           $.LoadingOverlay("hide");
+        
+          console.log(RES_data);
           $("#result").html(RES_data);
         }
       })
@@ -225,7 +227,7 @@
     };
 
     $("#myModal2").modal("hide");
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajax({
       url: '/buy/electricity',
       method: 'POST',
@@ -234,7 +236,6 @@
       success: function (response_fd) {
         $.LoadingOverlay("hide");
         if (response_fd.status == 'success') {
-          
           $("#successModal").modal("show");
           $("#successModal .modal-body").html(response_fd.message);
           setTimeout(function () {
