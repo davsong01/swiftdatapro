@@ -98,38 +98,55 @@ class TransactionsController extends Controller
         
     }
 
-    public function verify(Request $request){
-        $api = $this->getProvider($request->service_module);
-      
-        $check = BillersLog::where('unique_element', $request->smart_no)->first();
-        if($check && $request->type == 'electricity'){
-            $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
+    public function verify(Request $request){        
+        $check = BillersLog::where('unique_element', $request->smart_no)->where('product', strtolower($request->service_module))->first();
+       
+        if(!empty($check)){
+            $verify = [
+                'customerName' => $check->customer_name,
+                'customerAddress' => $check->customer_address,
+            ];
+        }else{
+            $api = $this->getProvider($request->service_module);
+            $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($request->type, strtolower($request->service_module), auth()->user()->level, $request->plan_id);
+            
+            $verify = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->verify($request->all());
+            if(isset($verify['status']) && $verify['status'] == 'success'){
+                // BillersLog::updateOrCreate(['unique_element' => $request->smart_no, 'product' => strtolower($request->service_module)],[
+                //     'unique_element' => $request->smart_no,
+                //     'provider' => $verify['provider'],
+                //     'customer_name' => $verify['customerName'] ?? null,
+                //     'customer_address' => $verify['customerAddress'] ?? null,
+                //     'category' => $request->type,
+                //     'product' => strtolower($request->service_module),
+                // ]);
+            }
+        }
 
+        
+        if ($request->type == 'electricity') {
+            $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
+            
             $response = array(
                 'status' => 'success',
                 'status_code' => '200',
-                'message' => 'Account Name: ' . $check->customer_name . '<br/>Address: ' . $check->customer_address . ' <br/><br/>' . $button . '',
-                'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
-                'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
-                'desc' => 'Account Name: ' . $check->customer_name . '<br/>Address: ' . $check->customer_address . ' <br/><br/>' . $button . '',
-                'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                'message' => $verify['message'] ?? '',
+                'title' => $verify['title'] ?? '',
+                'desc' => $verify['message'] ?? '',
             );
-            
-        }else{
-            $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($request->type, strtolower($request->service_module), auth()->user()->level, $request->plan_id);
-            $request['price'] = $variations['price'];
-            $verify = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->verify($request->all());
-
+        }
+       
+        if ($request->type == 'cable') {
             $response = array(
                 'status' => $verify['status'] ?? '',
                 'status_code' => $verify['status_code'] ?? '100',
                 'message' => $verify['message'] ?? '',
                 'title' => $verify['title'] ?? '',
                 'desc' => $verify['message'] ?? '',
-                'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? $verify['renewal_amount'] : ($variations['price'] ?? 0),
+                'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? ($verify['renewal_amount'] ?? $variations['price']) : ($variations['price'] ?? 0),
             );
         }
-    
+
         return response()->json($response);
 
     }
@@ -148,8 +165,11 @@ class TransactionsController extends Controller
         
         $variations = app('App\Http\Controllers\Providers\\'.$api['provider_name'])->getVariations($product, $service, $level);
         
+        $discount = app('App\Http\Controllers\TransactionsController')->discounts($request);
+       
         if (isset($variations) && !empty($variations)) {
             $echo = "";
+            $echo .= $discount ?? '';
             foreach ($variations as $res) {
                 if (isset($res['price']) && $res['price'] > 0) {
                     $echo .= '<option value="' . $res['code'] . '">' . $res['name'] . ' - ₦' . $res['price'] . '</option>';
@@ -542,19 +562,14 @@ class TransactionsController extends Controller
 
     public function processBuy(Request $request, JsonResponseService $service, $type){
         $user = auth()->user();
-        // $level = $request->level ?? auth()->user()->level;
-        // $network = $request->network_module;
-        // $plan_name = $request->plan_name;
-        // $reference = $request->request_id;
-        // $api_token = $request->api_token;
-        // $mobile_no = $request->mobile_no;
+ 
         $network_module = strtoupper($request->network_module);
         $product = strtolower($network_module);
         
-        $dataplanloader = $request->dataplanloader;
+        $dataplanloader = $request->dataplanloader ?? $product;
         $mobile_no = $request->mobile_no;
         $no_of_pins = $request->no_of_pins ?? 1;
-        $security_pin = $request->security_pin;
+        $security_pin = base64_encode(base64_encode(base64_encode($request->security_pin)));
         $account_id = $request->account_id;
         $plan_code = $dataplanloader;
         $network = $network_module;
@@ -567,8 +582,9 @@ class TransactionsController extends Controller
         $checkBlacklistPhone = \DB::table('blacklist_mobiles')->where('add_mobile', $mobile_no)->first();
 
         $request['request_id'] = $request_id;
-
+        
         // checks
+        // dd($security_pin, $user->transaction_pin, $request->security_pin);
         if(!$user){
             $response = array(
                 'status' => 'fail',
@@ -586,7 +602,7 @@ class TransactionsController extends Controller
             ];
 
             return $service->build($response);
-        }else if($security_pin !== $user->security_pin){
+        }else if($security_pin !== $user->transaction_pin){
             $response = [
                 'status' => 'fail',
                 'status_code' => '100',
@@ -624,7 +640,7 @@ class TransactionsController extends Controller
         
         if($api){
             if ($api['individual_access'] == 0 || $api['product_access'] == 0) {
-                $response =[
+                $response = [
                     'status' => 'fail',
                     'status_code' => '100',
                     'message' => $network . ' purchase is not permitted for this account !!!',
@@ -642,23 +658,28 @@ class TransactionsController extends Controller
             return $service->build($response);
         }
 
-        $request['plan_id'] = $dataplanloader;
+        if($dataplanloader == 'glo' || $dataplanloader == 'glo-vtu' ){
+            $request['plan_id'] = 'glo';
+        }elseif($dataplanloader == 'mtn-vtu' || $dataplanloader == 'mtn'){
+            $request['plan_id'] = 'mtn';
+        }elseif($dataplanloader == 'airtel-vtu' || $dataplanloader == 'airtel'){
+            $request['plan_id'] = 'airtel';
+        }else{
+            $request['plan_id'] = $dataplanloader;
+        }
+
         $request['type'] = $type;
         $request['level'] = $user->level;
-      
-        $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount'], $request['service_plan']);
         
+        $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount'], $request['service_plan']);
+
+        $discount = app('App\Http\Controllers\TransactionsController')->discounts($request) ?? 0;
+
         if($type == 'cable' && in_array($request->network_module, ['DSTV','GOTV']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')){
-            $variations['price'] = $request->renewal_amount ?? $variations['discount'];
+            $variations['price'] = $request->renewal_amount ?? $discount;
         }
 
-        if(isset($variations['discount']) && $variations['discount'] > 0){
-            $discount_now = $variations['price'] * $variations['discount'] / 100;
-            $service_price = $variations['price'] - $discount_now;
-        }else{
-            $service_price = $variations['price'];
-        }
-
+        $service_price = $variations['price'];
         $databyte = $variations['databyte'] ?? 0;
         $package_name = $variations['name'] ?? '';
         $serviceId = $variations['serviceId'] ?? '';
@@ -685,8 +706,10 @@ class TransactionsController extends Controller
         }else{
             $request['billersCode'] = $account_id ?? $mobile_no;
         }
+       
         // Prepare params
         $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
+        
         // Charge customer
         $old_wallet = $user->wallets;
         $new_wallet = $user->wallets - $service_price;
@@ -945,10 +968,12 @@ class TransactionsController extends Controller
         }
 
         // Gotv
-        if($_GET['ajax']){
+        if(!empty($request->ajax)){
             // dd($this->reFormatDiscount($service, $discount));
-            $echo = '<option value="">xdvxc</option>';
-            return response()->json($this->reFormatDiscount($service, $discount));
+            // $echo = '<option value="">xdvxc</option>';
+            $echo = $this->reFormatDiscount($service, $discount);
+            return $echo;
+            // return response()->json($this->reFormatDiscount($service, $discount));
             // return response()->json($discount);
         }else{
             return $discount;

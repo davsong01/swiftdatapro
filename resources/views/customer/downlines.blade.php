@@ -28,41 +28,46 @@
 </div>
 <div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">
     <div class="container-fluid p-0 sm_padding_15px">
-        <div class="row justify-content-center">
-            <div id="transactionsDiv" class="row"></div>
-            <div id="loadMoreDiv"></div>
-            
+        <div class="row">
+            @foreach($lettr as $transaction)
+            <div class="col-md-6" style="margin-bottom:10px;color:white;padding:20px;background-color:{{ $transaction->status == 1 ? '#199263' : '#DB1A22' }};cursor:pointer;">
+                <span>{{ $transaction->status == 1 ? 'Verified' : 'Not Verified'}}</span><br/>
+                <span>Username: {{ $transaction->username }}</span><br/>
+                <span>Join Date: {{ $transaction->reg_date}} </small><br/>
+                <span>Level: {{$transaction->level}}</span><br/>
+            </div>
+            @endforeach
         </div>
+        {{$lettr->links()}}
     </div>
 </div>
 @endsection
 @section('scripts')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $.LoadingOverlay("show");
-            $.ajax({
-                url: '?load_id=0',
-                dataType: 'json',
-                success: function (transactionsRes) {
-                    $.LoadingOverlay("hide");
-                    console.log(transactionsRes);
+<script type="text/javascript">
+    // $(document).ready(function () {
+    //     $.LoadingOverlay("show");
+    //     $.ajax({
+    //         url: '?load_id=0',
+    //         dataType: 'json',
+    //         success: function (transactionsRes) {
+    //             $.LoadingOverlay("hide");
+    //             console.log(transactionsRes);
 
-                    $("#transactionsDiv").html(transactionsRes.message);
-                }
-            });
-        });
+    //             $("#transactionsDiv").html(transactionsRes.message);
+    //         }
+    //     });
+    // });
 
-        function showMore(id) {
-            $.LoadingOverlay("show");
-            $.ajax({
-                url: '?load_id=' + id,
-                dataType: 'json',
-                success: function (transactionsRes) {
-                    $.LoadingOverlay("hide");
-                    $("#transactionsDiv").html(transactionsRes.message);
-                }
-            });
-        }
-
+    // function showMore(id) {
+    //     $.LoadingOverlay("show");
+    //     $.ajax({
+    //         url: '?load_id=' + id,
+    //         dataType: 'json',
+    //         success: function (transactionsRes) {
+    //             $.LoadingOverlay("hide");
+    //             $("#transactionsDiv").html(transactionsRes.message);
+    //         }
+    //     });
+    // }
  </script> 
 @endsection

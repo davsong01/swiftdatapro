@@ -6,17 +6,22 @@ use DateTime;
 use DateTimeZone;
 use App\Models\User;
 use App\Models\WebSetting;
+use Illuminate\Support\Str;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
+use App\Models\PasswordReset;
 use App\Models\CustomerReview;
 use App\Models\PaymentGateway;
 use Illuminate\Support\Carbon;
 use App\Models\DepositTransaction;
 use App\Models\EarnedTransactions;
+use Illuminate\Support\Facades\DB;
 use App\Models\VtuappManualFunding;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use App\Services\JsonResponseService;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller
@@ -428,19 +433,19 @@ class HomeController extends Controller
                 $BSSTTOKENUNIT =  '';
                 $BSSTTOKENTAX = '';
                 $BSSTTOKENAMOUNT = '';
-
+                // dd($result);
                 if (array_key_exists('content', $result)) {
                     $customer_name = $result["customerName"] ?? null;
                     $customer_address = $result["customerAddress"] ?? null;
 
-                    $mainTokenUnits = $result["mainTokenUnits"] ? '<strong>Units:</strong> ' . $result["mainTokenUnits"] . '<br>' : '';
-                    $mainTokenTax = $result["mainTokenTax"] ? '<strong>Token Tax:</strong> ' . $result["mainTokenTax"] . '<br>' : '';
+                    $mainTokenUnits = isset($result["mainTokenUnits"]) ? '<strong>Units:</strong> ' . $result["mainTokenUnits"] . '<br>' : '';
+                    $mainTokenTax = isset($result["mainTokenTax"]) ? '<strong>Token Tax:</strong> ' . $result["mainTokenTax"] . '<br>' : '';
 
-                    $BSSTTOKEN = $result["bonusToken"] ? '<strong>BSST Token: </strong> ' . $result["bonusToken"] . '<br>' : '';
-                    $BSSTTOKENDESCRIPTION = $result["bonusTokenDescription"] ? '<strong>BSST Token Description Tax:</strong> ' . $result["bonusTokenDescription"] . '<br>' : '';
-                    $BSSTTOKENUNIT = $result["bonusTokenUnits"] ? '<strong>BSST Token Unit: </strong> ' . $result["bonusTokenUnits"] . '<br>' : '';
-                    $BSSTTOKENTAX = $result["bonusTokenTax"] ? '<strong>BSST Token Tax: </strong> ' . $result["bonusTokenTax"] . '<br>' : '';
-                    $BSSTTOKENAMOUNT = $result["bonusTokenAmount"] ? '<strong>BSST Token Amount: </strong> ' . $result["bonusTokenAmount"] . '<br>' : '';
+                    $BSSTTOKEN = isset($result["bonusToken"]) ? '<strong>BSST Token: </strong> ' . $result["bonusToken"] . '<br>' : '';
+                    $BSSTTOKENDESCRIPTION = isset($result["bonusTokenDescription"]) ? '<strong>BSST Token Description Tax:</strong> ' . $result["bonusTokenDescription"] . '<br>' : '';
+                    $BSSTTOKENUNIT = isset($result["bonusTokenUnits"]) ? '<strong>BSST Token Unit: </strong> ' . $result["bonusTokenUnits"] . '<br>' : '';
+                    $BSSTTOKENTAX = isset($result["bonusTokenTax"]) ? '<strong>BSST Token Tax: </strong> ' . $result["bonusTokenTax"] . '<br>' : '';
+                    $BSSTTOKENAMOUNT = isset($result["bonusTokenAmount"]) ? '<strong>BSST Token Amount: </strong> ' . $result["bonusTokenAmount"] . '<br>' : '';
                 }
 
                 if ($l->buyer_status == "SUCCESSFUL") {
@@ -724,16 +729,6 @@ class HomeController extends Controller
             $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])->where('buyer_service', 'LIKE','%'.$like.'%')->whereBetween('created_at', [$start, $end])->get();
         }else{
             $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
-
-            // if($buyer_service == 'glo'){
-            //     $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
-
-            //     $total_smedatacost = $seltdatabyte->sum('buyer_amount+0');
-            //     $total_smedata = $seltdatabyte->sum('databyte+0') > 0 ? $seltdatabyte->sum('databyte') / 1000 : 0;
-            //     // dd($total_smedata);
-            //     // dd($total_smedatacost, $total_smedata, );
-            // }
-
         }
 
         try {
@@ -751,52 +746,190 @@ class HomeController extends Controller
     }
 
     public function downlines(Request $request, JsonResponseService $response){
-        
-        if($request->ajax()){
-            $load_id = $request->load_id;
-            $referral_code = strtoupper($request->referral_code);
-            $amount = 0;
-            $transaction = '<div class="col-md-12">';
-        
-            $lettr = User::where('ref_by', $referral_code)->orWhere('ref_by', auth()->user()->username)->orderBy('id', 'desc')->get();
-           
-            if(!empty($lettr)){
-                foreach($lettr as $l){
-                    if ($l->status == 1) {
-                        $actmode = "background-color: #199263";
-                        $actmodeNote = "Verified";
-                    } else {
-                        $actmode = "background-color: #DB1A22";
-                        $actmodeNote = "Not Verified";
-                    }
 
-                    $transaction .= '<div class="alert col-md-6 trans" style="' . $actmode . ';color:#fff;font-size:10px;cursor:pointer;">
-                    <div>
-                    <span>' . $actmodeNote . '</span><br/>
-                    <span>Username: ' . $l->username . '</span><br/>
-                    <span>Join Date: ' . $l->reg_date . '</small><br/>
-                    <span>Level: ' . $l->level . '</span><br/>
-                    </div></div>';
-                }
-            }else{
-                $transaction = '<div class="alert" style="background-color: #fff;border-radius: 10px 5px;color:black">You have not referred anyone on this platform.</div>';
-            }
+        $referral_code = strtoupper($request->referral_code);
+        $amount = 0;
+        $transaction = '<div class="col-md-12">';
 
-            $transaction .= '</div>';
+        $lettr = User::where('ref_by', $referral_code)->orWhere('ref_by', auth()->user()->username)->orderBy('id', 'desc')->paginate(20);
 
-            $responseX = [
-                'message' => $transaction,
-                'count' => $amount,
-                'status' => 'success',
-            ];
-            return response()->json($responseX);
+        return view('customer.downlines', compact('lettr'));
 
-        }
-        
-        return view('customer.downlines');
     }
 
     public function cashbackEarned(){
-        return view('customer.downlines');
+        // cashback_earn
+        $lettr = EarnedTransactions::where('user_id', auth()->user()->id)->orderBy('created_at','DESC')->paginate(20);
+        return view('customer.cashback', compact('lettr'));
     }
+
+    public function profile(){
+        return view('customer.profile');
+    }
+
+    public function passwordChange(){
+        return view('customer.password_change');
+    }
+
+    public function processPasswordChange(Request $request, JsonResponseService $response){
+        $web_settings = WebSetting::first();
+       
+        $validator = Validator::make($request->all(), [
+            'old_password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $responseX = [
+                'status_code' => 100,
+                'status' => 'fail',
+                'message' => $validator->messages()->first(),
+            ];
+
+            $response->handler($responseX);
+        }
+
+        $request['email'] = auth()->user()->email;
+        $credentials = request()->validate(['email' => 'required|email']);
+        // Confirm password first
+        $user = User::where('email', $request->email)->orWhere('username', $request->username)->first();
+
+        if (!Hash::check($request->old_password, auth()->user()->pass)) {
+            $response = array(
+                'status' => 'fail',
+                'message' => '<div class="alert alert-danger text-left">Incorrect password !!!</div>',
+            );
+            return json_encode($response);
+
+        }
+
+        $tk = Str::random(60);
+        DB::table('password_resets')->insert([
+            'email' => auth()->user()->email,
+            'token' => $tk,
+            'created_at' => Carbon::now()
+        ]); //Get the token just created above
+        
+        DB::table('password_reset_tokens')
+        ->where('email', auth()->user()->email)->first();
+
+        $subject = "Your Password Recovery Link Has Arrived";
+        $body = '<p>Hello! ' . auth()->user()->full_name . '</p>';
+        $reset_link =  url('/') . "/reset-password?token=". $tk;
+        $body .= '<p style="line-height: 2.0;">Please click the button below to reset your password <a class="btn btn-info" target="_blank" href="'. $reset_link. '" style="position: relative;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PASSWORD</a><br/>If you did not request for Password Recovery, kindly notify us via whatsapp on ' . $web_settings->whatsapp_no . ' Immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
+
+        $this->sendEmail($user->email, $subject, $body);
+
+        $responseX = [
+            'title' => 'COMPLETED',
+            'icon' => 'success',
+            'status' => 'success',
+            'message' => 'Please check your email for a password reset link!!!',
+        ];
+
+        $response->handler($responseX);
+    }
+
+    public function resetPin(){
+        return view('customer.reset_pin');
+    }
+
+    public function processResetPin(Request $request, JsonResponseService $response){
+        $web_settings = WebSetting::first();
+
+        $validator = Validator::make($request->all(), [
+            'old_pin' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $responseX = [
+                'status_code' => 100,
+                'status' => 'fail',
+                'message' => $validator->messages()->first(),
+            ];
+
+            $response->handler($responseX);
+        }
+
+        if (!Hash::check($request->old_pin, auth()->user()->pass)) {
+            $response = array(
+                'status' => 'fail',
+                'message' => '<div class="alert alert-danger text-left">Incorrect password !!!</div>',
+            );
+            return json_encode($response);
+        }
+
+        $token = Str::random(60);
+        $hashedToken = base64_encode(base64_encode($token.time()));
+        $expiry = Carbon::now()->addMinute(20);
+
+        auth()->user()->pin_reset_token = $hashedToken;
+        auth()->user()->pin_exp_date = $expiry;
+        auth()->user()->save();
+
+        $subject = "You requested a PIN Reset Token";
+        $body = '<p>Hello! ' . auth()->user()->full_name . '</p>';
+        $reset_link =  url('/') . "/confirm_reset_pin?token=" . $hashedToken;
+        $body .= '<p style="line-height: 2.0;">Please <strong>login</strong> to your account on ' . config('app.name') . ' and click the button below to reset your security pin. <br> <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: margin:5px; relative;margin-bottom:50px;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PIN</a><br/><br><strong>Please note that this link expires after ' .$expiry->format('jS F, Y, h:iA').'.</strong><br><br>If you did not request for a PIN change, Kindly notify us via WhatsApp us via whatsapp( ' . $web_settings->whatsapp_no . ') immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
+
+        $this->sendEmail(auth()->user()->email, $subject, $body);
+        // \Log::info($body);
+        $responseX = [
+            'title' => 'COMPLETED',
+            'icon' => 'success',
+            'status' => 'success',
+            'message' => '<div class="alert alert-success text-left">Thank you for reaching to us. PIN reset link has been forwarded to your email!!!</div>',
+        ];
+
+        $response->handler($responseX);
+    }
+
+    public function resetPin2(Request $request){
+        $decode = base64_decode(base64_decode($request->token));
+        $userdecode = base64_decode(base64_decode(auth()->user()->pin_reset_token));
+        
+        if(auth()->user()->pin_exp_date < Carbon::now()){
+            return redirect(route('pin.reset'))->with('error', 'PIN reset link has expired, please try to reset PIN again!!!');
+        }
+       
+        if($decode !== $userdecode){
+            return redirect(route('pin.reset'))->with('error', 'Invalid token entered, please check your email and click the PIN reset email we sent you!!!');
+
+        }
+
+        return view('customer.reset-pin-view');
+
+    }
+
+    public function finalProcessPin(Request $request,JsonResponseService $response){
+
+        $validator = Validator::make($request->all(), [
+            'new_pin' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $response = array(
+                'status' => 'fail',
+                'message' => '<div class="alert alert-danger text-left">'. $validator->messages()->first() .'</div>',
+            );
+            return json_encode($response);
+            
+        }
+      
+        $new_pin = base64_encode(base64_encode(base64_encode($request->new_pin)));
+        auth()->user()->transaction_pin = $new_pin;
+        auth()->user()->security_pin = $request->new_pin;
+        auth()->user()->save();
+
+        // return redirect(route('dashboard'))->with('message', 'Security PIN changed successfully');
+        $responseX = [
+            'title' => 'COMPLETED',
+            'icon' => 'success',
+            'status' => 'success',
+            'message' => '<div class="alert alert-success text-left">Security PIN changed successfully</div>',
+        ];
+
+        $response->handler($responseX);
+       
+    }
+    
 }

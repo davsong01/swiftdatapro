@@ -24,6 +24,10 @@ Route::get('/tac', [FrontendController::class, 'tac'])->name('tac');
 Route::get('email/verify/{token}', [VerificationController::class, 'verifyAccount'])->name('user.verify')->middleware(['auth']);
 
 Route::get('/resendverification/{email}', [RegisterController::class, 'resendEmailVerificationLink'])->name('resend.verification.link');
+Route::get('reset-password', function(){
+    return view('reset-password-view');
+});
+
 
 Route::group(['prefix' => 'admin5609', 'before' => 'admin5609'],function () {
 
@@ -44,6 +48,22 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
     Route::get('ref_downlines', [HomeController::class, 'downlines']);
     Route::get('cashback_earn', [HomeController::class, 'cashbackEarned']);
+    Route::get('profile', [HomeController::class, 'profile']);
+    Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
+    Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
+
+    Route::get('change-pin', [HomeController::class, 'resetPin'])->name('pin.reset');
+    Route::post('change-pin', [HomeController::class, 'processResetPin'])->name('pin.process.reset');
+    Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
+    Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
+    
+    Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
+    
+    
+    // Route::get('forgot-password', [HomeControllerController::class, 'create'])->name('password.request');
+    // Route::post('forgot-password', [HomeControllerController::class, 'store'])->name('password.email');
+    // Route::get('reset-password/{token}', [HomeController::class, 'create'])->name('password.reset');
+    // Route::post('reset-password', [HomeController::class, 'updatePassword'])->name('password.update');
 
     // Transactions
     Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');

@@ -27,60 +27,18 @@
 </div>
 <div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">
     <div class="container-fluid p-0 sm_padding_15px">
-        <div class="row justify-content-center">
-            <div id="transactionsDiv" class="row"></div>
-            <div id="loadMoreDiv"></div>
+        <div class="row">
+            @foreach($lettr as $transaction)
+            <div class="col-md-6" style="margin-bottom:10px;color:white;padding:20px;background-color:{{ $transaction->type == 'credit' ? '#199263' : '#DB1A22' }};cursor:pointer;">
+                <span>Initiated by: {{ $transaction->user->full_name }} </span><br/>
+                <span>Type: {{ $transaction->type }} </span><br/>
+                <span>Amount: ₦{{ $transaction->amount }}</span><br/>
+                <span>Description: {{ $transaction->description }}</small><br/>
+                <span>Date: {{ $transaction->created_at }} </small><br/>
+            </div>
+            @endforeach
         </div>
+        {{$lettr->links()}}
     </div>
 </div>
-@endsection
-@section('scripts')
-<script type="text/javascript">
-  $(document).ready(function() {
-    $.LoadingOverlay("show");
-    $.ajax({
-      url: 'cashback_earn',
-      dataType: 'json',
-      success: function(transactionsRes) {
-        $.LoadingOverlay("hide");
-        if (transactionsRes.count > 0) {
-          $("#withdrawButton").show();
-        }
-        $("#transactionsDiv").html(transactionsRes.message);
-      }
-    });
-  });
-
-  function showMore(id) {
-    $.LoadingOverlay("show");
-    $.ajax({
-      url: '/refearning?load_id=' + id,
-      dataType: 'json',
-      success: function(transactionsRes) {
-        $.LoadingOverlay("hide");
-        $("#transactionsDiv").html(transactionsRes.message);
-        $("#loadMoreDiv").html(transactionsRes.ctrlButton);
-      }
-    });
-  }
-
-  $('#withdrawButton').click(function() {
-    $.LoadingOverlay("show");
-    var confirmText = "You are about to withdraw your referral commissions to your wallet";
-    if (confirm(confirmText)) {
-      $.ajax({
-        url: '/withdrawreferralbonus',
-        dataType: 'json',
-        success: function(transactionsRes) {
-          $.LoadingOverlay("hide");
-          $("#temp").hide();
-          $("#transactionsDiv").html(transactionsRes.message);
-        }
-      });
-      return false;
-    } else {
-      $.LoadingOverlay("hide");
-    }
-  });
-</script>
 @endsection

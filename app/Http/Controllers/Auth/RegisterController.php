@@ -177,7 +177,6 @@ class RegisterController extends Controller
         $body = '<p>Hello! ' . $user->full_name . '</p>';
         $body .= '<p>Ready to take your business to the next level ?<br/> You can unlock special perks by just purchasing Data Bundles, AirtimeVTU, Cable Subscription, Billspayment e.t.c. on ' . config('app.name') . ' <br/><b>To have you fully on our platform, click the link below to activate your account</b><br/>' . $verify_link . '<br/><br/>You Are Welcome,<br/>Your Customer Support at ' . config('app.name') . '.</p>';
 
-        \Log::info(['email' => $body]);
         $this->sendEmail($user->email, $subject, $body);
     }
 

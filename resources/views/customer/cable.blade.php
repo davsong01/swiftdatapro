@@ -97,7 +97,7 @@
         value="{{ auth()->user()->mobile ?? old('mobile_no') }}" required>
     </div>
   
-    <small>Forget Pin ? <a href="{{ url('/') }}/reset_pin">Reset Here</a></small>
+    <small>Forget Pin ? <a href="{{ route('pin.reset') }}">Reset Here</a></small>
     <div class="input-group mb-3">
       <div class="input-group-text">
         <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-size: 25px;"></i></span>

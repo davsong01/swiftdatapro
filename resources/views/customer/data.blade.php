@@ -135,7 +135,7 @@
             style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">
         </div>
 
-        <small>Forget Pin ? <a href="{{ url('/') }}/reset_pin">Reset Here</a></small>
+        <small>Forget Pin ? <a href="{{ route('pin.reset') }}">Reset Here</a></small>
         <div class="input-group mb-3">
             <div class="input-group-text">
                 <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-size: 25px;"></i></span>
@@ -191,7 +191,7 @@
   $("#network_module").change(function() {
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
-    //   $.LoadingOverlay("show");
+      $.LoadingOverlay("show");
       $.ajax({
         url: '/variations?services=' + network_module + '&level={{ auth()->user()->level }}&product=data',
         method: 'GET',
@@ -242,7 +242,7 @@
     if ($("#network_module").val() == 'SMILE-DATA') {
       return verifySmile();
     }
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

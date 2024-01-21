@@ -13,4 +13,8 @@ class EarnedTransactions extends Model
     public $timestamps = false;
 
     protected $fillable = ['user_id', 'ref_code', 'amount','type','description','created_at'];
+
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
 }
