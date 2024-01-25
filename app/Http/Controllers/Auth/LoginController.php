@@ -72,6 +72,13 @@ class LoginController extends Controller
             return back()->with('error', 'Incorrect Username or Password');
         }else{
             Auth::login($user);
+
+            $body = 'Dear ' . auth()->user()->full_name . '<br>Your login to ' . config('app.php') . ' at '.Carbon::now().' was successful<br><br>';
+            $body .= '<br><br><br>Warm Regards<br>' . config('app.name');
+
+            $subject = "Welcome Back!";
+            $this->sendEmail(auth()->user()->email, $subject, $body);
+
             return redirect()->intended('dashboard');
         }
 
@@ -119,7 +126,7 @@ class LoginController extends Controller
         $body = '<p>Hello! ' . $user->full_name . '</p>';
         $reset_link =  url('/') . "/reset-password?token=" . $tk;
         $body .= '<p style="line-height: 2.0;">Please click the button below to reset your password <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: relative;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PASSWORD</a><br/>If you did not request for Password Recovery, kindly notify us via whatsapp on ' . $web_settings->whatsapp_no . ' Immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
-
+        
         $this->sendEmail($user->email, $subject, $body);
         
         return back()->with('message', 'Please check your email for a password reset link!!!');

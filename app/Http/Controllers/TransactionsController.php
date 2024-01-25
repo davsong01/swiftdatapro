@@ -746,7 +746,7 @@ class TransactionsController extends Controller
         $transaction = $this->logTransaction($data);
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
-        
+       
         if($api_response['status'] == 'success'){
             $mobile_no = $request->smart_no ?? $mobile_no;
             
@@ -759,8 +759,27 @@ class TransactionsController extends Controller
                 'buyer_status' => 'SUCCESSFUL',
                 'buyer_descr' => $order_report,
                 'api_response' => $api_response['api_response'],
-                'api_report' => 'DONE'
+                'api_report' => 'DONE',
+                'extra' => $api_response['extra'] ?? null
             ]);
+
+            $body = 'Dear '.auth()->user()->full_name . '<br>The transaction below was initiated on your account '.config('app.php'). '<br><br>
+            Amount Charged : ₦'. number_format($transaction->buyer_amount). '<br>
+            Previous Balance : ₦'. number_format($old_wallet) . '<br>
+            Current Balance : ₦'. number_format($new_wallet) .'<br>
+            Description : '. $order_report . '<br>
+            Transaction Reference : ' . $transaction->sys_ref . '<br>
+            Transaction Date : ' . $transaction->buyer_date . '<br>
+            Transaction Status : Success<br>';
+
+            if(isset($api_response['extra']) && !empty($api_response['extra'])){
+                $body .= 'Extra Information : ' . $api_response['extra'];
+            }
+            
+            $body .= '<br><br><br>Warm Regards<br>'.config('app.name');
+
+            $subject = "Transaction Notification";
+            $this->sendEmail(auth()->user()->email, $subject, $body);
         }else if($api_response['status'] == 'attention-required'){
 
             $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
@@ -776,6 +795,16 @@ class TransactionsController extends Controller
                 'failure_reason' => $api_response['error']
             ]);
 
+            $body = 'Dear ' . auth()->user()->email . 'The transaction below was initiated on your account ' . config('app.php') . '<br><br>
+            Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
+            Previous Balance : ' . number_format($transaction->prebal) . '<br>
+            Current Balance : ' . number_format($transaction->postbal) . '<br>
+            Description : ' . $transaction->$order_report . '<br>
+            Transaction Reference : ' . $transaction->sys_ref . '<br>
+            Transaction Date : ' . $transaction->buyer_date . '<br>
+            Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name');
+
+            $subject = "Transaction Notification";
         }else{
             $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\EmailMessages;
 use App\Models\Transactions;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -13,15 +15,22 @@ class Controller extends BaseController
     use AuthorizesRequests, ValidatesRequests;
 
     public function sendEmail($email_to, $subject, $body){
-        $settings = [];
-        $email_from = 'info@swifdatang.com';
-        
-        $headers = 'MIME-Version: 1.0' . "\r\n";
-        $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-        $headers .= 'From: ' . $email_from . "\r\n" .
-            'Reply-To: ' . $email_from . "\r\n" .
-            'X-Mailer: PHP/' . phpversion();
-        mail($email_to, $subject, $body, $headers);
+        // $headers = 'MIME-Version: 1.0' . "\r\n";
+        // $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+        // $headers .= 'From: ' . $email_from . "\r\n" .
+        //     'Reply-To: ' . $email_from . "\r\n" .
+        //     'X-Mailer: PHP/' . phpversion();
+        // mail($email_to, $subject, $body, $headers);
+        $data = [
+            'subject' => $subject,
+            'body' => $body,
+        ];
+
+        try {
+            Mail::to($email_to,)->send(new EmailMessages($data));
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 
     public function basicApiCall($url, $payload, $headers, $method = 'POST'){
@@ -99,6 +108,7 @@ class Controller extends BaseController
         } elseif (!empty($timeout)) {
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         }
+
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         
