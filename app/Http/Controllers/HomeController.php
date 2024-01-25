@@ -802,15 +802,20 @@ class HomeController extends Controller
 
         }
 
-        $tk = Str::random(60);
-        DB::table('password_resets')->insert([
-            'email' => auth()->user()->email,
-            'token' => $tk,
-            'created_at' => Carbon::now()
-        ]); //Get the token just created above
-        
-        DB::table('password_reset_tokens')
-        ->where('email', auth()->user()->email)->first();
+        $check = DB::table('password_reset_tokens')->where('email', $user->email)->first();
+
+        if ($check) {
+            $tk = $check->token;
+        } else {
+            $tk = Str::random(60);
+
+            DB::table('password_reset_tokens')->insert([
+                'email' => $user->email,
+                'token' => $tk,
+                'app_version' => '2',
+                'created_at' => Carbon::now()
+            ]); //Get the token just created above
+        }
 
         $subject = "Your Password Recovery Link Has Arrived";
         $body = '<p>Hello! ' . auth()->user()->full_name . '</p>';

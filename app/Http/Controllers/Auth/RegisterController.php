@@ -138,7 +138,7 @@ class RegisterController extends Controller
             'middle_name' => $data['middle_name'],
             'last_name' => $data['last_name'],
             'gender' => $data['gender'],
-            'app_version' => 'Version 2',
+            'app_version' => '2',
         ]);
 
         // Update referral

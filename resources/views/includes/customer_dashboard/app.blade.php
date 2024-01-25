@@ -254,9 +254,9 @@
                 </a>
                 <ul>
                     <li><a href="<?php echo $baseurl; ?>/profile">My Profile</a></li>
-                    <li><a href="<?php echo $baseurl; ?>/change_password">Change Password</a></li>
-                    <li><a href="<?php echo $baseurl; ?>/generate_api">Generate API-KEY</a></li>
-                    <li><a href="<?php echo $baseurl; ?>/kyc_register">KYC Registration</a></li>
+                    <li><a href="<?php echo $baseurl; ?>/change-password">Change Password</a></li>
+                    <li><a href="<?php echo $baseurl; ?>/generate-api">Generate API-KEY</a></li>
+                    <li><a href="<?php echo $baseurl; ?>/kyc-compliance">KYC Registration</a></li>
                 </ul>
             </li>
 

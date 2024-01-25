@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FrontendController;
@@ -24,10 +25,19 @@ Route::get('/tac', [FrontendController::class, 'tac'])->name('tac');
 Route::get('email/verify/{token}', [VerificationController::class, 'verifyAccount'])->name('user.verify')->middleware(['auth']);
 
 Route::get('/resendverification/{email}', [RegisterController::class, 'resendEmailVerificationLink'])->name('resend.verification.link');
-Route::get('reset-password', function(){
-    return view('reset-password-view');
-});
+// Route::get('reset-password', function(){
+//     return view('reset-password-view');
+// });
 
+// For version one users
+Route::get('get-new-password/{user_id}', [LoginController::class, 'resetNewPassword'])->name('password.reset.new');
+Route::post('get-new-password', [LoginController::class, 'processResetNewPassword'])->name('process.password.reset.new');
+
+Route::get('reset-password', [LoginController::class, 'changePassword'])->name('password.reset.change');
+Route::post('reset-password', [LoginController::class, 'processChangePassword'])->name('password.reset.change.process'); // Throttle this link to once in 2 minutes
+
+
+// end version one users
 
 Route::group(['prefix' => 'admin5609', 'before' => 'admin5609'],function () {
 
