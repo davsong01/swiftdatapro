@@ -395,6 +395,49 @@ class TransactionsController extends Controller
                 'product_access' => $this->getProductAccess('mo_lock3'),
             ];
         }
+        
+        if ($service == "waec") {
+            $api = [
+                'provider_slug' => $webSetting->api_waec,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec))) . 'Controller') . '.php',
+                'individual_access' => $user->airtime_access,
+                'product_access' => $this->getProductAccess('waec_lock'),
+            ];
+        }
+
+        dd('continue here');
+        
+        // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
+        //     if ($api_waec == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+
+        //     if ($api_waec == 'easyaccess.php') {
+        //         require("epinsModule/easyaccess.php");
+        //     }
+        // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
+        //     if ($api_waec_registration == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+        //     if ($api_waec_registration == 'vtpasseducation.php') {
+        //         require("epinsModule/vtpasseducation.php");
+        //     }
+        // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
+        //     if ($api_gce == 'easyaccess.php') {
+        //         require("epinsModule/easyaccess.php");
+        //     }
+        //     if ($api_gec == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+        // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
+        //     if ($api_neco == 'easyaccess.php') {
+        //         require("epinsModule/easyaccess.php");
+        //     }
+        //     if ($api_neco == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+        // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
+
 
         if ($service == "abuja-electric") {
             $api = [
@@ -526,7 +569,7 @@ class TransactionsController extends Controller
                 'product_access' => $this->getProductAccess('showmax_lock'),
             ];
         }
-        
+    
         if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
             $api['provider_name'] = 'GongzoController';
         }

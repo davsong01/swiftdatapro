@@ -28,7 +28,6 @@ Login
                         @csrf
                         <input type="hidden" name="idxse" value="{{ base64_encode($user->id) }}">
                         <button style="padding-bottom: 13px;" class="btn btn-info btn-block form-control" style="width: 100%" id="submitBtn">SEND ME RESET EMAIL</button>
-                    
                     </form>
                     
                 </div>

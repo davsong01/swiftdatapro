@@ -73,8 +73,8 @@ class LoginController extends Controller
         }else{
             Auth::login($user);
 
-            $body = 'Dear ' . auth()->user()->full_name . '<br>Your login to ' . config('app.php') . ' at '.Carbon::now().' was successful<br><br>';
-            $body .= '<br><br><br>Warm Regards<br>' . config('app.name');
+            $body = 'Dear ' . auth()->user()->full_name . '<br>Your login to ' . config('app.php') . ' at '.Carbon::now().' was successful<br>';
+            $body .= '<br><br>Warm Regards<br>' . config('app.name');
 
             $subject = "Welcome Back!";
             $this->sendEmail(auth()->user()->email, $subject, $body);
@@ -170,6 +170,5 @@ class LoginController extends Controller
         Auth::login($user);
         return redirect()->intended('dashboard');
 
-    }    
-
+    }
 }

@@ -161,6 +161,9 @@
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
       });
+
+      $.LoadingOverlay("show");
+
       $.ajax({
         url: '/variations?services=' + service_module + '&level={{ auth()->user()->level }}&product=electricity&ajax=yes',
         method: 'GET',

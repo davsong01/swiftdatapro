@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,9 +36,13 @@ Route::post('get-new-password', [LoginController::class, 'processResetNewPasswor
 
 Route::get('reset-password', [LoginController::class, 'changePassword'])->name('password.reset.change');
 Route::post('reset-password', [LoginController::class, 'processChangePassword'])->name('password.reset.change.process'); // Throttle this link to once in 2 minutes
-
-
 // end version one users
+
+Route::get('forgot-password', [ForgotPasswordController::class, 'showForgotPasswordForm'])->name('forget.password.get');
+Route::post('forgot-password', [ForgotPasswordController::class, 'submitForgetPasswordForm'])->name('forget.password.post');
+// Route::get('reset-password/{token}', [HomeController::class, 'create'])->name('password.reset');
+// Route::post('reset-password', [HomeController::class, 'updatePassword'])->name('password.update');
+
 
 Route::group(['prefix' => 'admin5609', 'before' => 'admin5609'],function () {
 
@@ -69,12 +74,6 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     
     Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
     
-    
-    // Route::get('forgot-password', [HomeControllerController::class, 'create'])->name('password.request');
-    // Route::post('forgot-password', [HomeControllerController::class, 'store'])->name('password.email');
-    // Route::get('reset-password/{token}', [HomeController::class, 'create'])->name('password.reset');
-    // Route::post('reset-password', [HomeController::class, 'updatePassword'])->name('password.update');
-
     // Transactions
     Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
     Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
@@ -82,9 +81,6 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
     Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
 
-
-
-    
 });
 
 

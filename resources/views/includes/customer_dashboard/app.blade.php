@@ -233,7 +233,7 @@
             </li>
 
             <li>
-                <a href="<?php echo $baseurl; ?>/epins" aria-expanded="false">
+                <a href="{{ route('buy', 'epins')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa fa-qrcode"></i>
                     </div>
