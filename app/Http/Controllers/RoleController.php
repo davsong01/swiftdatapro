@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use Illuminate\Http\Request;
+use App\Models\RolePermission;
 
 class RoleController extends Controller
 {
@@ -13,7 +14,7 @@ class RoleController extends Controller
     public function index()
     {
         $roles = Role::orderBy('created_at', 'DESC')->get();
-        return view('admin.role.index', ['roles' => $roles]);
+        return view('admin.roles.index', ['roles' => $roles]);
     }
 
     /**
@@ -24,7 +25,7 @@ class RoleController extends Controller
         $menus = RolePermission::where('status', 'active')->where('type', 'menu')->get();
         $permissions = RolePermission::where('status', 'active')->where('type', 'link')->get();
 
-        return view('admin.role.create', compact('menus', 'permissions'));
+        return view('admin.roles.create', compact('menus', 'permissions'));
     }
 
     /**

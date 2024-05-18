@@ -1,12 +1,5 @@
+<div class="col-md-12">
 @if(session()->get('message'))
-
-<div class="alert alert-warning alert-dismissible fade show" role="alert">
-      <strong>Holy guacamole!</strong> You should check in on some of those fields
-    below.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"
-        aria-label="Close"><i class="bi bi-x"></i></button>
-    </div>
-
 <div class="alert alert-success alert-dismissible fade show" role="alert">
       <button type="button" class="btn-close" data-bs-dismiss="alert"
         aria-label="Close"><i class="bi bi-x"></i></button>
@@ -96,3 +89,4 @@
 </div>
 @endif
 @endif
+</div>

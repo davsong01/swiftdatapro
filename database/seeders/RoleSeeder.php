@@ -20,6 +20,7 @@ class RoleSeeder extends Seeder
             'My Site ApiKeys',
             'Blacklist Number',
             'Order Number',
+            'Staff Roles',
         ];
 
         $permissions = [

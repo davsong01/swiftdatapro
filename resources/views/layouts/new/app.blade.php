@@ -43,6 +43,7 @@
     <!-- Choices Css -->
     <link rel="stylesheet" href="{{ asset('new/assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
 
+    @yield('extra-css')
 
 </head>
 
@@ -555,9 +556,6 @@
 
                 <!-- Start::header-content-right -->
                 <div class="header-content-right">
-
-                    
-                   
                     <!-- Start::header-element -->
                     <div class="header-element header-theme-mode">
                         <!-- Start::header-link|layout-setting -->
@@ -791,8 +789,8 @@
                     <div class="ms-md-1 ms-0">
                         <nav>
                             <ol class="breadcrumb mb-0">
-                                <li class="breadcrumb-item"><a href="#">@yield('breadcrumb')</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">@yield('breadcrumb-active')</li>
+                                @yield('breadcrumb')
+                                @yield('breadcrumb-active')
                             </ol>
                         </nav>
                     </div>
@@ -918,7 +916,7 @@
 
     <!-- Custom JS -->
     <script src="{{ asset('new/assets/js/custom.js')}}"></script>
-
+    @yield('extra-js')
 </body>
 
 </html>

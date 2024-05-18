@@ -10,10 +10,18 @@
             </a>
         </li>
         @endif
+        @if (in_array('Staff Roles', allowedPermissions()))
+        <li class="slide">
+            <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                <i class="bx bx-store-alt side-menu__icon"></i>
+                <span class="side-menu__label">Staff Roles</span>
+            </a>
+        </li>
+        @endif
         <li class="slide has-sub">
             <a href="javascript:void(0);" class="side-menu__item">
                 <i class="bx bx-home side-menu__icon"></i>
-                <span class="side-menu__label">Dashboards</span>
+                <span class="side-menu__label">Admin Roles</span>
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">
