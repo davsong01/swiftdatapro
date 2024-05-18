@@ -1,10 +1,11 @@
-<?php 
+<?php
+
 namespace App\Guards;
 
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
-use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Symfony\Component\HttpFoundation\Request;
 
 class AdminGuard implements Guard
 {
@@ -24,11 +25,9 @@ class AdminGuard implements Guard
             return $this->user;
         }
 
-        // Custom logic to retrieve the admin user based on the request
         $token = $this->request->bearerToken();
 
         if ($token) {
-            // Find the user by token
             $user = $this->provider->retrieveByCredentials(['api_token' => $token]);
             if ($user && $this->provider->validateCredentials($user, ['api_token' => $token])) {
                 return $this->user = $user;
@@ -57,12 +56,34 @@ class AdminGuard implements Guard
 
     public function validate(array $credentials = [])
     {
-        // Custom validation logic
+        $user = $this->provider->retrieveByCredentials($credentials);
+
+        if ($user && $this->provider->validateCredentials($user, $credentials)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function setUser(Authenticatable $user)
     {
         $this->user = $user;
         return $this;
+    }
+
+    public function hasUser()
+    {
+        return !is_null($this->user);
+    }
+
+    public function attempt(array $credentials = [])
+    {
+        if ($this->validate($credentials)) {
+            $user = $this->provider->retrieveByCredentials($credentials);
+            $this->setUser($user);
+            return true;
+        }
+
+        return false;
     }
 }

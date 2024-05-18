@@ -50,11 +50,6 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function showAdminLoginForm()
-    {
-        return view('auth.admin_login');
-    }
-
     public function login(Request $request)
     {
         $request->validate([
@@ -87,34 +82,6 @@ class LoginController extends Controller
             return redirect()->intended('dashboard');
         }
 
-    }
-
-    public function adminLogin(Request $request)
-    {
-        $request->validate([
-            'email' => 'required',
-            'password' => 'required',
-        ]);
-
-        $user = User::where('email', $request->email)->orWhere('username', $request->username)->first();
-
-        if (isset($user) && empty($user->pass)) {
-            return redirect(route('password.reset.new', $user->id));
-        }
-
-        if (!$user || !Hash::check($request->password, $user->pass)) {
-            return back()->with('error', 'Incorrect Username or Password');
-        } else {
-            Auth::login($user);
-
-            $body = 'Dear ' . auth()->user()->full_name . '<br>Your login to ' . config('app.php') . ' at ' . Carbon::now() . ' was successful<br>';
-            $body .= '<br><br>Warm Regards<br>' . config('app.name');
-
-            $subject = "Welcome Back!";
-            $this->sendEmail(auth()->user()->email, $subject, $body);
-
-            return redirect()->intended('dashboard');
-        }
     }
 
     public function resetNewPassword($user_id){

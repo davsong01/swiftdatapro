@@ -1,4 +1,4 @@
-@extends('auth.new.admin.app')
+@extends('layouts.new.auth_app')
 @section('title', 'Login')
 @section('content')
 <p class="h5 fw-semibold mb-2 text-center">ADMIN LOGIN</p>
@@ -9,12 +9,12 @@
         @csrf
     <div class="col-xl-12">
         <label for="username" class="form-label text-default">User Name</label>
-        <input name="username" type="text" class="form-control form-control-lg" id="username" placeholder="user name">
+        <input name="username" type="text" class="form-control form-control-lg" id="username" placeholder="user name" required>
     </div>
     <div class="col-xl-12 mb-2">
         <label for="password" class="form-label text-default d-block">Password<a href="reset-password-basic.html" class="float-end text-danger">Forget password ?</a></label>
         <div class="input-group">
-            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="password">
+            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="password" required>
             <button class="btn btn-light" type="button" id="password"><i class="ri-eye-off-line align-middle"></i></button>
         </div>
         <div class="mt-2">

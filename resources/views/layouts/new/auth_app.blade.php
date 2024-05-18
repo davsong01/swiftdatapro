@@ -9,7 +9,7 @@
     <title> {{ $title ?? settings()->seo_title }} </title>
     <meta name="Description" content="{{ settings()->seo_description }}">
     <meta name="Author" content="{{config('app.name')}}">
-	<meta name="keywords" content="admin,admin dashboard,admin panel,admin template,bootstrap,clean,dashboard,flat,jquery,modern,responsive,premium admin templates,responsive admin,ui,ui kit.">
+	<meta name="keywords" content="">
 
     <!-- Favicon -->
     <link rel="icon" href="{{ asset(settings()->favicon)}}" type="image/x-icon">

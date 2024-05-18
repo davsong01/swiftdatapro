@@ -2,12 +2,17 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\RoleController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\WebSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,8 +50,19 @@ Route::post('forgot-password', [ForgotPasswordController::class, 'submitForgetPa
 
 // Admin users
 Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
-    Route::get('/', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
-    Route::post('/login', [LoginController::class, 'adminLogin'])->name('admin.login.process');
+    Route::get('/', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/admin-login', [AdminAuthController::class, 'login'])->name('admin.login.process');
+    Route::post('/admin-logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+    Route::middleware(['auth.admin', 'adminRoute'])->group(function () {
+        Route::get('/admin-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
+        Route::resource('role', RoleController::class);
+        Route::resource('permission', RolePermissionController::class);
+
+        Route::get('settings-update', [WebSettingController::class, 'edit'])->name('settings.edit');
+        Route::post('settings-update', [WebSettingController::class, 'update'])->name('settings.update');
+
+    });
     
 });
 

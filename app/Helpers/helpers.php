@@ -12,3 +12,15 @@ if (!function_exists("settings")) {
         return $settings;
     }
 }
+
+
+if (!function_exists("allowedPermissions")) {
+    function allowedPermissions($user=null)
+    {
+        if(empty($user)){
+            return auth()->guard('admin')->user()->permissions;
+        }else{
+            return $user->permissions;
+        }
+    }
+}
