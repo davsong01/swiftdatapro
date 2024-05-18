@@ -28,8 +28,9 @@ class Controller extends BaseController
 
         try {
             Mail::to($email_to,)->send(new EmailMessages($data));
+            \Log::info(['Email: '=>$data]);
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            // dd($e->getMessage());
         }
     }
 

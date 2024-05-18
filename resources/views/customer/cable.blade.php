@@ -167,7 +167,7 @@
       type: 'cable',
     };
 
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajaxSetup({
       headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -214,7 +214,7 @@
     };
 
     $("#myModal2").modal("hide");
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajax({
       url: '/buy/cable',
       method: 'POST',
@@ -229,8 +229,12 @@
             window.location.reload();
           }, 3000);
         } else {
-           
-          $("#response").html(response_fd.message);
+          $.LoadingOverlay("hide");
+          $("#errorModal").modal("show");
+
+          $("#errorModal .modal-body").html(response_fd.message);
+
+          // $("#response").html(response_fd.message);
         }
       }
     });

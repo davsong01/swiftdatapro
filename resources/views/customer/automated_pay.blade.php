@@ -26,7 +26,7 @@
         
         <div class="col-md-6 alert alert-primary" style="background-color: #94079803;color:black;font-size: 15px;border-color: #940798;">
             <h6>Automated Payment 1</h6>
-            <p style="color:red"><i class="fa fa-info-circle"></i> #30 charges is incurred on transfer made to this/these bank/banks. We advise you to make use of this payment option if you are funding any amount above #5,000.</p>
+            <p style="color:red"><i class="fa fa-info-circle"></i> #30 charges is incurred on transfer made to this/these bank/banks. We advise you to make use of this payment option if you are funding any amount above #3,000</p>
                 
             <div class="row">
                 @foreach ($bankinfos1 as $bank) 

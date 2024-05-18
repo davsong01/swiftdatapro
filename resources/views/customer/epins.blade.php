@@ -114,26 +114,26 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
-    $("#service_module").change(function() {
-      if ($("#service_module").val() != "") {
-        var service_module = $("#service_module").val();
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-      $.LoadingOverlay("show");
+    // $("#service_module").change(function() {
+    //   if ($("#service_module").val() != "") {
+    //     var service_module = $("#service_module").val();
+    //     $.ajaxSetup({
+    //         headers: {
+    //             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    //         }
+    //     });
+    //   $.LoadingOverlay("show");
 
-      $.ajax({
-        url: '/variations?services=' + service_module + '&level={{ auth()->user()->level }}&product=epin&ajax=yes',
-          method: 'GET',
-          success: function(RES_data) {
-            $.LoadingOverlay("hide");
-            $("#result").html(RES_data);
-          }
-        })
-      }
-    })
+    //   $.ajax({
+    //     url: '/variations?services=' + service_module + '&level={{ auth()->user()->level }}&product=epin&ajax=yes',
+    //       method: 'GET',
+    //       success: function(RES_data) {
+    //         $.LoadingOverlay("hide");
+    //         $("#result").html(RES_data);
+    //       }
+    //     })
+    //   }
+    // })
 
     $("#form-data").submit(function(event) {
       var formData = {

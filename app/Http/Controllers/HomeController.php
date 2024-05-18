@@ -583,48 +583,49 @@ class HomeController extends Controller
         $transaction = "";
 
         // sme data
-        $seltdatabyte = $this->getSingleAnalysis('mtn-sme', $start, $end);
-        $total_smedatacost = $seltdatabyte['cost'];
-        $total_smedata = $seltdatabyte['data'];
+        $mtnsmedatabyte = $this->getSingleAnalysis('mtn-sme', $start, $end);
+        $total_smedatacost = $mtnsmedatabyte['cost'];
+        $total_smedata = $mtnsmedatabyte['data'];
 
         ////MTN-CG
-        $seltdatabyte = $this->getSingleAnalysis('mtn-cg', $start, $end);
-        $total_mtncgdatacost = $seltdatabyte['cost'];
-        $total_mtncgdata = $seltdatabyte['data'];
+        $mtncgdatabyte = $this->getSingleAnalysis('mtn-cg', $start, $end);
+        $total_mtncgdatacost = $mtncgdatabyte['cost'];
+        $total_mtncgdata = $mtncgdatabyte['data'];
         ///
 
         ////AIRTEL-CG
-        $seltdatabyte = $this->getSingleAnalysis('airtel-cg', $start, $end);
-        $total_airtelcgdata = $seltdatabyte['data'];
-        $total_airtelcgdatacost = $seltdatabyte['cost'];
+        $airtelcgdatabyte = $this->getSingleAnalysis('airtel-cg', $start, $end);
+        $total_airtelcgdata = $airtelcgdatabyte['data'];
+        $total_airtelcgdatacost = $airtelcgdatabyte['cost'];
 
         ////AIRTEL
-        $seltdatabyte = $this->getSingleAnalysis('airtel', $start, $end);
-        $total_airteldata = $seltdatabyte['data'];
-        $total_airteldatacost = $seltdatabyte['cost'];
+        $airteldatabyte = $this->getSingleAnalysis('airtel', $start, $end);
+        $total_airteldata = $airteldatabyte['data'];
+        $total_airteldatacost = $airteldatabyte['cost'];
        
         ////GLO
-        $seltdatabyte = $this->getSingleAnalysis('glo', $start, $end);
-        $total_glodata = $seltdatabyte['data'];
-        $total_glodatacost = $seltdatabyte['cost'];
+        $glodatabyte = $this->getSingleAnalysis('glo', $start, $end);
+        $total_glodata = $glodatabyte['data'];
+        $total_glodatacost = $glodatabyte['cost'];
         
         ////9MOBILE
-        $seltdatabyte = $this->getSingleAnalysis('9mobile', $start, $end);
-        $total_mobiledata = $seltdatabyte['data'];
-        $total_mobiledatacost = $seltdatabyte['cost'];
+        $mobiledatabyte = $this->getSingleAnalysis('9mobile', $start, $end);
+        $total_mobiledata = $mobiledatabyte['data'];
+        $total_mobiledatacost = $mobiledatabyte['cost'];
 
         ////AIRTIME-VTU
-        $seltdatabyte = $this->getSingleAnalysis('vtu', $start, $end, 'vtu');
-        $total_vtucost = $seltdatabyte['cost'];
+        $vtudatabyte = $this->getSingleAnalysis('vtu', $start, $end, 'vtu');
+        $total_vtucost = $vtudatabyte['cost'];
 
         ////AIRTIME-SNS
-        $seltdatabyte = $this->getSingleAnalysis('sns', $start, $end, 'sns');
-        $total_snscost = $seltdatabyte['cost'];
+        $sns = $this->getSingleAnalysis('sns', $start, $end, 'sns');
+        $total_snscost = $sns['cost'];
 
         ////BILLS
-        $seltdatabyte = $this->getSingleAnalysis('electric', $start, $end, 'electric');
-        $total_billscost = $seltdatabyte['cost'];
-       
+        $bill = $this->getSingleAnalysis('electric', $start, $end, 'electric');
+    
+        $total_billscost = $bill['cost'];
+    
         ////CABLETV
         $seltdatabyte1 = $this->getSingleAnalysis('gotv', $start, $end, 'gotv')['cost'];
         $seltdatabyte2 = $this->getSingleAnalysis('dstv', $start, $end, 'dstv')['cost'];
@@ -726,22 +727,31 @@ class HomeController extends Controller
     public function getSingleAnalysis($buyer_service, $start, $end, $like = null){
         
         if(!empty($like)){
-            $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])->where('buyer_service', 'LIKE','%'.$like.'%')->whereBetween('created_at', [$start, $end])->get();
+            // if($like == 'electric'){
+            //     $result = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])
+            //     ->where('buyer_service', 'LIKE', '%' . $like . '%')
+            //     ->whereBetween('created_at', [$start, $end])
+            //     ->get();
+            // }
+            $result = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])
+            ->where('buyer_service', 'LIKE','%'.$like.'%')
+            ->whereBetween('created_at', [$start, $end])
+            ->get();
         }else{
-            $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
+            $result = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
         }
 
         try {
             //code...
-            $total_smedatacost = $seltdatabyte->sum('buyer_amount+0');
-            $total_smedata = $seltdatabyte->sum('databyte+0') > 0 ? $seltdatabyte->sum('databyte') / 1000 : 0;
+            $total_cost = $result->sum('buyer_amount');
+            $total_data = $result->sum('databyte') > 0 ? $result->sum('databyte') / 1000 : 0;
         } catch (\Throwable $th) {
             dd($th->getMessage(), $buyer_service);
         }
-
+        
         return [
-            'cost' => $total_smedatacost ?? 0,
-            'data' => $total_smedata ?? 0,
+            'cost' => $total_cost ?? 0,
+            'data' => $total_data ?? 0,
         ];
     }
 
@@ -773,7 +783,7 @@ class HomeController extends Controller
 
     public function processPasswordChange(Request $request, JsonResponseService $response){
         $web_settings = WebSetting::first();
-       
+    
         $validator = Validator::make($request->all(), [
             'old_password' => 'required',
         ]);
@@ -840,7 +850,7 @@ class HomeController extends Controller
 
     public function processResetPin(Request $request, JsonResponseService $response){
         $web_settings = WebSetting::first();
-
+    
         $validator = Validator::make($request->all(), [
             'old_pin' => 'required',
         ]);
@@ -854,7 +864,7 @@ class HomeController extends Controller
 
             $response->handler($responseX);
         }
-
+        
         if (!Hash::check($request->old_pin, auth()->user()->pass)) {
             $response = array(
                 'status' => 'fail',
@@ -884,6 +894,8 @@ class HomeController extends Controller
             'status' => 'success',
             'message' => '<div class="alert alert-success text-left">Thank you for reaching to us. PIN reset link has been forwarded to your email!!!</div>',
         ];
+
+        // return json_encode($responseX);
 
         $response->handler($responseX);
     }
@@ -934,7 +946,10 @@ class HomeController extends Controller
         ];
 
         $response->handler($responseX);
-       
+    }
+
+    public function generateApi(){
+        return view('customer.generate_api');
     }
     
 }

@@ -60,31 +60,31 @@
 
 
         <div class="alert" style="background-color: #fff;">
-
-            <div class="input-group mb-3">
-                <div class="input-group-text">
-                    <span class="" id="basic-addon1"><i class="fa fa-user" style="font-size: 25px;"></i></span>
+            <form action="">
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <span class="" id="basic-addon1"><i class="fa fa-user" style="font-size: 25px;"></i></span>
+                    </div>
+                    <input type="text" class="form-control" value="{{ auth()->user()->full_name }}" aria-describedby="basic-addon1">
                 </div>
-                <input type="text" class="form-control" value="{{ auth()->user()->full_name }}" aria-describedby="basic-addon1">
-            </div>
 
-            <div class="input-group mb-3">
-                <div class="input-group-text">
-                    <span class="" id="basic-addon1"><i class="fa fa-phone" style="font-size: 25px;"></i></span>
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <span class="" id="basic-addon1"><i class="fa fa-phone" style="font-size: 25px;"></i></span>
+                    </div>
+                    <input type="text" class="form-control" value="{{ auth()->user()->mobile ?? old('phone') }}" aria-describedby="basic-addon1">
                 </div>
-                <input type="text" class="form-control" value="{{ auth()->user()->mobile ?? old('phone') }}" aria-describedby="basic-addon1">
-            </div>
 
-            <div class="input-group mb-3">
-                <div class="input-group-text">
-                    <span class="" id="basic-addon1"><i class="fa fa-envelope" style="font-size: 25px;"></i></span>
+                <div class="input-group mb-3">
+                    <div class="input-group-text">
+                        <span class="" id="basic-addon1"><i class="fa fa-envelope" style="font-size: 25px;"></i></span>
+                    </div>
+                    <input type="text" class="form-control" value="{{ auth()->user()->email ?? old('email') }}" aria-describedby="basic-addon1">
                 </div>
-                <input type="text" class="form-control" value="{{ auth()->user()->email ?? old('email') }}" aria-describedby="basic-addon1">
-            </div>
 
-            <button class="btn btn-primary" style="width: 100%">UPDATE PROFILE</button>
+                <button class="btn btn-primary" style="width: 100%">UPDATE PROFILE</button>
 
-
+            </form>
             <hr>
 
             <input type="checkbox" name=""> I want to deactivate my account.

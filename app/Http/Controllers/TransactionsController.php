@@ -166,7 +166,7 @@ class TransactionsController extends Controller
         $variations = app('App\Http\Controllers\Providers\\'.$api['provider_name'])->getVariations($product, $service, $level);
         
         $discount = app('App\Http\Controllers\TransactionsController')->discounts($request);
-       
+    
         if (isset($variations) && !empty($variations)) {
             $echo = "";
             $echo .= $discount ?? '';
@@ -395,17 +395,52 @@ class TransactionsController extends Controller
                 'product_access' => $this->getProductAccess('mo_lock3'),
             ];
         }
-        
+       
         if ($service == "waec") {
             $api = [
                 'provider_slug' => $webSetting->api_waec,
                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
+                'individual_access' => $user->epin_access,
                 'product_access' => $this->getProductAccess('waec_lock'),
             ];
         }
 
-        dd('continue here');
+        if ($service == "waec-reg") {
+            $api = [
+                'provider_slug' => $webSetting->api_waec_registration,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec_registration))) . 'Controller') . '.php',
+                'individual_access' => $user->epin_access,
+                'product_access' => $this->getProductAccess('waec_reg_lock'),
+            ];
+        }
+
+        if ($service == "gce") {
+            $api = [
+                'provider_slug' => $webSetting->api_gce,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gce))) . 'Controller') . '.php',
+                'individual_access' => $user->epin_access,
+                'product_access' => $this->getProductAccess('gce_lock'),
+            ];
+        }
+
+        if ($service == "neco") {
+            $api = [
+                'provider_slug' => $webSetting->api_neco,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_neco))) . 'Controller') . '.php',
+                'individual_access' => $user->epin_access,
+                'product_access' => $this->getProductAccess('neco_lock'),
+            ];
+        }
+
+        if ($service == "nabteb") {
+            $api = [
+                'provider_slug' => $webSetting->api_nabteb,
+                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_nabteb))) . 'Controller') . '.php',
+                'individual_access' => $user->epin_access,
+                'product_access' => $this->getProductAccess('nabt_lock'),
+            ];
+        }
+
         
         // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
         //     if ($api_waec == 'naijaresultpins.php') {
@@ -569,7 +604,37 @@ class TransactionsController extends Controller
                 'product_access' => $this->getProductAccess('showmax_lock'),
             ];
         }
-    
+        
+        // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
+        //     if ($api_waec == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+
+        //     if ($api_waec == 'easyaccess.php') {
+        //         require("epinsModule/easyaccess.php");
+        //     }
+        // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
+        //     if ($api_waec_registration == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+        //     if ($api_waec_registration == 'vtpasseducation.php') {
+        //         require("epinsModule/vtpasseducation.php");
+        //     }
+        // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
+        //     if ($api_gce == 'easyaccess.php') {
+        //         require("epinsModule/easyaccess.php");
+        //     }
+        //     if ($api_gec == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+        // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
+        //     if ($api_neco == 'easyaccess.php') {
+        //         require("epinsModule/easyaccess.php");
+        //     }
+        //     if ($api_neco == 'naijaresultpins.php') {
+        //         require("epinsModule/naijaresultpins.php");
+        //     }
+        // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
         if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
             $api['provider_name'] = 'GongzoController';
         }
@@ -585,7 +650,7 @@ class TransactionsController extends Controller
         if (in_array($api['provider_name'], ['MtnsmeDonController.php'])) {
             $api['provider_name'] = 'DonlessonCntroller';
         }
-       
+    
         if (in_array($api['provider_name'], ['VtpassController','AirtimevtuVtpassController.php','VtpassDataController.php'])) {
             $api['provider_name'] = 'VtpassController';
         }
@@ -594,19 +659,25 @@ class TransactionsController extends Controller
             $api['provider_name'] = 'ClubkonnectController';
         }
 
+
         if (in_array($api['provider_name'], ['AirtimesnsSmsController.php'])) {
             $api['provider_name'] = 'AirtimesnsSmsController';
         }
 
-       
+        if (in_array($api['provider_name'], ['NaijaresultpinsController.php'])) {
+            $api['provider_name'] = 'NaijaresultpinsController';
+        }
+    
         return $api;
     
     }
 
     public function processBuy(Request $request, JsonResponseService $service, $type){
         $user = auth()->user();
- 
+
         $network_module = strtoupper($request->network_module);
+        $service_module = strtoupper($request->service_module);
+        
         $product = strtolower($network_module);
         
         $dataplanloader = $request->dataplanloader ?? $product;
@@ -615,7 +686,8 @@ class TransactionsController extends Controller
         $security_pin = base64_encode(base64_encode(base64_encode($request->security_pin)));
         $account_id = $request->account_id;
         $plan_code = $dataplanloader;
-        $network = $network_module;
+        $network = !empty($network_module) ? $network_module : $service_module;
+        
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $timexx = $dateTime->format("YmdHi");
@@ -627,7 +699,6 @@ class TransactionsController extends Controller
         $request['request_id'] = $request_id;
         
         // checks
-        // dd($security_pin, $user->transaction_pin, $request->security_pin);
         if(!$user){
             $response = array(
                 'status' => 'fail',
@@ -679,8 +750,9 @@ class TransactionsController extends Controller
         }
         
         // Check provider and access
-        $api = $this->getProvider(strtolower($network));
         
+        $api = $this->getProvider(strtolower($network));
+       
         if($api){
             if ($api['individual_access'] == 0 || $api['product_access'] == 0) {
                 $response = [
@@ -715,31 +787,29 @@ class TransactionsController extends Controller
         $request['level'] = $user->level;
         
         $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount'], $request['service_plan']);
-
+        
+        $request['services'] = $request['service_module'];
         $discount = app('App\Http\Controllers\TransactionsController')->discounts($request) ?? 0;
-
+    
         if($type == 'cable' && in_array($request->network_module, ['DSTV','GOTV']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')){
             $variations['price'] = $request->renewal_amount ?? $discount;
         }
 
         $service_price = $variations['price'];
+        // Take care of discounts later in the future
+
+        // if($discount > 0){
+        //     $discount = ($discount /100) * 
+        // }
         $databyte = $variations['databyte'] ?? 0;
         $package_name = $variations['name'] ?? '';
         $serviceId = $variations['serviceId'] ?? '';
         $variation_code = $variations['variation_code'] ?? '';
-
-        $user = auth()->user();
         
-        if ($user->wallets < $service_price) {
-            return [
-                'status' => 'failed',
-                'message' => 'Not enough wallet balance',
-                'error' => 'Not enough wallet balance',
-            ];
-        }
-
+        $user = auth()->user();
+    
         $request['price'] = $service_price ?? null;
-       
+        
         $request['serviceId'] = $serviceId;
         $request['no_of_pins'] = $no_of_pins;
         $request['variation_code'] = $variation_code;
@@ -749,23 +819,32 @@ class TransactionsController extends Controller
         }else{
             $request['billersCode'] = $account_id ?? $mobile_no;
         }
-       
         // Prepare params
         $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
-        
+    
         // Charge customer
         $old_wallet = $user->wallets;
-        $new_wallet = $user->wallets - $service_price;
+        $service_price = !empty($service_price) ? $service_price : $request['service_price'];
 
+        if ($user->wallets < $service_price) {
+            return [
+                'status' => 'failed',
+                'message' => 'Not enough wallet balance',
+                'error' => 'Not enough wallet balance',
+            ];
+        }
+
+        $new_wallet = $user->wallets - $service_price;
+        
         $user->wallets = $new_wallet;
         $user->save();
-
+        
         // Log transaction
         $data = [
             'mobile_number' => $mobile_no,
             'buyer_email' => $user->email,
             'buyer_username' => $user->username,
-            'buyer_service' => $request->network_module,
+            'buyer_service' => $request->network_module ?? $request->service_module,
             'buyer_amount' => $service_price,
             'buyer_prebal' => $old_wallet,
             'buyer_postbal' => $new_wallet,
@@ -785,11 +864,11 @@ class TransactionsController extends Controller
             'post_fields' => json_encode($response['postfields']['payload'] ?? []),
             'provider' => $response['provider'] ?? null,
         ];
-
+        
         $transaction = $this->logTransaction($data);
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
-       
+    
         if($api_response['status'] == 'success'){
             $mobile_no = $request->smart_no ?? $mobile_no;
             
@@ -1010,7 +1089,7 @@ class TransactionsController extends Controller
         if ($service == "ibadan-electric") {
             $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ibadan_discount;
         }
-
+        
         if ($service == "ikeja-electric") {
             $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ikeja_discount;
         }
@@ -1038,10 +1117,9 @@ class TransactionsController extends Controller
         if ($service == "enugu-electric") {
             $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->enugu_discount;
         }
-
+    
         // Gotv
         if(!empty($request->ajax)){
-            // dd($this->reFormatDiscount($service, $discount));
             // $echo = '<option value="">xdvxc</option>';
             $echo = $this->reFormatDiscount($service, $discount);
             return $echo;
@@ -1053,6 +1131,9 @@ class TransactionsController extends Controller
     }
 
     public function reFormatDiscount($getservices, $discount){
+        if(empty($discount) || $discount < 1){
+            $message = '';
+        }
         if ($getservices == "abuja-electric") {
             if ($discount > 0) {
                 $message = '<div class="alert alert-success alert-dismissible"><strong class="discount-text">' . $discount . '% Discount applies for you</strong><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div></div>';
@@ -1133,7 +1214,7 @@ class TransactionsController extends Controller
                 ';
             }
         }
-
+        
         if ($getservices == "ikeja-electric") {
             if ($discount > 0) {
                 $message = '
@@ -1208,7 +1289,6 @@ class TransactionsController extends Controller
             ';
             }
         }
-
         return $message;
 
     }

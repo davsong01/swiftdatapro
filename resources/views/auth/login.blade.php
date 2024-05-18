@@ -13,7 +13,7 @@ Login
                     <div class="app-brand justify-content-center">
                         <a href="/" class="app-brand-link gap-2">
                             <span class="app-brand-logo demo">
-                                <img src="assets/img/favicon/favicon.png" height="30px">
+                                <img src="{{ settings()->logo }}" height="30px">
                             </span>
                             <span
                                 class="app-brand-text demo text-body fw-bolder">{{ config('app.name') }}</span>

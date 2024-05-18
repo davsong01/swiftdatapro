@@ -43,9 +43,11 @@ Route::post('forgot-password', [ForgotPasswordController::class, 'submitForgetPa
 // Route::get('reset-password/{token}', [HomeController::class, 'create'])->name('password.reset');
 // Route::post('reset-password', [HomeController::class, 'updatePassword'])->name('password.update');
 
-
-Route::group(['prefix' => 'admin5609', 'before' => 'admin5609'],function () {
-
+// Admin users
+Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
+    Route::get('/', [LoginController::class, 'showAdminLoginForm'])->name('admin.login');
+    Route::post('/login', [LoginController::class, 'adminLogin'])->name('admin.login.process');
+    
 });
 
 Auth::routes();
@@ -64,6 +66,9 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('ref_downlines', [HomeController::class, 'downlines']);
     Route::get('cashback_earn', [HomeController::class, 'cashbackEarned']);
     Route::get('profile', [HomeController::class, 'profile']);
+    Route::get('generate-api', [HomeController::class, 'generateApi'])->name('generate_api');
+
+    
     Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
     Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
 

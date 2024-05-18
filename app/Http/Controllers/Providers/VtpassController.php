@@ -1145,8 +1145,8 @@ class VtpassController extends Controller
             try {
                 // Process APi call
                 $result = json_decode($res, true);
-                $status = $result['content']['transactions']['status'];
-                $response_description = $result['response_description'];
+                $status = $result['content']['transactions']['status'] ?? $status;
+                $response_description = $result['response_description'] ?? '';
                 $epin = isset($result['purchased_code']) ? $result['purchased_code'] : '';
                 $code = $result['code'] ?? '083';
 

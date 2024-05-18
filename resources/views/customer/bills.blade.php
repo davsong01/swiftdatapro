@@ -230,7 +230,7 @@
     };
 
     $("#myModal2").modal("hide");
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajax({
       url: '/buy/electricity',
       method: 'POST',
