@@ -11,4 +11,6 @@ class PaymentGateway extends Model
     public $timestamps = false;
 
     protected $table = 'payment_gateways';
+
+    protected $guarded = [];
 }

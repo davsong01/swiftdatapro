@@ -21,6 +21,7 @@ class RoleSeeder extends Seeder
             'Blacklist Number',
             'Order Number',
             'Staff Roles',
+            'Staff Permissions',
         ];
 
         $permissions = [

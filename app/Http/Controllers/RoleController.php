@@ -58,11 +58,7 @@ class RoleController extends Controller
      */
     public function show(Role $role)
     {
-        $menus = RolePermission::where('status', 'active')->where('type', 'menu')->get();
-        $permissions = RolePermission::where('status', 'active')->where('type', 'link')->orderBy('name', 'ASC')->get();
-        $rolePermissions = explode(",", $role->permissions);
-
-        return view('admin.role.edit', compact('menus', 'permissions', 'rolePermissions', 'role'));
+        
     }
 
     /**
@@ -70,7 +66,11 @@ class RoleController extends Controller
      */
     public function edit(Role $role)
     {
-        //
+        $menus = RolePermission::where('status', 'active')->where('type', 'menu')->get();
+        $permissions = RolePermission::where('status', 'active')->where('type', 'link')->orderBy('name', 'ASC')->get();
+        $rolePermissions = explode(",", $role->permissions);
+
+        return view('admin.roles.edit', compact('menus', 'permissions', 'rolePermissions', 'role'));
     }
 
     /**

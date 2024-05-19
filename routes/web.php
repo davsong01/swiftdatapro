@@ -1,18 +1,20 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\WebSettingController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Auth\AdminAuthController;
+use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\WebSettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +63,9 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
 
         Route::get('settings-update', [WebSettingController::class, 'edit'])->name('settings.edit');
         Route::post('settings-update', [WebSettingController::class, 'update'])->name('settings.update');
+
+        Route::resource('api', ApiController::class);
+        Route::resource('paymentgateway', PaymentGatewayController::class);
 
     });
     

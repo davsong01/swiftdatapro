@@ -44,7 +44,9 @@ class WebSettingController extends Controller
      */
     public function edit(WebSetting $webSetting)
     {
-        //
+        $contact = WebSetting::first();
+        return view('admin.settings.contact_info', compact('contact'));
+        
     }
 
     /**
@@ -52,7 +54,21 @@ class WebSettingController extends Controller
      */
     public function update(Request $request, WebSetting $webSetting)
     {
-        //
+        $contact = WebSetting::first();
+        $data = $request->except(['_token', '1']);
+
+        if (!empty($request->logo)) {
+            $data['logo'] = $this->uploadFile($request->logo, 'site');
+        }
+
+        if (!empty($request->site_favicon)) {
+            $data['site_favicon'] = $this->uploadFile($request->site_favicon, 'site');
+        }
+
+       
+        $contact->update($data);
+
+        return back()->with('message', 'Update Successful');
     }
 
     /**
