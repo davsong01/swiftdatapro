@@ -45,7 +45,7 @@
                             @if(hasAccess('permission.edit'))
                             <td>
                                 <div class="btn-list">
-                                    <a href="{{route('permission.edit', $permission->id)}}" button class="btn btn-primary-light btn-wave"><i class="bx bxs-pencil"></i> View/Edit</a>
+                                    <a href="{{route('permission.edit', $permission->id)}}" button class="btn btn-primary-light btn-wave btn-sm"><i class="bx bxs-pencil"></i> View/Edit</a>
                                 </div>
                             </td>
                             @endif

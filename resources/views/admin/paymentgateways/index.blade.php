@@ -46,7 +46,7 @@
 
                             @if(hasAccess('paymentgateway.edit'))
                             <td>
-                                <a href="{{ route('paymentgateway.edit', $gateway->id) }}"><button type="button" class="btn btn-primary-light btn-wave"><i class="fa fa-edit"></i><span class="align-middle ml-25">View/Edit</span></button></a>
+                                <a href="{{ route('paymentgateway.edit', $gateway->id) }}"><button type="button" class="btn btn-primary-light btn-wave btn-sm"><i class="fa fa-edit"></i><span class="align-middle ml-25">View/Edit</span></button></a>
                             </td>
                             @endif
                         </tr>

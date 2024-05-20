@@ -20,6 +20,7 @@
                     <a class="btn btn-primary mb-2 d-flex align-items-center" href="{{ route('api.create') }}"><i class="bx bx-plus"></i>&nbsp; Add API Provider</a>
                 </div>
                 @include('includes.alerts')
+                
             </div>
             <div class="card-body">
                 <table id="datatable-basic" class="table table-bordered text-nowrap" style="width:100%">
@@ -27,6 +28,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Products</th>
+                            <th>File Name</th>
                             <th>Status</th>
                             <th>Date Added</th>
                             @if(hasAccess('api.edit') || hasAccess('api.balance'))
@@ -39,17 +41,14 @@
                         <tr>
                             <td>{{ $api->name }}</td>
                             <td>{{ $api->products_count }}</td>
+                            <td>{{ $api->file_name }}</td>
                             <td style="color:{{ $api->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($api->status) }}</td>
                             <td>{{ $api->created_at }}</td>
                             @if(hasAccess('api.edit') || hasAccess('api.balance'))
                             <td>
                                 @if(hasAccess('api.edit'))
-                                <a href="{{ route('api.edit', $api->id) }}"><button type="button" class="btn btn-primary-light btn-wave"><i class="bx bxs-pencil"></i>View/Edit</button></a>
+                                <a href="{{ route('api.edit', $api->id) }}"><button type="button" class="btn btn-primary-light btn-wave btn-sm"><i class="bx bxs-pencil"></i>View/Edit</button></a>
                                 @endif
-                                {{-- @if(hasAccess('api.balance'))
-                                <a id="api-{{$api->id}}" onclick="getBalance('{{$api->id}}')" style="color:white" class="btn btn-info btn-sm mr-1 mb-1"><span id="icon-{{ $api->id }}"><i class="fa fa-refresh"></i></span><span class="align-middle ml-25">Check balance</span></a>
-                                <span id="balance-{{$api->id}}" style="font-weight: bold;color: black;"></span>
-                                @endif --}}
                             </td>
                             @endif
                             

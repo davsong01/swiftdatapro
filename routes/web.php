@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\WebSettingController;
@@ -58,14 +60,16 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
 
     Route::middleware(['auth.admin', 'adminRoute'])->group(function () {
         Route::get('/admin-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
-        Route::resource('role', RoleController::class);
-        Route::resource('permission', RolePermissionController::class);
-
         Route::get('settings-update', [WebSettingController::class, 'edit'])->name('settings.edit');
         Route::post('settings-update', [WebSettingController::class, 'update'])->name('settings.update');
 
+        Route::resource('role', RoleController::class);
+        Route::resource('permission', RolePermissionController::class);
         Route::resource('api', ApiController::class);
         Route::resource('paymentgateway', PaymentGatewayController::class);
+        Route::resource('category', CategoryController::class);
+        Route::resource('product', ProductController::class);
+        Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 
     });
     

@@ -38,15 +38,15 @@
                             <td>{{ ucfirst($role->status) }}</td>
                             <td>
                                 <div class="btn-list">
-                                    <a href="{{route('role.edit', $role->id)}}" button class="btn btn-primary-light btn-wave"><i class="bx bxs-pencil"></i> View/Edit</a>
-                                    {{-- <button type="button" class="btn btn-secondary-light btn-wave">Secondary</button>
-                                    <button type="button" class="btn btn-success-light btn-wave">Success</button>
-                                    <button type="button" class="btn btn-danger-light btn-wave">Danger</button>
-                                    <button type="button" class="btn btn-warning-light btn-wave">Warning</button>
-                                    <button type="button" class="btn btn-info-light btn-wave">Info</button>
-                                    <button type="button" class="btn btn-purple-light btn-wave">purple</button>
-                                    <button type="button" class="btn btn-teal-light btn-wave">teal</button>
-                                    <button type="button" class="btn btn-orange-light btn-wave">orange</button> --}}
+                                    <a href="{{route('role.edit', $role->id)}}" button class="btn btn-primary-light btn-wave btn-sm"><i class="bx bxs-pencil"></i> View/Edit</a>
+                                    {{-- <button type="button" class="btn btn-secondary-light btn-wave btn-sm">Secondary</button>
+                                    <button type="button" class="btn btn-success-light btn-wave btn-sm">Success</button>
+                                    <button type="button" class="btn btn-danger-light btn-wave btn-sm">Danger</button>
+                                    <button type="button" class="btn btn-warning-light btn-wave btn-sm">Warning</button>
+                                    <button type="button" class="btn btn-info-light btn-wave btn-sm">Info</button>
+                                    <button type="button" class="btn btn-purple-light btn-wave btn-sm">purple</button>
+                                    <button type="button" class="btn btn-teal-light btn-wave btn-sm">teal</button>
+                                    <button type="button" class="btn btn-orange-light btn-wave btn-sm">orange</button> --}}
                                 </div>
                             </td>
                             

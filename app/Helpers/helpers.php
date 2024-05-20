@@ -38,4 +38,23 @@ if (!function_exists("hasAccess")) {
             return false;
         }
     }
+
+    if (!function_exists("getUniqueElements")) {
+        function getUniqueElements()
+        {
+            return [
+                'phone',
+                'meter_number',
+                'iuc_number',
+                'account_id'
+            ];
+        }
+    }
+
+    if (!function_exists("verifiableUniqueElements")) {
+        function verifiableUniqueElements()
+        {
+            return ['meter_number', 'iuc_number', 'profile_id'];
+        }
+    }
 }
