@@ -6,6 +6,8 @@ use App\Models\Api;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Discount;
+use App\Models\Transaction;
+use App\Models\Transactions;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -37,7 +39,7 @@ class Variation extends Model
 
     public function transaction()
     {
-        return $this->hasMany(TransactionLog::class);
+        return $this->hasMany(Transactions::class);
     }
 
     public function customer_level_price($level)

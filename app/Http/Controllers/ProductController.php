@@ -122,15 +122,14 @@ class ProductController extends Controller
     {
         $categories = Category::where('status', 'active')->get();
         $variations = Variation::where('product_id', $product->id)->where('api_id', $product->api_id)->get();
-        $apis = API::where('status', 'active')->get();
+        $apis = Api::where('status', 'active')->get();
         $customerlevel = CustomerLevel::orderBy('order', 'ASC')->get();
 
-        return view('admin.product.edit', compact('categories', 'apis', 'product', 'variations', 'customerlevel'));
+        return view('admin.products.edit', compact('categories', 'apis', 'product', 'variations', 'customerlevel'));
     }
 
     public function update(Product $product, Request $request)
     {
-
         $this->validate($request, [
             "name" => "required",
             "display_name" => "required",
@@ -151,9 +150,6 @@ class ProductController extends Controller
             "quantity_graduation" => 'nullable',
             "min" => 'nullable',
             "max" => 'nullable',
-            "servercode" => "nullable",
-            'ussd_string' => 'nullable',
-            'multistep' => 'nullable',
             "allow_subscription_type" => "nullable",
             'referral_percentage' => 'nullable',
 
@@ -181,18 +177,14 @@ class ProductController extends Controller
             "max" => $request->max,
             "system_price" => $request->system_price,
             "allow_quantity" => $request->allow_quantity,
-            "servercode" => $request->servercode,
             "quantity_graduation" => $request->quantity_graduation,
             "allow_subscription_type" => $request->allow_subscription_type,
-            'ussd_string' => $request->ussd_string,
-            'multistep' => $request->multistep,
             'referral_percentage' => $request->referral_percentage,
         ]);
 
         $productLevel = $request->productlevel;
-        // $productLevel = array_filter($request->productlevel);
-        // dd($productLevel);
-        if (count($productLevel) > 0 && isset($product)) {
+
+        if ($productLevel && count($productLevel) > 0 && isset($product)) {
             foreach ($productLevel as $key => $price) {
                 Discount::updateOrCreate([
                     'customer_level' => $key,

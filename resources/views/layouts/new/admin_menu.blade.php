@@ -10,22 +10,68 @@
             </a>
         </li>
         @endif
-        @if (in_array('Staff Roles', allowedPermissions()))
-        <li class="slide">
-            <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
-                <i class="bx bx-store-alt side-menu__icon"></i>
-                <span class="side-menu__label">Staff Roles</span>
+        
+        <li class="slide has-sub">
+            <a href="javascript:void(0);" class="side-menu__item">
+                <i class="bx bx-home side-menu__icon"></i>
+                <span class="side-menu__label">Staff</span>
+                <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
+            <ul class="slide-menu child1">
+                @if (in_array('Staff Roles', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">Staff Roles</span>
+                    </a>
+                </li>
+                @endif
+                @if (in_array('Staff Permissions', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('permission.index') }}" class="side-menu__item {{Route::is('permission.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">Staff Permissions</span>
+                    </a>
+                </li>
+                @endif
+            </ul>
         </li>
-        @endif
-        @if (in_array('Staff Permissions', allowedPermissions()))
-        <li class="slide">
-            <a href="{{ route('permission.index') }}" class="side-menu__item {{Route::is('permission.index') ? 'active' : '' }}">
-                <i class="bx bx-store-alt side-menu__icon"></i>
-                <span class="side-menu__label">Staff Permissions</span>
+
+        <li class="slide has-sub">
+            <a href="javascript:void(0);" class="side-menu__item">
+                <i class="bx bx-home side-menu__icon"></i>
+                <span class="side-menu__label">Customers</span>
+                <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
+            <ul class="slide-menu child1">
+                @if (in_array('Staff Roles', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">All Customers</span>
+                    </a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">Active</span>
+                    </a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">Suspended</span>
+                    </a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">Blacklisted</span>
+                    </a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">Customer Levels</span>
+                    </a>
+                </li>
+                @endif
+            </ul>
         </li>
-        @endif
+
         <li class="slide has-sub">
             <a href="javascript:void(0);" class="side-menu__item">
                 <i class="bx bx-home side-menu__icon"></i>
@@ -47,6 +93,7 @@
                 </li>
             </ul>
         </li>
+
         <li class="slide has-sub {{ Route::is('api.*')  ||  Route::is('paymentgateway.*') ||  Route::is('category.*') || Route::is('product.*') ? 'open' : '' }}">
             <a href="javascript:void(0);" class="side-menu__item">
                 <i class="bx bx-home side-menu__icon"></i>
@@ -70,13 +117,7 @@
                 
             </ul>
         </li>
-        <!-- End::slide -->
-        {{-- <li class="slide">
-            <a href="{{ route('api.index') }}" class="side-menu__item">
-                <i class="bx bx-store-alt side-menu__icon"></i>
-                <span class="side-menu__label">API Providers</span>
-            </a>
-        </li> --}}
+        
         
     </ul>
     <div class="slide-right" id="slide-right"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24"

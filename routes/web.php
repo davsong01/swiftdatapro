@@ -7,6 +7,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\VariationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\WebSettingController;
 use App\Http\Controllers\TransactionsController;
@@ -71,6 +72,10 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::resource('product', ProductController::class);
         Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 
+        Route::get('pull-variations/{product}', [VariationController::class, 'pullVariations'])->name('variations.pull');
+        Route::post('update-variations/{product}', [VariationController::class, 'updateVariations'])->name('variations.update');
+        Route::post('manual-variations-add/{product}', [VariationController::class, 'addManualVariations'])->name('manual.variations.add');
+        Route::get('delete-variations/{variation}', [VariationController::class, 'deleteVariations'])->name('variation.delete');
     });
     
 });

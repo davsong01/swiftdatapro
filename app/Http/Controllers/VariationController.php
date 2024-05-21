@@ -124,8 +124,6 @@ class VariationController extends Controller
                     'system_price' => $request->system_price[$key],
                     'min' => $request->minimum_amount[$key] ?? null,
                     'max' => $request->maximum_amount[$key] ?? null,
-                    'ussd_string' => $request->ussd_string[$key] ?? null,
-                    'multistep' => $request->multistep[$key] ?? null,
                     'status' => $request->status[$key]
                 ]);
 
