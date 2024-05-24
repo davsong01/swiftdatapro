@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Transactions extends Model
 {
@@ -44,4 +45,8 @@ class Transactions extends Model
         'api_response',
         'buyer_quantity',
     ];
+
+    public function user(){
+        return $this->belongsTo(User::class, 'buyer_email','email');
+    }
 }

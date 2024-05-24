@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\BillersLog;
 use DateTime;
 use DateTimeZone;
+use App\Models\User;
+use App\Models\Product;
+use App\Models\BillersLog;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
@@ -1463,5 +1465,128 @@ class TransactionsController extends Controller
     public function destroy(Transactions $transactions)
     {
         //
+    }
+
+    function debitCustomerPage()
+    {
+        return view('admin.transactions.debit_customer');
+    }
+
+    function creditCustomerPage()
+    {
+        return view('admin.transactions.credit_customer');
+    }
+
+    function processCreditDebit(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'amount' => 'required|numeric',
+            'type' => 'required'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user)return back()->with('error', 'Account not found!');
+        
+        dd('continue');
+        $controller = new TransactionController();
+        $amount = $controller->removeCharsInAmount($request->amount);
+        $currAmount = walletBalance($user);
+        if ($type == 'credit') {
+            $data['balance_after'] = $currAmount + $amount;
+        } else {
+            $data['balance_after'] = $currAmount - $amount;
+        }
+
+        $requestId = $controller->generateRequestId();
+        $tid = 'A2C-' . $requestId;
+        $reason = $type == 'debit' ? 'ADMIN-DEBIT' : 'ADMIN-CREDIT';
+        try {
+            //code...
+            $data['type'] = $type;
+            $data['customer_id'] = $user->customer->id;
+            $data['transaction_id'] = $tid;
+            $data['request_id'] = $requestId;
+            $data['payment_method'] = 'wallet';
+            $data['balance_before'] = $currAmount;
+            $data['amount'] = $amount;
+            $data['total_amount'] = $amount;
+            $data['customer_email'] = $user->email;
+            $data['customer_phone'] = $user->phone;
+            $data['customer_name'] = $user->firstname;
+            $data['unique_element'] = 'wallet';
+            $data['discount'] = 0;
+            $data['unit_price'] = $amount;
+            $data['descr'] = $request->reason;
+            $data['reason'] = $reason;
+            $data['status'] = 'delivered';
+            $data['admin_id'] = auth()->user()->admin->id;
+
+            $controller->logTransaction($data);
+
+            DB::transaction(function () use ($type, $amount, $tid, $user, $reason) {
+                $wallet = new WalletController();
+                $wallet->logWallet([
+                    'customer_id' => $user->customer->id,
+                    'type' => $type,
+                    'total_amount' => $amount,
+                    'reason' => $reason,
+                    'transaction_id' => $tid,
+                    'payment_method' => 'ADMIN-FUNDING',
+                ]);
+                $wallet->updateCustomerWallet($user, $amount, $type);
+            });
+            $sign = getSettings()->currency;
+            return back()->with('message', "Customer wallet has been {$type}ed with {$sign}" . number_format($amount));
+        } catch (\Exception $e) {
+
+            return back()->with('error', 'An error occured' . $e->getMessage() . $e->getLine() . $e->getFile());
+        }
+    }
+
+    public function adminTransactions(Request $request){
+        $transactions = Transactions::latest();
+        $products = Product::all();
+
+        if ($request->email) {
+            $transactions = $transactions->where('customer_email', $request->email);
+        }
+
+        if ($request->phone) {
+            $transactions = $transactions->where('customer_phone', $request->phone);
+        }
+
+        if ($request->service) {
+            $transactions = $transactions->where('product_id', $request->service);
+        }
+        if ($request->transaction_id) {
+            $transactions = $transactions->where('transaction_id', $request->transaction_id);
+        }
+        if ($request->unique_element) {
+            $transactions = $transactions->where('unique_element', $request->unique_element);
+        }
+        if ($request->status) {
+            $transactions = $transactions->where('status', $request->status);
+        }
+        if ($request->from) {
+            $time = $request->from . ' 00:00:00';
+            $transactions = $transactions->where('created_at', '>', $time);
+        }
+        if ($request->to) {
+            $time = $request->to . ' 00:00:00';
+            $transactions = $transactions->where('created_at', $time);
+        }
+
+        $transactions = $transactions->paginate(15)->withQueryString();;
+
+        return view('admin.transactions.index', compact('transactions','products'));
+    }
+
+
+    public function singleTransactionView($merchant, $transaction)
+    {
+        $transaction = Transactions::where('id', $transaction)->first();
+        return view('admin.transactions.single_transaction', compact('transaction'));
     }
 }

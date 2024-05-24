@@ -11,6 +11,7 @@ use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\VariationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\WebSettingController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\CustomerLevelController;
@@ -74,16 +75,21 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::resource('category', CategoryController::class);
         Route::resource('product', ProductController::class);
         Route::resource('customerlevel', CustomerLevelController::class);
-       
+        Route::resource('notification', NotificationController::class);
+    
         Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 
-        
         Route::get('pull-old-variations/{product}', [VariationController::class, 'pullOldVariations'])->name('variations.old.pull');
         Route::get('pull-variations/{product}', [VariationController::class, 'pullVariations'])->name('variations.pull');
         Route::post('update-variations/{product}', [VariationController::class, 'updateVariations'])->name('variations.update');
         Route::post('manual-variations-add/{product}', [VariationController::class, 'addManualVariations'])->name('manual.variations.add');
         Route::get('delete-variations/{variation}', [VariationController::class, 'deleteVariations'])->name('variation.delete');
 
+        Route::get('credit-customer', [TransactionsController::class, 'creditCustomerPage'])->name('admin.credit.customer');
+        Route::get('debit-customer', [TransactionsController::class, 'debitCustomerPage'])->name('admin.debit.customer');
+        Route::post('process-credit-debit', [TransactionsController::class, 'processCreditDebit'])->name('admin.process.credit.debit');
+        Route::get('admin-transactions', [TransactionsController::class, 'adminTransactions'])->name('admin.transactions');
+        Route::get('single-transaction-view/{transaction}', [TransactionsController::class, 'singleTransactionView'])->name('admin.single.transaction.view');
 
     });
     

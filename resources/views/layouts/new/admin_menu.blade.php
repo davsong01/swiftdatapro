@@ -120,7 +120,33 @@
             </ul>
         </li>
         
-        
+        {{-- @if (in_array('Notifications', allowedPermissions())) --}}
+        <li class="slide">
+            <a href="{{ route('notification.index') }}" class="side-menu__item {{Route::is('notification.index') ? 'active' : '' }}">
+                <i class="bx bx-store-alt side-menu__icon"></i>
+                <span class="side-menu__label">Notifications</span>
+            </a>
+        </li>
+        {{-- @endif --}}
+        <li class="slide has-sub {{ Route::is('admin.credit.customer') ||  Route::is('admin.debit.customer') }}">
+            <a href="javascript:void(0);" class="side-menu__item">
+                <i class="bx bx-home side-menu__icon"></i>
+                <span class="side-menu__label">Finance</span>
+                <i class="fe fe-chevron-right side-menu__angle"></i>
+            </a>
+            <ul class="slide-menu child1">
+                <li class="slide">
+                    <a href="{{ route('admin.transactions') }}" class="side-menu__item {{Route::is('admin.debit.customer') ? 'active' : '' }}">Transactions</a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('admin.credit.customer') }}" class="side-menu__item {{Route::is('admin.credit.customer') ? 'active' : '' }}">Credit Customer</a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('admin.debit.customer') }}" class="side-menu__item {{Route::is('admin.debit.customer') ? 'active' : '' }}">Debit Customer</a>
+                </li>
+                
+            </ul>
+        </li>
     </ul>
     <div class="slide-right" id="slide-right"><svg xmlns="http://www.w3.org/2000/svg" fill="#7b8191" width="24"
             height="24" viewBox="0 0 24 24">
