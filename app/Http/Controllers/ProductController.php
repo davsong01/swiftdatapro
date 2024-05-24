@@ -37,6 +37,7 @@ class ProductController extends Controller
             "seo_title" => "nullable",
             "seo_keywords" => "nullable",
             "slug" => "required",
+            "old_identifier" => "nullable",
             "api" => "required",
             "status" => "required",
             "seo_description" => "nullable",
@@ -73,6 +74,7 @@ class ProductController extends Controller
                 "seo_title" => $request->seo_title,
                 "seo_keywords" => $request->seo_keywords,
                 "slug" => $request->slug,
+                "old_identifier" => $request->old_identifier,
                 "api_id" => $request->api,
                 "status" => $request->status,
                 "has_variations" => $request->has_variations,
@@ -88,7 +90,6 @@ class ProductController extends Controller
                 'referral_percentage' => $request->referral_percentage,
             ]
         );
-
 
         if (isset($request->productlevel) && isset($product)) {
             foreach ($request->productlevel as $key => $price) {
@@ -138,6 +139,7 @@ class ProductController extends Controller
             "seo_title" => "nullable",
             "seo_keywords" => "nullable",
             "slug" => "required",
+            "old_identifier"=> "nullable",
             "api" => "required",
             "status" => "required",
             "seo_description" => "nullable",
@@ -167,6 +169,7 @@ class ProductController extends Controller
             "seo_title" => $request->seo_title,
             "seo_keywords" => $request->seo_keywords,
             "slug" => $request->slug,
+            "old_identifier" => $request->old_identifier,
             "api_id" => $request->api,
             "status" => $request->status,
             "has_variations" => $request->has_variations,

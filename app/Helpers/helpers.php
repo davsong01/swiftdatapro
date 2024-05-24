@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\WebSetting;
+use App\Models\RolePermission;
 
 if (!function_exists("settings")) {
     function settings()
@@ -19,6 +20,12 @@ if (!function_exists("allowedPermissions")) {
     function allowedPermissions($user=null)
     {
         if(empty($user)){
+            $ids = auth()->guard('admin')->user()->roleids;
+            
+            if(in_array(1, $ids)){
+                return RolePermission::where('status', 'active')->pluck('id')->toArray();
+            }
+
             return auth()->guard('admin')->user()->permissions;
         }else{
             return $user->permissions;

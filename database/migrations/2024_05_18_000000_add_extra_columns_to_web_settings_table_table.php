@@ -15,13 +15,13 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('web_settings', 'seo_title')) {
             Schema::table('web_settings', function (Blueprint $table) {
-                $table->string('seo_title');
+                $table->string('seo_title')->nullable();
             });
         }
 
         if (!Schema::hasColumn('web_settings', 'seo_description')) {
             Schema::table('web_settings', function (Blueprint $table) {
-                $table->string('seo_description');
+                $table->string('seo_description')->nullable();
             });
         }
 

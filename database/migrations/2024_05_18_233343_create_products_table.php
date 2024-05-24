@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->double('system_price')->nullable();
             $table->string('slug')->unique();
+            $table->string('old_identifier')->unique();
+            
             $table->string('min')->nullable();
             $table->string('max')->nullable();
             $table->string('seo_title')->nullable();

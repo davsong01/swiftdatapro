@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\HomeController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\WebSettingController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\CustomerLevelController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\PaymentGatewayController;
@@ -29,6 +31,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('populate', [Controller::class, 'populateData']);
 
 Route::get('/', [FrontendController::class, 'index']);
 Route::get('/tac', [FrontendController::class, 'tac'])->name('tac');
@@ -70,12 +73,18 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::resource('paymentgateway', PaymentGatewayController::class);
         Route::resource('category', CategoryController::class);
         Route::resource('product', ProductController::class);
+        Route::resource('customerlevel', CustomerLevelController::class);
+       
         Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 
+        
+        Route::get('pull-old-variations/{product}', [VariationController::class, 'pullOldVariations'])->name('variations.old.pull');
         Route::get('pull-variations/{product}', [VariationController::class, 'pullVariations'])->name('variations.pull');
         Route::post('update-variations/{product}', [VariationController::class, 'updateVariations'])->name('variations.update');
         Route::post('manual-variations-add/{product}', [VariationController::class, 'addManualVariations'])->name('manual.variations.add');
         Route::get('delete-variations/{variation}', [VariationController::class, 'deleteVariations'])->name('variation.delete');
+
+
     });
     
 });

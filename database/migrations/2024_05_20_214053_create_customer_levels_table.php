@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('order')->unique();
-            $table->string('upgrade_amount');
+            $table->double('upgrade_amount')->nullable();
+            $table->double('admin_inch')->nullable();
             $table->timestamps();
         });
     }

@@ -42,7 +42,7 @@
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">
-                @if (in_array('Staff Roles', allowedPermissions()))
+                {{-- @if (in_array('Staff Roles', allowedPermissions())) --}}
                 <li class="slide">
                     <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
                         <span class="side-menu__label">All Customers</span>
@@ -63,12 +63,14 @@
                         <span class="side-menu__label">Blacklisted</span>
                     </a>
                 </li>
+                {{-- @if (in_array('customerlevel.index', allowedPermissions()) || in_array(1, auth()->guard('admin')->user()->admin->roleIds())) --}}
                 <li class="slide">
-                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                    <a href="{{ route('customerlevel.index') }}" class="side-menu__item {{Route::is('customerlevel.*') ? 'active' : '' }}">
                         <span class="side-menu__label">Customer Levels</span>
                     </a>
                 </li>
-                @endif
+                {{-- @endif --}}
+                {{-- @endif --}}
             </ul>
         </li>
 

@@ -21,6 +21,20 @@ class VariationController extends Controller
         return back()->with('message', 'Variations pulled successfully');
     }
 
+    public function pullOldVariations(Product $product)
+    {
+        // Get the product slug
+       
+        // Get the product api id
+        $api = $product->api;
+        Session::put('page', '1');
+
+        // Get Variations from Filename
+        $variations = app("App\Http\Controllers\Providers\\" . $api->file_name)->getVariations($product);
+
+        return back()->with('message', 'Variations pulled successfully');
+    }
+
     public function getCustomerVariations(Product $product)
     {
         $variations = Variation::where('product_id', $product->id)->where('status', 'active')->orderBy('system_price', 'ASC')->get();
