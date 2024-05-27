@@ -45,16 +45,16 @@
                                 <input type="number" class="form-control" id="max" name="max[]"  value="{{ old('max') }}">
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label" for="name">API Price ({!! settings()['currency']!!})</label>
+                                <label class="form-label" for="api_price">API Price ({!! settings()['currency']!!})</label>
                                 <input type="number" class="form-control" id="api_price" name="api_price[]"  value="" placeholder="API price" required>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label" for="name">System Price ({!! settings()['currency']!!})</label>
+                                <label class="form-label" for="system_price">System Price ({!! settings()['currency']!!})</label>
                                 <input type="number" class="form-control" id="system_price" name="system_price[]"  value="" placeholder="Variation price" required>
                             </div>
                             @foreach($customerlevel as $level)
                             <div class="col-md-3">
-                                <label class="form-label" for="name">{{ $level->name }} @if($product->category->discount_type == 'flat') Discounted Price ({!! settings()['currency']!!}) @else Discounted Percentage (%) @endif</label>
+                                <label class="form-label" for="{{ $level->name }}">{{ $level->name }} @if($product->category->discount_type == 'flat') Discounted Price ({!! settings()['currency']!!}) @else Discounted Percentage (%) @endif</label>
                                 <input type="number" class="form-control" id="level" step=".01" name="level[{{ $level->id }}][]" value="" required>
                             </div>
                             @endforeach
@@ -63,14 +63,14 @@
                                 <button style="color: white;" class="btn btn-success form-control" style="padding: 8px;" type="button" id="add-mode"><i class="bx bx-plus"></i> Add More</button>
                             </div>
                             <div class="col-md-12">
-                            <hr style="height: 0px;border-color: #00cfdd;">
+                            <hr style="height: 1px;border-color: red;">
                             </div>
                         </div>
                     </section>
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light-secondary" data-dismiss="modal">
+                <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
                     <i class="bx bx-x d-block d-sm-none"></i>
                     <span class="d-none d-sm-block">Close</span>
                 </button>

@@ -27,6 +27,8 @@ return new class extends Migration
             $table->string('verifiable')->default('no');
             $table->integer('min')->nullable();
             $table->integer('max')->nullable();
+            $table->string('network')->nullable();
+            
             $table->timestamps();
         });
     }

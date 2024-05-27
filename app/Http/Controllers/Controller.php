@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Api;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Settings;
@@ -24,17 +25,97 @@ class Controller extends BaseController
     public function populateData(){
         try {
             //code...
-        
-            // Create Customer Levels
             $web_settings = DB::connection('old')->table('web_settings')->first();
+            Api::truncate();
+            Product::truncate();
+            Category::truncate();
+
+            $apis = [
+                [
+                    'name' => 'EasyAccess',
+                    'status' => 'active',
+                    'api_key' => $web_settings->easyaccess_token,
+                    'secret_key' => '',
+                    'public_key' => '',
+                    'slug' => 'easyaccess',
+                    'live_base_url' => 'https://easyaccess.com.ng/api/',
+                    'sandbox_base_url' => 'https://easyaccess.com.ng/api/'
+                ],
+                [
+                    'name' => 'Vtpass',
+                    'status' => 'active',
+                    'api_key' => 'f742eb6055ff05d109de74caaf563b4f',
+                    'secret_key' => 'SK_14525bc8c1f7e82026cadc079fcdb892d3c83d58025',
+                    'public_key' => 'PK_84802bc898ef45c19317552eea90c660efaa2f67122',
+                    'slug' => 'easyaccess',
+                    'live_base_url' => 'https://api-service.vtpass.com/api/',
+                    'sandbox_base_url' => 'https://sandbox.vtpass.com/api/'
+                ],
+                [
+                    'name' => 'Gongzo Data',
+                    'status' => 'active',
+                    'api_key' => '3b24d3f969dd1aa39cc434ada0c4de75f54e4948',
+                    'secret_key' => '',
+                    'public_key' => '',
+                    'slug' => 'gongzo-data',
+                    'live_base_url' => 'https://www.gongozconcept.com/api/',
+                    'sandbox_base_url' => 'https://www.gongozconcept.com/api/'
+                ],
+                [
+                    'name' => 'Naija Result Pins',
+                    'status' => 'active',
+                    'api_key' => $web_settings->naijaresultpins_api_key,
+                    'secret_key' => '',
+                    'public_key' => '',
+                    'slug' => 'naija-result-pins',
+                    'live_base_url' => 'https://www.naijaresultpins.com/api/v1/',
+                    'sandbox_base_url' => 'https://www.naijaresultpins.com/api/v1/'
+                ],
+                [
+                    'name' => 'Club Konnect',
+                    'status' => 'active',
+                    'api_key' => $web_settings->clubkonnect_api_key,
+                    'secret_key' => $web_settings->clubkonnect_user_id,
+                    'public_key' => '',
+                    'slug' => 'club-konnect',
+                    'live_base_url' => 'https://www.nellobytesystems.com/',
+                    'sandbox_base_url' => 'https://www.nellobytesystems.com/'
+                ],
+                [
+                    'name' => 'SME Plug',
+                    'status' => 'inactive',
+                    'api_key' => $web_settings->smeplug_token,
+                    'secret_key' => '',
+                    'public_key' => '',
+                    'slug' => 'sme-plug',
+                    'live_base_url' => 'https://smeplug.ng/api/v1/vtu',
+                    'sandbox_base_url' => 'https://smeplug.ng/api/v1/vtu'
+                ],
+            ];
+
+            foreach($apis as $api){
+                Api::updateOrCreate([
+                    'name' => $api['name'],
+                    'status' => $api['status'],
+                    'api_key' => $api['api_key'],
+                    'secret_key' => $api['secret_key'],
+                    'public_key' => $api['public_key'],
+                    'slug' => $api['slug'],
+                    'live_base_url' => $api['live_base_url'],
+                    'sandbox_base_url' => $api['sandbox_base_url']
+                ]);
+            }
+            // Create Customer Levels
             // $web_settings = json_decode($web_settings, true);
             // dd($web_settings);
             $count = 0;
+            CustomerLevel::truncate();
+            
             for($i=2;$i<=4;$i++){
                 $charge = 'level' . $i . '_charge';
                 $admin = 'level' . $i . '_adminch';
                 // dd($charge, $web_settings->$charge);
-                CustomerLevel::updateOrCreate(['name' => 'Level '.$i],[
+                CustomerLevel::updateOrCreate(['name' => 'Level '.$i, 'order' => $i],[
                     'name' => 'Level ' . $i,
                     'order' => $i,
                     'upgrade_amount' => $web_settings->$charge,
@@ -119,7 +200,7 @@ class Controller extends BaseController
                     "name" => 'Utility Bills',
                     "icon" => '',
                     "display_name" => 'Utility Bills',
-                    "slug" => 'utility-bills',
+                    "slug" => 'electricity',
                     "status" => 'active',
                     "order" => 6,
                     "description" => 'Buy utility bills',
@@ -195,7 +276,6 @@ class Controller extends BaseController
 
             // Create Products
             $categories = Category::all();
-            Product::truncate();
             foreach($categories as $category){
                 if($category->slug == 'data'){
                     $toAdd = [
@@ -204,8 +284,9 @@ class Controller extends BaseController
                             "display_name" => 'Mtn SME',
                             "category_id" => $category->id,
                             "slug" => 'mtn-sme',
-                            "api_id" => 1,
+                            "api_id" => 3,
                             "old_identifier" => 'mtnsmedata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Mtn CG',
@@ -215,6 +296,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'mtncgdata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Mtn datacard',
@@ -224,6 +306,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'mtndata_card_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'GLO Gifting',
@@ -233,6 +316,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'glocgdata_plan',
+                            "fixed_price" => 'yes',
                         ],
 
                         [
@@ -243,6 +327,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'glodata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Airtel Gifting',
@@ -252,6 +337,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'airtelcgdata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Airtel CG',
@@ -261,6 +347,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'airteldata_plan',
+                            "fixed_price" => 'yes',
                         ],
 
                         [
@@ -271,6 +358,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'airteldata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => '9Mobile',
@@ -280,15 +368,17 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'mobiledata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => '9Mobile SME',
                             "display_name" => '9Mobile SME',
                             "category_id" => $category->id,
-                            "slug" => '9mobile-sme',
+                            "slug" => 'apimobile-sme',
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'mobilesmedata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Spectranet Data',
@@ -298,6 +388,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'spectranetdata_plan',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Smile Data',
@@ -307,6 +398,7 @@ class Controller extends BaseController
                             "has_variations" => 'yes',
                             "api_id" => 1,
                             "old_identifier" => 'smiledata_plan',
+                            "fixed_price" => 'yes',
                         ],
                     ];
                 }
@@ -318,8 +410,9 @@ class Controller extends BaseController
                             "display_name" => 'GOTV',
                             "category_id" => $category->id,
                             "slug" => 'gotv',
-                            "api_id" => 1,
+                            "api_id" => 2,
                             "old_identifier" => 'gotv_planlist',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'DSTV',
@@ -327,8 +420,9 @@ class Controller extends BaseController
                             "category_id" => $category->id,
                             "slug" => 'dstv',
                             "has_variations" => 'yes',
-                            "api_id" => 1,
+                            "api_id" => 2,
                             "old_identifier" => 'dstv_planlist',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Showmax',
@@ -336,8 +430,9 @@ class Controller extends BaseController
                             "category_id" => $category->id,
                             "slug" => 'showmax',
                             "has_variations" => 'yes',
-                            "api_id" => 1,
+                            "api_id" => 2,
                             "old_identifier" => 'showmax_planlist',
+                            "fixed_price" => 'yes',
                         ],
                         [
                             "name" => 'Startimes',
@@ -345,17 +440,291 @@ class Controller extends BaseController
                             "category_id" => $category->id,
                             "slug" => 'startime',
                             "has_variations" => 'yes',
-                            "api_id" => 1,
+                            "api_id" => 2,
                             "old_identifier" => 'startime_planlist',
+                            "fixed_price" => 'yes',
                         ],
                     ];
                 }
 
+                if ($category->slug == 'electricity') {
+                    $toAdd = [
+                        [
+                            "name" => 'Abuja Electric',
+                            "display_name" => 'Abuja Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'abuja-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'abuja',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Ibadan Electric',
+                            "display_name" => 'Ibadan Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'ibadan-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'ibadan',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Eko Electric',
+                            "display_name" => 'Eko Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'eko-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'eko',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Ikeja Electric',
+                            "display_name" => 'Ikeja Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'ikeja-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'ikeja',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Portharcourt Electric',
+                            "display_name" => 'Portharcourt Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'portharcourt-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'portharcourt',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Jos Electric',
+                            "display_name" => 'Jos Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'jos-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'jos',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Kaduna Electric',
+                            "display_name" => 'Kaduna Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'kaduna-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'kaduna',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Kano Electric',
+                            "display_name" => 'Kano Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'kano-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'kano',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Benin Electric',
+                            "display_name" => 'Benin Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'benin-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'benin',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Enugu Electric',
+                            "display_name" => 'Enugu Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'enugu-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'enugu',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Aba Electric',
+                            "display_name" => 'Aba Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'aba-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'aba',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'Yola Electric',
+                            "display_name" => 'Yola Electric',
+                            "category_id" => $category->id,
+                            "slug" => 'yola-electric',
+                            "api_id" => 2,
+                            "old_identifier" => 'yola',
+                            "fixed_price" => 'no',
+                        ],
+                    ];
+                }
+
+                if ($category->slug == 'exam-epins') {
+                    $toAdd = [
+                        [
+                            "name" => 'WAEC Result Checker',
+                            "display_name" => 'WEAC Result Checker',
+                            "category_id" => $category->id,
+                            "slug" => 'waec-result',
+                            "api_id" => 4,
+                            "old_identifier" => 'waec',
+                            "fixed_price" => 'yes',
+                        ],
+                        [
+                            "name" => 'NECO Result Checker',
+                            "display_name" => 'NECO Result Checker',
+                            "category_id" => $category->id,
+                            "slug" => 'neco-result',
+                            "api_id" => 4,
+                            "old_identifier" => 'neco',
+                            "fixed_price" => 'yes',
+                        ],
+                        [
+                            "name" => 'NABTEB Result Checker',
+                            "display_name" => 'NABTEB Result Checker',
+                            "category_id" => $category->id,
+                            "slug" => 'nabteb-result',
+                            "api_id" => 4,
+                            "old_identifier" => 'nabteb',
+                            "fixed_price" => 'yes',
+                        ],
+                        [
+                            "name" => 'GCE Result Checker',
+                            "display_name" => 'GCE Result Checker',
+                            "category_id" => $category->id,
+                            "slug" => 'gce-result',
+                            "api_id" => 4,
+                            "old_identifier" => 'gce',
+                            "fixed_price" => 'yes',
+                        ],
+                        [
+                            "name" => 'WAEC Registration',
+                            "display_name" => 'WAEC Registration',
+                            "category_id" => $category->id,
+                            "slug" => 'waec-registration',
+                            "api_id" => 4,
+                            "old_identifier" => 'waec_registration',
+                            "fixed_price" => 'yes',
+                        ],
+                        [
+                            "name" => 'NBAIS',
+                            "display_name" => 'NBAIS',
+                            "category_id" => $category->id,
+                            "slug" => 'nbais',
+                            "api_id" => 4,
+                            "old_identifier" => 'nbais',
+                            "fixed_price" => 'yes',
+                        ],
+                    ];
+                }
+
+                if ($category->slug == 'airtime') {
+                    $toAdd = [
+                        [
+                            "name" => 'MTN VTU',
+                            "display_name" => 'MTN VTU',
+                            "category_id" => $category->id,
+                            "slug" => 'mtn',
+                            "api_id" => 1,
+                            "old_identifier" => 'mtn-vtu',
+                            "fixed_price" => 'no',
+                            "has_variations" => 'no',
+                        ],
+                        [
+                            "name" => 'GLO VTU',
+                            "display_name" => 'GLO VTU',
+                            "category_id" => $category->id,
+                            "slug" => 'glo',
+                            "api_id" => 1,
+                            "old_identifier" => 'glo-vtu',
+                            "fixed_price" => 'no',
+                            "has_variations" => 'no',
+
+                        ],
+                        [
+                            "name" => 'AIRTEL VTU',
+                            "display_name" => 'AIRTEL VTU',
+                            "category_id" => $category->id,
+                            "slug" => 'airtel',
+                            "api_id" => 1,
+                            "old_identifier" => 'airtel-vtu',
+                            "fixed_price" => 'no',
+                            "has_variations" => 'no',
+
+                        ],
+                        [
+                            "name" => '9MOBILE VTU',
+                            "display_name" => '9MOBILE VTU',
+                            "category_id" => $category->id,
+                            "slug" => 'etisalat',
+                            "api_id" => 1,
+                            "old_identifier" => '9mobile-vtu',
+                            "fixed_price" => 'no',
+                            "has_variations" => 'no',
+
+                        ],
+                        [
+                            "name" => 'SMILE VTU',
+                            "display_name" => 'SMILE VTU',
+                            "category_id" => $category->id,
+                            "slug" => 'smile',
+                            "api_id" => 1,
+                            "old_identifier" => 'smile-vtu',
+                            "fixed_price" => 'no',
+                            "has_variations" => 'no',
+
+                        ],
+                    ];
+                }
+
+                if ($category->slug == 'airtime-sns') {
+                    $toAdd = [
+                        [
+                            "name" => 'MTN SNS',
+                            "display_name" => 'MTN VTU',
+                            "category_id" => $category->id,
+                            "slug" => 'mtn-sns',
+                            "api_id" => 1,
+                            "old_identifier" => 'mtn-sns',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'GLO SNS',
+                            "display_name" => 'GLO SNS',
+                            "category_id" => $category->id,
+                            "slug" => 'glo-sns',
+                            "api_id" => 1,
+                            "old_identifier" => 'glo-SNS',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => 'AIRTEL SNS',
+                            "display_name" => 'AIRTEL SNS',
+                            "category_id" => $category->id,
+                            "slug" => 'airtel-sns',
+                            "api_id" => 1,
+                            "old_identifier" => 'airtel-sns',
+                            "fixed_price" => 'no',
+                        ],
+                        [
+                            "name" => '9MOBILE SNS',
+                            "display_name" => '9MOBILE SNS',
+                            "category_id" => $category->id,
+                            "slug" => 'etisalat-sns',
+                            "api_id" => 1,
+                            "old_identifier" => '9mobile-sns',
+                            "fixed_price" => 'no',
+                        ],
+                    ];
+                }
+                
                 foreach ($toAdd as $product) {
                     $check = Product::where('slug',$product['slug'])->first();
                     if($check){
                         continue;
                     }
+            
                     Product::updateOrCreate(
                         [
                             "name" => $product['name'],
@@ -363,8 +732,8 @@ class Controller extends BaseController
                             "category_id" => $category->id,
                             "slug" => $product['slug'],
                             "old_identifier" => $product['old_identifier'],
-                            "has_variations" => 'yes',
-                            "api_id" => 1,
+                            "has_variations" => $product['has_variations'] ?? 'yes',
+                            "api_id" => $product['api_id'] ?? '1',
                         ],
 
                         [
@@ -373,19 +742,17 @@ class Controller extends BaseController
                             "category_id" => $category->id,
                             "slug" => $product['slug'],
                             "old_identifier" => $product['old_identifier'],
-                            "has_variations" => 'yes',
-                            "api_id" => 1,
-                            "has_variations" => 'yes',
+                            "api_id" => $product['api_id'] ?? '1',
                             "description" => '',
                             "seo_title" => '',
                             "seo_keywords" => '',
                             "status" => 'active',
-                            "has_variations" => 'yes',
+                            "has_variations" =>  $product['has_variations'] ?? 'yes',
                             "seo_description" => '',
                             "image" => '',
-                            "fixed_price" => 0,
+                            "fixed_price" => $product['fixed_price'] ?? 'no',
                             "system_price" => 0,
-                            "allow_quantity" => '',
+                            "allow_quantity" => 'no',
                             "quantity_graduation" => '',
                             "min" => 0,
                             "max" => 0,
@@ -396,9 +763,7 @@ class Controller extends BaseController
                 }
             }
 
-            dump('Variation Products created');
-
-            
+            dump('Products created');
         } catch (\Throwable $th) {
             dump($th->getMessage());
         }

@@ -45,16 +45,16 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group" >
-                                    <label for="transaction_id" class="form-label">Transaction ID</label>
-                                    <input type="text" class="form-control" id="transaction_id" name="transaction_id" placeholder="Enter transaction ID" value="{{ \Request::get('transaction_id')}}">
+                                    <label for="sys_reference" class="form-label">System Reference</label>
+                                    <input type="text" class="form-control" id="sys_reference" name="sys_reference" placeholder="Enter transaction ID" value="{{ \Request::get('sys_reference')}}">
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            {{-- <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="unique_element" class="form-label">Unique Element</label>
                                     <input type="text" class="form-control" id="unique_element" name="unique_element" placeholder="Enter unique element" value="{{ \Request::get('unique_element') }}">
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="status" class="form-label">Status</label>
@@ -92,8 +92,7 @@
                         <tr>
                             <th>Customer</th>
                             <th>Payment Details</th>
-                            <th>Transaction Details</th>
-                            <th>Unique Element</th>
+                            {{-- <th>Unique Element</th> --}}
                             @if(hasAccess('admin.single.transaction.view'))
                             <th>Action</th>
                             @endif
@@ -101,35 +100,35 @@
                     </thead>
                     <tbody>
                         @foreach($transactions as $transaction)
-                       
                         <tr>
                             <td>
-                                 <span style="color:crimson"><strong>TransactionID: </strong> <br>{{ $transaction->transaction_id }}</span> <br>
-                                <span style="color:rgb(27, 20, 220)"><strong>Request ID: </strong> <br>{{ $transaction->reference_id }}</span> <br><br>
+                                <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br><br>
+                                <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> <br>
                                 {{ $transaction->buyer_email }} <br>
-                                <a href="">{{ $transaction->user->id  }}</a> <br>
+                                <a href="">{{ $transaction->customer?->id  }}</a> <br>
                                 {{ $transaction->mobile_number }} <br>
                                 {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>
                                 @if($transaction->status == 'success' || $transaction->buyer_status == 'SUCCESSFUL')
-                                <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->status) }}</button>
+                                <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                 @else
-                                <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->status) }}</button>
+                                <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                 @endif 
                             </td>
                             <td>
                                 <small>
-                                <strong>Amount: </strong>{!! settings()->currency. number_format($transaction->amount, 2) !!} <br>
-                                <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->provider_charge, 2) !!} <br>
-                                <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->total_amount,2) !!} <br>
-                                <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->balance_before, 2) !!} <br>
-                                <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->balance_after, 2) !!} <br>
+                                    <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
+                                    <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
+                                    <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
+                                    <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                    <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                    <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
+                                </small>
                             </td>
                             
-                            <td>{{ $transaction->created_at }}</td>
-                            <td>{{ $transaction->unique_element }}</td>
+                            {{-- <td>{{ $transaction->unique_element }}</td> --}}
                             <td>
                                 @if(hasAccess('admin.single.transaction.view'))
-                                    <a class="btn btn-danger-light btn-wave btn-sm" href="{{ route('admin.single.transaction.view', $transaction->id) }}">
+                                    <a class="btn btn-info-light btn-wave btn-sm" href="{{ route('admin.single.transaction.view', $transaction->id) }}">View</a>
                                 @endif
                             </td>
                         </tr>

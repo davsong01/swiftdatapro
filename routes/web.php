@@ -90,6 +90,7 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::post('process-credit-debit', [TransactionsController::class, 'processCreditDebit'])->name('admin.process.credit.debit');
         Route::get('admin-transactions', [TransactionsController::class, 'adminTransactions'])->name('admin.transactions');
         Route::get('single-transaction-view/{transaction}', [TransactionsController::class, 'singleTransactionView'])->name('admin.single.transaction.view');
+        Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
 
     });
     

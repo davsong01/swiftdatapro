@@ -36,6 +36,7 @@ return new class extends Migration
             $table->string('allow_subscription_type')->default('no');
             $table->string('quantity_graduation')->nullable();
             $table->double('referral_percentage')->nullable();
+            $table->string('network')->nullable();
             
             $table->string('allow_meter_validation')->default('no');
             

@@ -10,6 +10,7 @@ use App\Models\BillersLog;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\JsonResponseService;
 
 class TransactionsController extends Controller
@@ -1560,12 +1561,12 @@ class TransactionsController extends Controller
         if ($request->service) {
             $transactions = $transactions->where('product_id', $request->service);
         }
-        if ($request->transaction_id) {
-            $transactions = $transactions->where('transaction_id', $request->transaction_id);
+        if ($request->sys_reference) {
+            $transactions = $transactions->where('sys_reference', $request->sys_reference);
         }
-        if ($request->unique_element) {
-            $transactions = $transactions->where('unique_element', $request->unique_element);
-        }
+        // if ($request->unique_element) {
+        //     $transactions = $transactions->where('unique_element', $request->unique_element);
+        // }
         if ($request->status) {
             $transactions = $transactions->where('status', $request->status);
         }
@@ -1584,9 +1585,17 @@ class TransactionsController extends Controller
     }
 
 
-    public function singleTransactionView($merchant, $transaction)
+    public function singleTransactionView(Transactions $transaction)
     {
-        $transaction = Transactions::where('id', $transaction)->first();
         return view('admin.transactions.single_transaction', compact('transaction'));
+    }
+
+    public function transactionReceipt($transaction_id)
+    {
+        $transaction = TransactionLog::with(['product', 'category', 'variation'])->where('id', $transaction_id)->first()->toArray();
+
+        $pdf = Pdf::loadView('admin.receipts.transaction_receipt', ['transaction' => $transaction])->setPaper('a4', 'portrait');
+        return $pdf->download($transaction['transaction_id'] . '.pdf');
+        // return view('customer.receipts.transaction_receipt', compact('transaction'));
     }
 }

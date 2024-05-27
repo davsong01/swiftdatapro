@@ -23,16 +23,23 @@ class VariationController extends Controller
 
     public function pullOldVariations(Product $product)
     {
-        // Get the product slug
-       
         // Get the product api id
         $api = $product->api;
         Session::put('page', '1');
+        
+        if($api->slug == 'vtpass'){
+            app("App\Http\Controllers\Providers\VtpassController")->getOldVariations($product);
+        }
+        
+        if ($api->slug == 'easyaccess') {
+            app("App\Http\Controllers\Providers\EasyAccessController")->getOldVariations($product);
+        }
 
-        // Get Variations from Filename
-        $variations = app("App\Http\Controllers\Providers\\" . $api->file_name)->getVariations($product);
-
-        return back()->with('message', 'Variations pulled successfully');
+        if ($api->slug == 'gongzo-data') {
+            app("App\Http\Controllers\Providers\GongzoController")->getOldVariations($product);
+        }
+        
+        return back()->with('message', 'Old Variations pulled successfully');
     }
 
     public function getCustomerVariations(Product $product)
@@ -90,23 +97,20 @@ class VariationController extends Controller
                 }
             }
         }
-
+        
         foreach ($request->variation_id as $variation) {
             $data = [
                 'api_name' => $request->api_name[$variation],
                 'api_price' => $request->api_price[$variation],
                 'system_name' => $request->system_name[$variation],
                 'slug' => $request->slug[$variation],
-                'ussd_string' => $request->ussd_string[$variation],
                 'system_price' => $request->system_price[$variation],
                 'fixed_price' => $request->fixed_price[$variation],
                 'min' => $request->min[$variation] ?? null,
                 'max' => $request->max[$variation] ?? null,
-                'ussd_string' => $request->ussd_string[$variation] ?? null,
-                'multistep' => $request->multistep[$variation] ?? null,
                 'status' => $request->status[$variation],
             ];
-
+        
             Variation::where('id', $variation)->update($data);
         }
 

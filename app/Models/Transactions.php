@@ -46,7 +46,7 @@ class Transactions extends Model
         'buyer_quantity',
     ];
 
-    public function user(){
+    public function customer(){
         return $this->belongsTo(User::class, 'buyer_email','email');
     }
 }
