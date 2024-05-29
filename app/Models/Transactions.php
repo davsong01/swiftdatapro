@@ -18,38 +18,7 @@ class Transactions extends Model
     protected $appends = ['type'];
     protected $table = 'final_transactions';
 
-    protected $fillable =
-    [
-        'mobile_number',
-        'buyer_email',
-        'buyer_username',
-        'buyer_service',
-        'buyer_amount',
-        'buyer_prebal',
-        'buyer_postbal',
-        'buyer_descr',
-        'buyer_status',
-        'buyer_date',
-        'timestring',
-        'charge_from',
-        'user_type',
-        'sys_ref',
-        'api_ref',
-        'api_report',
-        'src_price',
-        'profit',
-        'databyte',
-        'app_version',
-        'domain_name',
-        'ip_address',
-        'post_fields',
-        'provider',
-        'extra',
-        'charges',
-        'failure_reason',
-        'api_response',
-        'buyer_quantity',
-    ];
+    protected $guarded = [];
 
     public function customer(){
         return $this->belongsTo(User::class, 'buyer_email','email');

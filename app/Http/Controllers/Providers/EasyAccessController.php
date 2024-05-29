@@ -1685,43 +1685,43 @@ class EasyAccessController extends Controller
     }
 
     public function getPostData($request){
-        if ($request['network_module'] == 'MTN-CG' || $request['network_module'] == 'GIFTING') {
+        if ($request['buyer_service'] == 'MTN-CG' || $request['buyer_service'] == 'GIFTING') {
             $type = 'data';
             $product = 'mtn';
             $ntwk = 01;
             $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'AIRTEL-CG') {
+        } elseif ($request['buyer_service'] == 'AIRTEL-CG') {
             $type = 'data';
             $product = 'airtel-cg';
             $ntwk = 03;
             $url = "https://easyaccess.com.ng/api/data.php";
 
-        } elseif ($request['network_module'] == 'AIRTEL') {
+        } elseif ($request['buyer_service'] == 'AIRTEL') {
             $type = 'data';
             $product = 'airtel';
             $ntwk = 03;
             $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'GLO-CG') {
+        } elseif ($request['buyer_service'] == 'GLO-CG') {
             $type = 'data';
             $product = 'glo-cg';
             $ntwk = 02;
             $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'GLO') {
+        } elseif ($request['buyer_service'] == 'GLO') {
             $type = 'data';
             $product = 'glo';
             $ntwk = 02;
             $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'MOBILE-SME' || $request['network_module'] == 'MOBILE SME') {
+        } elseif ($request['buyer_service'] == 'MOBILE-SME' || $request['buyer_service'] == 'MOBILE SME') {
             $type = 'data';
             $product = 'apimobile-sme';
             $ntwk = 04;
             $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'MTN-DATACARD') {
+        } elseif ($request['buyer_service'] == 'MTN-DATACARD') {
             $type = 'datacard';
             $product = 'mtn-data-card';
             $ntwk = 01;
             $url = "https://easyaccess.com.ng/api/datacard.php";
-        }else if ($request['network_module'] == 'MTN' || $request['network_module'] == 'MTN-SME') {
+        }else if ($request['buyer_service'] == 'MTN' || $request['buyer_service'] == 'MTN-SME') {
             $type = 'data';
             $product = 'mtn';
             $ntwk = 01;
@@ -1740,7 +1740,23 @@ class EasyAccessController extends Controller
 
     }
 
-    public function query($postdata, $request, $type){
+    public function query($postdata, $api){
+        $headers = [
+            "AuthorizationToken: " . $api->api_key . "",
+            'cache-control: no-cache'
+        ];
+
+        // Save post fields
+        $pstfields = $this->getPostData($postdata);
+        dd($pstfields);
+        $params = [
+            'url' => $postdata['url'],
+            'headers' => $headers,
+            'postfields' => $pstfields,
+            'payload' => Arr::except($postdata, 'url'),
+            'provider' => 'EASYACCESS',
+        ];
+     
         $resX = $this->advancedApiCall($postdata['url'], $postdata['payload'], $postdata['headers']);
 
         // $resX = '{"success": "true","message": "Data Card Purchase was Successful","network": "MTN","pin": "408335193S","pin2": "184305851S","dataplan": "1.5GB","amount": 574,"balance_before": "27833","balance_after": 27259,"transaction_date": "07-04-2023 07:57:47 pm","reference_no": "ID5345892220","client_reference": "client_ref84218868382855","status": "Successful","auto_refund_status": "success"}';

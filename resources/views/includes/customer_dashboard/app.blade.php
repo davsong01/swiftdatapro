@@ -87,13 +87,14 @@
             }
         }
     </style>
+    @yield('extra-css')
 </head>
 
 <body class="crm_body_bg">
     <nav class="sidebar">
         <div class="logo">
             <h5 class="">Available Balance. <br /> <span style="color: #940798;font-weight: bold;font-size: 20px;">
-                    ₦{{ number_format(auth()->user()->wallets,2) }}</span></h5>
+                   {{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span></h5>
             <h6 class="">Level: {{ auth()->user()->level }} <span
                     style="color: #940798;font-weight: bold;font-size: 18px;"></span></h6>
             <div class="sidebar_close_icon d-lg-none">
@@ -498,9 +499,7 @@
                     <span style="float: right;"></span>
                 </span>
                 <br />
-
-                <span style="color: #940798;font-weight: bold;font-size: 25px;">₦
-                    <?php echo number_format(auth()->user()->wallets, 2); ?></span>
+                <span style="color: #940798;font-weight: bold;font-size: 25px;">{{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span>
 
             </div>
 

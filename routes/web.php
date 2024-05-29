@@ -34,7 +34,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 */
 Route::get('populate', [Controller::class, 'populateData']);
 
-Route::get('/', [FrontendController::class, 'index']);
+Route::get('/', [FrontendController::class, 'index'])->name('welcome');
 Route::get('/tac', [FrontendController::class, 'tac'])->name('tac');
 
 Route::get('email/verify/{token}', [VerificationController::class, 'verifyAccount'])->name('user.verify')->middleware(['auth']);
@@ -131,6 +131,7 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
     Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
     Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
+    Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
 
     Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
 

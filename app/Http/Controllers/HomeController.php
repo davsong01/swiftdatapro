@@ -89,7 +89,7 @@ class HomeController extends Controller
         $reference = strtoupper(time() . rand(1000, 9000) . rand(20000000, 90000000));
         $reference2 = strtoupper(rand(1000, 9000) . rand(200000, 900000) . uniqid());
         $level = $request->level;
-        $Account_Balance = auth()->user()->wallets;
+        $Account_Balance = walletBalance(auth()->user());
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $timestring = time();

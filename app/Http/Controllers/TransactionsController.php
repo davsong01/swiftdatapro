@@ -7,16 +7,17 @@ use DateTimeZone;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Variation;
 use App\Models\BillersLog;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\JsonResponseService;
+use Illuminate\Support\Facades\Session;
 
 class TransactionsController extends Controller
 {
-
     public function initialize($service){
         // $productAccess = $this->getProductAccess();
         $category = Category::with([
@@ -25,92 +26,13 @@ class TransactionsController extends Controller
             }
         ])->where('status', 'active')->where('slug', $service)->first();
         
-        return view('customer.'.$service, compact('service','category'));
+        return view('customer.airtime', compact('service','category'));
+        // return view('customer.'.$service, compact('service','category'));
     }
 
     public function getCustomerDiscount(Request $request){
         return response()->json(getProductDiscount($request->amount, $request->product_id, $request->variation_id));
     }
-
-    // public function getProductAccess($needle=null){
-    //     $webSetting = WebSetting::first();
-
-    //     ////LOCK CABLE
-    //     $access = [
-    //         'dstv_lock' => $webSetting->dstv_lock,
-    //         'gotv_lock' => $webSetting->gotv_lock,
-    //         'star_lock' => $webSetting->star_lock,
-    //         'showmax_lock' => $webSetting->showmax_lock,
-
-    //         ////LOCK EPINS
-    //         'waec_lock' => $webSetting->waec_lock,
-    //         'gce_lock' => $webSetting->gce_lock,
-    //         'neco_lock' => $webSetting->neco_lock,
-    //         'waec_reg_lock' => $webSetting->waec_registration_lock,
-    //         'nabt_lock' => $webSetting->nabt_lock,
-
-    //         ////LOCK VTU
-    //         'm_lock2' => $webSetting->m_lock2,
-    //         'g_lock2' => $webSetting->g_lock2,
-    //         'a_lock2' => $webSetting->a_lock2,
-    //         'mo_lock2' => $webSetting->mo_lock2,
-
-
-    //         ////LOCK SNS
-    //         'm_lock3' => $webSetting->m_lock3,
-    //         'g_lock3' => $webSetting->g_lock3,
-    //         'a_lock3' => $webSetting->a_lock3,
-    //         'mo_lock3' => $webSetting->mo_lock3,
-
-    //         ////LOCK DATA
-    //         'm_lock1' => $webSetting->m_lock1,
-    //         'mg_lock1' => $webSetting->mg_lock1,
-    //         'g_lock1' => $webSetting->g_lock1,
-    //         'gcg_lock1' => $webSetting->gcg_lock1,
-    //         'a_lock1' => $webSetting->a_lock1,
-    //         'ag_lock1' => $webSetting->ag_lock1,
-    //         'mo_lock1' => $webSetting->mo_lock1,
-    //         'mobilesme_lock' => $webSetting->mobilesme_lock,
-    //         'mtn_data_card' => $webSetting->mtn_data_card,
-    //         'mtn_data_card_lock' => $webSetting->mtn_data_card_lock,
-    //         'spectranet_lock' => $webSetting->spectranet_lock,
-
-    //         ////LOCK BILLS
-    //         'abuja_lock' => $webSetting->abuja_lock,
-    //         'eko_lock' => $webSetting->eko_lock,
-    //         'ibadan_lock' => $webSetting->ibadan_lock,
-    //         'ikeja_lock' => $webSetting->ikeja_lock,
-    //         'jos_lock' => $webSetting->jos_lock,
-    //         'kano_lock' => $webSetting->kano_lock,
-    //         'kaduna_lock' => $webSetting->kaduna_lock,
-    //         'port_lock' => $webSetting->port_lock,
-    //         'benin_lock' => $webSetting->benin_lock,
-    //         'enugu_lock' => $webSetting->enugu_lock,
-    //         'aba_lock' => $webSetting->aba_lock,
-
-    //         ///
-    //         'sms_access' => $webSetting->sms_access,
-    //         'sms_api' => $webSetting->sms_api,
-    //         'withdraw_access' => $webSetting->withdraw_access,
-    //         'withdraw_charge' => $webSetting->withdraw_charge,
-    //         'level2_charge' => $webSetting->level2_charge,
-    //         'level2_adminch' => $webSetting->level2_adminch,
-    //         'level3_charge' => $webSetting->level3_charge,
-    //         'level3_adminch' => $webSetting->level3_adminch,
-    //         'level4_charge' => $webSetting->level4_charge,
-    //         'level4_adminch' => $webSetting->level4_adminch,
-    //         'smile_vtu_lock' => $webSetting->smile_vtu_lock,
-    //         'smile_lock' => $webSetting->smile_lock,
-
-    //     ];
-
-    //     if(!empty($needle)){
-    //         $access = $access[$needle] ?? null;
-    //     }
-
-    //     return $access;
-        
-    // }
 
     public function verify(Request $request){        
         $check = BillersLog::where('unique_element', $request->smart_no)->where('product', strtolower($request->service_module))->first();
@@ -686,211 +608,407 @@ class TransactionsController extends Controller
     
     }
 
-    public function processBuy(Request $request, JsonResponseService $service, $type){
-        $user = auth()->user();
+    // public function processBuy(Request $request, JsonResponseService $service, $type){
+    //     $user = auth()->user();
 
-        $network_module = strtoupper($request->network_module);
-        $service_module = strtoupper($request->service_module);
-        
-        $product = strtolower($network_module);
-        
-        $dataplanloader = $request->dataplanloader ?? $product;
+    //     $network_module = strtoupper($request->network_module);
+    //     $service_module = strtoupper($request->service_module);
+
+    //     $product = strtolower($network_module);
+
+    //     $dataplanloader = $request->dataplanloader ?? $product;
+    //     $mobile_no = $request->mobile_no;
+    //     $no_of_pins = $request->no_of_pins ?? 1;
+    //     $security_pin = base64_encode(base64_encode(base64_encode($request->security_pin)));
+    //     $account_id = $request->account_id;
+    //     $plan_code = $dataplanloader;
+    //     $network = !empty($network_module) ? $network_module : $service_module;
+
+    //     $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
+    //     $time = $dateTime->format("d-M-y  h:i A");
+    //     $timexx = $dateTime->format("YmdHi");
+    //     $timestring = time();
+    //     $api_reference = strtoupper($timexx . uniqid() . rand(10000, 90000));
+    //     $request_id = $api_reference;
+    //     $checkBlacklistPhone = \DB::table('blacklist_mobiles')->where('add_mobile', $mobile_no)->first();
+
+    //     $request['request_id'] = $request_id;
+
+    //     // checks
+    //     if(!$user){
+    //         $response = array(
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Basic Authorization Failed! Unable to fetch user record',
+    //         );
+    //         return $service->build($response);
+    //     }
+
+    //     if (strlen($mobile_no) !== 11 || !is_numeric($mobile_no)) {
+    //         $response = [
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Please use a valid mobile no !!!',
+    //         ];
+
+    //         return $service->build($response);
+    //     }else if($security_pin !== $user->transaction_pin){
+    //         $response = [
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Incorrect security pin !!!',
+    //         ];
+    //         return $service->build($response);
+
+    //     }else if (!empty($mobile_no) && !empty($reference) && !empty($network) && !empty($user->api_token)) {
+    //         $response = array(
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Please make sure all the parameters are included.',
+    //         );
+    //         return $service->build($response);
+    //     }else if($user->block == 1){
+    //         $response = [
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Permission denied !!!',
+    //         ];
+    //         return $service->build($response);
+    //     }else if($checkBlacklistPhone) {
+    //         $response = array(
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Mobile no. cannot carry out transactions !!!',
+    //         );
+
+    //         return $service->build($response);
+
+    //     }
+
+    //     // Check provider and access
+
+    //     $api = $this->getProvider(strtolower($network));
+
+    //     if($api){
+    //         if ($api['individual_access'] == 0 || $api['product_access'] == 0) {
+    //             $response = [
+    //                 'status' => 'fail',
+    //                 'status_code' => '100',
+    //                 'message' => $network . ' purchase is not permitted for this account !!!',
+    //             ];
+
+    //             return $service->build($response);
+    //         }
+    //     }else{
+    //         $response = array(
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Service is currently down or Restricted for this account. kindly check and try again !!!',
+    //         );
+
+    //         return $service->build($response);
+    //     }
+
+    //     if($dataplanloader == 'glo' || $dataplanloader == 'glo-vtu' ){
+    //         $request['plan_id'] = 'glo';
+    //     }elseif($dataplanloader == 'mtn-vtu' || $dataplanloader == 'mtn'){
+    //         $request['plan_id'] = 'mtn';
+    //     }elseif($dataplanloader == 'airtel-vtu' || $dataplanloader == 'airtel'){
+    //         $request['plan_id'] = 'airtel';
+    //     }else{
+    //         $request['plan_id'] = $dataplanloader;
+    //     }
+
+    //     $request['type'] = $type;
+    //     $request['level'] = $user->level;
+
+    //     $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount'], $request['service_plan']);
+
+    //     $request['services'] = $request['service_module'];
+    //     $discount = app('App\Http\Controllers\TransactionsController')->discounts($request) ?? 0;
+
+    //     if($type == 'cable' && in_array($request->network_module, ['DSTV','GOTV']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')){
+    //         $variations['price'] = $request->renewal_amount ?? $discount;
+    //     }
+
+    //     $service_price = $variations['price'];
+    //     // Take care of discounts later in the future
+
+    //     // if($discount > 0){
+    //     //     $discount = ($discount /100) * 
+    //     // }
+    //     $databyte = $variations['databyte'] ?? 0;
+    //     $package_name = $variations['name'] ?? '';
+    //     $serviceId = $variations['serviceId'] ?? '';
+    //     $variation_code = $variations['variation_code'] ?? '';
+
+    //     $user = auth()->user();
+
+    //     $request['price'] = $service_price ?? null;
+
+    //     $request['serviceId'] = $serviceId;
+    //     $request['no_of_pins'] = $no_of_pins;
+    //     $request['variation_code'] = $variation_code;
+
+    //     if(in_array($type, ['electricity','cable'])){
+    //         $request['billersCode'] = $request->smart_no;
+    //     }else{
+    //         $request['billersCode'] = $account_id ?? $mobile_no;
+    //     }
+    //     // Prepare params
+    //     $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
+
+    //     // Charge customer
+    //     $old_wallet = $user->wallets;
+    //     $service_price = !empty($service_price) ? $service_price : $request['service_price'];
+
+    //     if ($user->wallets < $service_price) {
+    //         return [
+    //             'status' => 'failed',
+    //             'message' => 'Not enough wallet balance',
+    //             'error' => 'Not enough wallet balance',
+    //         ];
+    //     }
+
+    //     $new_wallet = $user->wallets - $service_price;
+
+    //     $user->wallets = $new_wallet;
+    //     $user->save();
+
+    //     // Log transaction
+    //     $data = [
+    //         'mobile_number' => $mobile_no,
+    //         'buyer_email' => $user->email,
+    //         'buyer_username' => $user->username,
+    //         'buyer_service' => $request->network_module ?? $request->service_module,
+    //         'buyer_amount' => $service_price,
+    //         'buyer_prebal' => $old_wallet,
+    //         'buyer_postbal' => $new_wallet,
+    //         'buyer_descr' => '',
+    //         'buyer_status' => 'INITIATED',
+    //         'buyer_date' => $time,
+    //         'timestring' => $timestring,
+    //         'charge_from' => 'WALLET',
+    //         'user_type' => $user->level,
+    //         'sys_ref' => $request_id ,
+    //         'api_ref' => $api_reference,
+    //         'api_report' => 'PENDING',
+    //         'src_price' => '0',
+    //         'profit' => '0',
+    //         'databyte' => $databyte,
+    //         'buyer_quantity' => $no_of_pins,
+    //         'post_fields' => json_encode($response['postfields']['payload'] ?? []),
+    //         'provider' => $response['provider'] ?? null,
+    //     ];
+
+    //     $transaction = $this->logTransaction($data);
+    //     // Make Api call
+    //     $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
+
+    //     if($api_response['status'] == 'success'){
+    //         $mobile_no = $request->smart_no ?? $mobile_no;
+
+    //         $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+
+    //         $order_report = $report['order_report'] ?? '';
+    //         $final_response = $report['final_response'];
+
+    //         $transaction->update([
+    //             'buyer_status' => 'SUCCESSFUL',
+    //             'buyer_descr' => $order_report,
+    //             'api_response' => $api_response['api_response'],
+    //             'api_report' => 'DONE',
+    //             'extra' => $api_response['extra'] ?? null
+    //         ]);
+
+    //         $body = 'Dear '.auth()->user()->full_name . '<br>The transaction below was initiated on your account '.config('app.php'). '<br><br>
+    //         Amount Charged : ₦'. number_format($transaction->buyer_amount). '<br>
+    //         Previous Balance : ₦'. number_format($old_wallet) . '<br>
+    //         Current Balance : ₦'. number_format($new_wallet) .'<br>
+    //         Description : '. $order_report . '<br>
+    //         Transaction Reference : ' . $transaction->sys_ref . '<br>
+    //         Transaction Date : ' . $transaction->buyer_date . '<br>
+    //         Transaction Status : Success<br>';
+
+    //         if(isset($api_response['extra']) && !empty($api_response['extra'])){
+    //             $body .= 'Extra Information : ' . $api_response['extra'];
+    //         }
+
+    //         $body .= '<br><br><br>Warm Regards<br>'.config('app.name');
+
+    //         $subject = "Transaction Notification";
+    //         $this->sendEmail(auth()->user()->email, $subject, $body);
+    //     }else if($api_response['status'] == 'attention-required'){
+
+    //         $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+
+    //         $order_report = $report['order_report'] ?? '';
+    //         $final_response = $report['final_response'];
+
+    //         $transaction->update([
+    //             'buyer_status' => 'ATTENTION-REQUIRED',
+    //             'buyer_descr' => $order_report,
+    //             'api_response' => $api_response['api_response'],
+    //             'api_report' => 'DONE',
+    //             'failure_reason' => $api_response['error']
+    //         ]);
+
+    //         $body = 'Dear ' . auth()->user()->email . 'The transaction below was initiated on your account ' . config('app.php') . '<br><br>
+    //         Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
+    //         Previous Balance : ' . number_format($transaction->prebal) . '<br>
+    //         Current Balance : ' . number_format($transaction->postbal) . '<br>
+    //         Description : ' . $transaction->$order_report . '<br>
+    //         Transaction Reference : ' . $transaction->sys_ref . '<br>
+    //         Transaction Date : ' . $transaction->buyer_date . '<br>
+    //         Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name');
+
+    //         $subject = "Transaction Notification";
+    //     }else{
+    //         $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+
+    //         $order_report = $report['order_report'];
+    //         $final_response = $report['final_response'];
+
+    //         $transaction->update([
+    //             'buyer_status' => 'FAILED',
+    //             'buyer_descr' => $order_report,
+    //             'buyer_postbal' => $old_wallet,
+    //             'api_response' => $api_response['api_response'],
+    //             'api_report' => 'FAILED',
+    //             'failure_reason' => $api_response['error'],
+    //         ]);
+
+    //         $user->wallets = $old_wallet;
+    //         $user->save(); 
+    //     }
+
+    //     return response()->json($final_response);
+    // }
+    public function processBuy(Request $request, JsonResponseService $service, $type)
+    {
+        $user = auth()->user();
+        $product = Product::where('id', $request->network_module)->first();
+        $variation = Variation::where('id', $request->variation)->where('product_id', $product->id)->first();
+
         $mobile_no = $request->mobile_no;
         $no_of_pins = $request->no_of_pins ?? 1;
-        $security_pin = base64_encode(base64_encode(base64_encode($request->security_pin)));
-        $account_id = $request->account_id;
-        $plan_code = $dataplanloader;
-        $network = !empty($network_module) ? $network_module : $service_module;
+
+        $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
         
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $timexx = $dateTime->format("YmdHi");
         $timestring = time();
-        $api_reference = strtoupper($timexx . uniqid() . rand(10000, 90000));
+        $api_reference = strtoupper($timexx . uniqid() . rand(10000, 90000)).'SWFT';
         $request_id = $api_reference;
-        $checkBlacklistPhone = \DB::table('blacklist_mobiles')->where('add_mobile', $mobile_no)->first();
-
         $request['request_id'] = $request_id;
+
+
+        // Get amount
+        $request['amount'] = $this->getAmount($product, $variation, $request);
+        $api = $variation->api ?? $product->api;
         
         // checks
-        if(!$user){
-            $response = array(
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Basic Authorization Failed! Unable to fetch user record',
-            );
-            return $service->build($response);
-        }
-       
-        if (strlen($mobile_no) !== 11 || !is_numeric($mobile_no)) {
-            $response = [
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Please use a valid mobile no !!!',
-            ];
-
-            return $service->build($response);
-        }else if($security_pin !== $user->transaction_pin){
-            $response = [
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Incorrect security pin !!!',
-            ];
-            return $service->build($response);
-
-        }else if (!empty($mobile_no) && !empty($reference) && !empty($network) && !empty($user->api_token)) {
-            $response = array(
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Please make sure all the parameters are included.',
-            );
-            return $service->build($response);
-        }else if($user->block == 1){
-            $response = [
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Permission denied !!!',
-            ];
-            return $service->build($response);
-        }else if($checkBlacklistPhone) {
-            $response = array(
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Mobile no. cannot carry out transactions !!!',
-            );
-
-            return $service->build($response);
-
-        }
-        
-        // Check provider and access
-        
-        $api = $this->getProvider(strtolower($network));
-       
-        if($api){
-            if ($api['individual_access'] == 0 || $api['product_access'] == 0) {
-                $response = [
-                    'status' => 'fail',
-                    'status_code' => '100',
-                    'message' => $network . ' purchase is not permitted for this account !!!',
-                ];
-
-                return $service->build($response);
-            }
-        }else{
-            $response = array(
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Service is currently down or Restricted for this account. kindly check and try again !!!',
-            );
-
-            return $service->build($response);
+        $checks = $this->runChecks($request,$product, $api);
+        if(!empty($checks) && $checks['status'] == 'fail'){
+            return $service->build($checks);
         }
 
-        if($dataplanloader == 'glo' || $dataplanloader == 'glo-vtu' ){
-            $request['plan_id'] = 'glo';
-        }elseif($dataplanloader == 'mtn-vtu' || $dataplanloader == 'mtn'){
-            $request['plan_id'] = 'mtn';
-        }elseif($dataplanloader == 'airtel-vtu' || $dataplanloader == 'airtel'){
-            $request['plan_id'] = 'airtel';
-        }else{
-            $request['plan_id'] = $dataplanloader;
-        }
+        // Verify Meter
+        // if ($product->allow_meter_validation) {
+        //     $meterValidation = $this->validateMeter($product);
+        //     if (isset($meterValidation) && $meterValidation['code'] == 0) {
+        //         return back()->with('error', $meterValidation['error']);
+        //     }
+        // }
 
-        $request['type'] = $type;
-        $request['level'] = $user->level;
+        // Get discount
+        if ($product->has_variations == 'yes') {
+            $resource = $variation;
+            $src_price = $variation->api_price;
+            $discount = getProductDiscount($request['amount'], null, $variation->id);
+        } else {
+            $resource = $product;
+            $src_price = 0;
+            $discount = getProductDiscount($request['amount'], $product->id, null);
+        }
         
-        $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount'], $request['service_plan']);
-        
-        $request['services'] = $request['service_module'];
-        $discount = app('App\Http\Controllers\TransactionsController')->discounts($request) ?? 0;
-    
-        if($type == 'cable' && in_array($request->network_module, ['DSTV','GOTV']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')){
+        $discountedAmount = $discount['new_amount'];
+        $disCountApplied = $discount['discount_applied'];
+        //
+        if ($type == 'cable' && in_array($request->network_module, ['DSTV', 'GOTV']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')) {
             $variations['price'] = $request->renewal_amount ?? $discount;
         }
-
-        $service_price = $variations['price'];
-        // Take care of discounts later in the future
-
-        // if($discount > 0){
-        //     $discount = ($discount /100) * 
-        // }
-        $databyte = $variations['databyte'] ?? 0;
-        $package_name = $variations['name'] ?? '';
-        $serviceId = $variations['serviceId'] ?? '';
-        $variation_code = $variations['variation_code'] ?? '';
+        //
+        $request['quantity'] = $request->quantity ?? 1;
+        $request['total_amount'] = $discountedAmount * $request['quantity'];
+        $request['discount'] = $disCountApplied * $request['quantity'];
+        $balance = walletBalance($user);
         
-        $user = auth()->user();
-    
-        $request['price'] = $service_price ?? null;
-        
-        $request['serviceId'] = $serviceId;
+        if ($balance < $request['total_amount']) {
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Insufficient Wallet Balance, Please fund wallet and retry again',
+            );
+
+            return $service->build($response);
+        }
+
+        $request['package_name'] = $resource->display_name;
+        $request['serviceId'] = $resource->slug ?? null;
+        $request['variation_code'] = $variation->variation_code ?? null;
         $request['no_of_pins'] = $no_of_pins;
-        $request['variation_code'] = $variation_code;
 
-        if(in_array($type, ['electricity','cable'])){
+        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
             $request['billersCode'] = $request->smart_no;
-        }else{
-            $request['billersCode'] = $account_id ?? $mobile_no;
+        } else {
+            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
         }
-        // Prepare params
-        $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
-    
-        // Charge customer
-        $old_wallet = $user->wallets;
-        $service_price = !empty($service_price) ? $service_price : $request['service_price'];
-
-        if ($user->wallets < $service_price) {
-            return [
-                'status' => 'failed',
-                'message' => 'Not enough wallet balance',
-                'error' => 'Not enough wallet balance',
-            ];
-        }
-
-        $new_wallet = $user->wallets - $service_price;
-        
-        $user->wallets = $new_wallet;
-        $user->save();
         
         // Log transaction
         $data = [
-            'mobile_number' => $mobile_no,
+            'mobile_number' => $request->mobile_no,
             'buyer_email' => $user->email,
             'buyer_username' => $user->username,
-            'buyer_service' => $request->network_module ?? $request->service_module,
-            'buyer_amount' => $service_price,
-            'buyer_prebal' => $old_wallet,
-            'buyer_postbal' => $new_wallet,
+            'buyer_amount' => $request['total_amount'],
+            'buyer_prebal' => $balance,
+            'buyer_postbal' => $balance,
             'buyer_descr' => '',
             'buyer_status' => 'INITIATED',
-            'buyer_date' => $time,
-            'timestring' => $timestring,
+            'buyer_service' => $resource->slug,
+            // 'buyer_date' => $time,
+            // 'timestring' => $timestring,
             'charge_from' => 'WALLET',
             'user_type' => $user->level,
-            'sys_ref' => $request_id ,
+            'sys_ref' => $request_id,
             'api_ref' => $api_reference,
             'api_report' => 'PENDING',
-            'src_price' => '0',
-            'profit' => '0',
-            'databyte' => $databyte,
-            'buyer_quantity' => $no_of_pins,
-            'post_fields' => json_encode($response['postfields']['payload'] ?? []),
-            'provider' => $response['provider'] ?? null,
+            'buyer_quantity' => $request->no_of_pins ?? $request->quantity,
+            'provider_id' => $api->id ?? null,
+            'variation_id' => $variation->id ?? null,
+            'product_id' => $product->id ?? null,
+            'discount' => $disCountApplied,
+            'src_price' => $src_price,
+            'channel' => 'website',
+            'provider' => $api->name,
+            'category_id' => $resource->category->id,
+            'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
         ];
         
         $transaction = $this->logTransaction($data);
+        
         // Make Api call
-        $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
-    
-        if($api_response['status'] == 'success'){
+        $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
+
+        if ($api_response['status'] == 'success') {
             $mobile_no = $request->smart_no ?? $mobile_no;
-            
+
             $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
 
             $order_report = $report['order_report'] ?? '';
             $final_response = $report['final_response'];
-            
+
             $transaction->update([
                 'buyer_status' => 'SUCCESSFUL',
                 'buyer_descr' => $order_report,
@@ -899,24 +1017,24 @@ class TransactionsController extends Controller
                 'extra' => $api_response['extra'] ?? null
             ]);
 
-            $body = 'Dear '.auth()->user()->full_name . '<br>The transaction below was initiated on your account '.config('app.php'). '<br><br>
-            Amount Charged : ₦'. number_format($transaction->buyer_amount). '<br>
-            Previous Balance : ₦'. number_format($old_wallet) . '<br>
-            Current Balance : ₦'. number_format($new_wallet) .'<br>
-            Description : '. $order_report . '<br>
+            $body = 'Dear ' . auth()->user()->full_name . '<br>The transaction below was initiated on your account ' . config('app.php') . '<br><br>
+            Amount Charged : ₦' . number_format($transaction->buyer_amount) . '<br>
+            Previous Balance : ₦' . number_format($old_wallet) . '<br>
+            Current Balance : ₦' . number_format($new_wallet) . '<br>
+            Description : ' . $order_report . '<br>
             Transaction Reference : ' . $transaction->sys_ref . '<br>
             Transaction Date : ' . $transaction->buyer_date . '<br>
             Transaction Status : Success<br>';
 
-            if(isset($api_response['extra']) && !empty($api_response['extra'])){
+            if (isset($api_response['extra']) && !empty($api_response['extra'])) {
                 $body .= 'Extra Information : ' . $api_response['extra'];
             }
-            
-            $body .= '<br><br><br>Warm Regards<br>'.config('app.name');
+
+            $body .= '<br><br><br>Warm Regards<br>' . config('app.name');
 
             $subject = "Transaction Notification";
             $this->sendEmail(auth()->user()->email, $subject, $body);
-        }else if($api_response['status'] == 'attention-required'){
+        } else if ($api_response['status'] == 'attention-required') {
 
             $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
 
@@ -941,7 +1059,7 @@ class TransactionsController extends Controller
             Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name');
 
             $subject = "Transaction Notification";
-        }else{
+        } else {
             $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
 
             $order_report = $report['order_report'];
@@ -957,10 +1075,41 @@ class TransactionsController extends Controller
             ]);
 
             $user->wallets = $old_wallet;
-            $user->save(); 
+            $user->save();
+        }
+
+        return response()->json($final_response);
+    }
+
+    public function getApiFilename($api){
+        if($api->slug == 'easyaccess'){
+            $controller = 'EasyAccessController';
+        }else if($api->slug == 'vtpass'){
+            $controller = 'VtpassController';
+        } else if ($api->slug == 'gongzo-data') {
+            $controller = 'GongzoController';
+        } else if ($api->slug == 'naija-result-pins') {
+            $controller = 'NaijaResultPinsController';
+        } else if ($api->slug == 'club-konnect') {
+            $controller = 'ClubkonnectController';
+        } else if ($api->slug == 'sme-plug') {
+            $controller = 'SMEPlugController';
+        }
+
+        return $controller;
+    }
+
+    public function updateTransactionPinToNewFormat($request){
+        $user = auth()->user();
+        if(empty($user->transaction_pin)){
+            // check if current pin matched
+            if($request->security_pin == $user->security_pin){
+                $user->transaction_pin = base64_encode(base64_encode(base64_encode($request->security_pin)));
+                $user->save();
+            }
         }
         
-        return response()->json($final_response);
+        return base64_encode(base64_encode(base64_encode($request->security_pin)));
     }
 
     public function formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price,$api_response){
@@ -1024,6 +1173,19 @@ class TransactionsController extends Controller
             'final_response' => $final_response
         ];
         
+    }
+
+    public function removeCharsInAmount($code)
+    {
+        $chars = str_split($code);
+        $str2 = "";
+        foreach ($chars as $char) {
+            if ($char != '#') {
+                $str2 .= $char;
+            }
+        }
+        $code = trim(preg_replace('/[^0-9\.]+/i', '', $str2));
+        return $code;
     }
 
     public function discounts(Request $request)
@@ -1608,5 +1770,95 @@ class TransactionsController extends Controller
         $pdf = Pdf::loadView('customer.receipts.transaction_receipt', ['transaction' => $transaction])->setPaper('a4', 'portrait');
         return $pdf->download($transaction['sys_ref'] . '.pdf');
         // return view('customer.receipts.transaction_receipt', compact('transaction'));
+    }
+
+    public function getAmount($product, $variation, $request){
+        if ($product->has_variations == 'yes') {
+
+            if ($variation->fixed_price == 'yes') {
+                $request['amount'] = $variation->system_price;
+            } elseif ($product->allow_subscription_type == 'yes' && $variation->category->unique_element == 'iuc_number') {
+                if (!empty($request->bouquet) && $request->bouquet == 'renew') {
+                    $req = new Request([
+                        'unique_element' => $request['unique_element'],
+                        'variation' => $variation->id,
+                    ]);
+                    $res = $this->verify($req);
+                    if (isset($res['renewal_amount'])) {
+                        $request['amount'] = $res['renewal_amount'];
+                    } else {
+                        $request['amount'] = $variation->system_price;
+                    }
+                } else {
+                    $request['amount'] = $variation->system_price;
+                }
+            } else {
+                $request['amount'] = $this->removeCharsInAmount($request->amount);
+            }
+        } else {
+            if ($product->fixed_price == 'yes') {
+                $request['amount'] = $product->system_price;
+            } else {
+                $request['amount'] = $this->removeCharsInAmount($request->amount);
+            }
+        }
+
+        return $request['amount'];
+    }
+
+    public function runChecks($request, $product, $api){
+        $checkBlacklistPhone = \DB::table('blacklist_mobiles')->where('add_mobile', $request->mobile_no)->first();
+        $user = auth()->user();
+        $response = null;
+
+        if (!$user) {
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Basic Authorization Failed! Unable to fetch user record',
+            );
+        }
+        
+        if ($request->security_pin !== $user->transaction_pin) {
+            $response = [
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Incorrect security pin !!!',
+            ];
+        }
+
+        if (strlen($request->mobile_no) !== 11 || !is_numeric($request->mobile_no)) {
+            $response = [
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Please use a valid mobile no !!!',
+            ];
+
+        } else if ($checkBlacklistPhone) {
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Mobile no. cannot carry out transactions !!!',
+            );
+
+        } else if (!$product || $product->status == 'inactive') {
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => $product->name . ' purchase is not permitted for this account !!!',
+            );
+
+        }
+
+        if (!$api || $api->status == 'inactive') {
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Service not available for selected product at the moment, please try again later!!!',
+            );
+
+        }
+
+        return $response;
     }
 }

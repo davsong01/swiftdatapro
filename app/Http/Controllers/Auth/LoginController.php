@@ -63,11 +63,15 @@ class LoginController extends Controller
 
         // $credentials = $request->only('email', 'pass');
         $user = User::where('email', $request->email)->orWhere('username', $request->username)->first();
-        
-        if (md5($request->password) == $user->password && empty($user->pass)) {
-            $user->update([
-                'pass' => Hash::make($request->password),
-            ]);
+        if(!$user){
+            return back()->with('error', 'Incorrect Username or Password');
+        }
+        if(empty($user->pass)){
+            if (md5($request->password) == $user->password) {
+                $user->update([
+                    'pass' => Hash::make($request->password),
+                ]);
+            }
         }
 
         if (!$user || !Hash::check($request->password, $user->pass)) {

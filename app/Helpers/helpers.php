@@ -8,6 +8,16 @@ use App\Models\WebSetting;
 use App\Models\Notification;
 use App\Models\RolePermission;
 
+if (!function_exists("specialVerifiableVariations")) {
+    function specialVerifiableVariations()
+    {
+        return $specialVerifiableVariations = [
+            'utme-no-mock' => 'profile_id',
+            'utme-mock' => 'profile_id',
+            'de' => 'profile_id'
+        ];
+    }
+}
 if (!function_exists("settings")) {
     function settings()
     {
@@ -20,7 +30,7 @@ if (!function_exists("settings")) {
 }
 
 if (!function_exists("getProductDiscount")) {
-    function getProductDiscount($amount, $product_id = null,$variation_id = null)
+    function getProductDiscount($amount='', $product_id = null,$variation_id = null)
     {
         $response = [
             'type' => null,
@@ -28,7 +38,7 @@ if (!function_exists("getProductDiscount")) {
             'display_value' =>  settings()->currency,
         ];
         
-        $level = auth()->user()->customer_level;
+        $level = auth()->user()->level;
         
         if(empty($level)){
             return $response;
@@ -38,7 +48,6 @@ if (!function_exists("getProductDiscount")) {
             $value = Product::where('id', $product_id)->first();
             $discount_type = $value->category->discount_type;
             $discount = Discount::where(['product_id' => $value->id, 'customer_level' => $level])->first();
-                 
         }
 
         if (!empty($variation_id)) {
@@ -57,8 +66,8 @@ if (!function_exists("getProductDiscount")) {
             } else {
                 $type = 'percentage';
                 $discount_applied = $discount->price;
-                $n_amount = floor($discount_applied/100 * $amount);
-                $n_amount = $amount - $n_amount;
+                $discount_applied = floor($discount_applied/100 * $amount);
+                $n_amount = $amount - $discount_applied;
                 $new_amount = $amount < $n_amount ? $amount : $n_amount;
                 $display_amount = settings()->currency . number_format($new_amount);
             }
@@ -171,6 +180,21 @@ if (!function_exists("hasAccess")) {
         function verifiableUniqueElements()
         {
             return ['meter_number', 'iuc_number', 'profile_id'];
+        }
+    }
+
+    if (!function_exists("walletBalance")) {
+        function walletBalance($user)
+        {
+            return $user->wallets;
+        }
+    }
+
+    if (!function_exists("referralBalance")) {
+        function referralBalance($user)
+        {
+            return $user->cashback;
+
         }
     }
 }

@@ -15,13 +15,15 @@
             var network_module = $("#network_module").val();
             $.LoadingOverlay("show");
             $.ajax({
-                url: '/variations?services=' + network_module +
-                    '&level={{ auth()->user()->level }}&&product=airtime_sns',
+                url: "{{ url('customer-get-variations') }}/" + product,
                 method: 'GET',
                 success: function(RES_data) {
                     $.LoadingOverlay("hide");
                     $("#network_discount").val(RES_data);
                 }
+
+                $("#dataplanload-div").show();
+                $("#dataplanload").show();
             })
         }
     })

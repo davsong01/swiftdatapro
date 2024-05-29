@@ -51,7 +51,7 @@ class VariationController extends Controller
                 'raw' => 'yes',
             ]);
 
-            $discount = app('App\Http\Controllers\TransactionController')->getCustomerDiscount($req);
+            $discount = getProductDiscount(variation_id: $variation->id);
 
             $variation->discount = $discount;
 
@@ -62,7 +62,7 @@ class VariationController extends Controller
                 $variation->verifiable = 'no';
             }
 
-            if (($variation->fixed_price == 'Yes') && empty($variation->system_price) || $variation->system_price < 0) {
+            if (($variation->fixed_price == 'yes') && empty($variation->system_price) || $variation->system_price < 0) {
                 unset($variations[$key]);
             }
 

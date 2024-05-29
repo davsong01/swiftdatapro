@@ -764,6 +764,9 @@ class Controller extends BaseController
             }
 
             dump('Products created');
+
+            // Copy transactions table
+
         } catch (\Throwable $th) {
             dump($th->getMessage());
         }
@@ -832,14 +835,26 @@ class Controller extends BaseController
 
     }
 
-    public function logTransaction($data){
+    public function logTransaction($request){
+        $data = $request;
         $data['app_version'] = Session::get('app_version');
         $data['domain_name'] = Session::get('domain_name');
         $data['ip_address'] = Session::get('ip_address');
-
+        
         $transaction = Transactions::create($data);
-
         return $transaction;
+    }
+
+    public function updateWalletBalance($user, $amount, $type){
+        if($type == 'credit'){
+            $user->wallets = $user->wallets + $amount;
+        }else{
+            $user->wallets = $user->wallets - $amount;
+        }
+
+        $user->save();
+
+        return $user;
     }
 
     public function getDomainDetails(){
