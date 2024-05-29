@@ -101,7 +101,9 @@ class ProductController extends Controller
                     'status' => 'active',
                     'customer_level' => $key,
                     'product_id' => $product->id,
-                    'price' => $price ?? 0
+                    'price' => $price ?? 0,
+                    'status' => 'active'
+
                 ]);
             }
         }
@@ -187,7 +189,7 @@ class ProductController extends Controller
         ]);
 
         $productLevel = $request->productlevel;
-
+       
         if ($productLevel && count($productLevel) > 0 && isset($product)) {
             foreach ($productLevel as $key => $price) {
                 Discount::updateOrCreate([
@@ -196,7 +198,8 @@ class ProductController extends Controller
                 ], [
                     'customer_level' => $key,
                     'product_id' => $product->id,
-                    'price' => $price ?? 0
+                    'price' => $price ?? 0,
+                    'status' => 'active'
                 ]);
             }
         }

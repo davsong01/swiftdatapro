@@ -6,6 +6,7 @@ use DateTime;
 use DateTimeZone;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\BillersLog;
 use App\Models\WebSetting;
 use App\Models\Transactions;
@@ -17,89 +18,99 @@ class TransactionsController extends Controller
 {
 
     public function initialize($service){
-        $productAccess = $this->getProductAccess();
-        return view('customer.'.$service, compact('service','productAccess'));
-    }
-
-    public function getProductAccess($needle=null){
-        $webSetting = WebSetting::first();
-
-        ////LOCK CABLE
-        $access = [
-            'dstv_lock' => $webSetting->dstv_lock,
-            'gotv_lock' => $webSetting->gotv_lock,
-            'star_lock' => $webSetting->star_lock,
-            'showmax_lock' => $webSetting->showmax_lock,
-
-            ////LOCK EPINS
-            'waec_lock' => $webSetting->waec_lock,
-            'gce_lock' => $webSetting->gce_lock,
-            'neco_lock' => $webSetting->neco_lock,
-            'waec_reg_lock' => $webSetting->waec_registration_lock,
-            'nabt_lock' => $webSetting->nabt_lock,
-
-            ////LOCK VTU
-            'm_lock2' => $webSetting->m_lock2,
-            'g_lock2' => $webSetting->g_lock2,
-            'a_lock2' => $webSetting->a_lock2,
-            'mo_lock2' => $webSetting->mo_lock2,
-
-
-            ////LOCK SNS
-            'm_lock3' => $webSetting->m_lock3,
-            'g_lock3' => $webSetting->g_lock3,
-            'a_lock3' => $webSetting->a_lock3,
-            'mo_lock3' => $webSetting->mo_lock3,
-
-            ////LOCK DATA
-            'm_lock1' => $webSetting->m_lock1,
-            'mg_lock1' => $webSetting->mg_lock1,
-            'g_lock1' => $webSetting->g_lock1,
-            'gcg_lock1' => $webSetting->gcg_lock1,
-            'a_lock1' => $webSetting->a_lock1,
-            'ag_lock1' => $webSetting->ag_lock1,
-            'mo_lock1' => $webSetting->mo_lock1,
-            'mobilesme_lock' => $webSetting->mobilesme_lock,
-            'mtn_data_card' => $webSetting->mtn_data_card,
-            'mtn_data_card_lock' => $webSetting->mtn_data_card_lock,
-            'spectranet_lock' => $webSetting->spectranet_lock,
-
-            ////LOCK BILLS
-            'abuja_lock' => $webSetting->abuja_lock,
-            'eko_lock' => $webSetting->eko_lock,
-            'ibadan_lock' => $webSetting->ibadan_lock,
-            'ikeja_lock' => $webSetting->ikeja_lock,
-            'jos_lock' => $webSetting->jos_lock,
-            'kano_lock' => $webSetting->kano_lock,
-            'kaduna_lock' => $webSetting->kaduna_lock,
-            'port_lock' => $webSetting->port_lock,
-            'benin_lock' => $webSetting->benin_lock,
-            'enugu_lock' => $webSetting->enugu_lock,
-            'aba_lock' => $webSetting->aba_lock,
-
-            ///
-            'sms_access' => $webSetting->sms_access,
-            'sms_api' => $webSetting->sms_api,
-            'withdraw_access' => $webSetting->withdraw_access,
-            'withdraw_charge' => $webSetting->withdraw_charge,
-            'level2_charge' => $webSetting->level2_charge,
-            'level2_adminch' => $webSetting->level2_adminch,
-            'level3_charge' => $webSetting->level3_charge,
-            'level3_adminch' => $webSetting->level3_adminch,
-            'level4_charge' => $webSetting->level4_charge,
-            'level4_adminch' => $webSetting->level4_adminch,
-            'smile_vtu_lock' => $webSetting->smile_vtu_lock,
-            'smile_lock' => $webSetting->smile_lock,
-
-        ];
-
-        if(!empty($needle)){
-            $access = $access[$needle] ?? null;
-        }
-
-        return $access;
+        // $productAccess = $this->getProductAccess();
+        $category = Category::with([
+            'products' => function ($query) {
+                return $query->where('status', 'active')->get();
+            }
+        ])->where('status', 'active')->where('slug', $service)->first();
         
+        return view('customer.'.$service, compact('service','category'));
     }
+
+    public function getCustomerDiscount(Request $request){
+        return response()->json(getProductDiscount($request->amount, $request->product_id, $request->variation_id));
+    }
+
+    // public function getProductAccess($needle=null){
+    //     $webSetting = WebSetting::first();
+
+    //     ////LOCK CABLE
+    //     $access = [
+    //         'dstv_lock' => $webSetting->dstv_lock,
+    //         'gotv_lock' => $webSetting->gotv_lock,
+    //         'star_lock' => $webSetting->star_lock,
+    //         'showmax_lock' => $webSetting->showmax_lock,
+
+    //         ////LOCK EPINS
+    //         'waec_lock' => $webSetting->waec_lock,
+    //         'gce_lock' => $webSetting->gce_lock,
+    //         'neco_lock' => $webSetting->neco_lock,
+    //         'waec_reg_lock' => $webSetting->waec_registration_lock,
+    //         'nabt_lock' => $webSetting->nabt_lock,
+
+    //         ////LOCK VTU
+    //         'm_lock2' => $webSetting->m_lock2,
+    //         'g_lock2' => $webSetting->g_lock2,
+    //         'a_lock2' => $webSetting->a_lock2,
+    //         'mo_lock2' => $webSetting->mo_lock2,
+
+
+    //         ////LOCK SNS
+    //         'm_lock3' => $webSetting->m_lock3,
+    //         'g_lock3' => $webSetting->g_lock3,
+    //         'a_lock3' => $webSetting->a_lock3,
+    //         'mo_lock3' => $webSetting->mo_lock3,
+
+    //         ////LOCK DATA
+    //         'm_lock1' => $webSetting->m_lock1,
+    //         'mg_lock1' => $webSetting->mg_lock1,
+    //         'g_lock1' => $webSetting->g_lock1,
+    //         'gcg_lock1' => $webSetting->gcg_lock1,
+    //         'a_lock1' => $webSetting->a_lock1,
+    //         'ag_lock1' => $webSetting->ag_lock1,
+    //         'mo_lock1' => $webSetting->mo_lock1,
+    //         'mobilesme_lock' => $webSetting->mobilesme_lock,
+    //         'mtn_data_card' => $webSetting->mtn_data_card,
+    //         'mtn_data_card_lock' => $webSetting->mtn_data_card_lock,
+    //         'spectranet_lock' => $webSetting->spectranet_lock,
+
+    //         ////LOCK BILLS
+    //         'abuja_lock' => $webSetting->abuja_lock,
+    //         'eko_lock' => $webSetting->eko_lock,
+    //         'ibadan_lock' => $webSetting->ibadan_lock,
+    //         'ikeja_lock' => $webSetting->ikeja_lock,
+    //         'jos_lock' => $webSetting->jos_lock,
+    //         'kano_lock' => $webSetting->kano_lock,
+    //         'kaduna_lock' => $webSetting->kaduna_lock,
+    //         'port_lock' => $webSetting->port_lock,
+    //         'benin_lock' => $webSetting->benin_lock,
+    //         'enugu_lock' => $webSetting->enugu_lock,
+    //         'aba_lock' => $webSetting->aba_lock,
+
+    //         ///
+    //         'sms_access' => $webSetting->sms_access,
+    //         'sms_api' => $webSetting->sms_api,
+    //         'withdraw_access' => $webSetting->withdraw_access,
+    //         'withdraw_charge' => $webSetting->withdraw_charge,
+    //         'level2_charge' => $webSetting->level2_charge,
+    //         'level2_adminch' => $webSetting->level2_adminch,
+    //         'level3_charge' => $webSetting->level3_charge,
+    //         'level3_adminch' => $webSetting->level3_adminch,
+    //         'level4_charge' => $webSetting->level4_charge,
+    //         'level4_adminch' => $webSetting->level4_adminch,
+    //         'smile_vtu_lock' => $webSetting->smile_vtu_lock,
+    //         'smile_lock' => $webSetting->smile_lock,
+
+    //     ];
+
+    //     if(!empty($needle)){
+    //         $access = $access[$needle] ?? null;
+    //     }
+
+    //     return $access;
+        
+    // }
 
     public function verify(Request $request){        
         $check = BillersLog::where('unique_element', $request->smart_no)->where('product', strtolower($request->service_module))->first();
@@ -1592,10 +1603,10 @@ class TransactionsController extends Controller
 
     public function transactionReceipt($transaction_id)
     {
-        $transaction = TransactionLog::with(['product', 'category', 'variation'])->where('id', $transaction_id)->first()->toArray();
-
-        $pdf = Pdf::loadView('admin.receipts.transaction_receipt', ['transaction' => $transaction])->setPaper('a4', 'portrait');
-        return $pdf->download($transaction['transaction_id'] . '.pdf');
+        $transaction = Transactions::with(['product', 'category', 'variation'])->where('id', $transaction_id)->first()->toArray();
+       
+        $pdf = Pdf::loadView('customer.receipts.transaction_receipt', ['transaction' => $transaction])->setPaper('a4', 'portrait');
+        return $pdf->download($transaction['sys_ref'] . '.pdf');
         // return view('customer.receipts.transaction_receipt', compact('transaction'));
     }
 }

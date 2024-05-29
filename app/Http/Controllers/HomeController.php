@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CustomerLevel;
 use DateTime;
 use DateTimeZone;
 use App\Models\User;
@@ -15,6 +16,7 @@ use App\Models\PaymentGateway;
 use Illuminate\Support\Carbon;
 use App\Models\DepositTransaction;
 use App\Models\EarnedTransactions;
+use App\Models\Notification;
 use Illuminate\Support\Facades\DB;
 use App\Models\VtuappManualFunding;
 use Illuminate\Support\Facades\Auth;
@@ -39,10 +41,10 @@ class HomeController extends Controller
      */
     public function dashboard()
     {
-        $web_settings = WebSetting::first();
         $this->createReservedAccount();
-        $baseurl = url('/');
-        return view('customer.dashboard', compact('web_settings','baseurl'));
+        $customer_levels = CustomerLevel::all();
+
+        return view('customer.dashboard', compact('customer_levels'));
     }
 
     public function customerReview(Request $request, JsonResponseService $response){

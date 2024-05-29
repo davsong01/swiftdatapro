@@ -1,7 +1,3 @@
-<?php 
-    use App\Models\WebSetting;
-    $web_settings = WebSetting::first();
-?>
 <!DOCTYPE html>
 <html lang="english">
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
@@ -299,9 +295,9 @@
                                 <?php
                                 
                                     if (auth()->user()->level == 1){
-                                        $social_link = $web_settings->group_link;
+                                        $social_link = settings()->group_link;
                                     }else {   
-                                        $social_link = $web_settings->group_link2;
+                                        $social_link = settings()->group_link2;
                                     }
                                 ?>
                                 <li>
@@ -349,7 +345,7 @@
                 </div>
             </div>
         </div>
-
+        @if(!empty(notification()))
         <div id="myModal3" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -359,7 +355,7 @@
                         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"
                             onclick="Closepopup()"></button>
                     </div>
-                    <div class="modal-body"> {{ $web_settings->notification }}</div>
+                    <div class="modal-body"> {!! notification() !!}</div>
 
                     <div class="modal-footer">
 
@@ -370,7 +366,7 @@
                 </div>
             </div>
         </div>
-
+        @endif
         <div id="successModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
             aria-hidden="true">
             <div class="modal-dialog">
@@ -484,7 +480,7 @@
         }
     </script>
   
-    @if($web_settings->notification_mode == "ON")
+    @if(!empty(notification1()) && notification1()->status == "active")
     <script type="text/javascript">
         $(document).ready(function () {
             $("#myModal3").modal("show");
@@ -662,7 +658,7 @@
             "ctaText": "Start Chat",
             "borderRadius": "25",
             "autoShow": false,
-            "phoneNumber": "{{ $web_settings->whatsapp_no }}"
+            "phoneNumber": "{{ settings()->whatsapp_no }}"
         }
     };
     s.onload = function () {

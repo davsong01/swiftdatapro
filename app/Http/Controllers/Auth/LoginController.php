@@ -64,8 +64,10 @@ class LoginController extends Controller
         // $credentials = $request->only('email', 'pass');
         $user = User::where('email', $request->email)->orWhere('username', $request->username)->first();
         
-        if(isset($user) && empty($user->pass)){
-            return redirect(route('password.reset.new', $user->id));
+        if (md5($request->password) == $user->password && empty($user->pass)) {
+            $user->update([
+                'pass' => Hash::make($request->password),
+            ]);
         }
 
         if (!$user || !Hash::check($request->password, $user->pass)) {

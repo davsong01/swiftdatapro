@@ -1385,102 +1385,7 @@ class EasyAccessController extends Controller
                 ]);
 
                 foreach ($productLevel as $level) {
-                    $response = \DB::connection('old')->table('glodata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->where('id', $level)->first();
-
-                    foreach ($response as $key => $value) {
-                        $discount = Discount::updateOrCreate([
-                            'customer_level' => $level,
-                            'product_id' => $product->id,
-                            'variation_id' => $variation->id
-                        ], [
-                            'customer_level' => $level,
-                            'product_id' => $product->id,
-                            'variation_id' => $variation->id,
-                            'price' => $value ?? 0,
-                            'status' => 'active'
-                        ]);
-                    }
-                }
-            }
-        }
-
-        if (isset($product->slug) && $product->slug == 'glo-cg') {
-            $response = \DB::connection('old')->table('glocgdata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->first();
-
-            $data = [
-                [
-                    'name' => "GLO 200MB (CG) - 14days",
-                    'val' => 200,
-                    'price' => $response->easy_access158,
-                    'code' => 158,
-                    'id' => 'easy_access158',
-                ],
-                [
-                    'name' => "GLO 500MB (CG) - 30days",
-                    'val' => 500,
-                    'price' => $response->easy_access159,
-                    'code' => 159,
-                    'id' => 'easy_access159',
-                ],
-                [
-                    'name' => "GLO 1GB (CG) - 30days",
-                    'val' => 1000,
-                    'price' => $response->easy_access160,
-                    'code' => 160,
-                    'id' => 'easy_access160',
-                ],
-                [
-                    'name' => "GLO 2GB (CG) - 30days",
-                    'val' => 2000,
-                    'price' => $response->easy_access161,
-                    'code' => 161,
-                    'id' => 'easy_access161',
-                ],
-                [
-                    'name' => "GLO 3GB (CG) - 30days",
-                    'val' => 3000,
-                    'price' => $response->easy_access162,
-                    'code' => 162,
-                    'id' => 'easy_access162',
-                ],
-                [
-                    'name' => "GLO 5GB (CG) - 30days",
-                    'val' => 500,
-                    'price' => $response->easy_access163,
-                    'code' => 163,
-                    'id' => 'easy_access163',
-                ],
-                [
-                    'name' => "GLO 10GB (CG) - 30days",
-                    'val' => 10000,
-                    'price' => $response->easy_access164,
-                    'code' => 164,
-                    'id' => 'easy_access164',
-                ],
-            ];
-
-            foreach ($data as $d) {
-                $variation = Variation::updateOrCreate([
-                    'product_id' => $product->id,
-                    'api_name' =>  $d['name'],
-                    'slug' => $d['code'],
-                ], [
-                    'product_id' => $product->id,
-                    'category_id' => $product->category_id,
-                    'api_name' =>  $d['name'],
-                    'slug' => $d['code'],
-                    'api_id' => $product->api_id,
-                    'system_name' => $d['name'],
-                    'fixed_price' => 'yes',
-                    'api_price' => $d['price'],
-                    'system_price' => $d['price'],
-                    'min' => null,
-                    'max' =>  null,
-                    'status' => 'active'
-                ]);
-
-                foreach ($productLevel as $level) {
-                    $response = \DB::connection('old')->table('glodata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->where('id', $level)->first();
+                    $response = \DB::connection('old')->table('glocgdata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->where('id', $level)->first();
 
                     foreach ($response as $key => $value) {
                         $discount = Discount::updateOrCreate([
@@ -1695,6 +1600,61 @@ class EasyAccessController extends Controller
             }
         }
 
+
+        if (isset($product->slug) && $product->slug ==  'mtn-datacard') {
+            $response = \DB::connection('old')->table('mtndata_card_plan')->first();
+
+            $data = [
+                [
+                    'name' => "MTN 1.5GB (DATACARD) - 30days",
+                    'val' => 1500,
+                    'price' => $response->easy_access165,
+                    'code' => 165,
+                    'id' => 'easy_access165',
+                ],
+
+            ];
+
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('mtndata_card_plan')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+                    }
+                }
+            }
+        }
+
         // Data card
         return back()->with('Old Variations pulled successfully');
     }
@@ -1712,7 +1672,7 @@ class EasyAccessController extends Controller
             'url' =>  $postdata['url'],
             'payload' => $postdata,
         ];
-       
+        
         $params = [
             'url' => $postdata['url'],
             'headers' => $headers,

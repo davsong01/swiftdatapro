@@ -1,40 +1,42 @@
 @extends('includes.customer_dashboard.app')
 @section('header')
+@if(!empty($notification1))
 <div class="col-xl-12">
-    <div class="alert" style="background-color: #fff;display: <?php echo $web_settings->notification1_mode; ?>;">
+    <div class="alert" style="background-color: #fff;display: block;">
         <div id="response" style="text-align: center;">
-            <p><?php echo $web_settings->notification1; ?></p>
+            <p>{!! $notification1->content !!}</p>
         </div>
     </div>
 </div>
-
+@endif
+@if(!empty($notification2))
 <div class="col-xl-12">
-    <div class="alert" style="background-color: #fff;display: <?php echo $web_settings->notification2_mode; ?>">
-
+    <div class="alert" style="background-color: #fff;display:block">
         <div id="response" style="text-align: center;">
-            <p><?php echo $web_settings->notification2; ?></p>
+            <p>{!! $notification2->content !!}</p>
         </div>
-
     </div>
 </div>
-
+@endif
+@if(!empty($notification1))
 <div class="col-xl-12">
     <div class="alert"
-        style="background-color: #fff;display: <?php echo $web_settings->notification3_mode; ?>;color: blue;">
-
+        style="background-color: #fff;display: block;color: blue;">
         <div id="response" style="text-align: center;">
-            <h4><?php echo $web_settings->notification3; ?></h4>
+            <h4>{!! $notification1->content !!}</h4>
         </div>
 
     </div>
 </div>
-
+@endif
+@if(!empty($notification_scroll))
 <div class="col-xl-12">
     <span style="color:blue">
-        <marquee><?php if ($web_settings->scrolling_mode=="ON"){ echo $web_settings->notification_scroll; } ?>
+        <marquee>{!! $notification_scroll !!}
         </marquee>
     </span>
 </div>
+@endif
 @endsection
 @section('body')
 
@@ -58,7 +60,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card border-2 border-rose-600">
-                        <a href="<?php echo $baseurl; ?>/airtime_vtu">
+                        <a href="{{ url('/') }}/airtime_vtu">
                             <div class="option-card-icon">
                                 <i class="fa fa-phone" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -69,7 +71,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/data">
+                        <a href="{{ url('/') }}/data">
                             <div class="option-card-icon">
                                 <i class="fa fa-wifi" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -80,7 +82,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/cable">
+                        <a href="{{ url('/') }}/cable">
                             <div class="option-card-icon">
                                 <i class="fa fa-tv" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -96,7 +98,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/bills">
+                        <a href="{{ url('/') }}/bills">
                             <div class="option-card-icon">
                                 <i class="fa fa-lightbulb" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -107,7 +109,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/epins">
+                        <a href="{{ url('/') }}/epins">
                             <div class="option-card-icon">
                                 <i class="fa fa-qrcode" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -118,7 +120,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/withdraw">
+                        <a href="{{ url('/') }}/withdraw">
                             <div class="option-card-icon">
 
                                 <i class="fa fa-download" style="font-size: 25px;margin: 5px;color: #940798"></i>
@@ -135,7 +137,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/bulk_sms">
+                        <a href="{{ url('/') }}/bulk_sms">
                             <div class="option-card-icon">
                                 <i class="fa fa-envelope" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -146,7 +148,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/exchange_airtime">
+                        <a href="{{ url('/') }}/exchange_airtime">
                             <div class="option-card-icon">
                                 <i class="fa fa-wallet" style="font-size: 25px;margin: 5px;color: #940798"></i>
                             </div>
@@ -157,7 +159,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="<?php echo $baseurl; ?>/get_flyer">
+                        <a href="{{ url('/') }}/get_flyer">
                             <div class="option-card-icon">
                                 <i class="fa fa-paper-plane" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -185,12 +187,13 @@
                 class="fa fa-copy" style="font-size: 13px;cursor: pointer;" onclick="copyFunction()">Copy</i> <span
                 id="refres"></span>
         </p>
-
         <select class="form-control" id="level">
             <option value="">--Choose--</option>
-            <option value="2">Upgrade To Level 2 => N{{ $web_settings->level2_charge }}></option>
-            <option value="3">Upgrade To Level 3 => N{{ $web_settings->level3_charge }}></option>
-            <option value="4">Upgrade To Level 4 => N{{ $web_settings->level4_charge }}></option>
+            @if (!empty($customer_levels))
+                @foreach ($customer_levels as $level)
+                <option value="{{ $level->id }}">Upgrade To {{ $level->name }} =>{{ settings()->currency.number_format($level->upgrade_amount) }}</option>
+                @endforeach
+            @endif
         </select>
 
         <br />
@@ -240,7 +243,7 @@
             }
         });
         $.ajax({
-            url: "<?php echo $baseurl; ?>/customer/report",
+            url: "{{ url('/') }}/customer/report",
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="_token"]').attr('content')
             },
@@ -274,7 +277,7 @@
             }
         });
         $.ajax({
-            url: "<?php echo $baseurl; ?>/customer/level",
+            url: "{{ url('/') }}/customer/level",
             method: "POST",
             dataType: "Json",
             headers: {

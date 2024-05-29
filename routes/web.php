@@ -132,6 +132,9 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
     Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
 
+    Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
+
+
 });
 
 

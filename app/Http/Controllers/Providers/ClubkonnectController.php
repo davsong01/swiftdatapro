@@ -21,125 +21,19 @@ class ClubkonnectController extends Controller
             'val' => '',
         ];
         // dd($type, $product, $level);
-        if ($type == 'data' && $product == 'spectranet-data') {
-            $response = \DB::table('spectranetdata_plan')->where('id', $level)->select('spectranet1', 'spectranet2', 'spectranet3')->first();
-
-           
-
-        }
-       
-        if($type == 'airtime'){
-
-            if ($product == "smile-vtu") {
-                $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-                
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-                $response = [
-                    'serviceId' => "smile-direct",
-                    'variation_code' => 'airtime',
-                    'name' => strtoupper($product),
-                    'product' => strtoupper($product),
-                    'discount' => $discount,
-                    'commission' => 0,
-                    'price' => $amount,
-                ];
-                
-            }
-            
-            if ($product == "mtn-vtu" || $product == "mtn") {
-                $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-                
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-
-                $response = [
-                    'serviceId' => "mtn",
-                    'name' => strtoupper($product),
-                    'variation_code' => 'mtn',
-                    'product' => strtoupper($product),
-                    'discount' => $discount,
-                    'commission' => $commission,
-                    'price' => $amount,
-                ];
-
-            }
-
-            if ($product == "glo-vtu" || $product == "glo") {
-                $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-
-                $discount_now = $amount * $discount / 100;
-                $service_price = $amount - $discount_now;
-
-                $response = [
-                    'serviceId' => "glo",
-                    'name' => strtoupper($product),
-                    'variation_code' => 'mtn',
-                    'product' => strtoupper($product),
-                    'discount' => $discount,
-                    'commission' => $commission,
-                    'price' => $service_price,
-                ];
-            }
-
-            if ($product == "airtel-vtu" || $product == "airtel") {
-                $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-
-                $discount_now = $amount * $discount / 100;
-                $service_price = $amount - $discount_now;
-
-                $response = [
-                    'serviceId' => "airtel",
-                    'name' => strtoupper($product),
-                    'variation_code' => 'mtn',
-                    'product' => strtoupper($product),
-                    'discount' => $discount,
-                    'commission' => $commission,
-                    'price' => $service_price,
-                ];
-            }
-
-            if ($product == "9mobile-vtu" || $product == "9mobile" || $product == "etisalat-vtu" || $product == "etisalat") {
-                $commission = app('App\Http\Controllers\TransactionsController')->commissions($type, $product);
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-
-                $discount_now = $amount * $discount / 100;
-                $service_price = $amount - $discount_now;
-
-                $response = [
-                    'serviceId' => "etisalat",
-                    'name' => strtoupper($product),
-                    'variation_code' => 'mtn',
-                    'product' => strtoupper($product),
-                    'discount' => $discount,
-                    'commission' => $commission,
-                    'price' => $service_price,
-                ];
-            }
-
-        }
-
-        if (!empty($plan_id)) {
-            foreach ($response as $res) {
-                if ($plan_id == $res['serviceId']) {
-                    $response = [
-                        'name' => strtoupper($product),
-                        'product' => strtoupper($product),
-                        'discount' => $discount,
-                        'commission' => $commission,
-                        'price' => $res['price'],
-                    ];
-                }
-            }
-        }
+        // if (!empty($plan_id)) {
+        //     foreach ($response as $res) {
+        //         if ($plan_id == $res['serviceId']) {
+        //             $response = [
+        //                 'name' => strtoupper($product),
+        //                 'product' => strtoupper($product),
+        //                 'discount' => $discount,
+        //                 'commission' => $commission,
+        //                 'price' => $res['price'],
+        //             ];
+        //         }
+        //     }
+        // }
         
         return $response;
     }
