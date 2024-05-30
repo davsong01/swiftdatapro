@@ -22,10 +22,6 @@
 </div>
 
 <div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">
-
-    <!-- start -->
-
-
     <div id="response"></div>
     <div id="extra"
         style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">

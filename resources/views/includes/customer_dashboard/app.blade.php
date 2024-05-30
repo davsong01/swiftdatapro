@@ -9,7 +9,10 @@
     <title>{{ config('app.name') }} - {{ auth()->user()->full_name }} </title>
     <link rel="icon" type="image/x-icon" href="{{asset('assets/img/favicon/favicon.ico')}}" />
 
-    <link rel="stylesheet" href="{{ asset('backend/css/bootstrap1.min.css') }}" />
+    {{-- bootstrap --}}
+    {{-- <link rel="stylesheet" href="{{ asset('backend/css/bootstrap1.min.css') }}" /> --}}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="{{ asset('backend/vendors/themefy_icon/themify-icons.css') }}" />
 
@@ -42,10 +45,7 @@
 
     <link rel="stylesheet" href="{{ asset('backend/css/style1.css') }}" />
     <link rel="stylesheet" href="{{ asset('backend/css/colors/default.css') }}" id="colorSkinCSS">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
-    <script type="text/javascript" src="backend/js/overlay.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    
     <style type="text/css">
         .centered {
             position: realtive;
@@ -80,6 +80,10 @@
             left: 4%;
         }
 
+        .input-group-text{
+            border-radius: .25rem 0 0 .25rem !important;
+        }
+
         @media (min-width: 400px) {
             .trans{
                 width: 46%;
@@ -94,7 +98,7 @@
     <nav class="sidebar">
         <div class="logo">
             <h5 class="">Available Balance. <br /> <span style="color: #940798;font-weight: bold;font-size: 20px;">
-                   {{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span></h5>
+                {{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span></h5>
             <h6 class="">Level: {{ auth()->user()->level }} <span
                     style="color: #940798;font-weight: bold;font-size: 18px;"></span></h6>
             <div class="sidebar_close_icon d-lg-none">
@@ -507,7 +511,7 @@
     </div>
         @yield('body')
     </div>
-    @yield('scripts')
+   
 {{-- Footer --}}
 <div class="footer_part">
     <div class="container-fluid">
@@ -515,7 +519,7 @@
             <div class="col-lg-12">
                 <div class="footer_iner text-center">
                     <h4>Download our mobile Apps</h4>
-        <p>
+                    <p>
                     <!-- <a target="_blank" href="https://play.google.com/store/apps/details?id=swift.data.ng"> -->
                     <a target="_blank" href="https://drive.google.com/drive/folders/107QE4pPKM4F2ah3c-uUM4nnxjM4O4EeC">
                         
@@ -567,13 +571,20 @@
 <i class="ti-angle-up"></i>
 </a>
 </div>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+<script type="text/javascript" src="backend/js/overlay.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
-<script src="{{ asset('backend/js/jquery1-3.4.1.min.js') }}"></script>
 
-<script src="{{ asset('backend/js/popper1.min.js') }}"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> --}}
 
-<script src="{{ asset('backend/js/bootstrap1.min.js') }}"></script>
+{{-- bootstrap --}}
+{{-- <script src="{{ asset('backend/js/popper1.min.js') }}"></script>
+<script src="{{ asset('backend/js/bootstrap1.min.js') }}"></script> --}}
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
 <script src="{{ asset('backend/js/metisMenu.js') }}"></script>
 
@@ -628,7 +639,7 @@
 </script>
 <script src="{{ asset('backend/js/dashboard_init.js') }}"></script>
 <script src="{{ asset('backend/js/custom.js') }}"></script>
-
+ @yield('scripts')
 <script>
     var url = 'https://wati-integration-service.clare.ai/ShopifyWidget/shopifyWidget.js?66890';
     var s = document.createElement('script');

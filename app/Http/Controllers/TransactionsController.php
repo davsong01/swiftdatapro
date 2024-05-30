@@ -973,7 +973,7 @@ class TransactionsController extends Controller
             'buyer_username' => $user->username,
             'buyer_amount' => $request['total_amount'],
             'buyer_prebal' => $balance,
-            'buyer_postbal' => $balance,
+            'buyer_postbal' => $balance - $request['total_amount'],
             'buyer_descr' => '',
             'buyer_status' => 'INITIATED',
             'buyer_service' => $resource->slug,
@@ -997,30 +997,29 @@ class TransactionsController extends Controller
         ];
         
         $transaction = $this->logTransaction($data);
-        
+        $data['resource'] = $resource;
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
-
+        
         if ($api_response['status'] == 'success') {
-            $mobile_no = $request->smart_no ?? $mobile_no;
-
-            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
-
+            $report = $this->formatOderReport($resource, $request,$transaction, $api_response);
+            $transaction->update([
+                'buyer_status' => 'SUCCESSFUL',
+                'buyer_descr' => $report['order_report'],
+                'api_response' => $api_response['api_response'],
+                'api_report' => 'DONE',
+                'api_status' => $api_response['status'],
+                'extra' => $api_response['extra'] ?? null,
+                'post_fields' => $api_response['postfields'],
+            ]);
+            
             $order_report = $report['order_report'] ?? '';
             $final_response = $report['final_response'];
 
-            $transaction->update([
-                'buyer_status' => 'SUCCESSFUL',
-                'buyer_descr' => $order_report,
-                'api_response' => $api_response['api_response'],
-                'api_report' => 'DONE',
-                'extra' => $api_response['extra'] ?? null
-            ]);
-
-            $body = 'Dear ' . auth()->user()->full_name . '<br>The transaction below was initiated on your account ' . config('app.php') . '<br><br>
+            $body = 'Dear ' . auth()->user()->full_name . '<br>The transaction below was carried out on your account on' . config('app.name') . '<br><br>
             Amount Charged : ₦' . number_format($transaction->buyer_amount) . '<br>
-            Previous Balance : ₦' . number_format($old_wallet) . '<br>
-            Current Balance : ₦' . number_format($new_wallet) . '<br>
+            Previous Balance : ₦' . number_format($transaction->buyer_prebal) . '<br>
+            Current Balance : ₦' . number_format($transaction->buyer_postbal) . '<br>
             Description : ' . $order_report . '<br>
             Transaction Reference : ' . $transaction->sys_ref . '<br>
             Transaction Date : ' . $transaction->buyer_date . '<br>
@@ -1031,13 +1030,9 @@ class TransactionsController extends Controller
             }
 
             $body .= '<br><br><br>Warm Regards<br>' . config('app.name');
-
             $subject = "Transaction Notification";
-            $this->sendEmail(auth()->user()->email, $subject, $body);
         } else if ($api_response['status'] == 'attention-required') {
-
-            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
-
+            $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
             $order_report = $report['order_report'] ?? '';
             $final_response = $report['final_response'];
 
@@ -1049,18 +1044,18 @@ class TransactionsController extends Controller
                 'failure_reason' => $api_response['error']
             ]);
 
-            $body = 'Dear ' . auth()->user()->email . 'The transaction below was initiated on your account ' . config('app.php') . '<br><br>
+            $body = 'Dear ' . auth()->user()->email . 'The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
             Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
-            Previous Balance : ' . number_format($transaction->prebal) . '<br>
-            Current Balance : ' . number_format($transaction->postbal) . '<br>
+            Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
+            Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
             Description : ' . $transaction->$order_report . '<br>
             Transaction Reference : ' . $transaction->sys_ref . '<br>
             Transaction Date : ' . $transaction->buyer_date . '<br>
-            Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name');
-
+            Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name').'
+            Transaction Status : Pending<br>';
             $subject = "Transaction Notification";
-        } else {
-            $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
+        } else if($api_response['status'] == 'failed'){
+            $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
 
             $order_report = $report['order_report'];
             $final_response = $report['final_response'];
@@ -1068,16 +1063,27 @@ class TransactionsController extends Controller
             $transaction->update([
                 'buyer_status' => 'FAILED',
                 'buyer_descr' => $order_report,
-                'buyer_postbal' => $old_wallet,
+                'buyer_postbal' => $transaction->buyer_prebal,
                 'api_response' => $api_response['api_response'],
                 'api_report' => 'FAILED',
                 'failure_reason' => $api_response['error'],
             ]);
 
-            $user->wallets = $old_wallet;
-            $user->save();
+            $body = 'Dear ' . auth()->user()->email . 'The transaction below failed on your account on ' . config('app.name') . '<br><br>
+            Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
+            Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
+            Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
+            Description : ' . $transaction->$order_report . '<br>
+            Transaction Reference : ' . $transaction->sys_ref . '<br>
+            Transaction Date : ' . $transaction->buyer_date . '<br>
+            Transaction Status : Failed<br>';
+            $subject = "Transaction Notification";
         }
 
+        $user->wallets = $transaction->buyer_postbal;
+        $user->save();
+        $this->sendEmail(auth()->user()->email, $subject, $body);
+        
         return response()->json($final_response);
     }
 
@@ -1112,62 +1118,59 @@ class TransactionsController extends Controller
         return base64_encode(base64_encode(base64_encode($request->security_pin)));
     }
 
-    public function formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price,$api_response){
+    public function formatOderReport($resource, $request, $transaction,$api_response){
         if ($api_response['status'] == 'success') {
-            $order_report = strtoupper('Purchase Successful for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : '')) . '. ' . $api_response['response'];
+            $order_report = strtoupper('Purchase Successful for ' . $resource->name) .'. '. $api_response['response'];
             $extra = $api_response['extra'] ?? '';
             
-            if ($network == 'SMILE-DATA') {
-                $order_report = strtoupper($package_name. ' N' . $service_price . ' Purchase Successful on ' . $mobile_no);
-            } elseif ($network == 'SEPCTRANET-DATA') {
-                $order_report = strtoupper($package_name. ' N' . $service_price . ' Purchase Successful on ' . $mobile_no . ' [' . $extra . ']');
+            if ($resource->slug == 'smile-data') {
+                $order_report = strtoupper($resource->name. settings()->currency . $transaction->buyer_amount . ' Purchase Successful on ' . $request['billersCode']);
+            } elseif ($resource->slug == 'spectranet-data') {
+                $order_report = strtoupper($resource->name. settings()->currency . $transaction->buyer_amount . ' Purchase Successful on ' . $request['billersCode'] . ' [' . $extra . ']');
             } 
 
             $final_response = [
                 'status' => 'success',
                 'status_code' => '200',
-                'old_balance' => $old_wallet, ////// 
-                'new_balance' => $new_wallet, ////// 
-                'time' => $time,
-                'amountPaid' => $service_price,
+                'old_balance' => $transaction->buyer_prebal, ////// 
+                'new_balance' => $transaction->buyer_postbal, ////// 
+                'amountPaid' => $transaction->buyer_amount,
                 'message' => $order_report,
                 'extra' => $api_response['extra'] ?? null,
             ];
         }else if($api_response['status'] == 'attention-required'){
-            $order_report = strtoupper('Purchase successful for ' . $package_name . ($network != 'MTN-DATACARD' ? ' on ' . $mobile_no : ''));
-
+            $order_report = strtoupper('Purchase successful for ' . $resource->name . ' on ' . $request['billersCode']);
             $final_response = [
                 'status' => 'success',
                 'status_code' => '200',
-                'old_balance' => $old_wallet, ////// 
-                'new_balance' => $new_wallet, ////// 
-                'time' => $time,
-                'amountPaid' => $service_price,
+                'old_balance' => $transaction->buyer_prebal, ////// 
+                'new_balance' => $transaction->buyer_postbal, ////// 
+                'amountPaid' => $transaction->buyer_amount,
                 'message' => $order_report,
             ];
         }else{
             if(!empty($api_response['response'])){
-                $order_report = strtoupper('Purchase failed for ' . $package_name . ' on ' . $mobile_no . ' Error: ' . $api_response['response']);
+                $order_report = strtoupper('Purchase failed for ' . $resource->name . ' on ' . $request['billersCode'] . ' Error: ' . $api_response['response']);
             }else{
-                $order_report = strtoupper('Purchase failed for ' . $package_name . ' on ' . $mobile_no);
+                $order_report = strtoupper('Purchase failed for ' . $resource->name . ' on ' . $request['billersCode']);
             }
 
-            if ($network == 'SMILE-DATA') {
-                $order_report = strtoupper($network. ' N' . $service_price . ' Purchase failed on ' . $mobile_no);
-            } elseif ($network == 'SEPCTRANET-DATA') {
-                $order_report = strtoupper($network. ' N' . $service_price . ' E-pin Purchase failed on ' . $mobile_no);
+            if ($resource->slug == 'smile-data') {
+                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' Purchase failed on ' . $request['billersCode']);
+            } elseif ($resource->slug == 'spectranet-data') {
+                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' E-pin Purchase failed on ' . $request['billersCode']);
             }
 
             $final_response = array(
                 'status' => 'fail',
                 'status_code' => '100',
-                'old_balance' => $old_wallet, ////// 
-                'new_bal' => $old_wallet, ////// 
-                'time' => $time,
+                'old_balance' => $transaction->buyer_prebal, ////// 
+                'new_balance' => $transaction->buyer_postbal, ////// 
+                'amountPaid' => $transaction->buyer_amount,
                 'message' => $order_report
             );
         }
-        
+       
         return [
             'order_report' => $order_report,
             'final_response' => $final_response
@@ -1188,286 +1191,286 @@ class TransactionsController extends Controller
         return $code;
     }
 
-    public function discounts(Request $request)
-    {
-        $webSetting = webSetting::first(); 
-        $service = strtolower($request->services);
-        $discount = 0;
-        if ($service == "mtn-vtu") {
-            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mtn_discount;
-        }
+    // public function discounts(Request $request)
+    // {
+    //     $webSetting = webSetting::first(); 
+    //     $service = strtolower($request->services);
+    //     $discount = 0;
+    //     if ($service == "mtn-vtu") {
+    //         $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mtn_discount;
+    //     }
 
-        if ($service == "glo-vtu") {
-            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->glo_discount;
-        }
+    //     if ($service == "glo-vtu") {
+    //         $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->glo_discount;
+    //     }
 
-        if ($service == "airtel-vtu") {
-            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->airtel_discount;
-        }
+    //     if ($service == "airtel-vtu") {
+    //         $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->airtel_discount;
+    //     }
 
-        if ($service == "9mobile-vtu") {
-            $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mobile_discount;
-        }
+    //     if ($service == "9mobile-vtu") {
+    //         $discount = \DB::table('airtimevtu_plan')->where('id', $request->level)->first()->mobile_discount;
+    //     }
     
-        if ($service == "smile-vtu") {
-            $discount = $webSetting->smile_vtu_discount;
-        }
-        ///AIRTIME VTU-END
+    //     if ($service == "smile-vtu") {
+    //         $discount = $webSetting->smile_vtu_discount;
+    //     }
+    //     ///AIRTIME VTU-END
 
-        //AIRTIME SNS-START
+    //     //AIRTIME SNS-START
 
-        if ($service == "mtn-sns") {
-            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->mtn_discount;
-        }
+    //     if ($service == "mtn-sns") {
+    //         $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->mtn_discount;
+    //     }
 
-        if ($service == "glo-sns") {
-            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->glo_discount;
-        }
+    //     if ($service == "glo-sns") {
+    //         $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->glo_discount;
+    //     }
 
-        if ($service == "airtel-sns") {
-            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->airtel_discount;
-        }
+    //     if ($service == "airtel-sns") {
+    //         $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->airtel_discount;
+    //     }
 
-        if ($service == "9mobile-sns") {
-            $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->mobile_discount;
-        }
+    //     if ($service == "9mobile-sns") {
+    //         $discount = \DB::table('airtimesns_plan')->where('id', $request->level)->first()->mobile_discount;
+    //     }
 
-        //AIRTIME SWAP-START
-        if ($service == "mtn-swap") {
-            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mtn_rate;
-        }
+    //     //AIRTIME SWAP-START
+    //     if ($service == "mtn-swap") {
+    //         $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mtn_rate;
+    //     }
 
-        if ($service == "glo-swap") {
-            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->glo_rate;
-        }
+    //     if ($service == "glo-swap") {
+    //         $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->glo_rate;
+    //     }
 
-        if ($service == "airtel-swap") {
-            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->airtel_rate;
-        }
+    //     if ($service == "airtel-swap") {
+    //         $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->airtel_rate;
+    //     }
 
-        if ($service == "9mobile-swap") {
-            $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mobile_rate;
-        }
+    //     if ($service == "9mobile-swap") {
+    //         $discount = \DB::table('airtimeswap_plan')->where('id', $request->level)->first()->mobile_rate;
+    //     }
 
-        // Electricity
-        if ($service == "aba-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->aba_discount;
-        }
+    //     // Electricity
+    //     if ($service == "aba-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->aba_discount;
+    //     }
 
-        if ($service == "abuja-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->abuja_discount;
-        }
+    //     if ($service == "abuja-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->abuja_discount;
+    //     }
 
-        if ($service == "eko-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->eko_discount;
-        }
+    //     if ($service == "eko-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->eko_discount;
+    //     }
 
-        if ($service == "ibadan-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ibadan_discount;
-        }
+    //     if ($service == "ibadan-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ibadan_discount;
+    //     }
         
-        if ($service == "ikeja-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ikeja_discount;
-        }
+    //     if ($service == "ikeja-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->ikeja_discount;
+    //     }
 
-        if ($service == "kaduna-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->kaduna_discount;
-        }
+    //     if ($service == "kaduna-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->kaduna_discount;
+    //     }
 
-        if ($service == "kano-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->kano_discount;
-        }
+    //     if ($service == "kano-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->kano_discount;
+    //     }
 
-        if ($service == "jos-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->jos_discount;
-        }
+    //     if ($service == "jos-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->jos_discount;
+    //     }
 
-        if ($service == "portharcourt-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->portharcourt_discount;
-        }
+    //     if ($service == "portharcourt-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->portharcourt_discount;
+    //     }
 
-        if ($service == "benin-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->benin_discount;
-        }
+    //     if ($service == "benin-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->benin_discount;
+    //     }
 
-        if ($service == "enugu-electric") {
-            $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->enugu_discount;
-        }
+    //     if ($service == "enugu-electric") {
+    //         $discount = \DB::table('bills_planlists')->where('id', $request->level)->first()->enugu_discount;
+    //     }
     
-        // Gotv
-        if(!empty($request->ajax)){
-            // $echo = '<option value="">xdvxc</option>';
-            $echo = $this->reFormatDiscount($service, $discount);
-            return $echo;
-            // return response()->json($this->reFormatDiscount($service, $discount));
-            // return response()->json($discount);
-        }else{
-            return $discount;
-        }
-    }
+    //     // Gotv
+    //     if(!empty($request->ajax)){
+    //         // $echo = '<option value="">xdvxc</option>';
+    //         $echo = $this->reFormatDiscount($service, $discount);
+    //         return $echo;
+    //         // return response()->json($this->reFormatDiscount($service, $discount));
+    //         // return response()->json($discount);
+    //     }else{
+    //         return $discount;
+    //     }
+    // }
 
-    public function reFormatDiscount($getservices, $discount){
-        if(empty($discount) || $discount < 1){
-            $message = '';
-        }
-        if ($getservices == "abuja-electric") {
-            if ($discount > 0) {
-                $message = '<div class="alert alert-success alert-dismissible"><strong class="discount-text">' . $discount . '% Discount applies for you</strong><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div></div>';
-            }
-        }
+    // public function reFormatDiscount($getservices, $discount){
+    //     if(empty($discount) || $discount < 1){
+    //         $message = '';
+    //     }
+    //     if ($getservices == "abuja-electric") {
+    //         if ($discount > 0) {
+    //             $message = '<div class="alert alert-success alert-dismissible"><strong class="discount-text">' . $discount . '% Discount applies for you</strong><button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div></div>';
+    //         }
+    //     }
 
-        if ($getservices == "ibadan-electric") {
-            if ($discount > 0) {
-                $message =  '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "ibadan-electric") {
+    //         if ($discount > 0) {
+    //             $message =  '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "eko-electric") {
-            if ($discount > 0) {
-                $message = '
-                <div class="alert alert-success alert-dismissible">
-                    <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                    <button type="button" class="btn-close" 
-                    data-bs-dismiss="alert"
-                    aria-label="Close">
-                    </button>
-                    </div>
-                </div>
-                ';
-            }
-        }
+    //     if ($getservices == "eko-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //             <div class="alert alert-success alert-dismissible">
+    //                 <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                 <button type="button" class="btn-close" 
+    //                 data-bs-dismiss="alert"
+    //                 aria-label="Close">
+    //                 </button>
+    //                 </div>
+    //             </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "jos-electric") {
-            if ($discount > 0) {
-                $message = '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "jos-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "kaduna-electric") {
-            if ($discount > 0) {
-                $message = '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "kaduna-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "kano-electric") {
-            if ($discount > 0) {
-                $message = '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "kano-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
         
-        if ($getservices == "ikeja-electric") {
-            if ($discount > 0) {
-                $message = '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "ikeja-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "portharcourt-electric") {
-            if ($discount > 0) {
-                $message = '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "portharcourt-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "benin-electric") {
-            if ($discount > 0) {
-                $message = '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "benin-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "enugu-electric") {
-            if ($discount > 0) {
-                $message = '
-                    <div class="alert alert-success alert-dismissible">
-                        <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                        <button type="button" class="btn-close" 
-                        data-bs-dismiss="alert"
-                        aria-label="Close">
-                        </button>
-                        </div>
-                    </div>
-                ';
-            }
-        }
+    //     if ($getservices == "enugu-electric") {
+    //         if ($discount > 0) {
+    //             $message = '
+    //                 <div class="alert alert-success alert-dismissible">
+    //                     <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                     <button type="button" class="btn-close" 
+    //                     data-bs-dismiss="alert"
+    //                     aria-label="Close">
+    //                     </button>
+    //                     </div>
+    //                 </div>
+    //             ';
+    //         }
+    //     }
 
-        if ($getservices == "aba-electric") {
-            if ($discount > 0) {
-                $message =  '
-                <div class="alert alert-success alert-dismissible">
-                    <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
-                    <button type="button" class="btn-close" 
-                    data-bs-dismiss="alert"
-                    aria-label="Close">
-                    </button>
-                    </div>
-                </div>
-            ';
-            }
-        }
-        return $message;
+    //     if ($getservices == "aba-electric") {
+    //         if ($discount > 0) {
+    //             $message =  '
+    //             <div class="alert alert-success alert-dismissible">
+    //                 <strong class="discount-text">' . $discount . '% Discount applies for you</strong>
+    //                 <button type="button" class="btn-close" 
+    //                 data-bs-dismiss="alert"
+    //                 aria-label="Close">
+    //                 </button>
+    //                 </div>
+    //             </div>
+    //         ';
+    //         }
+    //     }
+    //     return $message;
 
-    }
+    // }
 
     public function commissions($type, $product){
         $product = strtoupper($product);
@@ -1735,7 +1738,7 @@ class TransactionsController extends Controller
             $transactions = $transactions->where('product_id', $request->service);
         }
         if ($request->sys_reference) {
-            $transactions = $transactions->where('sys_reference', $request->sys_reference);
+            $transactions = $transactions->where('sys_ref', $request->sys_reference);
         }
         // if ($request->unique_element) {
         //     $transactions = $transactions->where('unique_element', $request->unique_element);
