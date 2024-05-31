@@ -17,7 +17,7 @@ class CustomerLevel extends Model
 
     public function customers()
     {
-        return $this->hasMany(User::class, 'customer_level');
+        return $this->hasMany(User::class, 'level');
     }
 
     public function variation_price($variation_id)

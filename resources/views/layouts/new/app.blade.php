@@ -42,7 +42,11 @@
 
     <!-- Choices Css -->
     <link rel="stylesheet" href="{{ asset('new/assets/libs/choices.js/public/assets/styles/choices.min.css') }}">
-
+    <style>
+        .category-discount{
+            color:blue
+        }
+    </style>
     @yield('extra-css')
 
 </head>

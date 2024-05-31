@@ -76,7 +76,7 @@
     <div>
       <small style="color: red;font-weight: bold;" id="valAmount" style="display:none"></small>
     </div>
-    <small>Forget Pin ? <a href="{{ route('pin.reset') }}">Reset Here</a></small>
+    <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
     <div class="input-group mb-3">
       <span class="input-group-text"><i style="font-weight: bold" class="fa fa-unlock-alt"></i></span>
       <input type="password" class="form-control"  placeholder="Security PIN" id="security_pin" required>

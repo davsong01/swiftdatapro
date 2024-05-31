@@ -951,4 +951,23 @@ class Controller extends BaseController
 
         return $location;
     }
+
+    public function getApiFilename($api)
+    {
+        if ($api->slug == 'easyaccess') {
+            $controller = 'EasyAccessController';
+        } else if ($api->slug == 'vtpass') {
+            $controller = 'VtpassController';
+        } else if ($api->slug == 'gongzo-data') {
+            $controller = 'GongzoController';
+        } else if ($api->slug == 'naija-result-pins') {
+            $controller = 'NaijaResultPinsController';
+        } else if ($api->slug == 'club-konnect') {
+            $controller = 'ClubkonnectController';
+        } else if ($api->slug == 'sme-plug') {
+            $controller = 'SMEPlugController';
+        }
+
+        return $controller;
+    }
 }

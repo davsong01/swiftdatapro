@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\API;
 use App\Models\Category;
+use App\Models\Discount;
 use App\Models\Variation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,4 +35,10 @@ class Product extends Model
         $price = Discount::where(['product_id' => $this->id, 'customer_level' => $level])->value('price');
         return $price;
     }
+
+    public function user_discount()
+    {
+        return $this->hasOne(Discount::class)->where('product_id', $this->id)->where('customer_level', auth()->user()->level);
+    }
+    
 }

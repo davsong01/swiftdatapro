@@ -14,9 +14,9 @@ class VariationController extends Controller
     {
         $api = $product->api;
         Session::put('page', '1');
-
+       
         // Get Variations from Filename
-        $variations = app("App\Http\Controllers\Providers\\" . $api->file_name)->getVariations($product);
+        $variations = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->getVariations($product);
 
         return back()->with('message', 'Variations pulled successfully');
     }
@@ -46,16 +46,9 @@ class VariationController extends Controller
     {
         $variations = Variation::where('product_id', $product->id)->where('status', 'active')->orderBy('system_price', 'ASC')->get();
         foreach ($variations as $key => $variation) {
-            $req = new Request([
-                'variation_id' => $variation->id,
-                'raw' => 'yes',
-            ]);
-
-            $discount = getProductDiscount(variation_id: $variation->id);
-
-            $variation->discount = $discount;
-
-            // dd(in_array('utme-no-mock', array_keys(specialVerifiableVariations())), specialVerifiableVariations());
+            $discount = getVariationDiscount(amount: $variation->system_price, variation_id: $variation->id, );
+            $variation->discount = $discount['new_amount'];
+            
             if (in_array($variation->category->unique_element, verifiableUniqueElements()) || in_array($variation->slug, array_keys(specialVerifiableVariations()))) {
                 $variation->verifiable = 'yes';
             } else {
@@ -72,8 +65,14 @@ class VariationController extends Controller
                 $variation->unique_element = $variation->category->unique_element;
             }
         }
+        
+        $data = [];
+        
+        foreach($variations as $variation){
+            $data[] = '<option data-product_id="' . $variation->product_id . '"  data-max="' . $variation->max . '"  data-min="' . $variation->min . '"  data-slug="' . $variation->slug . '"  data-fixed_price="' . $variation->fixed_price . '" data-verifiable="'. $variation->verifiable.'" value="' . $variation->id . '">' . $variation->system_name . ' -' . settings()->currency.$variation->discount . '</option>';
+        }
 
-        return response()->json($variations);
+        return response()->json($data);
     }
 
     public function updateVariations(Request $request)
@@ -81,19 +80,16 @@ class VariationController extends Controller
         if (isset($request->level)) {
             foreach ($request->level as $key => $level) {
                 foreach ($level as $k => $price) {
-                    // if (!empty($price)) {
-                    Discount::updateOrCreate([
-                        'customer_level' => $key,
-                        'product_id' => $request->product_id,
-                        'variation_id' => $k,
-                    ], [
-                        'status' => 'active',
-                        'customer_level' => $key,
-                        'product_id' => $request->product_id,
-                        'variation_id' => $k,
-                        'price' => $price ?? 0
-                    ]);
-                    // }
+                    if (!empty($price)) {
+                        Discount::create([
+                            'status' => 'active',
+                            'customer_level' => $key,
+                            'variation_id' => $k,
+                            'price' => $price ?? 0
+                        ]);
+                    } else {
+                        Discount::where(['variation_id' => $k, 'customer_level' => $key])->delete();
+                    }
                 }
             }
         }
@@ -150,16 +146,13 @@ class VariationController extends Controller
                         foreach ($level as $price) {
                             if (!empty($price)) {
                                 Discount::updateOrCreate([
-                                    'customer_level' => $l,
-                                    'product_id' => $product->id,
-                                    'variation_id' => $variation->id,
-                                ], [
                                     'status' => 'active',
                                     'customer_level' => $l,
-                                    'product_id' => $product->id,
                                     'variation_id' => $variation->id,
                                     'price' => $level[$key]
                                 ]);
+                            }else{
+                                Discount::where(['variation_id' => $variation->id, 'customer_level' => $l])->delete();
                             }
                         }
                     }

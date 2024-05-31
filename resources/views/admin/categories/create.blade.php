@@ -27,7 +27,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="icon">Icon</label>
-                                <input type="text" class="form-control" id="icon" name="icon" value="{{ old('icon') }}" placeholder="Enter icon" required>
+                                <input type="text" class="form-control" id="icon" name="icon" value="{{ old('icon') }}" placeholder="Enter icon">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="display_name">Display Name</label>
@@ -73,19 +73,26 @@
                                     <option value="percentage" {{ old('discount_type') == 'percentage' ? 'selected' : '' }}>Percentage</option>
                                 </select>
                             </div>
+                            @foreach($customerlevel as $level)
+                            <div class="col-md-6">
+                                <label class="form-label" for="level">{{ $level->name }} Discount Value <span class="category-discount"> (Will be used if product or variations has no set discount)</span></label>
+                                <input type="number" step=".01" class="form-control" id="level" name="level[{{ $level->id }}]"   value="">
+                            </div>
+                            @endforeach
+                            
                             <div class="col-md-6">
                                 <label class="form-label" for="order">Order</label>
                                 <input type="number" class="form-control" name="order" value="{{ old('order') }}" placeholder="Enter order" id="order" required>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label" for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" placeholder="Description"></textarea>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="seo_description">SEO Description</label>
                                 <textarea class="form-control" id="seo_description" name="seo_description" rows="3" placeholder="SEO Description"></textarea>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="description">Description</label>
-                                <textarea class="form-control" id="description" name="description" rows="3" placeholder="Description"></textarea>
-                            </div>
-                            
                         </div>
                             <div class="col-md-12 mt-3">
                             <button class="btn btn-primary" type="submit">Submit</button>

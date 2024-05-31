@@ -25,6 +25,7 @@ return new class extends Migration
             $table->string('seo_title')->nullable();
             $table->string('order')->nullable();
             $table->enum('discount_type',['flat','percentage']);
+            $table->double('discount_value')->nullable();
             $table->timestamps();
         });
     }

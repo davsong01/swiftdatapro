@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('system_name')->nullable();
             $table->string('fixed_price')->nullable();
-            $table->double('api_price', 11, 2)->nullable();
-            $table->double('system_price', 11, 2)->nullable();
+            $table->decimal('api_price', 22, 2)->nullable();
+            $table->decimal('system_price',22, 2)->nullable();
             $table->string('network')->nullable();
             $table->string('verifiable')->default('no');
             $table->integer('min')->nullable();

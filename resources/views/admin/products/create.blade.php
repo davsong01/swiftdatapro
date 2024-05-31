@@ -134,7 +134,7 @@
                                     </div>
                                     @foreach($customerlevel as $level)
                                     <div class="col-md-6">
-                                        <label class="form-label" for="name">{{ $level->name }} Price ({!! getSettings()['currency']!!})</label>
+                                        <label class="form-label" for="productlevel">{{ $level->name }} Price ({!! getSettings()['currency']!!})</label>
                                         <input type="number" class="form-control tiny" id="productlevel" name="productlevel[{{ $level->id }}]"  value="">
                                     </div>
                                     @endforeach

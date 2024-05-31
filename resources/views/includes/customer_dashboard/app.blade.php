@@ -99,7 +99,7 @@
         <div class="logo">
             <h5 class="">Available Balance. <br /> <span style="color: #940798;font-weight: bold;font-size: 20px;">
                 {{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span></h5>
-            <h6 class="">Level: {{ auth()->user()->level }} <span
+            <h6 class="">Level: {{ auth()->user()->customer_level->name }} <span
                     style="color: #940798;font-weight: bold;font-size: 18px;"></span></h6>
             <div class="sidebar_close_icon d-lg-none">
                 <i class="ti-close"></i>

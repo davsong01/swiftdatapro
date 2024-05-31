@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Discount;
 use Illuminate\Http\Request;
+use App\Models\CustomerLevel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class CategoryController extends Controller
@@ -12,13 +14,14 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::withCount('products')->orderby('order', 'ASC')->get();
-
+        
         return view('admin.categories.index', compact('categories'));
     }
 
     public function create()
     {
-        return view('admin.categories.create');
+        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>', 1)->get();
+        return view('admin.categories.create', compact('customerlevel'));
     }
 
     public function store(Request $request)
@@ -36,9 +39,10 @@ class CategoryController extends Controller
             "icon" => "nullable",
             "seo_keywords" => "nullable",
             "discount_type" => "nullable",
+            "discount_value" => "nullable",
         ]);
 
-        Category::updateOrCreate([
+        $category = Category::updateOrCreate([
             "name" => $request->name,
             "icon" => $request->icon,
             "display_name" => $request->display_name,
@@ -51,21 +55,40 @@ class CategoryController extends Controller
             "seo_keywords" => $request->seo_keywords,
             "unique_element" => $request->unique_element,
             "discount_type" => $request->discount_type,
+            "discount_value" => $request->discount_value,
         ]);
+
+        if (isset($request->level) && isset($category)) {
+            foreach ($request->level as $key => $price) {
+                if (!empty($price)) {
+                    Discount::updateOrCreate([
+                        'customer_level' => $key,
+                        'category_id' => $category->id,
+                    ], [
+                        'customer_level' => $key,
+                        'category_id' => $category->id,
+                        'price' => $price,
+                    ]);
+                } else {
+                    Discount::where(['category_id' => $category->id, 'customer_level' => $key])->delete();
+                }
+            }
+        }
 
         return redirect(route('category.index'))->with('message', 'Added successfully');
     }
 
     public function edit(Category $category)
     {
-        return view('admin.categories.edit', compact('category'));
+        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>', 1)->get();
+        return view('admin.categories.edit', compact('category','customerlevel'));
     }
 
     public function update(Request $request, Category $category)
     {
         $this->validate($request, [
             "name" => "required",
-            "icon" => "required",
+            "icon" => "nullable",
             "display_name" => "nullable",
             "slug" => "required",
             "status" => "required",
@@ -76,7 +99,7 @@ class CategoryController extends Controller
             "seo_title" => "nullable",
             "seo_keywords" => "nullable",
             "discount_type" => "nullable",
-
+            "discount_value" => "nullable",
         ]);
 
         $category->update([
@@ -92,7 +115,25 @@ class CategoryController extends Controller
             "seo_title" => $request->seo_title,
             "seo_keywords" => $request->seo_keywords,
             "discount_type" => $request->discount_type,
+            "discount_value" => $request->discount_value,
         ]);
+    
+        if (isset($request->level) && isset($category)) {
+            foreach ($request->level as $key => $price) {
+                if (!empty($price)) {
+                    Discount::updateOrCreate([
+                        'customer_level' => $key,
+                        'category_id' => $category->id,
+                    ], [
+                        'customer_level' => $key,
+                        'category_id' => $category->id,
+                        'price' => $price,
+                    ]);
+                } else {
+                    Discount::where(['category_id' => $category->id,'customer_level' => $key])->delete();
+                }
+            }
+        }
 
         return back()->with('message', 'Updated successfully');
     }

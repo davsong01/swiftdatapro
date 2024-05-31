@@ -26,8 +26,8 @@ class TransactionsController extends Controller
             }
         ])->where('status', 'active')->where('slug', $service)->first();
         
-        return view('customer.airtime', compact('service','category'));
-        // return view('customer.'.$service, compact('service','category'));
+        // return view('customer.airtime', compact('service','category'));
+        return view('customer.'.$service, compact('service','category'));
     }
 
     public function getCustomerDiscount(Request $request){
@@ -87,526 +87,526 @@ class TransactionsController extends Controller
 
     }
 
-    public function variations(Request $request){
-        $service = strtolower($request->services);
-        $product = strtolower($request->product);
+    // public function variations(Request $request){
+    //     $service = strtolower($request->services);
+    //     $product = strtolower($request->product);
         
-        $level = strtolower($request->level);
-        $api = $this->getProvider($service, $product);
-        $echo = '<option>No Available variations at the moment</option>';
+    //     $level = strtolower($request->level);
+    //     $api = $this->getProvider($service, $product);
+    //     $echo = '<option>No Available variations at the moment</option>';
         
-        if($api['individual_access'] == 0 || $api['product_access'] == 0){
-            return response()->json($echo);
-        }
+    //     if($api['individual_access'] == 0 || $api['product_access'] == 0){
+    //         return response()->json($echo);
+    //     }
         
-        $variations = app('App\Http\Controllers\Providers\\'.$api['provider_name'])->getVariations($product, $service, $level);
+    //     $variations = app('App\Http\Controllers\Providers\\'.$api['provider_name'])->getVariations($product, $service, $level);
         
-        $discount = app('App\Http\Controllers\TransactionsController')->discounts($request);
+    //     $discount = app('App\Http\Controllers\TransactionsController')->discounts($request);
     
-        if (isset($variations) && !empty($variations)) {
-            $echo = "";
-            $echo .= $discount ?? '';
-            foreach ($variations as $res) {
-                if (isset($res['price']) && $res['price'] > 0) {
-                    $echo .= '<option value="' . $res['code'] . '">' . $res['name'] . ' - ₦' . $res['price'] . '</option>';
-                }
-            }
-        }
+    //     if (isset($variations) && !empty($variations)) {
+    //         $echo = "";
+    //         $echo .= $discount ?? '';
+    //         foreach ($variations as $res) {
+    //             if (isset($res['price']) && $res['price'] > 0) {
+    //                 $echo .= '<option value="' . $res['code'] . '">' . $res['name'] . ' - ₦' . $res['price'] . '</option>';
+    //             }
+    //         }
+    //     }
         
-        return response()->json($echo);
+    //     return response()->json($echo);
 
-    }
+    // }
 
-    public function getProvider($service, $product = null, $user=null){
-        $webSetting = WebSetting::first();
-        $api = '';
-        $user = $user ?? auth()->user();
-        $service =  strtolower($service);
+    // public function getProvider($service, $product = null, $user=null){
+    //     $webSetting = WebSetting::first();
+    //     $api = '';
+    //     $user = $user ?? auth()->user();
+    //     $service =  strtolower($service);
         
-        if($service == "mtn"){
-            $api = [
-                'provider_slug' => $webSetting->api_mtn,
-                'provider_name' => str_replace(".php", "",str_replace(" ", "", ucwords(str_replace("_"," ", $webSetting->api_mtn))).'Controller').'.php',
-                'individual_access' => $user->mtnsme_access,
-                'product_access' => $this->getProductAccess('m_lock1'),
-            ];
-        }
+    //     if($service == "mtn"){
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mtn,
+    //             'provider_name' => str_replace(".php", "",str_replace(" ", "", ucwords(str_replace("_"," ", $webSetting->api_mtn))).'Controller').'.php',
+    //             'individual_access' => $user->mtnsme_access,
+    //             'product_access' => $this->getProductAccess('m_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "mtn-datacard") {
-            $api = [
-                'provider_slug' => $webSetting->mtn_data_card,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
-                'individual_access' => $user->mtnsme_access,
-                'product_access' => $this->getProductAccess('m_lock1'),
-            ];
-        }
+    //     if ($service == "mtn-datacard") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->mtn_data_card,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
+    //             'individual_access' => $user->mtnsme_access,
+    //             'product_access' => $this->getProductAccess('m_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "mtn-cg" || $service == "gifting" ) {
-            $api = [
-                'provider_slug' => $webSetting->api_gift,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gift))) . 'Controller') . '.php',
+    //     if ($service == "mtn-cg" || $service == "gifting" ) {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_gift,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gift))) . 'Controller') . '.php',
 
-                'individual_access' => $user->mtncg_access,
-                'product_access' => $this->getProductAccess('mg_lock1'),
-            ];
-        }
+    //             'individual_access' => $user->mtncg_access,
+    //             'product_access' => $this->getProductAccess('mg_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "9mobile") {
-            $api = [
-                'provider_slug' => $webSetting->api_mobile,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile))) . 'Controller') . '.php',
+    //     if ($service == "9mobile") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mobile,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile))) . 'Controller') . '.php',
 
-                'individual_access' => $user->mobile_access,
-                'product_access' => $this->getProductAccess('mo_lock1'),
-            ];
-        }
+    //             'individual_access' => $user->mobile_access,
+    //             'product_access' => $this->getProductAccess('mo_lock1'),
+    //         ];
+    //     }
         
-        if ($service == "mobile-sme") {
-            $api = [
-                'provider_slug' => $webSetting->api_mobilesme,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
+    //     if ($service == "mobile-sme") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mobilesme,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
 
-                'individual_access' => $user->mobile_access,
-                'product_access' => $this->getProductAccess('mobilesme_lock'),
-            ];
-        }
+    //             'individual_access' => $user->mobile_access,
+    //             'product_access' => $this->getProductAccess('mobilesme_lock'),
+    //         ];
+    //     }
 
-        if ($service == "airtel") {
-            $api = [
-                'provider_slug' => $webSetting->api_airtel,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel))) . 'Controller') . '.php',
+    //     if ($service == "airtel") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_airtel,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel))) . 'Controller') . '.php',
 
-                'individual_access' => $user->airtel_access,
-                'product_access' => $this->getProductAccess('a_lock1'),
-            ];
-        }
+    //             'individual_access' => $user->airtel_access,
+    //             'product_access' => $this->getProductAccess('a_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "airtel-cg") {
-            $api = [
-                'provider_slug' => $webSetting->api_airtelcg,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtelcg))) . 'Controller') . '.php',
+    //     if ($service == "airtel-cg") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_airtelcg,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtelcg))) . 'Controller') . '.php',
 
-                'individual_access' => $user->airtelcg_access,
-                'product_access' => $this->getProductAccess('ag_lock1'),
-            ];
-        }
+    //             'individual_access' => $user->airtelcg_access,
+    //             'product_access' => $this->getProductAccess('ag_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "glo") {
-            $api = [
-                'provider_slug' => $webSetting->api_glo,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo))) . 'Controller') . '.php',
+    //     if ($service == "glo") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_glo,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo))) . 'Controller') . '.php',
 
-                'individual_access' => $user->glo_access,
-                'product_access' => $this->getProductAccess('g_lock1'),
-            ];
-        }
+    //             'individual_access' => $user->glo_access,
+    //             'product_access' => $this->getProductAccess('g_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "glo-cg") {
-            $api = [
-                'provider_slug' => $webSetting->api_glocg,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glocg))) . 'Controller') . '.php',
+    //     if ($service == "glo-cg") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_glocg,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glocg))) . 'Controller') . '.php',
 
-                'individual_access' => $user->glo_access,
-                'product_access' => $this->getProductAccess('gcg_lock1'),
-            ];
-        }
+    //             'individual_access' => $user->glo_access,
+    //             'product_access' => $this->getProductAccess('gcg_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "9mobile-cg" || $service == "etisalat") {
-            $api = [
-                'provider_slug' => $webSetting->api_mobilesme,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
+    //     if ($service == "9mobile-cg" || $service == "etisalat") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mobilesme,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
 
-                'individual_access' => $user->mobile_access,
-                'product_access' => $this->getProductAccess('mo_lock1'),
-            ];
-        }
+    //             'individual_access' => $user->mobile_access,
+    //             'product_access' => $this->getProductAccess('mo_lock1'),
+    //         ];
+    //     }
 
-        if ($service == "spectranet-data") {
-            $api = [
-                'provider_slug' => $webSetting->api_spectranet,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_spectranet))) . 'Controller') . '.php',
+    //     if ($service == "spectranet-data") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_spectranet,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_spectranet))) . 'Controller') . '.php',
 
-                'individual_access' => 1,
-                'product_access' => $this->getProductAccess('spectranet_lock'),
-            ];
-        }
+    //             'individual_access' => 1,
+    //             'product_access' => $this->getProductAccess('spectranet_lock'),
+    //         ];
+    //     }
 
-        if ($service == "smile-data") {
-            $api = [
-                'provider_slug' => $webSetting->api_smile,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
+    //     if ($service == "smile-data") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_smile,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
 
-                'individual_access' => 1,
-                'product_access' => $this->getProductAccess('smile_lock'),
-            ];
-        }
+    //             'individual_access' => 1,
+    //             'product_access' => $this->getProductAccess('smile_lock'),
+    //         ];
+    //     }
 
-        if ($service == "smile-vtu") {
-            $api = [
-                'provider_slug' => $webSetting->api_smile,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
+    //     if ($service == "smile-vtu") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_smile,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
 
-                'individual_access' => 1,
-                'product_access' => $this->getProductAccess('smile_vtu_lock'),
-            ];
-        }
+    //             'individual_access' => 1,
+    //             'product_access' => $this->getProductAccess('smile_vtu_lock'),
+    //         ];
+    //     }
 
-        if ($service == "mtn-vtu") {
-            $api = [
-                    'provider_slug' => $webSetting->api_mtn2,
-                    'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn2))) . 'Controller') . '.php',
-                    'individual_access' => $user->airtime_access,
-                    'product_access' => $this->getProductAccess('m_lock2'),
-                ];
-        }
+    //     if ($service == "mtn-vtu") {
+    //         $api = [
+    //                 'provider_slug' => $webSetting->api_mtn2,
+    //                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn2))) . 'Controller') . '.php',
+    //                 'individual_access' => $user->airtime_access,
+    //                 'product_access' => $this->getProductAccess('m_lock2'),
+    //             ];
+    //     }
 
-        if ($service == "glo-vtu") {
-            $api = [
-                'provider_slug' => $webSetting->api_glo2,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo2))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('g_lock2'),
-            ];
-        }
+    //     if ($service == "glo-vtu") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_glo2,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo2))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('g_lock2'),
+    //         ];
+    //     }
 
-        if ($service == "airtel-vtu") {
-            $api = [
-                'provider_slug' => $webSetting->api_airtel2,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel2))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('a_lock2'),
-            ];
-        }
+    //     if ($service == "airtel-vtu") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_airtel2,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel2))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('a_lock2'),
+    //         ];
+    //     }
 
-        if ($service == "9mobile-vtu" || $service == "eitsalat-vtu") {
-            $api = [
-                'provider_slug' => $webSetting->api_mobile2,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile2))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('mo_lock2'),
-            ];
-        }
+    //     if ($service == "9mobile-vtu" || $service == "eitsalat-vtu") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mobile2,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile2))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('mo_lock2'),
+    //         ];
+    //     }
 
-        if ($service == "mtn-sns") {
-            $api = [
-                'provider_slug' => $webSetting->api_mtn3,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn3))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('m_lock3'),
-            ];
-        }
+    //     if ($service == "mtn-sns") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mtn3,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn3))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('m_lock3'),
+    //         ];
+    //     }
 
-        if ($service == "glo-sns") {
-            $api = [
-                'provider_slug' => $webSetting->api_airtel3,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('g_lock3'),
-            ];
-        }
+    //     if ($service == "glo-sns") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_airtel3,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('g_lock3'),
+    //         ];
+    //     }
 
-        if ($service == "airtel-sns") {
-            $api = [
-                'provider_slug' => $webSetting->api_airtel3,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('a_lock3'),
-            ];
-        }
+    //     if ($service == "airtel-sns") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_airtel3,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('a_lock3'),
+    //         ];
+    //     }
 
-        if ($service == "9mobile-sns") {
-            $api = [
-                'provider_slug' => $webSetting->api_mobile3,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('mo_lock3'),
-            ];
-        }
+    //     if ($service == "9mobile-sns") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mobile3,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('mo_lock3'),
+    //         ];
+    //     }
 
-        if ($service == "9mobile-sns") {
-            $api = [
-                'provider_slug' => $webSetting->api_mobile3,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
-                'individual_access' => $user->airtime_access,
-                'product_access' => $this->getProductAccess('mo_lock3'),
-            ];
-        }
+    //     if ($service == "9mobile-sns") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_mobile3,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
+    //             'individual_access' => $user->airtime_access,
+    //             'product_access' => $this->getProductAccess('mo_lock3'),
+    //         ];
+    //     }
        
-        if ($service == "waec") {
-            $api = [
-                'provider_slug' => $webSetting->api_waec,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec))) . 'Controller') . '.php',
-                'individual_access' => $user->epin_access,
-                'product_access' => $this->getProductAccess('waec_lock'),
-            ];
-        }
+    //     if ($service == "waec") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_waec,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec))) . 'Controller') . '.php',
+    //             'individual_access' => $user->epin_access,
+    //             'product_access' => $this->getProductAccess('waec_lock'),
+    //         ];
+    //     }
 
-        if ($service == "waec-reg") {
-            $api = [
-                'provider_slug' => $webSetting->api_waec_registration,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec_registration))) . 'Controller') . '.php',
-                'individual_access' => $user->epin_access,
-                'product_access' => $this->getProductAccess('waec_reg_lock'),
-            ];
-        }
+    //     if ($service == "waec-reg") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_waec_registration,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec_registration))) . 'Controller') . '.php',
+    //             'individual_access' => $user->epin_access,
+    //             'product_access' => $this->getProductAccess('waec_reg_lock'),
+    //         ];
+    //     }
 
-        if ($service == "gce") {
-            $api = [
-                'provider_slug' => $webSetting->api_gce,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gce))) . 'Controller') . '.php',
-                'individual_access' => $user->epin_access,
-                'product_access' => $this->getProductAccess('gce_lock'),
-            ];
-        }
+    //     if ($service == "gce") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_gce,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gce))) . 'Controller') . '.php',
+    //             'individual_access' => $user->epin_access,
+    //             'product_access' => $this->getProductAccess('gce_lock'),
+    //         ];
+    //     }
 
-        if ($service == "neco") {
-            $api = [
-                'provider_slug' => $webSetting->api_neco,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_neco))) . 'Controller') . '.php',
-                'individual_access' => $user->epin_access,
-                'product_access' => $this->getProductAccess('neco_lock'),
-            ];
-        }
+    //     if ($service == "neco") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_neco,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_neco))) . 'Controller') . '.php',
+    //             'individual_access' => $user->epin_access,
+    //             'product_access' => $this->getProductAccess('neco_lock'),
+    //         ];
+    //     }
 
-        if ($service == "nabteb") {
-            $api = [
-                'provider_slug' => $webSetting->api_nabteb,
-                'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_nabteb))) . 'Controller') . '.php',
-                'individual_access' => $user->epin_access,
-                'product_access' => $this->getProductAccess('nabt_lock'),
-            ];
-        }
+    //     if ($service == "nabteb") {
+    //         $api = [
+    //             'provider_slug' => $webSetting->api_nabteb,
+    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_nabteb))) . 'Controller') . '.php',
+    //             'individual_access' => $user->epin_access,
+    //             'product_access' => $this->getProductAccess('nabt_lock'),
+    //         ];
+    //     }
 
         
-        // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
-        //     if ($api_waec == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
+    //     // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
+    //     //     if ($api_waec == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
 
-        //     if ($api_waec == 'easyaccess.php') {
-        //         require("epinsModule/easyaccess.php");
-        //     }
-        // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
-        //     if ($api_waec_registration == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
-        //     if ($api_waec_registration == 'vtpasseducation.php') {
-        //         require("epinsModule/vtpasseducation.php");
-        //     }
-        // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
-        //     if ($api_gce == 'easyaccess.php') {
-        //         require("epinsModule/easyaccess.php");
-        //     }
-        //     if ($api_gec == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
-        // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
-        //     if ($api_neco == 'easyaccess.php') {
-        //         require("epinsModule/easyaccess.php");
-        //     }
-        //     if ($api_neco == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
-        // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
+    //     //     if ($api_waec == 'easyaccess.php') {
+    //     //         require("epinsModule/easyaccess.php");
+    //     //     }
+    //     // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
+    //     //     if ($api_waec_registration == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
+    //     //     if ($api_waec_registration == 'vtpasseducation.php') {
+    //     //         require("epinsModule/vtpasseducation.php");
+    //     //     }
+    //     // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
+    //     //     if ($api_gce == 'easyaccess.php') {
+    //     //         require("epinsModule/easyaccess.php");
+    //     //     }
+    //     //     if ($api_gec == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
+    //     // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
+    //     //     if ($api_neco == 'easyaccess.php') {
+    //     //         require("epinsModule/easyaccess.php");
+    //     //     }
+    //     //     if ($api_neco == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
+    //     // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
 
 
-        if ($service == "abuja-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('mo_lock3'),
-            ];
-        }
+    //     if ($service == "abuja-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('mo_lock3'),
+    //         ];
+    //     }
 
-        if ($service == "eko-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('eko_lock'),
-            ];
-        }
+    //     if ($service == "eko-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('eko_lock'),
+    //         ];
+    //     }
 
-        if ($service == "ibadan-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('ibadan_lock'),
-            ];
-        }
+    //     if ($service == "ibadan-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('ibadan_lock'),
+    //         ];
+    //     }
 
-        if ($service == "ikeja-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('ikeja_lock'),
-            ];
-        }
+    //     if ($service == "ikeja-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('ikeja_lock'),
+    //         ];
+    //     }
 
-        if ($service == "kaduna-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('kaduna_lock'),
-            ];
-        }
+    //     if ($service == "kaduna-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('kaduna_lock'),
+    //         ];
+    //     }
 
-        if ($service == "kano-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('kano_lock'),
-            ];
-        }
+    //     if ($service == "kano-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('kano_lock'),
+    //         ];
+    //     }
 
-        if ($service == "jos-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('jos_lock'),
-            ];
-        }
-        if ($service == "portharcourt-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('port_lock'),
-            ];
-        }
-        if ($service == "benin-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('benin_lock'),
-            ];
-        }
-        if ($service == "enugu-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('enugu_lock'),
-            ];
-        }
-        if ($service == "aba-electric") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->bills_access,
-                'product_access' => $this->getProductAccess('aba_lock'),
-            ];
-        }
+    //     if ($service == "jos-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('jos_lock'),
+    //         ];
+    //     }
+    //     if ($service == "portharcourt-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('port_lock'),
+    //         ];
+    //     }
+    //     if ($service == "benin-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('benin_lock'),
+    //         ];
+    //     }
+    //     if ($service == "enugu-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('enugu_lock'),
+    //         ];
+    //     }
+    //     if ($service == "aba-electric") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->bills_access,
+    //             'product_access' => $this->getProductAccess('aba_lock'),
+    //         ];
+    //     }
         
-        if ($service == "dstv") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->cable_access,
-                'product_access' => $this->getProductAccess('dstv_lock'),
-            ];
-        }
+    //     if ($service == "dstv") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->cable_access,
+    //             'product_access' => $this->getProductAccess('dstv_lock'),
+    //         ];
+    //     }
 
-        if ($service == "gotv") {
-            $api = [
-                    'provider_slug' => 'vtpass',
-                    'provider_name' => 'VtpassController',
-                    'individual_access' => $user->cable_access,
-                    'product_access' => $this->getProductAccess('gotv_lock'),
-                ];
-        }
+    //     if ($service == "gotv") {
+    //         $api = [
+    //                 'provider_slug' => 'vtpass',
+    //                 'provider_name' => 'VtpassController',
+    //                 'individual_access' => $user->cable_access,
+    //                 'product_access' => $this->getProductAccess('gotv_lock'),
+    //             ];
+    //     }
 
-        if ($service == "startimes") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->cable_access,
-                'product_access' => $this->getProductAccess('star_lock'),
-            ];
-        }
+    //     if ($service == "startimes") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->cable_access,
+    //             'product_access' => $this->getProductAccess('star_lock'),
+    //         ];
+    //     }
 
-        if ($service == "showmax") {
-            $api = [
-                'provider_slug' => 'vtpass',
-                'provider_name' => 'VtpassController',
-                'individual_access' => $user->cable_access,
-                'product_access' => $this->getProductAccess('showmax_lock'),
-            ];
-        }
+    //     if ($service == "showmax") {
+    //         $api = [
+    //             'provider_slug' => 'vtpass',
+    //             'provider_name' => 'VtpassController',
+    //             'individual_access' => $user->cable_access,
+    //             'product_access' => $this->getProductAccess('showmax_lock'),
+    //         ];
+    //     }
         
-        // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
-        //     if ($api_waec == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
+    //     // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
+    //     //     if ($api_waec == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
 
-        //     if ($api_waec == 'easyaccess.php') {
-        //         require("epinsModule/easyaccess.php");
-        //     }
-        // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
-        //     if ($api_waec_registration == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
-        //     if ($api_waec_registration == 'vtpasseducation.php') {
-        //         require("epinsModule/vtpasseducation.php");
-        //     }
-        // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
-        //     if ($api_gce == 'easyaccess.php') {
-        //         require("epinsModule/easyaccess.php");
-        //     }
-        //     if ($api_gec == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
-        // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
-        //     if ($api_neco == 'easyaccess.php') {
-        //         require("epinsModule/easyaccess.php");
-        //     }
-        //     if ($api_neco == 'naijaresultpins.php') {
-        //         require("epinsModule/naijaresultpins.php");
-        //     }
-        // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
-        if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
-            $api['provider_name'] = 'GongzoController';
-        }
+    //     //     if ($api_waec == 'easyaccess.php') {
+    //     //         require("epinsModule/easyaccess.php");
+    //     //     }
+    //     // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
+    //     //     if ($api_waec_registration == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
+    //     //     if ($api_waec_registration == 'vtpasseducation.php') {
+    //     //         require("epinsModule/vtpasseducation.php");
+    //     //     }
+    //     // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
+    //     //     if ($api_gce == 'easyaccess.php') {
+    //     //         require("epinsModule/easyaccess.php");
+    //     //     }
+    //     //     if ($api_gec == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
+    //     // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
+    //     //     if ($api_neco == 'easyaccess.php') {
+    //     //         require("epinsModule/easyaccess.php");
+    //     //     }
+    //     //     if ($api_neco == 'naijaresultpins.php') {
+    //     //         require("epinsModule/naijaresultpins.php");
+    //     //     }
+    //     // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
+    //     if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
+    //         $api['provider_name'] = 'GongzoController';
+    //     }
 
-        if (in_array($api['provider_name'], ['MobileDonController.php'])) {
-            $api['provider_name'] = 'DonlesonController';
-        }
+    //     if (in_array($api['provider_name'], ['MobileDonController.php'])) {
+    //         $api['provider_name'] = 'DonlesonController';
+    //     }
 
-        if (in_array($api['provider_name'], ['EasyAccessDataController.php'])) {
-            $api['provider_name'] = 'EasyAccessController';
-        }
+    //     if (in_array($api['provider_name'], ['EasyAccessDataController.php'])) {
+    //         $api['provider_name'] = 'EasyAccessController';
+    //     }
 
-        if (in_array($api['provider_name'], ['MtnsmeDonController.php'])) {
-            $api['provider_name'] = 'DonlessonCntroller';
-        }
+    //     if (in_array($api['provider_name'], ['MtnsmeDonController.php'])) {
+    //         $api['provider_name'] = 'DonlessonCntroller';
+    //     }
     
-        if (in_array($api['provider_name'], ['VtpassController','AirtimevtuVtpassController.php','VtpassDataController.php'])) {
-            $api['provider_name'] = 'VtpassController';
-        }
+    //     if (in_array($api['provider_name'], ['VtpassController','AirtimevtuVtpassController.php','VtpassDataController.php'])) {
+    //         $api['provider_name'] = 'VtpassController';
+    //     }
 
-        if (in_array($api['provider_name'], ['ClubkonnectController.php'])) {
-            $api['provider_name'] = 'ClubkonnectController';
-        }
+    //     if (in_array($api['provider_name'], ['ClubkonnectController.php'])) {
+    //         $api['provider_name'] = 'ClubkonnectController';
+    //     }
 
 
-        if (in_array($api['provider_name'], ['AirtimesnsSmsController.php'])) {
-            $api['provider_name'] = 'AirtimesnsSmsController';
-        }
+    //     if (in_array($api['provider_name'], ['AirtimesnsSmsController.php'])) {
+    //         $api['provider_name'] = 'AirtimesnsSmsController';
+    //     }
 
-        if (in_array($api['provider_name'], ['NaijaresultpinsController.php'])) {
-            $api['provider_name'] = 'NaijaresultpinsController';
-        }
+    //     if (in_array($api['provider_name'], ['NaijaresultpinsController.php'])) {
+    //         $api['provider_name'] = 'NaijaresultpinsController';
+    //     }
     
-        return $api;
+    //     return $api;
     
-    }
+    // }
 
     // public function processBuy(Request $request, JsonResponseService $service, $type){
     //     $user = auth()->user();
@@ -888,26 +888,27 @@ class TransactionsController extends Controller
     {
         $user = auth()->user();
         $product = Product::where('id', $request->network_module)->first();
-        $variation = Variation::where('id', $request->variation)->where('product_id', $product->id)->first();
-
-        $mobile_no = $request->mobile_no;
+        $var = $request->variation ?? $request->dataplanloader; 
+        $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
+        
         $no_of_pins = $request->no_of_pins ?? 1;
-
+    
         $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
         
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
-        $time = $dateTime->format("d-M-y  h:i A");
+        // $time = $dateTime->format("d-M-y  h:i A");
         $timexx = $dateTime->format("YmdHi");
-        $timestring = time();
+        // $timestring = time();
         $api_reference = strtoupper($timexx . uniqid() . rand(10000, 90000)).'SWFT';
         $request_id = $api_reference;
         $request['request_id'] = $request_id;
 
-
+        
         // Get amount
+       
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $api = $variation->api ?? $product->api;
-        
+        dd($request['amount']);
         // checks
         $checks = $this->runChecks($request,$product, $api);
         if(!empty($checks) && $checks['status'] == 'fail'){
@@ -1085,24 +1086,6 @@ class TransactionsController extends Controller
         $this->sendEmail(auth()->user()->email, $subject, $body);
         
         return response()->json($final_response);
-    }
-
-    public function getApiFilename($api){
-        if($api->slug == 'easyaccess'){
-            $controller = 'EasyAccessController';
-        }else if($api->slug == 'vtpass'){
-            $controller = 'VtpassController';
-        } else if ($api->slug == 'gongzo-data') {
-            $controller = 'GongzoController';
-        } else if ($api->slug == 'naija-result-pins') {
-            $controller = 'NaijaResultPinsController';
-        } else if ($api->slug == 'club-konnect') {
-            $controller = 'ClubkonnectController';
-        } else if ($api->slug == 'sme-plug') {
-            $controller = 'SMEPlugController';
-        }
-
-        return $controller;
     }
 
     public function updateTransactionPinToNewFormat($request){
@@ -1777,7 +1760,7 @@ class TransactionsController extends Controller
 
     public function getAmount($product, $variation, $request){
         if ($product->has_variations == 'yes') {
-
+           
             if ($variation->fixed_price == 'yes') {
                 $request['amount'] = $variation->system_price;
             } elseif ($product->allow_subscription_type == 'yes' && $variation->category->unique_element == 'iuc_number') {

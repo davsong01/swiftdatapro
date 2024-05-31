@@ -28,7 +28,7 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="icon">Icon</label>
-                                <input type="text" class="form-control" id="icon" name="icon" value="{{ $category->icon ?? old('icon') }}" placeholder="Enter icon" required>
+                                <input type="text" class="form-control" id="icon" name="icon" value="{{ $category->icon ?? old('icon') }}" placeholder="Enter icon">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="display_name">Display Name</label>
@@ -73,6 +73,13 @@
                                     <option value="percentage" {{ $category->discount_type == 'percentage' ? 'selected' : '' }}>Percentage</option>
                                 </select>
                             </div>
+                            @foreach($customerlevel as $level)
+                            <div class="col-md-6">
+                                <label class="form-label" for="name">{{ $level->name }} Discount Value <span class="category-discount"> (Will be used if product or variations has no set discount)</span></label>
+                                <input type="number" step=".01" class="form-control" id="level" name="level[{{ $level->id }}]"  value="{{ $category->customer_level_price($level->id) }}">
+                            </div>
+                            @endforeach
+                            
                             <div class="col-md-6">
                                 <label class="form-label" for="order">Order</label>
                                 <input type="number" class="form-control" name="order" value="{{ $category->order ?? old('order') }}" placeholder="Enter order" id="order" required>

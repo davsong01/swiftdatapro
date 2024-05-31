@@ -208,6 +208,10 @@
                                         <label class="form-label" for="name">System Name</label>
                                         <input type="text" class="form-control" id="system_name" name="system_name[{{ $variation->id }}]"  value="{{ $variation->system_name }}">
                                     </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label" for="name">System Price ({!! settings()['currency']!!})</label>
+                                        <input type="number" class="form-control" id="system_price" name="system_price[{{ $variation->id }}]"  value="{{ $variation->system_price }}">
+                                    </div>
                                     
                                     <div class="col-md-3">
                                         <label class="form-label" for="name">Slug</label>
@@ -239,10 +243,6 @@
                                         <input type="number" class="form-control" id="max" name="max[{{ $variation->id }}]"  value="{{ $variation->max }}">
                                     </div>
                                     
-                                    <div class="col-md-3">
-                                        <label class="form-label" for="name">System Price ({!! settings()['currency']!!})</label>
-                                        <input type="number" class="form-control" id="system_price" name="system_price[{{ $variation->id }}]"  value="{{ $variation->system_price }}">
-                                    </div>
                                     
                                     @foreach($customerlevel as $level)
                                     <div class="col-md-3">

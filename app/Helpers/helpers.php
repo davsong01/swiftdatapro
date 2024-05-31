@@ -30,46 +30,48 @@ if (!function_exists("settings")) {
 }
 
 if (!function_exists("getProductDiscount")) {
-    function getProductDiscount($amount='', $product_id = null,$variation_id = null)
+    function getProductDiscount($amount, $product_id)
     {
         $response = [
             'type' => null,
-            'discount' => $amount,
-            'display_value' =>  settings()->currency,
+            'discount_applied' => 0,
+            'new_amount' => $amount,
+            'display_value' =>  settings()->currency.$amount,
         ];
         
         $level = auth()->user()->level;
-        
+       
         if(empty($level)){
             return $response;
         }
+
+        $product = Product::where('id', $product_id)->first();
+        $discount_type = $product->category->discount_type;
         
-        if(!empty($product_id)){
-            $value = Product::where('id', $product_id)->first();
-            $discount_type = $value->category->discount_type;
-            $discount = Discount::where(['product_id' => $value->id, 'customer_level' => $level])->first();
+        // Check if resource has a category discount
+        if($product->category->user_discount){
+            $discount = $product->category->user_discount;
         }
 
-        if (!empty($variation_id)) {
-            $value = Variation::where('id', $variation_id)->first();
-            $discount_type = $value->category->discount_type;
-            $discount = Discount::where(['variation_id' => $value->id, 'customer_level' => $level])->first();        
+        // Check if resource has product discount
+        if ($product->user_discount) {
+            $discount = $product->user_discount;
         }
-        
-        if(!empty($discount) && !empty($value)){
+
+        if(!empty($discount)){
             if ($discount_type == 'flat') {
                 $type = 'flat';
-                $discount_applied = $discount->price;
-                $n_amount = $amount - $discount_applied;
-                $new_amount = $amount < $n_amount ? $amount : $n_amount;
+                $new_amount = ($amount < $discount->price || $discount->price <= 0) ? $amount : $discount->price ;
+                $discount_applied = abs($amount - $discount->price);
+                
                 $display_amount = settings()->currency . number_format($new_amount);
             } else {
                 $type = 'percentage';
                 $discount_applied = $discount->price;
                 $discount_applied = floor($discount_applied/100 * $amount);
                 $n_amount = $amount - $discount_applied;
-                $new_amount = $amount < $n_amount ? $amount : $n_amount;
-                $display_amount = settings()->currency . number_format($new_amount);
+                $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount : $n_amount;
+                $display_amount = settings()->currency . intval($new_amount);
             }
         }else{
             return $response;
@@ -78,7 +80,69 @@ if (!function_exists("getProductDiscount")) {
         return [
             'type' => $type,
             'discount_applied' => $discount_applied,
-            'new_amount' => $new_amount,
+            'new_amount' => intval($new_amount),
+            'display_value' => $display_amount
+        ];
+    }
+}
+
+if (!function_exists("getVariationDiscount")) {
+    function getVariationDiscount($amount, $variation_id)
+    {
+        $response = [
+            'type' => null,
+            'discount_applied' => 0,
+            'new_amount' => $amount,
+            'display_value' =>  settings()->currency . $amount,
+        ];
+
+        $level = auth()->user()->level;
+
+        if (empty($level)) {
+            return $response;
+        }
+       
+        $variation = Variation::where('id', $variation_id)->first();
+        $discount_type = $variation->category->discount_type;
+        
+        // Check if resource has a category discount
+        if ($variation->category->user_discount) {
+            $discount = $variation->category->user_discount;
+        }
+        
+        // if it has product discount use it
+        if ($variation->product->user_discount) {
+            $discount = $variation->product->user_discount;
+        }
+
+        // if it has its own discount, use it
+        $individualdiscount = Discount::where(['variation_id' => $variation->id, 'customer_level' => $level])->first();
+
+        $discount = !empty($individualdiscount) ? $individualdiscount : $discount;
+
+        if (!empty($discount)) {
+            if ($discount_type == 'flat') {
+                $type = 'flat';
+                $new_amount = ($amount < $discount->price || $discount->price <= 0) ? $amount : $discount->price;
+                $discount_applied = abs($amount - $discount->price);
+
+                $display_amount = settings()->currency . number_format($new_amount);
+            } else {
+                $type = 'percentage';
+                $discount_applied = $discount->price;
+                $discount_applied = floor($discount_applied / 100 * $amount);
+                $n_amount = $amount - $discount_applied;
+                $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount : $n_amount;
+                $display_amount = settings()->currency . intval($new_amount);
+            }
+        } else {
+            return $response;
+        }
+        
+        return [
+            'type' => $type,
+            'discount_applied' => $discount_applied,
+            'new_amount' => intval($new_amount),
             'display_value' => $display_amount
         ];
     }

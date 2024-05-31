@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('status')->default('inactive');
             $table->integer('customer_level');
-            $table->integer('product_id');
-            $table->integer('variation_id');
+            $table->integer('product_id')->nullable();
+            $table->integer('variation_id')->nullable();
+            $table->integer('category_id')->nullable();
             $table->double('price');
             $table->timestamps();
         });

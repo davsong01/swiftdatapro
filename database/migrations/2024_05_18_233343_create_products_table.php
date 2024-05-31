@@ -16,7 +16,7 @@ return new class extends Migration
             $table->integer('category_id');
             $table->string('status')->default(0);
             $table->string('name')->nullable();
-            $table->double('system_price')->nullable();
+            $table->decimal('system_price',20,2)->nullable();
             $table->string('slug')->unique();
             $table->string('old_identifier')->unique();
             

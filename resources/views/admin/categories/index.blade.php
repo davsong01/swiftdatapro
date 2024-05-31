@@ -38,7 +38,16 @@
                     <tbody>
                         @foreach($categories as $category)
                         <tr>
-                            <td>{{ $category->name }}</td>
+                            <td>{{ $category->name }} <br>
+                                <small>
+                                @if($category->discounts->count() > 0)
+                                <span style="color:red">Discounts Applied:</span> <br>
+                                @foreach ($category->discounts as $discount)
+                                    @if($category->discount_type == 'flat') {!! settings()['currency']!!}{{ $discount->customerlevel->name . ': '. $discount->price }} @else {{ $discount->customerlevel->name . ': '.$discount->price }}% @endif <br>
+                                @endforeach
+                                @endif  
+                                </small>                              
+                            </td>
                             <td>{{ $category->order }}</td>
                             <td>{{ $category->products_count }}</td>
                             <td style="color:{{ $category->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($category->status) }}</td>

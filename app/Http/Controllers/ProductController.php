@@ -22,7 +22,7 @@ class ProductController extends Controller
     {
         $categories = Category::where('status', 'active')->get();
         $apis = Api::where('status', 'active')->get();
-        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->get();
+        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>',1)->get();
 
         return view('admin.products.create', compact('categories', 'apis', 'customerlevel'));
     }
@@ -94,17 +94,19 @@ class ProductController extends Controller
 
         if (isset($request->productlevel) && isset($product)) {
             foreach ($request->productlevel as $key => $price) {
-                Discount::updateOrCreate([
-                    'customer_level' => $key,
-                    'product_id' => $product->id,
-                ], [
-                    'status' => 'active',
-                    'customer_level' => $key,
-                    'product_id' => $product->id,
-                    'price' => $price ?? 0,
-                    'status' => 'active'
-
-                ]);
+                if (!empty($price)) {
+                    Discount::updateOrCreate([
+                        'customer_level' => $key,
+                        'product_id' => $product->id,
+                    ], [
+                        'status' => 'active',
+                        'customer_level' => $key,
+                        'product_id' => $product->id,
+                        'price' => $price ?? 0,
+                    ]);
+                 } else {
+                    Discount::where('id', $key)->delete();
+                }
             }
         }
 
@@ -127,8 +129,8 @@ class ProductController extends Controller
         $categories = Category::where('status', 'active')->get();
         $variations = Variation::where('product_id', $product->id)->where('api_id', $product->api_id)->get();
         $apis = Api::where('status', 'active')->get();
-        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->get();
-
+        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>', 1)->get();
+        
         return view('admin.products.edit', compact('categories', 'apis', 'product', 'variations', 'customerlevel'));
     }
 
@@ -189,18 +191,21 @@ class ProductController extends Controller
         ]);
 
         $productLevel = $request->productlevel;
-       
+        
         if ($productLevel && count($productLevel) > 0 && isset($product)) {
             foreach ($productLevel as $key => $price) {
-                Discount::updateOrCreate([
-                    'customer_level' => $key,
-                    'product_id' => $product->id,
-                ], [
-                    'customer_level' => $key,
-                    'product_id' => $product->id,
-                    'price' => $price ?? 0,
-                    'status' => 'active'
-                ]);
+                if (!empty($price)) {
+                    Discount::updateOrCreate([
+                        'customer_level' => $key,
+                        'product_id' => $product->id,
+                    ], [
+                        'customer_level' => $key,
+                        'product_id' => $product->id,
+                        'price' => $price,
+                    ]);
+                } else {
+                    Discount::where('id', $key)->delete();
+                }
             }
         }
 
