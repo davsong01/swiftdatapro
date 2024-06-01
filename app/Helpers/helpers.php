@@ -35,7 +35,7 @@ if (!function_exists("getProductDiscount")) {
         $response = [
             'type' => null,
             'discount_applied' => 0,
-            'new_amount' => $amount,
+            'new_amount' => intval($amount),
             'display_value' =>  settings()->currency.$amount,
         ];
         
@@ -92,7 +92,7 @@ if (!function_exists("getVariationDiscount")) {
         $response = [
             'type' => null,
             'discount_applied' => 0,
-            'new_amount' => $amount,
+            'new_amount' => intval($amount),
             'display_value' =>  settings()->currency . $amount,
         ];
 
@@ -101,7 +101,7 @@ if (!function_exists("getVariationDiscount")) {
         if (empty($level)) {
             return $response;
         }
-       
+        
         $variation = Variation::where('id', $variation_id)->first();
         $discount_type = $variation->category->discount_type;
         
@@ -118,8 +118,8 @@ if (!function_exists("getVariationDiscount")) {
         // if it has its own discount, use it
         $individualdiscount = Discount::where(['variation_id' => $variation->id, 'customer_level' => $level])->first();
 
-        $discount = !empty($individualdiscount) ? $individualdiscount : $discount;
-
+        $discount = !empty($individualdiscount) ? $individualdiscount : ($discount ?? NULL);
+        
         if (!empty($discount)) {
             if ($discount_type == 'flat') {
                 $type = 'flat';

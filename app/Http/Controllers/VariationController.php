@@ -44,7 +44,7 @@ class VariationController extends Controller
 
     public function getCustomerVariations(Product $product)
     {
-        $variations = Variation::where('product_id', $product->id)->where('status', 'active')->orderBy('system_price', 'ASC')->get();
+        $variations = Variation::where('product_id', $product->id)->where('status', 'active')->where('api_id', $product->api_id)->orderBy('system_price', 'ASC')->get();
         foreach ($variations as $key => $variation) {
             $discount = getVariationDiscount(amount: $variation->system_price, variation_id: $variation->id, );
             $variation->discount = $discount['new_amount'];
@@ -69,7 +69,9 @@ class VariationController extends Controller
         $data = [];
         
         foreach($variations as $variation){
-            $data[] = '<option data-product_id="' . $variation->product_id . '"  data-max="' . $variation->max . '"  data-min="' . $variation->min . '"  data-slug="' . $variation->slug . '"  data-fixed_price="' . $variation->fixed_price . '" data-verifiable="'. $variation->verifiable.'" value="' . $variation->id . '">' . $variation->system_name . ' -' . settings()->currency.$variation->discount . '</option>';
+            $price = $variation->fixed_price == 'yes' ? ' -' . settings()->currency . intval($variation->discount) : '';
+            
+            $data[] = '<option data-product_id="' . $variation->product_id . '"  data-max="' . $variation->max . '"  data-min="' . $variation->min . '"  data-slug="' . $variation->slug . '"  data-fixed_price="' . $variation->fixed_price . '" data-verifiable="'. $variation->verifiable.'" value="' . $variation->id . '">' . $variation->system_name . $price . '</option>';
         }
 
         return response()->json($data);

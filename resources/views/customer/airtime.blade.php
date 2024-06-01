@@ -54,10 +54,13 @@
       <select class="form-control" id="network_module" required>
         <option value="">--Choose--</option>
         @foreach($category->products as $product)
+        @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
+          
           <option data-fixed_price="{{ $product->fixed_price }}"
             data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
             data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
             value="{{ $product->id }}">{{ $product->display_name }}</option>
+        @endif
         @endforeach
       </select>
     </div>
@@ -81,9 +84,7 @@
       <span class="input-group-text"><i style="font-weight: bold" class="fa fa-unlock-alt"></i></span>
       <input type="password" class="form-control"  placeholder="Security PIN" id="security_pin" required>
     </div>
- 
     <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">BUY NOW</button>
-
     <br>
     <br>
   </form>
@@ -109,23 +110,6 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
-  // $("#network_module").change(function () {
-  //   resetAmount();
-  //   if ($("#network_module").val() != "" && has_variation == 'yes') {
-  //     var network_module = $("#network_module").val();
-  //     // $.LoadingOverlay("show");
-  //     $.ajax({
-  //       url: '/variations?services=' + network_module +
-  //         '&level={{ auth()->user()->level }}&&product=airtime_sns',
-  //       method: 'GET',
-  //       success: function (RES_data) {
-  //         $.LoadingOverlay("hide");
-  //         $("#network_discount").val(RES_data);
-  //       }
-  //     })
-  //   }
-  // })
-
   function calDiscount() {
     var has_variation = $('#network_module').find(':selected').data('has_variations');
     var product_id = $('#network_module').val();

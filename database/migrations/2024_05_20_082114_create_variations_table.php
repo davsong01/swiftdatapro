@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('api_id');
             $table->string('api_name')->nullable();
             $table->string('status')->default('active');
-            $table->string('slug')->unique();
+            $table->string('slug');
             $table->string('system_name')->nullable();
             $table->string('fixed_price')->nullable();
             $table->decimal('api_price', 22, 2)->nullable();

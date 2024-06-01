@@ -193,7 +193,6 @@
 
                             <form action="{{route('variations.update', $product->id)}}" method="POST" enctype="multipart/form-data">
                                 @csrf
-                                
                                 @foreach($product->variations as $variation)
                                 <div class="row gy-4 pt-4" style="margin-bottom:10px">
                                     <div class="col-md-3">

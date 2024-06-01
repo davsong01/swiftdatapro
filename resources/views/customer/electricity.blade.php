@@ -40,39 +40,14 @@
       <input type="hidden" id="network_discount">
       <select class="form-control" id="service_module" name="service_module" required>
         <option value="">--Choose--</option>
-        @if($productAccess['abuja_lock'] != 0)
-          <option value="abuja-electric" {{ old('service_module') == 'abuja-electric' ? 'selected' : ''}}>ABUJA</option>
-        @endif
-        @if($productAccess['eko_lock'] != 0)
-          <option value="eko-electric"  {{ old('service_module') == 'eko-electric' ? 'selected' : ''}}>EKO</option>
-        @endif
-        @if($productAccess['ibadan_lock'] != 0)
-          <option value="ibadan-electric" {{ old('service_module') == 'ibadan-electric' ? 'selected' : ''}}>IBADAN</option>
-        @endif
-        @if($productAccess['ikeja_lock'] != 0)
-          <option value="ikeja-electric" {{ old('service_module') == 'ikeja-electric' ? 'selected' : ''}}>IKEJA</option>
-        @endif
-        @if($productAccess['kaduna_lock'] != 0)
-          <option value="kaduna-electric" {{ old('service_module') == 'kaduna-electric' ? 'selected' : ''}}>KADUNA</option>
-        @endif
-        @if($productAccess['kano_lock'] != 0)
-          <option value="kano-electric" {{ old('service_module') == 'kano-electric' ? 'selected' : ''}}>KANO</option>
-        @endif
-        @if($productAccess['jos_lock'] != 0)
-          <option value="jos-electric" {{ old('service_module') == 'jos-electric' ? 'selected' : ''}}>JOS</option>
-        @endif
-        @if($productAccess['port_lock'] != 0)
-          <option value="portharcourt-electric" {{ old('service_module') == 'portharcourt-electric' ? 'selected' : ''}}>PORTHARCOURT</option>
-        @endif
-        @if($productAccess['benin_lock'] != 0)
-          <option value="benin-electric" {{ old('service_module') == 'benin-electric' ? 'selected' : ''}}>BENIN ELECTRIC</option>
-        @endif
-        @if($productAccess['enugu_lock'] != 0)
-          <option value="enugu-electric"  {{ old('service_module') == 'enugu-electric' ? 'selected' : ''}}>ENUGU ELECTRIC</option>
-        @endif
-        @if($productAccess['aba_lock'] != 0)
-          <option value="aba-electric"  {{ old('service_module') == 'aba-electric' ? 'selected' : ''}}>ABA ELECTRIC</option>
-        @endif
+        @foreach($category->products as $product)
+          @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
+            <option data-fixed_price="{{ $product->fixed_price }}"
+              data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
+              data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
+              value="{{ $product->id }}">{{ $product->display_name }}</option>
+          @endif
+        @endforeach
       </select>
     </div>
     <span id="result"></span>
@@ -152,10 +127,16 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
+  reset();
+  
+  function reset(){
+    $('#dataplanloader').find('option').remove();
+    $('#mobile_no').val();
+  }
   $("#service_module").change(function () {
     if ($("#service_module").val() != "") {
-      var service_module = $("#service_module").val();
-      var result = service_module;
+      var product_id = $("#service_module").val();
+      var result = product_id;
       $.ajaxSetup({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -165,13 +146,11 @@
       $.LoadingOverlay("show");
 
       $.ajax({
-        url: '/variations?services=' + service_module + '&level={{ auth()->user()->level }}&product=electricity&ajax=yes',
+        url: "{{ url('customer-get-variations') }}/" + product_id,
         method: 'GET',
         success: function (RES_data) {
           $.LoadingOverlay("hide");
-          
-          console.log(RES_data, 'sdds');
-          $("#result").html(RES_data);
+          $("#service_plan").html(RES_data);
         }
       })
     }

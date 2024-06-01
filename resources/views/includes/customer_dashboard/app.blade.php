@@ -223,7 +223,7 @@
             </li>
 
             <li>
-                <a href="{{ route('buy', 'bills')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'electricity')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fas fa-lightbulb"></i>
                     </div>

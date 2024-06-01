@@ -17,32 +17,34 @@ class EasyAccessController extends Controller
     public function getVariations($product)
     {
         $variations = $this->esayAccessProductVariations($product->slug);
-        $variations = $variations['variations'];
-      
-        foreach ($variations as $variation) {
-            if(Variation::where('slug', $variation['variation_code'])->count() > 0){
-                continue;
+        if($variations){
+            $variations = $variations['variations'];
+            foreach ($variations as $variation) {
+                if(Variation::where('slug', $variation['variation_code'])->count() > 0){
+                    continue;
+                }
+                Variation::updateOrCreate([
+                    'product_id' => $product['id'],
+                    'category_id' => $product['category_id'],
+                    'api_id' => $product['api']['id'],
+                    'slug' => $variation['variation_code'],
+                ], [
+                    'product_id' => $product['id'],
+                    'category_id' => $product['category_id'],
+                    'api_id' => $product['api']['id'],
+                    'api_name' => $variation['name'],
+                    'slug' => $variation['variation_code'],
+                    'system_name' => $variation['name'],
+                    'fixed_price' => $variation['fixedPrice'],
+                    'api_price' => $variation['variation_amount'],
+                    'system_price' => $variation['variation_amount'],
+                    'network' => $variation['network'] ?? null,
+                ]);
             }
-            Variation::updateOrCreate([
-                'product_id' => $product['id'],
-                'category_id' => $product['category_id'],
-                'api_id' => $product['api']['id'],
-                'slug' => $variation['variation_code'],
-            ], [
-                'product_id' => $product['id'],
-                'category_id' => $product['category_id'],
-                'api_id' => $product['api']['id'],
-                'api_name' => $variation['name'],
-                'slug' => $variation['variation_code'],
-                'system_name' => $variation['name'],
-                'fixed_price' => $variation['fixedPrice'],
-                'api_price' => $variation['variation_amount'],
-                'system_price' => $variation['variation_amount'],
-                'network' => $variation['network'] ?? null,
-            ]);
-        }
 
-        return true;
+            return true;
+        }
+        return false;        
     }
 
     public function esayAccessProductVariations($product_slug)
@@ -434,12 +436,93 @@ class EasyAccessController extends Controller
                         ]
                     ],
                 ],
+
+                'airtel-gifting' => [
+                    'variations' => [
+                        [
+                            'name' => 'AIRTEL 100MB (CG) - 7days',
+                            'variation_code' => 104,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 27,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 300MB (CG) - 7days',
+                            'variation_code' => 105,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 67,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 500MB (CG) - 30days',
+                            'variation_code' => 106,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 101,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 1GB (CG) - 30days',
+                            'variation_code' => 107,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 200,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 2GB (CG) - 30days',
+                            'variation_code' => 108,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 400,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 5GB (CG) - 30days',
+                            'variation_code' => 109,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 1000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 10GB (CG) - 30days',
+                            'variation_code' => 124,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 2000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 15GB (CG) - 30days',
+                            'variation_code' => 139,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 3000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 20GB (CG) - 30days',
+                            'variation_code' => 140,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 4000,
+                            'network' => 03,
+
+                        ],
+                    ],
+                ],
             ],
         ];
 
         if (!empty($product_slug)) {
-            $response = $variations['variations'][$product_slug];
-            return $response;
+            if(isset($variations['variations'][$product_slug])){
+                $response = $variations['variations'][$product_slug];
+                return $response;
+            }else{
+                return [];
+            }
         }
     }
 
@@ -462,6 +545,7 @@ class EasyAccessController extends Controller
                     'name' => "MTN 50MB (CG) - 30days",
                     'price' => $response->easy_access125,
                     'code' => 125,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access125',
                     'val' => 50,
                 ],
@@ -469,6 +553,7 @@ class EasyAccessController extends Controller
                     'name' => "MTN 150MB (CG) - 30days",
                     'price' => $response->easy_access126,
                     'code' => 126,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access126',
                     'val' => 150,
                 ],
@@ -476,6 +561,7 @@ class EasyAccessController extends Controller
                     'name' => "MTN 250MB (CG) - 30days",
                     'price' => $response->easy_access127,
                     'code' => 127,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access127',
                     'val' => 250,
                 ],
@@ -484,6 +570,7 @@ class EasyAccessController extends Controller
                     'val' => 500,
                     'price' => $response->easy_access45,
                     'code' => 45,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access45',
                 ],
                 [
@@ -491,6 +578,7 @@ class EasyAccessController extends Controller
                     'val' => 1000,
                     'price' => $response->easy_access46,
                     'code' => 46,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access46',
                 ],
                 [
@@ -498,6 +586,7 @@ class EasyAccessController extends Controller
                     'val' => 2000,
                     'price' => $response->easy_access47,
                     'code' => 47,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access47',
                 ],
                 [
@@ -505,6 +594,7 @@ class EasyAccessController extends Controller
                     'val' => 3000,
                     'price' => $response->easy_access48,
                     'code' => 48,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access48',
                 ],
                 [
@@ -512,6 +602,7 @@ class EasyAccessController extends Controller
                     'val' => 5000,
                     'price' => $response->easy_access49,
                     'code' => 49,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access49'
                 ],
                 [
@@ -519,6 +610,7 @@ class EasyAccessController extends Controller
                     'val' => 10000,
                     'price' => $response->easy_access88,
                     'code' => 88,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access88',
                 ],
                 [
@@ -526,6 +618,7 @@ class EasyAccessController extends Controller
                     'val' => 12000,
                     'price' => $response->easy_access89,
                     'code' => 89,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access89',
                 ],
                 [
@@ -533,6 +626,7 @@ class EasyAccessController extends Controller
                     'val' => 15000,
                     'price' => $response->easy_access90,
                     'code' => 90,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access90',
                 ],
                 [
@@ -540,6 +634,7 @@ class EasyAccessController extends Controller
                     'val' => 20000,
                     'price' => $response->easy_access141,
                     'code' => 141,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access141',
                 ],
                 [
@@ -547,6 +642,7 @@ class EasyAccessController extends Controller
                     'val' => 25000,
                     'price' => $response->easy_access142,
                     'code' => 142,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access142',
                 ],
                 [
@@ -554,6 +650,7 @@ class EasyAccessController extends Controller
                     'val' => 30000,
                     'price' => $response->easy_access143,
                     'code' => 143,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access143',
                 ],
                 [
@@ -561,6 +658,7 @@ class EasyAccessController extends Controller
                     'val' => 40000,
                     'price' => $response->easy_access144,
                     'code' => 144,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access144',
                 ],
                 [
@@ -568,6 +666,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access145,
                     'val' => 50000,
                     'code' => 145,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access145',
                 ],
                 [
@@ -575,6 +674,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access146,
                     'val' => 60000,
                     'code' => 146,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access146',
                 ],
                 [
@@ -582,6 +682,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access147,
                     'val' => 70000,
                     'code' => 147,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access147',
                 ],
                 [
@@ -589,6 +690,7 @@ class EasyAccessController extends Controller
                     'val' => 75000,
                     'price' => $response->easy_access148,
                     'code' => 148,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access148',
                 ],
                 [
@@ -596,6 +698,7 @@ class EasyAccessController extends Controller
                     'val' => 80000,
                     'price' => $response->easy_access149,
                     'code' => 149,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access149',
                 ],
                 [
@@ -603,6 +706,7 @@ class EasyAccessController extends Controller
                     'val' => 90000,
                     'price' => $response->easy_access150,
                     'code' => 150,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access150',
                 ],
                 [
@@ -610,6 +714,7 @@ class EasyAccessController extends Controller
                     'val' => 100000,
                     'price' => $response->easy_access151,
                     'code' => 151,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access151',
                 ],
 
@@ -627,7 +732,7 @@ class EasyAccessController extends Controller
                     'slug' => $d['code'],
                     'api_id' => $product->api_id,
                     'system_name' => $d['name'],
-                    'fixed_price' => 'yes',
+                    'fixed_price' => $d['fixedPrice'] ?? 'yes',
                     'api_price' => $d['price'],
                     'system_price' => $d['price'],
                     'min' => null,
@@ -665,6 +770,7 @@ class EasyAccessController extends Controller
                     'val' => 100,
                     'price' => $response->easy_access104,
                     'code' => 104,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access104',
                 ],
                 [
@@ -672,6 +778,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access105,
                     'val' => 300,
                     'code' => 105,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access105',
                 ],
                 [
@@ -679,6 +786,7 @@ class EasyAccessController extends Controller
                     'val' => 500,
                     'price' => $response->easy_access106,
                     'code' => 106,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access106',
                 ],
                 [
@@ -686,6 +794,7 @@ class EasyAccessController extends Controller
                     'val' => 1000,
                     'price' => $response->easy_access107,
                     'code' => 107,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access107',
                 ],
                 [
@@ -693,6 +802,7 @@ class EasyAccessController extends Controller
                     'val' => 2000,
                     'price' => $response->easy_access108,
                     'code' => 108,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access108',
                 ],
                 [
@@ -700,6 +810,7 @@ class EasyAccessController extends Controller
                     'val' => 5000,
                     'price' => $response->easy_access109,
                     'code' => 109,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access109',
                 ],
                 [
@@ -707,6 +818,7 @@ class EasyAccessController extends Controller
                     'val' => 10000,
                     'price' => $response->easy_access124,
                     'code' => 124,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access124',
                 ],
                 [
@@ -714,6 +826,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access139,
                     'val' => 15000,
                     'code' => 139,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access139'
                 ],
                 [
@@ -721,6 +834,7 @@ class EasyAccessController extends Controller
                     'val' => 20000,
                     'price' => $response->easy_access140,
                     'code' => 140,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access140',
                 ],
             ];
@@ -737,7 +851,7 @@ class EasyAccessController extends Controller
                     'slug' => $d['code'],
                     'api_id' => $product->api_id,
                     'system_name' => $d['name'],
-                    'fixed_price' => 'yes',
+                    'fixed_price' => $d['fixedPrice'] ?? 'yes',
                     'api_price' => $d['price'],
                     'system_price' => $d['price'],
                     'min' => null,
@@ -1361,49 +1475,24 @@ class EasyAccessController extends Controller
         return back()->with('Old Variations pulled successfully');
     }
 
-    public function prepareParams(Request $request){
-        $postdata = $this->getPostData($request->all());
-        $easyaccess_token = WebSetting::first()->value('easyaccess_token');
-        $headers = [
-            "AuthorizationToken: ".$easyaccess_token."",
-            'cache-control: no-cache'
-        ];
-        
-        // Save post fields
-        $pstfields = [
-            'url' =>  $postdata['url'],
-            'payload' => $postdata,
-        ];
-        
-        $params = [
-            'url' => $postdata['url'],
-            'headers' => $headers,
-            'postfields' => $pstfields,
-            'payload' => Arr::except($postdata, 'url'),
-            'provider' => 'EASYACCESS',
-        ];
-        
-        return $params;
-    }
-
-    public function getPostData($request){
+    public function getPostData($request, $api){
         $slug = strtolower($request['resource']->slug);
         $resource = $request['resource'];
         if ($slug == 'mtn-cg' || $slug == 'mtn' || $slug == 'mtn-sme') {
             $ntwk = '01';
-            $url = "https://easyaccess.com.ng/api/data.php";
+            $url = $api->live_base_url."data.php";
         } elseif ($slug == 'airtel-cg' || $slug == 'airtel') {
             $ntwk = '03';
-            $url = "https://easyaccess.com.ng/api/data.php";
+            $url = $api->live_base_url . "data.php";
         } elseif ($slug == 'glo-cg' || $slug == 'glo' || $slug == 'glo-data') {;
             $ntwk = '02';
-            $url = "https://easyaccess.com.ng/api/data.php";
+            $url = $api->live_base_url . "data.php";
         } elseif ($slug == '9mobile-sme' || $slug == 'apimobile-sme') {
             $ntwk = '04';
-            $url = "https://easyaccess.com.ng/api/data.php";
+            $url = $api->live_base_url . "data.php";
         } elseif ($slug == 'mtn-datacard') {
             $ntwk = '01';
-            $url = "https://easyaccess.com.ng/api/datacard.php";
+            $url = $api->live_base_url . "datacard.php";
         }
 
         $postdata = [
@@ -1421,12 +1510,12 @@ class EasyAccessController extends Controller
 
     public function query($postdata, $api){
         $headers = [
-            "AuthorizationToken: " . $api->api_key . "",
+            "Authorization: Token " . $api->api_key . "",
             'cache-control: no-cache'
         ];
         
         // Save post fields
-        $pstfields = $this->getPostData($postdata);
+        $pstfields = $this->getPostData($postdata, $api);
 
         if(env('ENT') == 'local'){
             $resX = '{"success": "true","message": "Data Card Purchase was Successful","network": "MTN","pin": "408335193S","pin2": "184305851S","dataplan": "1.5GB","amount": 574,"balance_before": "27833","balance_after": 27259,"transaction_date": "07-04-2023 07:57:47 pm","reference_no": "ID5345892220","client_reference": "client_ref84218868382855","status": "Successful","auto_refund_status": "success"}';
@@ -1440,12 +1529,12 @@ class EasyAccessController extends Controller
             $format['postfields'] = $pstfields;      
         } catch (\Throwable $th) {
             $format = [
+                'api_response' => $resX,         
                 'postfields' => $pstfields,
                 'status' => 'attention-required',
                 'response' => '',
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
-            $format['api_response'] = $resX;  
             
             return $format;
         }
@@ -1456,7 +1545,7 @@ class EasyAccessController extends Controller
     public function processApiResponse($res){
         if(empty($res)){
             $formatted = [
-                'status' => 'failed',
+                'status' => 'attention-required',
                 'extra' => '',
                 'response' => 'Something went wrong, please try again later',
                 'error' => 'Something went wrong, please try again later',

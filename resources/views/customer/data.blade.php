@@ -50,10 +50,12 @@
           <select class="form-control" id="network_module" required>
           <option value="">--Choose--</option>
           @foreach($category->products as $product)
+          @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
             <option data-fixed_price="{{ $product->fixed_price }}"
               data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
               data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
               value="{{ $product->id }}">{{ $product->display_name }}</option>
+          @endif
           @endforeach
         </select>
         </div>
@@ -145,6 +147,13 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
+  reset();
+  
+  function reset(){
+    $('#dataplanloader').find('option').remove();
+    $('#mobile_no').val();
+  }
+
   $("#network_module").change(function() {
     var has_variation = $('#network_module').find(':selected').data('has_variations');
     var product_id = $('#network_module').val();
@@ -159,7 +168,7 @@
 
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
-      // $.LoadingOverlay("show");
+      $.LoadingOverlay("show");
       $.ajax({
         url: "{{ url('customer-get-variations') }}/" + product_id,
         method: 'GET',
@@ -192,6 +201,9 @@
           $("#dataplanloader").html(RES_data);
         }
       })
+    }else{
+      $('#dataplanloader').find('option').remove();
+      $('#mobile_no').val();
     }
   })
 

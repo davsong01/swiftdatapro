@@ -908,7 +908,7 @@ class TransactionsController extends Controller
        
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $api = $variation->api ?? $product->api;
-        dd($request['amount']);
+        
         // checks
         $checks = $this->runChecks($request,$product, $api);
         if(!empty($checks) && $checks['status'] == 'fail'){
@@ -927,11 +927,11 @@ class TransactionsController extends Controller
         if ($product->has_variations == 'yes') {
             $resource = $variation;
             $src_price = $variation->api_price;
-            $discount = getProductDiscount($request['amount'], null, $variation->id);
+            $discount = getVariationDiscount($request['amount'], $variation->id);
         } else {
             $resource = $product;
             $src_price = 0;
-            $discount = getProductDiscount($request['amount'], $product->id, null);
+            $discount = getProductDiscount($request['amount'], $product->id,);
         }
         
         $discountedAmount = $discount['new_amount'];
@@ -999,9 +999,11 @@ class TransactionsController extends Controller
         
         $transaction = $this->logTransaction($data);
         $data['resource'] = $resource;
+        $data['product'] = $product;
+       
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
-        
+       
         if ($api_response['status'] == 'success') {
             $report = $this->formatOderReport($resource, $request,$transaction, $api_response);
             $transaction->update([
@@ -1041,8 +1043,10 @@ class TransactionsController extends Controller
                 'buyer_status' => 'ATTENTION-REQUIRED',
                 'buyer_descr' => $order_report,
                 'api_response' => $api_response['api_response'],
-                'api_report' => 'DONE',
-                'failure_reason' => $api_response['error']
+                'api_report' => 'pending',
+                'failure_reason' => $api_response['error'],
+                'extra' => $api_response['extra'] ?? null,
+                'post_fields' => $api_response['postfields'],
             ]);
 
             $body = 'Dear ' . auth()->user()->email . 'The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
@@ -1063,11 +1067,12 @@ class TransactionsController extends Controller
 
             $transaction->update([
                 'buyer_status' => 'FAILED',
+                'post_fields' => $api_response['postfields'],
                 'buyer_descr' => $order_report,
                 'buyer_postbal' => $transaction->buyer_prebal,
                 'api_response' => $api_response['api_response'],
                 'api_report' => 'FAILED',
-                'failure_reason' => $api_response['error'],
+                'failure_reason' => $api_response['error'] ?? ($api_response['response'] ?? 'unknown error'),
             ]);
 
             $body = 'Dear ' . auth()->user()->email . 'The transaction below failed on your account on ' . config('app.name') . '<br><br>
