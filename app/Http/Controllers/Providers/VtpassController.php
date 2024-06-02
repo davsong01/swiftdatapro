@@ -618,140 +618,96 @@ class VtpassController extends Controller
        
     }
 
-    public function verify($request){
-        $product = $request['service_module'];
-        $vtpass = WebSetting::first();
-        $environment = env('ENT');
-        $api_key = $vtpass->vtpass_api_key ?? 'f742eb6055ff05d109de74caaf563b4f';
-        $public_key = $vtpass->vtpass_public ?? 'PK_84802bc898ef45c19317552eea90c660efaa2f67122';
-        $secret_key = $vtpass->vtpass_secret_key ?? 'SK_14525bc8c1f7e82026cadc079fcdb892d3c83d58025';
+    public function verify($request, $api){
+        $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+        $url = $url . 'merchant-verify';
 
         $headers = [
-            'api-key: ' . $api_key,
-            'public-key: ' . $public_key,
-            'secret-key: ' . $secret_key,
+            'api-key: ' . $api->api_key,
+            'public-key: ' . $api->public_key,
+            'secret-key: ' . $api->secret_key,
         ];
 
-        // Save post fields
-        if ($environment == 'local') {
-            $url = "https://sandbox.vtpass.com/api/merchant-verify";
-        } else {
-            $url = "https://vtpass.com/api/merchant-verify";
-        }
+        $postdata = [
+            'serviceID' => $request['product']->slug,
+            'type' => $request['variation']->slug,
+            'billersCode' => $request['billersCode'],
+        ];
+
+        $response = $this->advancedApiCall($url, $postdata, $headers, 'POST');
+
+        $result = json_decode($response);
         
-        if(!empty($request['type']) && $request['type'] == 'electricity'){
-            $postdata = [
-                'serviceID' => $product,
-                'type' => $request['service_plan'],
-                'billersCode' => $request['smart_no'],
-            ];
-        }
+        if (isset($result->code) && $result->code == 000 && !empty($result->content) && !empty($result->content->Customer_Name)) {
 
-        if (!empty($request['type']) && $request['type'] == 'cable') {
-            $postdata = [
-                'billersCode' => $request['smart_no'],
-                'serviceID' => $product
-            ];
-        }
+            if ($request['variation']->category->slug == 'electricity') {
+                $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button>';
 
-        $pstfields = [
-            'url' =>  $url,
-            'payload' => $postdata,
-        ];
+                $response = [
+                    'status' => 'success',
+                    'provider' => 'VTPASS',
+                    'status_code' => '200',
+                    'customerName' => $result->content->Customer_Name ?? '',
+                    'customerAddress' => $result->content->Address ?? '',
+                    'button_link' => $button,
+                    'message' => 'Account Name: ' . $result->content->Customer_Name . '<br/>Address: ' . $result->content->Address . ' <br/><br/>' . $button . '',
+                    'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                    'raw_response' => $response,
+                ];
+            }
 
-        $params = [
-            'url' => $url,
-            'headers' => $headers,
-            'postfields' => $pstfields,
-            'payload' => Arr::except($postdata, 'url'),
-            'provider' => 'VTPASS',
-        ];
+            if ($request['variation']->category->slug == 'cable') {
+                $button = '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button>';
+                // $renewal_amount = !empty($request['request_type']) && $request['request_type'] == 'renewal' ? $result->content->Renewal_Amount : ($request['price']);
+                $renewal_amount = $result->content->Renewal_Amount;
 
-        // Try local verification
-        // $check = BillersLog::where('unique_element', $request['smart_no'])->where('product', strtolower($product))->first();
-       
-        if(!empty($check)){
-
-        }else{
-            $vResponse = $this->advancedApiCall($url, $postdata,$headers);
-            $result = json_decode($vResponse);
-            
-            if(isset($result->code) && $result->code == 000 &&!empty($result->content) && !empty($result->content->Customer_Name)){
-    
-                if (!empty($request['type']) && $request['type'] == 'electricity') {
-                    $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
-    
-                    $response = [
-                        'status' => 'success',
-                        'provider' => 'VTPASS',
-                        'status_code' => '200',
-                        'customerName' => $result->content->Customer_Name ?? '',
-                        'customerAddress' => $result->content->Address ?? '',
-                        'button_link' => $button,
-                        'message' => 'Account Name: ' . $result->content->Customer_Name . '<br/>Address: ' . $result->content->Address .' <br/><br/>' . $button . '',
-                        'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
-                        'raw_response' => $vResponse,
-                    ];
-                }
-                
-                if (!empty($request['type']) && $request['type'] == 'cable') {
-                    $button = '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
-                    // $renewal_amount = !empty($request['request_type']) && $request['request_type'] == 'renewal' ? $result->content->Renewal_Amount : ($request['price']);
-                    $renewal_amount = $result->content->Renewal_Amount;
-    
-                    $response = [
-                        'status' => 'success',
-                        'provider' => 'VTPASS',
-                        'status_code' => '200',
-                        'current_bouque_code' => $result->content->Current_Bouquet_Code ?? null,
-                        'renewal_amount' => $result->content->Renewal_Amount?? null,
-                        'customerName' => $result->content->Customer_Number ?? '',
-                        'button_link' => $button,
-                        'message' => 'Account Name: '
-                        . $result->content->Customer_Name
+                $response = [
+                    'status' => 'success',
+                    'provider' => 'VTPASS',
+                    'status_code' => '200',
+                    'current_bouque_code' => $result->content->Current_Bouquet_Code ?? null,
+                    'renewal_amount' => $result->content->Renewal_Amount ?? null,
+                    'customerName' => $result->content->Customer_Number ?? '',
+                    'button_link' => $button,
+                    'message' => 'Account Name: '
+                    . $result->content->Customer_Name
                         . ' <br/>Status: '
                         . $result->content->Status
                         . '<br/>Due Date: '
                         . $result->content->Due_Date
-                            . '<br>Current Bouquet: '
-                            . $result->content->Current_Bouquet
-                            . '<br>'
-                            . 'Renewal Amount: N'
-                            . number_format($renewal_amount, 2)
-                            . '<br><br>'
-                            . $button . '',
-                        'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
-                        'raw_response' => $vResponse,
-                    ];
-                    
-                }
-    
-                if ($product == 'showmax') {
-                    $response = array(
-                        'status' => 'success',
-                        'message' =>  '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>',
-    
-                    );
-    
-                    // echo json_encode($response);
-                    // exit();
-                }
-                
-            }else{
-                $fail_response =  $fail_response = 'Validation Error: ' . $result->content->error ?? 'Unable to verify at the moment, please try again';
-    
-                $response = [
-                    'status' => 'failed',
-                    'status_code' => '100',
-                    'customerName' => '',
-                    'customerAddress' => '',
-                    'message' => $fail_response,
-                    'title' => 'Verification Failed',
-                    'raw_response' => $vResponse,
+                        . '<br>Current Bouquet: '
+                        . $result->content->Current_Bouquet
+                        . '<br>'
+                        . 'Renewal Amount: N'
+                        . number_format($renewal_amount, 2)
+                        . '<br><br>'
+                        . $button . '',
+                    'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                    'raw_response' => $response,
                 ];
             }
+
+            if ($request['product']->slug == 'showmax') {
+                $response = array(
+                    'status' => 'success',
+                    'message' =>  '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button>',
+
+                );
+            }
+        } else {
+            $fail_response =  $fail_response = 'Validation Error: ' . $result->content->error ?? 'Unable to verify at the moment, please try again';
+
+            $response = [
+                'status' => 'failed',
+                'status_code' => '100',
+                'customerName' => '',
+                'customerAddress' => '',
+                'message' => $fail_response,
+                'title' => 'Verification Failed',
+                'raw_response' => $response,
+            ];
         }
-        
+
         return $response;
     }
 
@@ -839,89 +795,112 @@ class VtpassController extends Controller
         return $params;
     }
 
-    public function query($postdata, $request, $type){
-        $curl = curl_init();
+    public function query($request, $api){
+        $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+        $url = $url . 'pay';
+
         $headers = [
-            'api-key: '. $postdata['headers']['api-key'],
-            'public-key: '. $postdata['headers']['public-key'],
-            'secret-key: '.$postdata['headers']['secret-key'],    
+            'api-key: ' . $api->api_key,
+            'public-key: ' . $api->public_key,
+            'secret-key: ' . $api->secret_key,
         ];
 
-        $resX = $this->advancedApiCall($postdata['url'], $postdata['payload'], $headers);
+        if ($request['product']->category->slug == 'cable') {
+            $subscription_type = $request->request_type;
+        }
+        $resource = $request['resource'];
+        
+        $postdata = [
+            'serviceID' => $request['product']->slug,
+            'billersCode' => $request['billersCode'],
+            'request_id' => $request['sys_ref'],
+            'variation_code' => $resource->slug,
+            'amount' => $request['buyer_amount'],
+            'phone' => $request['mobile_number'],
+            'subscription_type' => $subscription_type ?? null,
+            'quantity' => $request['quantity'] ?? 1,
+        ];
+
+        
+        $resX = $this->advancedApiCall($url, $postdata, $headers);
+        
         // dd($postdata['url'], $postdata['payload'], $headers, $resX);
         try {
-            $format = $this->processApiResponse($resX,$request, $type);
-            $format['api_response'] = $resX;      
+            $format = $this->processApiResponse($resX);
+            $format['api_response'] = $resX;
+            $format['postfields'] = json_encode($postdata);      
+
         } catch (\Throwable $th) {
 
             $format = [
+                'api_response' => $resX,         
                 'status' => 'attention-required',
                 'response' => '',
+                $format['postfields'] = json_encode($postdata),     
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
+            
             $format['api_response'] = $resX;  
             
-            return $format;
-
         }
        
         return $format;
     }
 
-    // public function processApiResponse($res, $request, $type){
+    public function processApiResponse($res){
        
-    //     if(empty($res)){
-    //         $formatted = [
-    //             'status' => 'failed',
-    //             'extra' => '',
-    //             'response' => 'Something went wrong, please try again later',
-    //             'error' => 'Something went wrong, please try again later',
-    //         ];
+        if(empty($res)){
+            $formatted = [
+                'status' => 'attention-required',
+                'extra' => '',
+                'response' => 'Something went wrong, please try again later',
+                'error' => 'Something went wrong, please try again later',
+            ];
             
-    //     }else{
-    //         $status = 'failed';
-    //         try {
-    //             // Process APi call
-    //             $result = json_decode($res, true);
-    //             $status = $result['content']['transactions']['status'] ?? $status;
-    //             $response_description = $result['response_description'] ?? '';
-    //             $epin = isset($result['purchased_code']) ? $result['purchased_code'] : '';
-    //             $code = $';
+        }else{
+            $status = 'failed';
+            try {
+                // Process APi call
+                $result = json_decode($res, true);
+                $status = $result['content']['transactions']['status'] ?? $status;
+                $response_description = $result['response_description'] ?? '';
+                $epin = isset($result['purchased_code']) ? $result['purchased_code'] : '';
+                $code = $result['code'];
 
-    //             $chargeableStatuses = ['pending', 'delivered'];
-    //             if (in_array($status, $chargeableStatuses)) {
-    //                 $status = "successful";
-    //             }
+                $chargeableStatuses = ['pending', 'delivered'];
+                if (in_array($status, $chargeableStatuses)) {
+                    $status = "successful";
+                }
 
-    //             $pinsx = [];
+                $pinsx = [];
 
-    //             if ($status == "successful" && $code == '000') {
-    //                 $status = 'success';
-    //                 $true_response = $response_description;
-    //                 $extra = $epin;
-    //             } else {                    
-    //                 $status = 'failed';
-    //                 $true_response = $response_description;
-    //             }
+                if ($status == "successful" && $code == '000') {
+                    $status = 'success';
+                    $true_response = $response_description;
+                    $extra = $epin;
+                } else {                    
+                    $status = 'failed';
+                    $true_response = $response_description;
+                }
                 
-    //             ////
-    //             $formatted = [
-    //                 'status' => $status,
-    //                 'response' => $true_response,
-    //                 'extra' => $extra ?? null,
-    //                 'error' => null,
-    //             ];
-    //         } catch (\Throwable $th) {
-    //             $formatted = [
-    //                 'status' => 'attention-required',
-    //                 'extra' => '',
-    //                 'response' => $th->getMessage().' '.$th->getFile().' '.$th->getLine() ,
-    //                 'error' => $th->getMessage(),
-    //             ];
+                ////
+                $formatted = [
+                    'status' => $status,
+                    'response' => $true_response,
+                    'extra' => $extra ?? null,
+                    'error' => null,
+                ];
+            } catch (\Throwable $th) {
+                $formatted = [
+                    'status' => 'attention-required',
+                    'extra' => '',
+                    'response' => $th->getMessage().' '.$th->getFile().' '.$th->getLine() ,
+                    'error' => $th->getMessage(),
+                ];
     
-    //         }
-    //     }
+            }
+        }
         
-    //     return $formatted;
-    // }
+        return $formatted;
+    }
 }

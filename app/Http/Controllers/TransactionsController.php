@@ -34,34 +34,18 @@ class TransactionsController extends Controller
         return response()->json(getProductDiscount($request->amount, $request->product_id, $request->variation_id));
     }
 
-    public function verify(Request $request){        
-        $check = BillersLog::where('unique_element', $request->smart_no)->where('product', strtolower($request->service_module))->first();
-       
-        if(!empty($check)){
-            $verify = [
-                'customerName' => $check->customer_name,
-                'customerAddress' => $check->customer_address,
-            ];
-        }else{
-            $api = $this->getProvider($request->service_module);
-            $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($request->type, strtolower($request->service_module), auth()->user()->level, $request->plan_id);
-            
-            $verify = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->verify($request->all());
-            if(isset($verify['status']) && $verify['status'] == 'success'){
-                // BillersLog::updateOrCreate(['unique_element' => $request->smart_no, 'product' => strtolower($request->service_module)],[
-                //     'unique_element' => $request->smart_no,
-                //     'provider' => $verify['provider'],
-                //     'customer_name' => $verify['customerName'] ?? null,
-                //     'customer_address' => $verify['customerAddress'] ?? null,
-                //     'category' => $request->type,
-                //     'product' => strtolower($request->service_module),
-                // ]);
-            }
-        }
+    public function verify(Request $request){   
+        $request['product'] = Product::where('id', $request->product_id)->first();
+        $request['variation'] = Variation::where('id', $request->variation_id)->where('product_id', $request->product_id)->first();
+        $api = $request['variation']->api;
 
-        
-        if ($request->type == 'electricity') {
-            $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
+        $verify = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->verify($request, $api);
+        if(isset($verify['status']) ){
+                
+        }
+       
+        if ($request['variation']->category->slug == 'electricity') {
+            $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button>';
             
             $response = array(
                 'status' => 'success',
@@ -71,15 +55,15 @@ class TransactionsController extends Controller
                 'desc' => $verify['message'] ?? '',
             );
         }
-       
-        if ($request->type == 'cable') {
+        
+        if ($request['variation']->category->slug == 'cable') {
             $response = array(
                 'status' => $verify['status'] ?? '',
                 'status_code' => $verify['status_code'] ?? '100',
                 'message' => $verify['message'] ?? '',
                 'title' => $verify['title'] ?? '',
                 'desc' => $verify['message'] ?? '',
-                'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? ($verify['renewal_amount'] ?? $variations['price']) : ($variations['price'] ?? 0),
+                'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? ($verify['renewal_amount'] ?? $request['variations']['system_price']) : ($variations['price'] ?? 0),
             );
         }
 
@@ -87,807 +71,11 @@ class TransactionsController extends Controller
 
     }
 
-    // public function variations(Request $request){
-    //     $service = strtolower($request->services);
-    //     $product = strtolower($request->product);
-        
-    //     $level = strtolower($request->level);
-    //     $api = $this->getProvider($service, $product);
-    //     $echo = '<option>No Available variations at the moment</option>';
-        
-    //     if($api['individual_access'] == 0 || $api['product_access'] == 0){
-    //         return response()->json($echo);
-    //     }
-        
-    //     $variations = app('App\Http\Controllers\Providers\\'.$api['provider_name'])->getVariations($product, $service, $level);
-        
-    //     $discount = app('App\Http\Controllers\TransactionsController')->discounts($request);
-    
-    //     if (isset($variations) && !empty($variations)) {
-    //         $echo = "";
-    //         $echo .= $discount ?? '';
-    //         foreach ($variations as $res) {
-    //             if (isset($res['price']) && $res['price'] > 0) {
-    //                 $echo .= '<option value="' . $res['code'] . '">' . $res['name'] . ' - ₦' . $res['price'] . '</option>';
-    //             }
-    //         }
-    //     }
-        
-    //     return response()->json($echo);
-
-    // }
-
-    // public function getProvider($service, $product = null, $user=null){
-    //     $webSetting = WebSetting::first();
-    //     $api = '';
-    //     $user = $user ?? auth()->user();
-    //     $service =  strtolower($service);
-        
-    //     if($service == "mtn"){
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mtn,
-    //             'provider_name' => str_replace(".php", "",str_replace(" ", "", ucwords(str_replace("_"," ", $webSetting->api_mtn))).'Controller').'.php',
-    //             'individual_access' => $user->mtnsme_access,
-    //             'product_access' => $this->getProductAccess('m_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "mtn-datacard") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->mtn_data_card,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->mtn_data_card))) . 'Controller') . '.php',
-    //             'individual_access' => $user->mtnsme_access,
-    //             'product_access' => $this->getProductAccess('m_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "mtn-cg" || $service == "gifting" ) {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_gift,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gift))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->mtncg_access,
-    //             'product_access' => $this->getProductAccess('mg_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "9mobile") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mobile,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->mobile_access,
-    //             'product_access' => $this->getProductAccess('mo_lock1'),
-    //         ];
-    //     }
-        
-    //     if ($service == "mobile-sme") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mobilesme,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->mobile_access,
-    //             'product_access' => $this->getProductAccess('mobilesme_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "airtel") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_airtel,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->airtel_access,
-    //             'product_access' => $this->getProductAccess('a_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "airtel-cg") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_airtelcg,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtelcg))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->airtelcg_access,
-    //             'product_access' => $this->getProductAccess('ag_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "glo") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_glo,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->glo_access,
-    //             'product_access' => $this->getProductAccess('g_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "glo-cg") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_glocg,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glocg))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->glo_access,
-    //             'product_access' => $this->getProductAccess('gcg_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "9mobile-cg" || $service == "etisalat") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mobilesme,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobilesme))) . 'Controller') . '.php',
-
-    //             'individual_access' => $user->mobile_access,
-    //             'product_access' => $this->getProductAccess('mo_lock1'),
-    //         ];
-    //     }
-
-    //     if ($service == "spectranet-data") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_spectranet,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_spectranet))) . 'Controller') . '.php',
-
-    //             'individual_access' => 1,
-    //             'product_access' => $this->getProductAccess('spectranet_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "smile-data") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_smile,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
-
-    //             'individual_access' => 1,
-    //             'product_access' => $this->getProductAccess('smile_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "smile-vtu") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_smile,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_smile))) . 'Controller') . '.php',
-
-    //             'individual_access' => 1,
-    //             'product_access' => $this->getProductAccess('smile_vtu_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "mtn-vtu") {
-    //         $api = [
-    //                 'provider_slug' => $webSetting->api_mtn2,
-    //                 'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn2))) . 'Controller') . '.php',
-    //                 'individual_access' => $user->airtime_access,
-    //                 'product_access' => $this->getProductAccess('m_lock2'),
-    //             ];
-    //     }
-
-    //     if ($service == "glo-vtu") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_glo2,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_glo2))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('g_lock2'),
-    //         ];
-    //     }
-
-    //     if ($service == "airtel-vtu") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_airtel2,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel2))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('a_lock2'),
-    //         ];
-    //     }
-
-    //     if ($service == "9mobile-vtu" || $service == "eitsalat-vtu") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mobile2,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile2))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('mo_lock2'),
-    //         ];
-    //     }
-
-    //     if ($service == "mtn-sns") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mtn3,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mtn3))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('m_lock3'),
-    //         ];
-    //     }
-
-    //     if ($service == "glo-sns") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_airtel3,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('g_lock3'),
-    //         ];
-    //     }
-
-    //     if ($service == "airtel-sns") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_airtel3,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_airtel3))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('a_lock3'),
-    //         ];
-    //     }
-
-    //     if ($service == "9mobile-sns") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mobile3,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('mo_lock3'),
-    //         ];
-    //     }
-
-    //     if ($service == "9mobile-sns") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_mobile3,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_mobile3))) . 'Controller') . '.php',
-    //             'individual_access' => $user->airtime_access,
-    //             'product_access' => $this->getProductAccess('mo_lock3'),
-    //         ];
-    //     }
-       
-    //     if ($service == "waec") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_waec,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec))) . 'Controller') . '.php',
-    //             'individual_access' => $user->epin_access,
-    //             'product_access' => $this->getProductAccess('waec_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "waec-reg") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_waec_registration,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_waec_registration))) . 'Controller') . '.php',
-    //             'individual_access' => $user->epin_access,
-    //             'product_access' => $this->getProductAccess('waec_reg_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "gce") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_gce,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_gce))) . 'Controller') . '.php',
-    //             'individual_access' => $user->epin_access,
-    //             'product_access' => $this->getProductAccess('gce_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "neco") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_neco,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_neco))) . 'Controller') . '.php',
-    //             'individual_access' => $user->epin_access,
-    //             'product_access' => $this->getProductAccess('neco_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "nabteb") {
-    //         $api = [
-    //             'provider_slug' => $webSetting->api_nabteb,
-    //             'provider_name' => str_replace(".php", "", str_replace(" ", "", ucwords(str_replace("_", " ", $webSetting->api_nabteb))) . 'Controller') . '.php',
-    //             'individual_access' => $user->epin_access,
-    //             'product_access' => $this->getProductAccess('nabt_lock'),
-    //         ];
-    //     }
-
-        
-    //     // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
-    //     //     if ($api_waec == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-
-    //     //     if ($api_waec == 'easyaccess.php') {
-    //     //         require("epinsModule/easyaccess.php");
-    //     //     }
-    //     // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
-    //     //     if ($api_waec_registration == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-    //     //     if ($api_waec_registration == 'vtpasseducation.php') {
-    //     //         require("epinsModule/vtpasseducation.php");
-    //     //     }
-    //     // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
-    //     //     if ($api_gce == 'easyaccess.php') {
-    //     //         require("epinsModule/easyaccess.php");
-    //     //     }
-    //     //     if ($api_gec == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-    //     // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
-    //     //     if ($api_neco == 'easyaccess.php') {
-    //     //         require("epinsModule/easyaccess.php");
-    //     //     }
-    //     //     if ($api_neco == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-    //     // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
-
-
-    //     if ($service == "abuja-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('mo_lock3'),
-    //         ];
-    //     }
-
-    //     if ($service == "eko-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('eko_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "ibadan-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('ibadan_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "ikeja-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('ikeja_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "kaduna-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('kaduna_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "kano-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('kano_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "jos-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('jos_lock'),
-    //         ];
-    //     }
-    //     if ($service == "portharcourt-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('port_lock'),
-    //         ];
-    //     }
-    //     if ($service == "benin-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('benin_lock'),
-    //         ];
-    //     }
-    //     if ($service == "enugu-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('enugu_lock'),
-    //         ];
-    //     }
-    //     if ($service == "aba-electric") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->bills_access,
-    //             'product_access' => $this->getProductAccess('aba_lock'),
-    //         ];
-    //     }
-        
-    //     if ($service == "dstv") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->cable_access,
-    //             'product_access' => $this->getProductAccess('dstv_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "gotv") {
-    //         $api = [
-    //                 'provider_slug' => 'vtpass',
-    //                 'provider_name' => 'VtpassController',
-    //                 'individual_access' => $user->cable_access,
-    //                 'product_access' => $this->getProductAccess('gotv_lock'),
-    //             ];
-    //     }
-
-    //     if ($service == "startimes") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->cable_access,
-    //             'product_access' => $this->getProductAccess('star_lock'),
-    //         ];
-    //     }
-
-    //     if ($service == "showmax") {
-    //         $api = [
-    //             'provider_slug' => 'vtpass',
-    //             'provider_name' => 'VtpassController',
-    //             'individual_access' => $user->cable_access,
-    //             'product_access' => $this->getProductAccess('showmax_lock'),
-    //         ];
-    //     }
-        
-    //     // if ($service == "WAEC" && $waec_lock == 1 && $service_access == 1) {
-    //     //     if ($api_waec == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-
-    //     //     if ($api_waec == 'easyaccess.php') {
-    //     //         require("epinsModule/easyaccess.php");
-    //     //     }
-    //     // } else if ($service == "WAEC-REG" && $waec_reg_lock == 1 && $service_access == 1) {
-    //     //     if ($api_waec_registration == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-    //     //     if ($api_waec_registration == 'vtpasseducation.php') {
-    //     //         require("epinsModule/vtpasseducation.php");
-    //     //     }
-    //     // } else if ($service == "GCE" && $gce_lock == 1 && $service_access == 1) {
-    //     //     if ($api_gce == 'easyaccess.php') {
-    //     //         require("epinsModule/easyaccess.php");
-    //     //     }
-    //     //     if ($api_gec == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-    //     // } else if ($service == "NECO" && $neco_lock == 1 && $service_access == 1) {
-    //     //     if ($api_neco == 'easyaccess.php') {
-    //     //         require("epinsModule/easyaccess.php");
-    //     //     }
-    //     //     if ($api_neco == 'naijaresultpins.php') {
-    //     //         require("epinsModule/naijaresultpins.php");
-    //     //     }
-    //     // } else if ($service == "NABTEB" && $nabt_lock == 1 && $service_access == 1) {
-    //     if (in_array($api['provider_name'], ['MtnsmeGonController.php', 'GongzoDataController.php', 'GongzoController.php'])) {
-    //         $api['provider_name'] = 'GongzoController';
-    //     }
-
-    //     if (in_array($api['provider_name'], ['MobileDonController.php'])) {
-    //         $api['provider_name'] = 'DonlesonController';
-    //     }
-
-    //     if (in_array($api['provider_name'], ['EasyAccessDataController.php'])) {
-    //         $api['provider_name'] = 'EasyAccessController';
-    //     }
-
-    //     if (in_array($api['provider_name'], ['MtnsmeDonController.php'])) {
-    //         $api['provider_name'] = 'DonlessonCntroller';
-    //     }
-    
-    //     if (in_array($api['provider_name'], ['VtpassController','AirtimevtuVtpassController.php','VtpassDataController.php'])) {
-    //         $api['provider_name'] = 'VtpassController';
-    //     }
-
-    //     if (in_array($api['provider_name'], ['ClubkonnectController.php'])) {
-    //         $api['provider_name'] = 'ClubkonnectController';
-    //     }
-
-
-    //     if (in_array($api['provider_name'], ['AirtimesnsSmsController.php'])) {
-    //         $api['provider_name'] = 'AirtimesnsSmsController';
-    //     }
-
-    //     if (in_array($api['provider_name'], ['NaijaresultpinsController.php'])) {
-    //         $api['provider_name'] = 'NaijaresultpinsController';
-    //     }
-    
-    //     return $api;
-    
-    // }
-
-    // public function processBuy(Request $request, JsonResponseService $service, $type){
-    //     $user = auth()->user();
-
-    //     $network_module = strtoupper($request->network_module);
-    //     $service_module = strtoupper($request->service_module);
-
-    //     $product = strtolower($network_module);
-
-    //     $dataplanloader = $request->dataplanloader ?? $product;
-    //     $mobile_no = $request->mobile_no;
-    //     $no_of_pins = $request->no_of_pins ?? 1;
-    //     $security_pin = base64_encode(base64_encode(base64_encode($request->security_pin)));
-    //     $account_id = $request->account_id;
-    //     $plan_code = $dataplanloader;
-    //     $network = !empty($network_module) ? $network_module : $service_module;
-
-    //     $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
-    //     $time = $dateTime->format("d-M-y  h:i A");
-    //     $timexx = $dateTime->format("YmdHi");
-    //     $timestring = time();
-    //     $api_reference = strtoupper($timexx . uniqid() . rand(10000, 90000));
-    //     $request_id = $api_reference;
-    //     $checkBlacklistPhone = \DB::table('blacklist_mobiles')->where('add_mobile', $mobile_no)->first();
-
-    //     $request['request_id'] = $request_id;
-
-    //     // checks
-    //     if(!$user){
-    //         $response = array(
-    //             'status' => 'fail',
-    //             'status_code' => '100',
-    //             'message' => 'Basic Authorization Failed! Unable to fetch user record',
-    //         );
-    //         return $service->build($response);
-    //     }
-
-    //     if (strlen($mobile_no) !== 11 || !is_numeric($mobile_no)) {
-    //         $response = [
-    //             'status' => 'fail',
-    //             'status_code' => '100',
-    //             'message' => 'Please use a valid mobile no !!!',
-    //         ];
-
-    //         return $service->build($response);
-    //     }else if($security_pin !== $user->transaction_pin){
-    //         $response = [
-    //             'status' => 'fail',
-    //             'status_code' => '100',
-    //             'message' => 'Incorrect security pin !!!',
-    //         ];
-    //         return $service->build($response);
-
-    //     }else if (!empty($mobile_no) && !empty($reference) && !empty($network) && !empty($user->api_token)) {
-    //         $response = array(
-    //             'status' => 'fail',
-    //             'status_code' => '100',
-    //             'message' => 'Please make sure all the parameters are included.',
-    //         );
-    //         return $service->build($response);
-    //     }else if($user->block == 1){
-    //         $response = [
-    //             'status' => 'fail',
-    //             'status_code' => '100',
-    //             'message' => 'Permission denied !!!',
-    //         ];
-    //         return $service->build($response);
-    //     }else if($checkBlacklistPhone) {
-    //         $response = array(
-    //             'status' => 'fail',
-    //             'status_code' => '100',
-    //             'message' => 'Mobile no. cannot carry out transactions !!!',
-    //         );
-
-    //         return $service->build($response);
-
-    //     }
-
-    //     // Check provider and access
-
-    //     $api = $this->getProvider(strtolower($network));
-
-    //     if($api){
-    //         if ($api['individual_access'] == 0 || $api['product_access'] == 0) {
-    //             $response = [
-    //                 'status' => 'fail',
-    //                 'status_code' => '100',
-    //                 'message' => $network . ' purchase is not permitted for this account !!!',
-    //             ];
-
-    //             return $service->build($response);
-    //         }
-    //     }else{
-    //         $response = array(
-    //             'status' => 'fail',
-    //             'status_code' => '100',
-    //             'message' => 'Service is currently down or Restricted for this account. kindly check and try again !!!',
-    //         );
-
-    //         return $service->build($response);
-    //     }
-
-    //     if($dataplanloader == 'glo' || $dataplanloader == 'glo-vtu' ){
-    //         $request['plan_id'] = 'glo';
-    //     }elseif($dataplanloader == 'mtn-vtu' || $dataplanloader == 'mtn'){
-    //         $request['plan_id'] = 'mtn';
-    //     }elseif($dataplanloader == 'airtel-vtu' || $dataplanloader == 'airtel'){
-    //         $request['plan_id'] = 'airtel';
-    //     }else{
-    //         $request['plan_id'] = $dataplanloader;
-    //     }
-
-    //     $request['type'] = $type;
-    //     $request['level'] = $user->level;
-
-    //     $variations = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->getVariations($type, $product, $request['level'], $request['plan_id'], $request['amount'], $request['service_plan']);
-
-    //     $request['services'] = $request['service_module'];
-    //     $discount = app('App\Http\Controllers\TransactionsController')->discounts($request) ?? 0;
-
-    //     if($type == 'cable' && in_array($request->network_module, ['DSTV','GOTV']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')){
-    //         $variations['price'] = $request->renewal_amount ?? $discount;
-    //     }
-
-    //     $service_price = $variations['price'];
-    //     // Take care of discounts later in the future
-
-    //     // if($discount > 0){
-    //     //     $discount = ($discount /100) * 
-    //     // }
-    //     $databyte = $variations['databyte'] ?? 0;
-    //     $package_name = $variations['name'] ?? '';
-    //     $serviceId = $variations['serviceId'] ?? '';
-    //     $variation_code = $variations['variation_code'] ?? '';
-
-    //     $user = auth()->user();
-
-    //     $request['price'] = $service_price ?? null;
-
-    //     $request['serviceId'] = $serviceId;
-    //     $request['no_of_pins'] = $no_of_pins;
-    //     $request['variation_code'] = $variation_code;
-
-    //     if(in_array($type, ['electricity','cable'])){
-    //         $request['billersCode'] = $request->smart_no;
-    //     }else{
-    //         $request['billersCode'] = $account_id ?? $mobile_no;
-    //     }
-    //     // Prepare params
-    //     $response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->prepareParams($request);
-
-    //     // Charge customer
-    //     $old_wallet = $user->wallets;
-    //     $service_price = !empty($service_price) ? $service_price : $request['service_price'];
-
-    //     if ($user->wallets < $service_price) {
-    //         return [
-    //             'status' => 'failed',
-    //             'message' => 'Not enough wallet balance',
-    //             'error' => 'Not enough wallet balance',
-    //         ];
-    //     }
-
-    //     $new_wallet = $user->wallets - $service_price;
-
-    //     $user->wallets = $new_wallet;
-    //     $user->save();
-
-    //     // Log transaction
-    //     $data = [
-    //         'mobile_number' => $mobile_no,
-    //         'buyer_email' => $user->email,
-    //         'buyer_username' => $user->username,
-    //         'buyer_service' => $request->network_module ?? $request->service_module,
-    //         'buyer_amount' => $service_price,
-    //         'buyer_prebal' => $old_wallet,
-    //         'buyer_postbal' => $new_wallet,
-    //         'buyer_descr' => '',
-    //         'buyer_status' => 'INITIATED',
-    //         'buyer_date' => $time,
-    //         'timestring' => $timestring,
-    //         'charge_from' => 'WALLET',
-    //         'user_type' => $user->level,
-    //         'sys_ref' => $request_id ,
-    //         'api_ref' => $api_reference,
-    //         'api_report' => 'PENDING',
-    //         'src_price' => '0',
-    //         'profit' => '0',
-    //         'databyte' => $databyte,
-    //         'buyer_quantity' => $no_of_pins,
-    //         'post_fields' => json_encode($response['postfields']['payload'] ?? []),
-    //         'provider' => $response['provider'] ?? null,
-    //     ];
-
-    //     $transaction = $this->logTransaction($data);
-    //     // Make Api call
-    //     $api_response = app('App\Http\Controllers\Providers\\' . $api['provider_name'])->query($response,$request->all(), $type);
-
-    //     if($api_response['status'] == 'success'){
-    //         $mobile_no = $request->smart_no ?? $mobile_no;
-
-    //         $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
-
-    //         $order_report = $report['order_report'] ?? '';
-    //         $final_response = $report['final_response'];
-
-    //         $transaction->update([
-    //             'buyer_status' => 'SUCCESSFUL',
-    //             'buyer_descr' => $order_report,
-    //             'api_response' => $api_response['api_response'],
-    //             'api_report' => 'DONE',
-    //             'extra' => $api_response['extra'] ?? null
-    //         ]);
-
-    //         $body = 'Dear '.auth()->user()->full_name . '<br>The transaction below was initiated on your account '.config('app.php'). '<br><br>
-    //         Amount Charged : ₦'. number_format($transaction->buyer_amount). '<br>
-    //         Previous Balance : ₦'. number_format($old_wallet) . '<br>
-    //         Current Balance : ₦'. number_format($new_wallet) .'<br>
-    //         Description : '. $order_report . '<br>
-    //         Transaction Reference : ' . $transaction->sys_ref . '<br>
-    //         Transaction Date : ' . $transaction->buyer_date . '<br>
-    //         Transaction Status : Success<br>';
-
-    //         if(isset($api_response['extra']) && !empty($api_response['extra'])){
-    //             $body .= 'Extra Information : ' . $api_response['extra'];
-    //         }
-
-    //         $body .= '<br><br><br>Warm Regards<br>'.config('app.name');
-
-    //         $subject = "Transaction Notification";
-    //         $this->sendEmail(auth()->user()->email, $subject, $body);
-    //     }else if($api_response['status'] == 'attention-required'){
-
-    //         $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
-
-    //         $order_report = $report['order_report'] ?? '';
-    //         $final_response = $report['final_response'];
-
-    //         $transaction->update([
-    //             'buyer_status' => 'ATTENTION-REQUIRED',
-    //             'buyer_descr' => $order_report,
-    //             'api_response' => $api_response['api_response'],
-    //             'api_report' => 'DONE',
-    //             'failure_reason' => $api_response['error']
-    //         ]);
-
-    //         $body = 'Dear ' . auth()->user()->email . 'The transaction below was initiated on your account ' . config('app.php') . '<br><br>
-    //         Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
-    //         Previous Balance : ' . number_format($transaction->prebal) . '<br>
-    //         Current Balance : ' . number_format($transaction->postbal) . '<br>
-    //         Description : ' . $transaction->$order_report . '<br>
-    //         Transaction Reference : ' . $transaction->sys_ref . '<br>
-    //         Transaction Date : ' . $transaction->buyer_date . '<br>
-    //         Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name');
-
-    //         $subject = "Transaction Notification";
-    //     }else{
-    //         $report = $this->formatOderReport($package_name, $mobile_no, $network, $old_wallet, $new_wallet, $time, $service_price, $api_response);
-
-    //         $order_report = $report['order_report'];
-    //         $final_response = $report['final_response'];
-
-    //         $transaction->update([
-    //             'buyer_status' => 'FAILED',
-    //             'buyer_descr' => $order_report,
-    //             'buyer_postbal' => $old_wallet,
-    //             'api_response' => $api_response['api_response'],
-    //             'api_report' => 'FAILED',
-    //             'failure_reason' => $api_response['error'],
-    //         ]);
-
-    //         $user->wallets = $old_wallet;
-    //         $user->save(); 
-    //     }
-
-    //     return response()->json($final_response);
-    // }
     public function processBuy(Request $request, JsonResponseService $service, $type)
     {
         $user = auth()->user();
-        $product = Product::where('id', $request->network_module)->first();
+        $product_id = $request->product_id ?? $request->network_module;
+        $product = Product::where('id', $product_id)->first();
         $var = $request->variation ?? $request->dataplanloader; 
         $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
         
@@ -908,7 +96,7 @@ class TransactionsController extends Controller
        
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $api = $variation->api ?? $product->api;
-        
+       
         // checks
         $checks = $this->runChecks($request,$product, $api);
         if(!empty($checks) && $checks['status'] == 'fail'){
@@ -937,7 +125,7 @@ class TransactionsController extends Controller
         $discountedAmount = $discount['new_amount'];
         $disCountApplied = $discount['discount_applied'];
         //
-        if ($type == 'cable' && in_array($request->network_module, ['DSTV', 'GOTV']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')) {
+        if ($product->category->slug == 'cable' && in_array($product->slug, ['dstv', 'gotv']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')) {
             $variations['price'] = $request->renewal_amount ?? $discount;
         }
         //
@@ -962,7 +150,7 @@ class TransactionsController extends Controller
         $request['no_of_pins'] = $no_of_pins;
 
         if (in_array($resource->category->slug, ['electricity', 'cable'])) {
-            $request['billersCode'] = $request->smart_no;
+            $request['billersCode'] = $request->billersCode;
         } else {
             $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
         }
@@ -993,6 +181,7 @@ class TransactionsController extends Controller
             'src_price' => $src_price,
             'channel' => 'website',
             'provider' => $api->name,
+            'billersCode' => $request['billersCode'] ?? null,
             'category_id' => $resource->category->id,
             'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
         ];
@@ -1000,7 +189,8 @@ class TransactionsController extends Controller
         $transaction = $this->logTransaction($data);
         $data['resource'] = $resource;
         $data['product'] = $product;
-       
+        $data['billersCode'] = $request['billersCode'] ?? null;
+    
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
        
@@ -1765,7 +955,6 @@ class TransactionsController extends Controller
 
     public function getAmount($product, $variation, $request){
         if ($product->has_variations == 'yes') {
-           
             if ($variation->fixed_price == 'yes') {
                 $request['amount'] = $variation->system_price;
             } elseif ($product->allow_subscription_type == 'yes' && $variation->category->unique_element == 'iuc_number') {

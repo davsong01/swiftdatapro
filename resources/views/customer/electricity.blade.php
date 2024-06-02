@@ -120,9 +120,16 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
       </div>
       <div class="modal-body"></div>
-      
-    </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+              <i class="bx bx-x d-block d-sm-none"></i>
+              <span class="d-none d-sm-block" onclick="closeModal()">Close</span>
+          </button>
+          {{-- <button type="submit" class="btn btn-primary ml-1"><span class="d-none d-sm-block">Submit</span> --}}
+          </button>
+      </div>
   </div>
+</div>
 </div>
 @endsection
 @section('scripts')
@@ -130,13 +137,13 @@
   reset();
   
   function reset(){
-    $('#dataplanloader').find('option').remove();
+    $('#service_plan').find('option').remove();
     $('#mobile_no').val();
   }
+
   $("#service_module").change(function () {
     if ($("#service_module").val() != "") {
       var product_id = $("#service_module").val();
-      var result = product_id;
       $.ajaxSetup({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -158,21 +165,20 @@
 
   $("#submitBills").click(function (event) {
     var formData = {
-      service_module: $("#service_module").val(),
-      service_plan: $("#service_plan").val(),
-      smart_no: $("#smart_no").val(),
+      product_id: $("#service_module").val(),
+      variation_id: $("#service_plan").val(),
+      billersCode: $("#smart_no").val(),
       security_pin: $("#security_pin").val(),
-      type: 'electricity',
     };
-
+    
     $.LoadingOverlay("show");
     $.ajaxSetup({
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
     });
     $.ajax({
-      url: '{{url("/")}}/verify/'+service_module,
+      url: '{{ url("/") }}/verify',
       method: 'POST',
       dataType: 'json',
       data: formData,
@@ -180,6 +186,9 @@
         $.LoadingOverlay("hide");
 
         if (response_fd.status == 'success') {
+          if(response_fd.renewal_amount && response_fd.renewal_amount > 0){
+            $("#renewal_amount").val(response_fd.renewal_amount);           
+          }
           $("#myModal2 .modal-body").html(response_fd.message);
           $("#verify-title").html(response_fd.title);
           
@@ -198,18 +207,18 @@
 
   function pay4Bills() {
     var formData = {
-      service_module: $("#service_module").val(),
-      network_module: $("#service_module").val(),
-      service_plan: $("#service_plan").val(),
-      smart_no: $("#smart_no").val(),
+
+      product_id: $("#service_module").val(),
+      variation: $("#service_plan").val(),
+      billersCode: $("#smart_no").val(),
+      security_pin: $("#security_pin").val(),
       amount: $("#amount").val(),
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
-      req_token: $("#req_token").val(),
     };
 
     $("#myModal2").modal("hide");
-    $.LoadingOverlay("show");
+    // $.LoadingOverlay("show");
     $.ajax({
       url: '/buy/electricity',
       method: 'POST',
