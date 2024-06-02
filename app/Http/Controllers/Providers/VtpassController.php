@@ -642,15 +642,15 @@ class VtpassController extends Controller
 
             if ($request['variation']->category->slug == 'electricity') {
                 $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button>';
-
+                $address = $result->content->Address ?? '';
                 $response = [
                     'status' => 'success',
                     'provider' => 'VTPASS',
                     'status_code' => '200',
                     'customerName' => $result->content->Customer_Name ?? '',
-                    'customerAddress' => $result->content->Address ?? '',
+                    'customerAddress' => $address,
                     'button_link' => $button,
-                    'message' => 'Account Name: ' . $result->content->Customer_Name . '<br/>Address: ' . $result->content->Address . ' <br/><br/>' . $button . '',
+                    'message' => 'Account Name: ' . $result->content->Customer_Name . '<br/>Address: ' . $address . ' <br/><br/>' . $button . '',
                     'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
                     'raw_response' => $response,
                 ];
@@ -738,7 +738,7 @@ class VtpassController extends Controller
                 'request_id' => $request['request_id'],
                 'amount' => $request['amount'] ?? $request['price'],
                 'phone' => $request['mobile_no'],
-                'quantity' => $request['no_of_pins'] ?? 1,
+                'quantity' => $request['quantity'] ?? 1,
             ];
         }
 
@@ -804,10 +804,11 @@ class VtpassController extends Controller
             'public-key: ' . $api->public_key,
             'secret-key: ' . $api->secret_key,
         ];
-
+        
         if ($request['product']->category->slug == 'cable') {
-            $subscription_type = $request->request_type;
+            $subscription_type = $request['request_type'];
         }
+
         $resource = $request['resource'];
         
         $postdata = [
@@ -823,7 +824,6 @@ class VtpassController extends Controller
 
         
         $resX = $this->advancedApiCall($url, $postdata, $headers);
-        
         // dd($postdata['url'], $postdata['payload'], $headers, $resX);
         try {
             $format = $this->processApiResponse($resX);
@@ -848,7 +848,6 @@ class VtpassController extends Controller
     }
 
     public function processApiResponse($res){
-       
         if(empty($res)){
             $formatted = [
                 'status' => 'attention-required',

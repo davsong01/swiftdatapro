@@ -27,76 +27,51 @@
   <div class="alert verify-response" style="color:white;background:red;border-radius: 10px 5px;display:none">
     <div id="responsex"></div>
   </div>
-
-
   <form id="form-data">
     @csrf
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><i class="fa-solid fa-wifi" style="font-size: 25px;"></i></span>
-      </div>
+      <span class="input-group-text"><i style="font-weight: bold" class="fa-solid fa-wifi"></i></span>
       <input type="hidden" id="network_discount">
-      <select class="form-control" id="service_module" name="service_module" required>
+      <select class="form-control" id="service_module" required>
         <option value="">--Choose--</option>
-        @if($productAccess['dstv_lock'] != 0)
-          <option value="DSTV" name="DSTV"
-            {{ old('service_module') == 'DSTV' ? 'selected' : '' }}>
-            DSTV</option>
+        @foreach($category->products as $product)
+        @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
+          <option data-fixed_price="{{ $product->fixed_price }}"
+            data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
+            data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
+            value="{{ $product->id }}">{{ $product->display_name }}</option>
         @endif
-        @if($productAccess['gotv_lock'] != 0)
-          <option value="GOTV" name="GOTV"
-            {{ old('service_module') == 'GOTV' ? 'selected' : '' }}>
-            GOTV</option>
-        @endif
-        @if($productAccess['star_lock'] != 0)
-          <option value="STARTIMES" name="STARTIMES"
-            {{ old('service_module') == 'STARTIMES' ? 'selected' : '' }}>
-            STARTIMES</option>
-        @endif
-        @if($productAccess['showmax_lock'] != 0)
-          <option value="SHOWMAX" name="SHOWMAX"
-            {{ old('service_module') == 'SHOWMAX' ? 'selected' : '' }}>
-            SHOWMAX</option>
-        @endif
+        @endforeach
       </select>
     </div>
     <span id="result"></span>
-
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><i class="fa fa-shopping-cart" style="font-size: 25px;"></i></span>
-      </div>
-      <select class="form-control" id="dataplanloader" required>
-        <option>--Select Plan--</option>
+      <span class="input-group-text"><i style="font-weight: bold" class="fa fa-shopping-cart"></i></span>
+      <select class="form-control" id="dataplanloader" name="dataplanloader" style="font-size:11px" required>
+        <option value="">--Select Plan--</option>
       </select>
     </div>
 
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><i class="fa fa-refresh" style="font-size: 25px;"></i></span>
-      </div>
-      <select class="form-control" id="request_type" required name ="request_type">
-        <option>Select renewal type...</option>
+      <span class="input-group-text"><i style="font-weight: bold" class="fa fa-refresh"></i></span>
+      <select class="form-control" id="request_type" name="request_type" style="font-size:11px">
+        <option value="">--Select renewal type--</option>
         <option value="renewal" {{old('request_type') == 'renewal' ? 'selected' : ''}}>Renewal Plan</option>
         <option value="change" {{old('request_type') == 'change' ? 'selected' : ''}}>Change Plan</option>
       </select>
     </div>
+    
     <div class="input-group mb-3">
-        <div class="input-group-text">
-          <span class="" id="basic-addon1"><i class="fa fa-pencil-square-o" style="font-size: 25px;"></i></span>
-        </div>
-        <input type="tel" value="{{old('smart_no')}}" name="smart_no" class="form-control" placeholder="IUC/Smart No." id="smart_no" required>
-        <input type="hidden" name="renewal_amount" id="renewal_amount" class="form-control">
+      <span class="input-group-text"><i style="font-weight: bold" class="fa fa-pencil-square-o"></i></span>
+      <input type="tel" class="form-control" placeholder="Smartcard Number." id="smart_no" name="smart_no"
+        value="{{ old('smart_no') }}" required>
     </div>
 
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><i class="fas fa-phone" style="font-size: 25px;"></i></span>
-      </div>
-      <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no" name="mobile_no"
+      <span class="input-group-text"><i style="font-weight: bold" class="fas fa-phone"></i></span>
+      <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no"
         value="{{ auth()->user()->mobile ?? old('mobile_no') }}" required>
     </div>
-  
     <small>Forget Pin ? <a href="{{ route('pin.reset') }}">Reset Here</a></small>
     <div class="input-group mb-3">
       <div class="input-group-text">
@@ -130,41 +105,58 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
+  reset();
+
+  function reset() {
+    // $('#request_type').find('option').not(':first').remove();
+    $('#dataplanloader').find('option').not(':first').remove();
+    $('#service_plan').find('option').remove();
+    $('#mobile_no').val();
+    $('#amount').val();
+  }
+
   $("#service_module").change(function () {
     if ($("#service_module").val() != "") {
-      var service_module = $("#service_module").val();
-      var result = service_module;
+      var product_id = $("#service_module").val();
       $.ajaxSetup({
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
       });
+
+      $.LoadingOverlay("show");
+
       $.ajax({
-        url: '/variations?services=' + service_module +
-          '&level={{ auth()->user()->level }}&product=cable',
+        url: "{{ url('customer-get-variations') }}/" + product_id,
         method: 'GET',
         success: function (RES_data) {
           $.LoadingOverlay("hide");
-
-          console.log(RES_data);
-          $("#dataplanloader").html(RES_data);
-
-          // $("#result").html(RES_data);
+          $("#dataplanloader").append(RES_data);
         }
       })
+    }else{
+      reset();
     }
   })
 
-  
   $("#submitTV").click(function (event) {
+    var inputs = document.getElementById("form-data").getElementsByTagName("input");
+    // Loop through each input and perform validation
+    for (var i = 0; i < inputs.length; i++) {
+        var input = inputs[i];
+
+        // Check if the input is required and empty
+        if (input.hasAttribute("required") && input.value.trim() === "") {
+            alert("Please fill all inputs");
+            return;
+        }
+    }
     var formData = {
-      service_module: $("#service_module").val(),
-      service_plan: $("#service_plan").val(),
-      smart_no: $("#smart_no").val(),
-      request_type: $("#request_type").val(),
+      product_id: $("#service_module").val(),
+      variation_id: $("#dataplanloader").val(),
+      billersCode: $("#smart_no").val(),
       security_pin: $("#security_pin").val(),
-      plan_id: $("#dataplanloader").val(),
-      type: 'cable',
+      bouquet: $("#request_type").val(),
     };
 
     $.LoadingOverlay("show");
@@ -199,14 +191,14 @@
     event.preventDefault();
   });
 
-  ///
+  
    function pay4Tv() {
     var formData = {
       service_module: $("#service_module").val(),
       network_module: $("#service_module").val(),
       dataplanloader: $("#dataplanloader").val(),
       renewal_amount: $("#renewal_amount").val(),
-      smart_no: $("#smart_no").val(),
+      billersCode: $("#smart_no").val(),
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),

@@ -1151,7 +1151,7 @@ class GongzoController extends Controller
             'plan' => $resource->slug ?? $request['buyer_service'],
             'mobile_number' => $request['mobile_number'],
             'Ported_number' => true,
-            'no_of_pins' => $request['no_of_pins'] ?? 1,
+            'quantity' => $request['quantity'] ?? 1,
         ];
         
         return $postdata;

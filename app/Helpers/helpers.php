@@ -30,17 +30,17 @@ if (!function_exists("settings")) {
 }
 
 if (!function_exists("getProductDiscount")) {
-    function getProductDiscount($amount, $product_id)
+    function getProductDiscount($amount, $product_id, $quantity=1)
     {
         $response = [
             'type' => null,
             'discount_applied' => 0,
-            'new_amount' => intval($amount),
-            'display_value' =>  settings()->currency.$amount,
+            'new_amount' => intval($amount) * $quantity,
+            'display_value' =>  settings()->currency.($amount * $quantity),
         ];
         
         $level = auth()->user()->level;
-       
+        
         if(empty($level)){
             return $response;
         }
@@ -61,25 +61,24 @@ if (!function_exists("getProductDiscount")) {
         if(!empty($discount)){
             if ($discount_type == 'flat') {
                 $type = 'flat';
-                $new_amount = ($amount < $discount->price || $discount->price <= 0) ? $amount : $discount->price ;
+                $new_amount = ($amount < $discount->price || $discount->price <= 0) ? ($amount * $quantity) : ($discount->price *  $quantity) ;
                 $discount_applied = abs($amount - $discount->price);
-                
                 $display_amount = settings()->currency . number_format($new_amount);
             } else {
                 $type = 'percentage';
                 $discount_applied = $discount->price;
                 $discount_applied = floor($discount_applied/100 * $amount);
                 $n_amount = $amount - $discount_applied;
-                $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount : $n_amount;
+                $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
                 $display_amount = settings()->currency . intval($new_amount);
             }
         }else{
             return $response;
         }
-
+        
         return [
             'type' => $type,
-            'discount_applied' => $discount_applied,
+            'discount_applied' => $discount_applied * $quantity,
             'new_amount' => intval($new_amount),
             'display_value' => $display_amount
         ];
@@ -87,13 +86,13 @@ if (!function_exists("getProductDiscount")) {
 }
 
 if (!function_exists("getVariationDiscount")) {
-    function getVariationDiscount($amount, $variation_id)
+    function getVariationDiscount($amount, $variation_id, $quantity = 1)
     {
         $response = [
             'type' => null,
             'discount_applied' => 0,
-            'new_amount' => intval($amount),
-            'display_value' =>  settings()->currency . $amount,
+            'new_amount' => intval($amount) * $quantity,
+            'display_value' =>  settings()->currency . ($amount * $quantity),
         ];
 
         $level = auth()->user()->level;
@@ -123,16 +122,15 @@ if (!function_exists("getVariationDiscount")) {
         if (!empty($discount)) {
             if ($discount_type == 'flat') {
                 $type = 'flat';
-                $new_amount = ($amount < $discount->price || $discount->price <= 0) ? $amount : $discount->price;
+                $new_amount = ($amount < $discount->price || $discount->price <= 0) ? ($amount * $quantity) : ($discount->price *  $quantity);
                 $discount_applied = abs($amount - $discount->price);
-
                 $display_amount = settings()->currency . number_format($new_amount);
             } else {
                 $type = 'percentage';
                 $discount_applied = $discount->price;
                 $discount_applied = floor($discount_applied / 100 * $amount);
                 $n_amount = $amount - $discount_applied;
-                $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount : $n_amount;
+                $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
                 $display_amount = settings()->currency . intval($new_amount);
             }
         } else {

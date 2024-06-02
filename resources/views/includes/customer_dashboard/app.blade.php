@@ -234,7 +234,7 @@
             </li>
 
             <li>
-                <a href="{{ route('buy', 'epins')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'exam-epins')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa fa-qrcode"></i>
                     </div>
@@ -374,7 +374,7 @@
         @endif
         <div id="successModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog" style="padding-top: 20px;">
                 <div class="modal-content">
 
                     <br />

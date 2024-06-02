@@ -55,7 +55,6 @@
         <option value="">--Choose--</option>
         @foreach($category->products as $product)
         @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
-          
           <option data-fixed_price="{{ $product->fixed_price }}"
             data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
             data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"

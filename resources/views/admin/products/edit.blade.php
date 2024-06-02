@@ -5,12 +5,12 @@
 @extends('layouts.new.app')
 @section('extra-css')
 @endsection
-@section('title', 'Add Product')
+@section('title', 'Edit Product')
 @section('breadcrumb')
 <li class="breadcrumb-item"><a href="{{route('product.index')}}">All Products</a></li>
 @endsection
 @section('breadcrumb-active')
-<li class="breadcrumb-item active" aria-current="page">New Product</li>
+<li class="breadcrumb-item active" aria-current="page">Edit Product</li>
 @endsection
 @section('content')
 <div class="row">

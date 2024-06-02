@@ -561,15 +561,18 @@ class Controller extends BaseController
                 }
 
                 if ($category->slug == 'exam-epins') {
+                    $prices = \DB::connection('old')->table('epin_planlist')->first();
                     $toAdd = [
                         [
-                            "name" => 'WAEC Result Checker',
-                            "display_name" => 'WEAC Result Checker',
+                            "name" => 'WAEC Scratch Card',
+                            "display_name" => 'WAEC Scratch Card',
                             "category_id" => $category->id,
                             "slug" => 'waec-result',
                             "api_id" => 4,
                             "old_identifier" => 'waec',
+                            'system_price' => $prices->waec,
                             "fixed_price" => 'yes',
+                            "has_variations" => 'no',
                         ],
                         [
                             "name" => 'NECO Result Checker',
@@ -579,6 +582,9 @@ class Controller extends BaseController
                             "api_id" => 4,
                             "old_identifier" => 'neco',
                             "fixed_price" => 'yes',
+                            "has_variations" => 'no',
+                            'system_price' => $prices->neco,
+
                         ],
                         [
                             "name" => 'NABTEB Result Checker',
@@ -588,6 +594,9 @@ class Controller extends BaseController
                             "api_id" => 4,
                             "old_identifier" => 'nabteb',
                             "fixed_price" => 'yes',
+                            "has_variations" => 'no',
+                            'system_price' => $prices->nabteb,
+
                         ],
                         [
                             "name" => 'GCE Result Checker',
@@ -597,15 +606,19 @@ class Controller extends BaseController
                             "api_id" => 4,
                             "old_identifier" => 'gce',
                             "fixed_price" => 'yes',
+                            "has_variations" => 'no',
+                            'system_price' => $prices->gce
                         ],
                         [
-                            "name" => 'WAEC Registration',
-                            "display_name" => 'WAEC Registration',
+                            "name" => 'WAEC Registration Card',
+                            "display_name" => 'WAEC Registration Card',
                             "category_id" => $category->id,
                             "slug" => 'waec-registration',
                             "api_id" => 4,
                             "old_identifier" => 'waec_registration',
                             "fixed_price" => 'yes',
+                            "has_variations" => 'no',
+                            'system_price' => $prices->waec_registration
                         ],
                         [
                             "name" => 'NBAIS',
@@ -615,6 +628,8 @@ class Controller extends BaseController
                             "api_id" => 4,
                             "old_identifier" => 'nbais',
                             "fixed_price" => 'yes',
+                            "has_variations" => 'no',
+                            'system_price' => $prices->nbais
                         ],
                     ];
                 }
@@ -751,7 +766,7 @@ class Controller extends BaseController
                             "seo_description" => '',
                             "image" => '',
                             "fixed_price" => $product['fixed_price'] ?? 'no',
-                            "system_price" => 0,
+                            "system_price" => $product['system_price'] ?? 0,
                             "allow_quantity" => 'no',
                             "quantity_graduation" => '',
                             "min" => 0,

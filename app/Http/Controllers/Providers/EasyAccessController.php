@@ -1501,7 +1501,7 @@ class EasyAccessController extends Controller
             'mobileno' =>  $request['mobile_number'] ?? '',
             'dataplan' =>  $resource->slug,
             'client_reference' => $request['sys_ref'],
-            'no_of_pins' => $request['buyer_quantity'] ?? '',
+            'quantity' => $request['buyer_quantity'] ?? '',
         ];
         
         return $postdata;

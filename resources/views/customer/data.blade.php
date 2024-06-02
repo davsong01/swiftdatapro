@@ -43,38 +43,38 @@
     </div>
 
     <form id="form-data">
-        @csrf
         <div class="input-group mb-3">
           <span class="input-group-text"><i style="font-weight: bold" class="fa-solid fa-wifi"></i></span>
           <input type="hidden" id="network_discount">
+          
           <select class="form-control" id="network_module" required>
           <option value="">--Choose--</option>
           @foreach($category->products as $product)
-          @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
-            <option data-fixed_price="{{ $product->fixed_price }}"
-              data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
-              data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
-              value="{{ $product->id }}">{{ $product->display_name }}</option>
-          @endif
+            @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
+              <option data-fixed_price="{{ $product->fixed_price }}"
+                data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
+                data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
+                value="{{ $product->id }}">{{ $product->display_name }}</option>
+            @endif
           @endforeach
-        </select>
+          </select>
         </div>
-
+      
       <div class="input-group mb-3">
-        <span class="input-group-text"><i style="font-weight: bold" class="fa fa-shopping-cart"></i></span>
+          <span class="input-group-text"><i style="font-weight: bold" class="fa fa-shopping-cart"></i></span>
             @csrf
             <select class="form-control" class="dataplanload" style="font-size:11px" id="dataplanloader" required>
                 <option value="">--Select Network--</option>
             </select>
-        </div>
+      </div>
         
-        <div class="input-group mb-3" id="ask_pins" style="display:none">
-            <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fa fa-calculator" style="font-size: 25px;"></i></span>
-            </div>
-            <input type="number" class="form-control" placeholder="No of Pins" id="no_of_pins" value="">
-            <br>
-        </div>
+      <div class="input-group mb-3" id="ask_pins" style="display:none">
+          <div class="input-group-text">
+              <span class="" id="basic-addon1"><i class="fa fa-calculator" style="font-size: 25px;"></i></span>
+          </div>
+          <input type="number" class="form-control" placeholder="No of Pins" id="quantity" value="">
+          <br>
+      </div>
 
         <small id="ask_pins_small" style="color:red;display:none">Phone number is optional<br></small>
         <div class="input-group mb-3">
@@ -84,7 +84,7 @@
         <div class="input-group mb-3" id="smile-verify-email" style="margin-top: 35px;display:none">
             <div class=" input-group-text">
                 <br><br>
-                <span class="" id="smile-email"><i class="fas fa-envelope" style="font-size: 25px;"></i></span>
+                <span class="" id="smile-email"><i class="fas fa-envelope" style="font-weight: bold"></i></span>
             </div>
             <input type="email" class="form-control" placeholder="Email address associated with smile Account"
                 id="smile_email">
@@ -97,7 +97,7 @@
         <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
         <div class="input-group mb-3">
             <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-size: 25px;"></i></span>
+                <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-weight: bold"></i></span>
             </div>
             <input type="password" class="form-control" placeholder="Security PIN" id="security_pin" required>
         </div>
@@ -186,13 +186,13 @@
             $("#how_to_load").show();
             $("#how_to_load").show();
 
-            $("#no_of_pins").attr("required", true);
+            $("#quantity").attr("required", true);
             $("#mobile_no").attr("required", false);
 
           } else {
             $("#ask_pins").hide();
-            $("#no_of_pins").attr("required", false);
-            $("#no_of_pins").val("1");
+            $("#quantity").attr("required", false);
+            $("#quantity").val("1");
             $("#ask_pins_small").hide();
             $("#how_to_load").hide();
             $("#mobile_no").attr("required", true);
@@ -214,7 +214,7 @@
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
-      no_of_pins: $("#no_of_pins").val()
+      quantity: $("#quantity").val()
     };
 
     if ($("#network_module").val() == 'smile-data') {
@@ -269,7 +269,7 @@
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
-      no_of_pins: $("#no_of_pins").val(),
+      quantity: $("#quantity").val(),
     };
 
     $.LoadingOverlay("show");
@@ -309,7 +309,7 @@
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
-      no_of_pins: $("#no_of_pins").val(),
+      quantity: $("#quantity").val(),
       account_id: account_id,
     };
 

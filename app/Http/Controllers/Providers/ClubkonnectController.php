@@ -51,7 +51,7 @@ class ClubkonnectController extends Controller
             'request_id' => $request['request_id'],
             'amount' => $request['amount'] ?? $request['price'],
             'phone' => $request['mobile_no'],
-            'quantity' => $request['no_of_pins'] ?? 1,
+            'quantity' => $request['quantity'] ?? 1,
         ];
         
         $pstfields = [

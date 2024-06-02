@@ -25,13 +25,15 @@ class TransactionsController extends Controller
                 return $query->where('status', 'active')->get();
             }
         ])->where('status', 'active')->where('slug', $service)->first();
-        
+        if(!$category){
+            return redirect(route('dashboard'));
+        }
         // return view('customer.airtime', compact('service','category'));
         return view('customer.'.$service, compact('service','category'));
     }
 
     public function getCustomerDiscount(Request $request){
-        return response()->json(getProductDiscount($request->amount, $request->product_id, $request->variation_id));
+        return response()->json(getProductDiscount($request->amount, $request->product_id,$request->quantity ?? 1));
     }
 
     public function verify(Request $request){   
@@ -40,10 +42,7 @@ class TransactionsController extends Controller
         $api = $request['variation']->api;
 
         $verify = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->verify($request, $api);
-        if(isset($verify['status']) ){
-                
-        }
-       
+        
         if ($request['variation']->category->slug == 'electricity') {
             $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button>';
             
@@ -55,7 +54,7 @@ class TransactionsController extends Controller
                 'desc' => $verify['message'] ?? '',
             );
         }
-        
+       
         if ($request['variation']->category->slug == 'cable') {
             $response = array(
                 'status' => $verify['status'] ?? '',
@@ -63,8 +62,9 @@ class TransactionsController extends Controller
                 'message' => $verify['message'] ?? '',
                 'title' => $verify['title'] ?? '',
                 'desc' => $verify['message'] ?? '',
-                'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? ($verify['renewal_amount'] ?? $request['variations']['system_price']) : ($variations['price'] ?? 0),
+                'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? ($verify['renewal_amount'] ?? $request['variation']->system_price) : ($variations['price'] ?? 0),
             );
+
         }
 
         return response()->json($response);
@@ -79,7 +79,7 @@ class TransactionsController extends Controller
         $var = $request->variation ?? $request->dataplanloader; 
         $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
         
-        $no_of_pins = $request->no_of_pins ?? 1;
+        $quantity = $request->quantity ?? 1;
     
         $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
         
@@ -93,33 +93,25 @@ class TransactionsController extends Controller
 
         
         // Get amount
-       
         $request['amount'] = $this->getAmount($product, $variation, $request);
+        $request['unit_price'] = $request['amount'];
         $api = $variation->api ?? $product->api;
-       
+        
         // checks
         $checks = $this->runChecks($request,$product, $api);
         if(!empty($checks) && $checks['status'] == 'fail'){
             return $service->build($checks);
         }
 
-        // Verify Meter
-        // if ($product->allow_meter_validation) {
-        //     $meterValidation = $this->validateMeter($product);
-        //     if (isset($meterValidation) && $meterValidation['code'] == 0) {
-        //         return back()->with('error', $meterValidation['error']);
-        //     }
-        // }
-
         // Get discount
         if ($product->has_variations == 'yes') {
             $resource = $variation;
-            $src_price = $variation->api_price;
-            $discount = getVariationDiscount($request['amount'], $variation->id);
+            $src_price = $variation->api_price * ($request['quantity'] ?? 1);
+            $discount = getVariationDiscount($request['amount'], $variation->id, $request['quantity'] ?? 1);
         } else {
             $resource = $product;
-            $src_price = 0;
-            $discount = getProductDiscount($request['amount'], $product->id,);
+            $src_price = !empty($product->system_price) ? $product->system_price * ($request['quantity'] ?? 1) : 0;
+            $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
         }
         
         $discountedAmount = $discount['new_amount'];
@@ -130,8 +122,8 @@ class TransactionsController extends Controller
         }
         //
         $request['quantity'] = $request->quantity ?? 1;
-        $request['total_amount'] = $discountedAmount * $request['quantity'];
-        $request['discount'] = $disCountApplied * $request['quantity'];
+        $request['total_amount'] = $discountedAmount;
+        $request['discount'] = $disCountApplied;
         $balance = walletBalance($user);
         
         if ($balance < $request['total_amount']) {
@@ -147,19 +139,20 @@ class TransactionsController extends Controller
         $request['package_name'] = $resource->display_name;
         $request['serviceId'] = $resource->slug ?? null;
         $request['variation_code'] = $variation->variation_code ?? null;
-        $request['no_of_pins'] = $no_of_pins;
+        $request['quantity'] = $quantity;
 
         if (in_array($resource->category->slug, ['electricity', 'cable'])) {
             $request['billersCode'] = $request->billersCode;
         } else {
             $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
         }
-        
         // Log transaction
+        
         $data = [
             'mobile_number' => $request->mobile_no,
             'buyer_email' => $user->email,
             'buyer_username' => $user->username,
+            'unit_price' => $request['unit_price'],
             'buyer_amount' => $request['total_amount'],
             'buyer_prebal' => $balance,
             'buyer_postbal' => $balance - $request['total_amount'],
@@ -173,7 +166,7 @@ class TransactionsController extends Controller
             'sys_ref' => $request_id,
             'api_ref' => $api_reference,
             'api_report' => 'PENDING',
-            'buyer_quantity' => $request->no_of_pins ?? $request->quantity,
+            'buyer_quantity' => $request->quantity,
             'provider_id' => $api->id ?? null,
             'variation_id' => $variation->id ?? null,
             'product_id' => $product->id ?? null,
@@ -185,15 +178,14 @@ class TransactionsController extends Controller
             'category_id' => $resource->category->id,
             'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
         ];
-        
         $transaction = $this->logTransaction($data);
         $data['resource'] = $resource;
         $data['product'] = $product;
         $data['billersCode'] = $request['billersCode'] ?? null;
-    
+        $data['request_type'] = $request->request_type;
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
-       
+        
         if ($api_response['status'] == 'success') {
             $report = $this->formatOderReport($resource, $request,$transaction, $api_response);
             $transaction->update([
@@ -298,7 +290,7 @@ class TransactionsController extends Controller
 
     public function formatOderReport($resource, $request, $transaction,$api_response){
         if ($api_response['status'] == 'success') {
-            $order_report = strtoupper('Purchase Successful for ' . $resource->name) .'. '. $api_response['response'];
+            $order_report = strtoupper('Purchase Successful on ' . $request['billersCode'] ?? $resource->display_) .'. '. $api_response['response'];
             $extra = $api_response['extra'] ?? '';
             
             if ($resource->slug == 'smile-data') {
@@ -317,7 +309,7 @@ class TransactionsController extends Controller
                 'extra' => $api_response['extra'] ?? null,
             ];
         }else if($api_response['status'] == 'attention-required'){
-            $order_report = strtoupper('Purchase successful for ' . $resource->name . ' on ' . $request['billersCode']);
+            $order_report = strtoupper('Purchase successful on ' .$request['billersCode'] ?? $resource->system_name . ' on ' . $request['billersCode']);
             $final_response = [
                 'status' => 'success',
                 'status_code' => '200',
@@ -328,9 +320,9 @@ class TransactionsController extends Controller
             ];
         }else{
             if(!empty($api_response['response'])){
-                $order_report = strtoupper('Purchase failed for ' . $resource->name . ' on ' . $request['billersCode'] . ' Error: ' . $api_response['response']);
+                $order_report = strtoupper('Purchase failed on ' .$request['billersCode'] ?? $resource->name . ' Error: ' . $api_response['response']);
             }else{
-                $order_report = strtoupper('Purchase failed for ' . $resource->name . ' on ' . $request['billersCode']);
+                $order_report = strtoupper('Purchase failed on ' . $request['billersCode'] ?? $resource->name);
             }
 
             if ($resource->slug == 'smile-data') {
@@ -1006,7 +998,7 @@ class TransactionsController extends Controller
                 'message' => 'Incorrect security pin !!!',
             ];
         }
-
+        
         if (strlen($request->mobile_no) !== 11 || !is_numeric($request->mobile_no)) {
             $response = [
                 'status' => 'fail',
