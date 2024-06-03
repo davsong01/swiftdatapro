@@ -980,7 +980,7 @@ class Controller extends BaseController
         } else if ($api->slug == 'club-konnect') {
             $controller = 'ClubkonnectController';
         } else if ($api->slug == 'sme-plug') {
-            $controller = 'SMEPlugController';
+            $controller = 'SmePlugController';
         }
 
         return $controller;

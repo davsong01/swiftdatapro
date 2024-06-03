@@ -79,13 +79,14 @@
     </div>
  
     <small>Forget Pin ? <a href="{{ route('pin.reset') }}">Reset Here</a></small>
-    <div class="input-group mb-3">
-      <span class="input-group-text"><i style="font-weight: bold" class="fas fa-unlock-alt"></i></span>
-      <input type="hidden" class="form-control" placeholder="Security PIN" id="security_pin"
-      required>
+     <div class="input-group mb-3">
+        <span class="input-group-text" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-weight: bold"></i></span>
+      
+        <input type="password" class="form-control" placeholder="Security PIN" id="security_pin" required>
     </div>
-
-    <button class="btn btn-success btn-block" id="submitBills" style="width: 100%">Verify Meter/SMart No</button>
+    <div class="input-group mb-3">
+      <button class="btn btn-success btn-block" id="submitBills" style="width: 100%">Verify Meter/SMart No</button>
+    </div>
     <br>
     <br>
     </form>
