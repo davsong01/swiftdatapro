@@ -190,7 +190,7 @@
 
             <?php $baseurl = url('/'); ?>
             <li>
-                <a href="{{ route('buy', 'airtime_sns')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'airtime-sns')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fas fa-phone"></i>
                     </div>

@@ -83,7 +83,7 @@ class Controller extends BaseController
                 ],
                 [
                     'name' => 'SME Plug',
-                    'status' => 'inactive',
+                    'status' => 'active',
                     'api_key' => $web_settings->smeplug_token,
                     'secret_key' => '',
                     'public_key' => '',

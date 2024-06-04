@@ -42,7 +42,7 @@ class HomeController extends Controller
     public function dashboard()
     {
         $this->createReservedAccount();
-        $customer_levels = CustomerLevel::all();
+        $customer_levels = CustomerLevel::where('id', '>', auth()->user()->level)->get();
 
         return view('customer.dashboard', compact('customer_levels'));
     }
@@ -85,52 +85,50 @@ class HomeController extends Controller
             $response->handler($responseX);
         }
 
-        $setting = WebSetting::first();
+        $level = CustomerLevel::where('id', $request->level)->first();
         $reference = strtoupper(time() . rand(1000, 9000) . rand(20000000, 90000000));
         $reference2 = strtoupper(rand(1000, 9000) . rand(200000, 900000) . uniqid());
-        $level = $request->level;
-        $Account_Balance = walletBalance(auth()->user());
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $timestring = time();
 
-        if ($level == "2") {
-            $amount = $setting->level2_charge;
-            $refb = $setting->level2_charge - $setting->level2_adminch;
-            $admb = $setting->level2_adminch;
-            $package = 2;
-        }
+        // if ($level == "2") {
+        //     $amount = $setting->level2_charge;
+        //     $refb = $setting->level2_charge - $setting->level2_adminch;
+        //     $admb = $setting->level2_adminch;
+        //     $package = 2;
+        // }
 
-        if ($level == "3") {
-            $amount = $setting->level3_charge;
-            $refb = $setting->level3_charge - $setting->level3_adminch;
-            $admb = $setting->level3_adminch;
-            $package = 3;
-        }
+        // if ($level == "3") {
+        //     $amount = $setting->level3_charge;
+        //     $refb = $setting->level3_charge - $setting->level3_adminch;
+        //     $admb = $setting->level3_adminch;
+        //     $package = 3;
+        // }
 
-        if ($level == "4") {
-            $amount = $setting->level4_charge;
-            $refb = $setting->level4_charge - $setting->level4_adminch;
-            $admb = $setting->level4_adminch;
-            $package = 4;
-        }
+        // if ($level == "4") {
+        //     $amount = $setting->level4_charge;
+        //     $refb = $setting->level4_charge - $setting->level4_adminch;
+        //     $admb = $setting->level4_adminch;
+        //     $package = 4;
+        // }
+
+        $refb = $level->upgrade_amount - $level->admin_inch;
+        $admb = $level->admin_inch;
+        $amount = $level->upgrade_amount;
 
         $adinfo = User::where('username', 'ADMIN')->first();
         $refinfo = auth()->user();
+        $balanceBefore = walletBalance(auth()->user());
+        $package = $level->name;
         
-        if ($Account_Balance >= $amount && $amount > 0) {
+        if ($balanceBefore >= $amount && $amount > 0) {
             // Update user wallet and balance
-            $newbal = $Account_Balance - $amount;
-            auth()->user()->level = $package;
-            auth()->user()->wallets = $newbal;
-            auth()->user()->save();
-
-            $descr1 = 'Activation of level ' . $package . ' was successful';
+            $newbal = $balanceBefore - $amount;
             
+            $descr1 = 'Activation of level ' . $level->name . ' was successful';
             $descr2 = 'Referral bonus of N' . $refb . ' landed from ' . auth()->user()->username;
             $descr3 = 'Admin bonus of N' . $admb . ' landed from ' . auth()->user()->username;
-            $new_ad_bonus = $adinfo->wallets + $admb;
-
             $upline = $refinfo->ref_by;
 
             if ($upline !== 'ADMIN') {
@@ -177,7 +175,7 @@ class HomeController extends Controller
                         'buyer_username' => auth()->user()->username,
                         'buyer_service' => 'UPGRADE',
                         'buyer_amount' => $amount,
-                        'buyer_prebal' => $Account_Balance,
+                        'buyer_prebal' => $balanceBefore,
                         'buyer_postbal' => $newbal,
                         'buyer_descr' => $descr1,
                         'buyer_status' => 'SUCCESSFUL',
@@ -191,10 +189,14 @@ class HomeController extends Controller
                         'src_price' => '0',
                         'profit' => '0',
                         'databyte' => '0',
+                        'billersCode' => auth()->user()->ussername,
+                        'unit_price' => $amount,
+
                     ];
 
-                    $this->logTransaction($data);
-
+                    $transaction = $this->logTransaction($data);
+                    auth()->user()->wallets = $transaction->buyer_postbal;
+                    auth()->user()->save();
                     $responseX = [
                         'status_code' => 200,
                         'status' => 'success',
@@ -231,7 +233,7 @@ class HomeController extends Controller
                     'buyer_username' => auth()->user()->username, 
                     'buyer_service' => 'UPGRADE', 
                     'buyer_amount' => $amount, 
-                    'buyer_prebal' => $Account_Balance, 
+                    'buyer_prebal' => $balanceBefore, 
                     'buyer_postbal' => $newbal, 
                     'buyer_descr' => $descr1, 
                     'buyer_status' => 'SUCCESSFUL', 
@@ -245,6 +247,9 @@ class HomeController extends Controller
                     'src_price' => '0', 
                     'profit' => '0', 
                     'databyte' => '0',
+                    'billersCode' => auth()->user()->ussername,
+                    'unit_price' => $amount,
+
                 ];
 
                 $this->logTransaction($data);
@@ -255,6 +260,10 @@ class HomeController extends Controller
                 ];
                 $response->handler($responseX);
             }
+
+            auth()->user()->level = $level->id;
+            auth()->user()->save();
+            
         }else{
             $responseX = [
                 'status_code' => 100,
@@ -263,7 +272,6 @@ class HomeController extends Controller
             ];
             $response->handler($responseX);
         }
-       
     }
 
     public function createReservedAccount(){

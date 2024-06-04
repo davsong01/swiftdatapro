@@ -60,7 +60,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card border-2 border-rose-600">
-                        <a href="{{ url('/') }}/airtime_vtu">
+                        <a href="{{ route('buy', 'airtime')}}">
                             <div class="option-card-icon">
                                 <i class="fa fa-phone" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -71,7 +71,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/data">
+                        <a href="{{ route('buy', 'data')}}">
                             <div class="option-card-icon">
                                 <i class="fa fa-wifi" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -82,7 +82,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/cable">
+                        <a href="{{ route('buy', 'cable')}}">
                             <div class="option-card-icon">
                                 <i class="fa fa-tv" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -98,7 +98,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/bills">
+                        <a href="{{ route('buy', 'electricity')}}">
                             <div class="option-card-icon">
                                 <i class="fa fa-lightbulb" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -109,7 +109,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/epins">
+                            <a href="{{ route('buy', 'exam-epins')}}">
                             <div class="option-card-icon">
                                 <i class="fa fa-qrcode" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -137,7 +137,7 @@
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/bulk_sms">
+                        <a href="{{ url('/') }}/bulk-sms">
                             <div class="option-card-icon">
                                 <i class="fa fa-envelope" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
@@ -177,7 +177,6 @@
 
 <div class="col-xl-12">
     <div class="alert" style="background-color: #fff">
-
         <div id="response"></div>
         <label style="color: red;">Refer a friend and earn extra cash on
             {{ config('app.name') }}</label>
@@ -187,14 +186,14 @@
                 class="fa fa-copy" style="font-size: 13px;cursor: pointer;" onclick="copyFunction()">Copy</i> <span
                 id="refres"></span>
         </p>
+        @if (!empty($customer_levels))
         <select class="form-control" id="level">
-            <option value="">--Choose--</option>
-            @if (!empty($customer_levels))
-                @foreach ($customer_levels as $level)
-                <option value="{{ $level->id }}">Upgrade To {{ $level->name }} =>{{ settings()->currency.number_format($level->upgrade_amount) }}</option>
-                @endforeach
-            @endif
+        <option value="">--Choose--</option>
+            @foreach ($customer_levels as $level)
+            <option value="{{ $level->id }}">Upgrade To {{ $level->name }} =>{{ settings()->currency.number_format($level->upgrade_amount) }}</option>
+            @endforeach
         </select>
+        @endif
 
         <br />
         <button class="btn btn-success btn-block" style="width: 100%" id="upgrade">UPGRADE</button>
@@ -236,7 +235,7 @@
     $("#contactus").click(function () {
         var message_report = $("#message").val();
         var req_token = $("#req_token").val();
-        // $.LoadingOverlay("show");
+        $.LoadingOverlay("show");
         $.ajaxSetup({
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -299,8 +298,14 @@
                     $("#errorModal").modal("show");
                     $("#errorModal .modal-body").html(response.message);
                 }
-            }
-        })
+            },
+           
+            
+        });
+
+        setTimeout(function () {
+            window.location.reload();
+        }, 2000);
     })
 </script>
 @endsection

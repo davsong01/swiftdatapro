@@ -9,6 +9,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Variation;
 use App\Models\BillersLog;
+use App\Models\Blacklist;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
@@ -96,12 +97,6 @@ class TransactionsController extends Controller
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $request['unit_price'] = $request['amount'];
         $api = $variation->api ?? $product->api;
-        
-        // checks
-        $checks = $this->runChecks($request,$product, $api);
-        if(!empty($checks) && $checks['status'] == 'fail'){
-            return $service->build($checks);
-        }
 
         // Get discount
         if ($product->has_variations == 'yes') {
@@ -114,6 +109,19 @@ class TransactionsController extends Controller
             $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
         }
         
+
+        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
+            $request['billersCode'] = $request->billersCode;
+        } else {
+            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
+        }
+
+        // checks
+        $checks = $this->runChecks($request,$product, $api);
+        if(!empty($checks) && $checks['status'] == 'fail'){
+            return $service->build($checks);
+        }
+
         $discountedAmount = $discount['new_amount'];
         $disCountApplied = $discount['discount_applied'];
         //
@@ -141,13 +149,8 @@ class TransactionsController extends Controller
         $request['variation_code'] = $variation->variation_code ?? null;
         $request['quantity'] = $quantity;
 
-        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
-            $request['billersCode'] = $request->billersCode;
-        } else {
-            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
-        }
-        // Log transaction
         
+        // Log transaction
         $data = [
             'mobile_number' => $request->mobile_no,
             'buyer_email' => $user->email,
@@ -179,6 +182,7 @@ class TransactionsController extends Controller
             'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
         ];
         $transaction = $this->logTransaction($data);
+        
         $data['resource'] = $resource;
         $data['product'] = $product;
         $data['billersCode'] = $request['billersCode'] ?? null;
@@ -979,10 +983,10 @@ class TransactionsController extends Controller
     }
 
     public function runChecks($request, $product, $api){
-        $checkBlacklistPhone = \DB::table('blacklist_mobiles')->where('add_mobile', $request->mobile_no)->first();
+        $checkBlacklist = Blacklist::where('biller', $request->billersCode)->first();
         $user = auth()->user();
         $response = null;
-
+        
         if (!$user) {
             $response = array(
                 'status' => 'fail',
@@ -1006,14 +1010,17 @@ class TransactionsController extends Controller
                 'message' => 'Please use a valid mobile no !!!',
             ];
 
-        } else if ($checkBlacklistPhone) {
+        } 
+
+        if ($checkBlacklist) {
             $response = array(
                 'status' => 'fail',
                 'status_code' => '100',
-                'message' => 'Mobile no. cannot carry out transactions !!!',
+                'message' => 'Biller cannot carry out transactions, Please contact admin !!!',
             );
-
-        } else if (!$product || $product->status == 'inactive') {
+        }
+        
+        if (!$product || $product->status == 'inactive') {
             $response = array(
                 'status' => 'fail',
                 'status_code' => '100',

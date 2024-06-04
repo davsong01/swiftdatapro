@@ -56,17 +56,17 @@ class SmePlugController extends Controller
         ];
 
         $pstfields = $this->getPostData($postdata, $api);
+        
         if(env('ENT') == 'local'){
             $resX = '{"status": "success","message": "2 WAEC Scratch Card generated","reference": "qXFPHaTZM3rSkfY","amount": 6700,"quantity": "3","old_balance": 259800,"new_balance": 253100,"transaction_date": "2023-10-02 02:45:13","cards":[{"pin": "941264752596","serial_no": "WRN193474585"},{"pin": "941264877068","serial_no": "WRN193474586"}]}';
         }else{
             $resX = $this->advancedApiCall($pstfields['url'], json_encode($pstfields), $headers);
         }
         
-
         try {
             $format = $this->processApiResponse($resX);
             $format['api_response'] = $resX;
-            $format['postfields'] = $pstfields;      
+            $format['postfields'] = $pstfields;     
         } catch (\Throwable $th) {
 
             $format = [
@@ -98,8 +98,8 @@ class SmePlugController extends Controller
                 // Process APi call
                 $result = json_decode($res, true);
                 $status = strtolower($result['status']);
-                
-                if (isset($status) && $status == "true") {
+               
+                if (isset($status) && in_array($status, ["true", "success"])) {
                     $true_response = strtoupper($result['message'] . '. Recharge Successful.');
 
                     $formatted = [

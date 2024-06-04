@@ -84,14 +84,15 @@
                 <li class="slide">
                     <a href="{{ route('settings.edit') }}" class="side-menu__item {{Route::is('settings.index') ? 'active' : '' }}" >Contact Settings</a>
                 </li>
+                
                 <li class="slide">
-                    <a href="index-1.html" class="side-menu__item">My Site APIKeys</a>
-                </li>
-                <li class="slide">
-                    <a href="index-2.html" class="side-menu__item">Blacklist Number</a>
+                    <a href="{{ route('blacklist.index') }}" class="side-menu__item">Blacklist Biller</a>
                 </li>
                 <li class="slide">
                     <a href="index-3.html" class="side-menu__item">Order Number(s)</a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('bank.index') }}" class="side-menu__item {{Route::is('bank.index') ? 'active' : '' }}">Manual Bank Details</a>
                 </li>
             </ul>
         </li>

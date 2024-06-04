@@ -3,11 +3,13 @@
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
+use App\Http\Controllers\BankController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\BlacklistController;
 use App\Http\Controllers\VariationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\WebSettingController;
@@ -76,6 +78,8 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::resource('product', ProductController::class);
         Route::resource('customerlevel', CustomerLevelController::class);
         Route::resource('notification', NotificationController::class);
+        Route::resource('bank', BankController::class);
+        Route::resource('blacklist', BlacklistController::class);
     
         Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 
