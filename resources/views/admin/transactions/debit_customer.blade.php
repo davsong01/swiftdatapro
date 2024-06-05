@@ -34,7 +34,7 @@
                             <input type="number" value="{{ old('amount') }}" class="form-control" name="amount" id="amount" placeholder="Amount" required>
                         </div>
                     </div>
-                    <input type="hidden" value="debt" class="form-control" name="type" id="type" required>
+                    <input type="hidden" value="debit" class="form-control" name="type" id="type" required>
 
                     <div class="row mt-2">
                         <div class="col-md-12">

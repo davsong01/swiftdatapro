@@ -282,7 +282,7 @@ class HomeController extends Controller
             $api_key = $payvesel->api_key;
             $public_key = $payvesel->public_key;
             $secret_key = $payvesel->secret_key;
-
+            
             $payload = json_encode([
                 "name" => auth()->user()->full_name,
                 "email" => auth()->user()->email,

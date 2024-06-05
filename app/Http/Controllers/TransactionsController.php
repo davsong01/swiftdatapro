@@ -7,15 +7,17 @@ use DateTimeZone;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Blacklist;
 use App\Models\Variation;
 use App\Models\BillersLog;
-use App\Models\Blacklist;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Services\JsonResponseService;
 use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\TransactionController;
 
 class TransactionsController extends Controller
 {
@@ -182,7 +184,7 @@ class TransactionsController extends Controller
             'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
         ];
         $transaction = $this->logTransaction($data);
-        
+
         $data['resource'] = $resource;
         $data['product'] = $product;
         $data['billersCode'] = $request['billersCode'] ?? null;
@@ -839,57 +841,49 @@ class TransactionsController extends Controller
         $user = User::where('email', $request->email)->first();
 
         if (!$user)return back()->with('error', 'Account not found!');
-        
-        dd('continue');
-        $controller = new TransactionController();
-        $amount = $controller->removeCharsInAmount($request->amount);
+        $amount = $request->amount;
         $currAmount = walletBalance($user);
-        if ($type == 'credit') {
-            $data['balance_after'] = $currAmount + $amount;
+        
+        if ($request->type == 'credit') {
+            $balance_after = $currAmount + $amount;
         } else {
-            $data['balance_after'] = $currAmount - $amount;
+            $balance_after = $currAmount - $amount;
         }
 
-        $requestId = $controller->generateRequestId();
-        $tid = 'A2C-' . $requestId;
-        $reason = $type == 'debit' ? 'ADMIN-DEBIT' : 'ADMIN-CREDIT';
+        $requestId = $this->generateRequestId();
+        $reason = $request->type == 'debit' ? 'ADMIN-DEBIT' : 'ADMIN-CREDIT';
+
+        $reason = $reason. ' was successful';
+
         try {
             //code...
-            $data['type'] = $type;
-            $data['customer_id'] = $user->customer->id;
-            $data['transaction_id'] = $tid;
-            $data['request_id'] = $requestId;
-            $data['payment_method'] = 'wallet';
-            $data['balance_before'] = $currAmount;
-            $data['amount'] = $amount;
-            $data['total_amount'] = $amount;
-            $data['customer_email'] = $user->email;
-            $data['customer_phone'] = $user->phone;
-            $data['customer_name'] = $user->firstname;
-            $data['unique_element'] = 'wallet';
-            $data['discount'] = 0;
+            $data['mobile_number'] = $user->mobile;
+            $data['buyer_email'] = $user->email;
+            $data['buyer_username'] = $user->username;
             $data['unit_price'] = $amount;
-            $data['descr'] = $request->reason;
-            $data['reason'] = $reason;
-            $data['status'] = 'delivered';
-            $data['admin_id'] = auth()->user()->admin->id;
+            $data['buyer_amount'] = $amount;
+            $data['buyer_prebal'] = $currAmount;
+            $data['buyer_postbal'] = $balance_after;
+            $data['buyer_descr'] = $reason;
+            $data['buyer_status'] = 'SUCCESSFUL';
+            $data['buyer_service'] = 'ADMIN-' . strtoupper($request->type);
+            $data['charge_from'] = 'WALLET';
+            $data['user_type'] = $user->level;
+            $data['sys_ref'] = $requestId;
+            $data['api_ref'] = $requestId;
+            $data['api_report'] = 'DONE';
+            $data['buyer_quantity'] = 1;
+            $data['discount'] = 0;
+            $data['src_price'] = 0;
+            $data['channel'] = 'website';
+            $data['provider'] = null;
+            $data['billersCode'] = 'WALLET';
+            $data['profit'] = 0;
+            $currency = settings()->currency;
+            
+            $this->logTransaction($data);
 
-            $controller->logTransaction($data);
-
-            DB::transaction(function () use ($type, $amount, $tid, $user, $reason) {
-                $wallet = new WalletController();
-                $wallet->logWallet([
-                    'customer_id' => $user->customer->id,
-                    'type' => $type,
-                    'total_amount' => $amount,
-                    'reason' => $reason,
-                    'transaction_id' => $tid,
-                    'payment_method' => 'ADMIN-FUNDING',
-                ]);
-                $wallet->updateCustomerWallet($user, $amount, $type);
-            });
-            $sign = getSettings()->currency;
-            return back()->with('message', "Customer wallet has been {$type}ed with {$sign}" . number_format($amount));
+            return back()->with('message', "Customer wallet has been {$request->type}ed with {$currency}" . number_format($amount));
         } catch (\Exception $e) {
 
             return back()->with('error', 'An error occured' . $e->getMessage() . $e->getLine() . $e->getFile());

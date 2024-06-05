@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DateTime;
 use App\Models\Api;
 use App\Models\Product;
 use App\Models\Category;
@@ -846,6 +847,11 @@ class Controller extends BaseController
     
     }
 
+    public function generateRequestId(){
+        date_default_timezone_set("Africa/Lagos");
+        $trx = date("YmdHi") . rand(10000, 90000). 'SWFT';
+        return $trx;
+    }
     public function chargeUserWallet(){
 
     }
