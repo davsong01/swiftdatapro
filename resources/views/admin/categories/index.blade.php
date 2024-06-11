@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.bootstrap5.min.css">
 @endsection
-@section('title', 'Categories')
+@section('title', 'Customers')
 @section('breadcrumb')
 <li class="breadcrumb-item"><a href="{{route('category.index')}}">All Categories</a></li>
 @endsection

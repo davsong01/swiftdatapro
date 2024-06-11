@@ -8,20 +8,25 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * @return void
      */
     public function up(): void
     {
-        Schema::create('customer_reserve_accounts', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+        if (!Schema::hasColumn('users', 'product_access')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->json('product_access')->nullable();
+            });
+        }
     }
 
     /**
      * Reverse the migrations.
+     *
+     * @return void
      */
     public function down(): void
     {
-        Schema::dropIfExists('customer_reserve_accounts');
+        Schema::dropIfExists('users');
     }
 };

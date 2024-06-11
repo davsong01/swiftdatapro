@@ -73,7 +73,7 @@
                                 {{ $transaction->created_at }}
                             @if(!in_array($transaction->buyer_status, ['SUCCESSFUL']))
                             <br>
-                            <a href="{{ route('transaction.receipt.download', $transaction->id)}}" target="_blank" class="btn btn-info btn-sm" style="color:#fff;"><i class="fa fa-download"></i> Download Receipt</a> <br>
+                            <a href="{{ route('transaction.receipt.download', array_merge(request()->array, ['transaction_id' => $transaction->id]))}}" target="_blank" class="btn btn-info btn-sm" style="color:#fff;"><i class="fa fa-download"></i> Download Receipt</a> <br>
                             @endif
                         </div>
                         <div class="col-md-3">

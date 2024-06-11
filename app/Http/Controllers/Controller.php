@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use DateTime;
 use App\Models\Api;
+use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Settings;
@@ -25,6 +26,34 @@ class Controller extends BaseController
 
     public function populateData(){
         try {
+
+            // Update user id in final transaction table
+            $transactions = Transactions::all();
+            foreach($transactions as $transaction){
+                $user = User::where('email', $transaction->buyer_email)->first();
+                
+                if($user){
+                    $transaction->update([
+                        'user_id' => $user->id,
+                    ]);
+                }
+
+                if($transaction->buyer_prebal > $transaction->buyer_postbal){
+                    $transaction->update([
+                        'type' => 'debit',
+                    ]);
+                }else if($transaction->buyer_prebal < $transaction->buyer_postbal){
+                    $transaction->update([
+                        'type' => 'credit',
+                    ]);
+                }
+
+                if (empty($transaction->unit_price)) {
+                    $transaction->update([
+                        'unit_price' => $transaction->type == 'debit' ? $transaction->buyer_prebal - $transaction->buyer_postbal : $transaction->buyer_amount,
+                    ]);
+                }
+            }
             //code...
             $web_settings = DB::connection('old')->table('web_settings')->first();
             Api::truncate();

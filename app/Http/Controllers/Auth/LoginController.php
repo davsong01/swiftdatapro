@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use DateTime;
+use DateTimeZone;
 use App\Models\User;
 use App\Models\WebSetting;
 use Illuminate\Support\Str;
@@ -79,6 +81,12 @@ class LoginController extends Controller
         }else{
             Auth::login($user);
 
+            $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
+            $lastlogin = $dateTime->format("d-M-y  h:i A"); 
+            $user->update([
+                'last_login' => $lastlogin,
+            ]);
+            
             $body = 'Dear ' . auth()->user()->full_name . '<br>Your login to ' . config('app.php') . ' at '.Carbon::now().' was successful<br>';
             $body .= '<br><br>Warm Regards<br>' . config('app.name');
 

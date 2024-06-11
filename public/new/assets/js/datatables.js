@@ -12,6 +12,18 @@ $(function (e) {
     });
     // basic datatable
 
+     // basic datatable
+    $('#datatable-basic2').DataTable({
+        language: {
+            searchPlaceholder: 'Search...',
+            sSearch: '',
+        },
+        "pageLength": 10,
+        scrollX: true
+    });
+    // basic datatable
+
+
     // responsive datatable
     $('#responsiveDataTable').DataTable({
         responsive: true,

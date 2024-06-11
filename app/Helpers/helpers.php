@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Discount;
@@ -7,6 +8,26 @@ use App\Models\Variation;
 use App\Models\WebSetting;
 use App\Models\Notification;
 use App\Models\RolePermission;
+
+if (!function_exists("getDownlines")) {
+    function getDownlines($user)
+    {
+        $downlines = User::where('ref_by', $user->username)->orWhere('ref_code', $user->ref_code)->get();
+        return $downlines;
+
+    }
+}
+
+if (!function_exists("productAccess")) {
+    function productAccess($user)
+    {
+        return !empty($user->product_access) ? $user->product_access : [];
+    }
+}
+ // $downlines = ReferralEarning::where('customer_id', $customer)
+        //     ->latest()
+        //     ->groupBy('referred_customer_id')
+        //     ->get(['*', DB::raw('sum(amount) as total')]);
 
 if (!function_exists("specialVerifiableVariations")) {
     function specialVerifiableVariations()
@@ -18,6 +39,7 @@ if (!function_exists("specialVerifiableVariations")) {
         ];
     }
 }
+
 if (!function_exists("settings")) {
     function settings()
     {

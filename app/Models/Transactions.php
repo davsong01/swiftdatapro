@@ -15,7 +15,6 @@ class Transactions extends Model
 {
     use HasFactory;
     // public $timestamps = false;
-    protected $appends = ['type'];
     protected $table = 'final_transactions';
 
     protected $guarded = [];
@@ -42,11 +41,6 @@ class Transactions extends Model
     public function provider()
     {
         return $this->belongsTo(PaymentGateway::class, 'wallet_funding_provider');
-    }
-
-    public function getTypeAttribute()
-    {
-        return $this->wallet->type ?? 'new';
     }
 
     public function upgrade_level()

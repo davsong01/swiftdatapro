@@ -1,13 +1,16 @@
 <?php
 
+use App\Models\AutomatedDeposit;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\BlacklistController;
 use App\Http\Controllers\VariationController;
@@ -21,6 +24,7 @@ use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\PaymentGatewayController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\AutomatedDepositController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 
@@ -34,6 +38,8 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// Route::get('dump', [FrontendController::class, 'dumpData']);
 Route::get('populate', [Controller::class, 'populateData']);
 
 Route::get('/', [FrontendController::class, 'index'])->name('welcome');
@@ -80,7 +86,17 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::resource('notification', NotificationController::class);
         Route::resource('bank', BankController::class);
         Route::resource('blacklist', BlacklistController::class);
-    
+        Route::resource('accounts', AutomatedDepositController::class);
+        Route::resource('customers', CustomerController::class);
+        Route::resource('staff', StaffController::class);
+
+        Route::post('customer-update-account/{customer}', [CustomerController::class, 'updateCustomerAccount'])->name('account.update');
+        Route::post('customer-update-products/{customer}', [CustomerController::class, 'updateCustomerProducts'])->name('products.update');
+        Route::post('customer-other-actions', [CustomerController::class, 'updateCustomerOtherActions'])->name('customer.other.actions');
+        
+        Route::get('active-customers', [CustomerController::class, 'activeCustomers'])->name('customers.active');
+        Route::get('inactive-customers', [CustomerController::class, 'inactiveCustomers'])->name('customers.inactive');
+
         Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 
         Route::get('pull-old-variations/{product}', [VariationController::class, 'pullOldVariations'])->name('variations.old.pull');
@@ -108,13 +124,13 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::post('customer/level', [HomeController::class, 'upgradeLevel'])->name('customer.level');
     Route::get('/automated_pay', [HomeController::class, 'automatedTransfer'])->name('automated.pay');
     Route::get('/deposit_payment', [HomeController::class, 'depositPayment']);
-    Route::get('transactions/{type?}', [HomeController::class, 'transactions']);
-    Route::get('customer/transactions', [HomeController::class, 'customerTransactions']);
-    Route::get('reference/{reference?}', [HomeController::class, 'customerTransactions']);
+    Route::get('transactions/{type?}', [HomeController::class, 'transactions'])->name('customer.transactions');
+    Route::get('cashback_earn', [HomeController::class, 'cashbackEarned'])->name('customer.cashback');
+    // Route::get('customer/transactions', [HomeController::class, 'customerTransactions']);
+    // Route::get('reference/{reference?}', [HomeController::class, 'customerTransactions']);
     Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
     Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
     Route::get('ref_downlines', [HomeController::class, 'downlines']);
-    Route::get('cashback_earn', [HomeController::class, 'cashbackEarned']);
     Route::get('profile', [HomeController::class, 'profile']);
     Route::get('generate-api', [HomeController::class, 'generateApi'])->name('generate_api');
 
@@ -137,6 +153,9 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
     Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
     Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
+
+    Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
+
 });
 
 // Auth::routes(['verify' => true]);

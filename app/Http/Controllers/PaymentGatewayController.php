@@ -100,4 +100,112 @@ class PaymentGatewayController extends Controller
     {
         //
     }
+
+    public function createPayVesselReservedAccount($gateway, $data){
+        $api_key = $gateway->api_key;
+        $public_key = $gateway->public_key;
+        $secret_key = $gateway->secret_key;
+
+        $payload = json_encode([
+            "name" => auth()->user()->full_name,
+            "email" => auth()->user()->email,
+            "phoneNumber" => auth()->user()->mobile,
+            "bankcode" => ["101", "120001"],
+            "businessid" => $gateway->merchant_id
+        ]);
+
+        $headers = [
+            'api-key:' . $api_key,
+            'api-secret:' . 'Bearer ' . $secret_key,
+            'Content-Type:application/json'
+        ];
+
+        if (env('ENT') == 'local') {
+            $url = "https://api.payvessel.com/api/external/request/customerReservedAccount/";
+        } else {
+            $url = "https://api.payvessel.com/api/external/request/customerReservedAccount/";
+        }
+
+        $res = $this->advancedApiCall($url, $payload, $headers);
+        $res = json_decode($res, true);
+        $status = !empty($res['banks']) && $res['status'] == true ? 'success' : 'failed';
+        
+        if($status == 'success'){
+            return [
+                'status' => $status,
+                'response' => $res,
+                'accounts' => $res['banks'],
+                'payment_gateway_id' => $gateway->id
+            ];
+        }else{
+            \Log::info([
+                'Reserved account error' => [
+                    'status' => $status,
+                    'response' => $res,
+                    'payment_gateway_id' => $gateway->id
+                ]
+            ]);
+            return [
+                'status' => $status,
+                'response' => $res,
+                'payment_gateway_id' => $gateway->id
+            ];
+        }
+    }
+
+    public function createMonnifyReservedAccount($gateway, $data){
+        $monnify_hashkeys = $gateway->public_key . ':' . $gateway->secret_key;
+        $stringk = base64_encode($monnify_hashkeys);
+        $base_url = env('ENT') == 'local' ? $gateway->sandbox_base_url : $gateway->live_base_url;
+        
+        $url = $base_url.'v1/auth/login';
+        $headers = [
+            "Authorization: Basic " . $stringk . "",
+        ];
+
+        $response1 = $this->advancedApiCall($url, [], $headers);
+        
+        $result = json_decode($response1, true);
+
+        $accessToken = $result['responseBody']['accessToken'];
+        $data['contractCode'] = $gateway->contract_id;
+        
+        $headers2 = [
+            "Content-Type: application/json",
+            "Authorization:Bearer " . $accessToken,
+        ];
+
+        $url2 = $base_url.'v2/bank-transfer/reserved-accounts';
+
+        $response2 = $this->advancedApiCall($url2, json_encode($data), $headers2);
+        $res = json_decode($response2, true);
+
+        if ($res && $res['responseCode'] == 0 && $res['responseMessage'] == 'success'){
+            $status = 'success';
+        }else{
+            $status = 'failed';
+        }
+        
+        if ($status == 'success' && isset($res['responseBody']['accounts'])) {
+            return [
+                'status' => $status,
+                'response' => $res,
+                'accounts' => $res['responseBody']['accounts'],
+                'payment_gateway_id' => $gateway->id
+            ];
+        } else {
+            \Log::info([
+                'Reserved account error' => [
+                    'status' => $status,
+                    'response' => $res,
+                    'payment_gateway_id' => $gateway->id
+                ]
+            ]);
+            return [
+                'status' => $status,
+                'response' => $res,
+                'payment_gateway_id' => $gateway->id
+            ];
+        }
+    }
 }

@@ -41,7 +41,7 @@
       old_password: $("#old_password").val(),
     };
 
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajaxSetup({
     headers: {
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

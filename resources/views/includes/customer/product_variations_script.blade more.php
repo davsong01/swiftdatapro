@@ -247,7 +247,7 @@
                 success: function (data) {
                     if(data.discount > 0){
                         $('#discount').show();
-                        var amount = $('#discount').html(data.message);
+                        $('#discount').html(data.message);
                     }
                 }
             });

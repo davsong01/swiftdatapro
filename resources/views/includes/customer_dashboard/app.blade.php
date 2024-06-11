@@ -129,7 +129,7 @@
                 </a>
                 <ul>
                     <li><a href="{{url('/').'/automated_pay' }}">Automated Transfer</a></li>
-                    <li><a href="{{url('/').'/deposit_payment' }}">Deposit/Transfer</a></li>
+                    <li><a href="{{url('/').'/deposit_payment' }}">Manual Deposit/Transfer</a></li>
                 </ul>
             </li>
 
@@ -144,11 +144,11 @@
                     </div>
                 </a>
                 <ul>
-                    <li><a href="{{url('/').'/transactions' }}">All Transactions</a></li>
-                    <li><a href="{{url('/').'/transactions/success' }}">Success Transactions</a></li>
-                    <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
+                    <li><a href="{{route('customer.transactions') }}">All Transactions</a></li>
+                    <li><a href="{{route('customer.cashback')}}">My Earnings</a></li>
+                    {{-- <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
                     <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
-                    <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li>
+                    <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li> --}}
                 </ul>
             </li>
 
@@ -506,14 +506,13 @@
                 <span style="color: #940798;font-weight: bold;font-size: 25px;">{{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span>
 
             </div>
-
         </div>
-    </div>
         @yield('body')
     </div>
+        
    
 {{-- Footer --}}
-<div class="footer_part">
+<div class="">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">

@@ -18,20 +18,25 @@
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">
-                @if (in_array('Staff Roles', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('staff.index') }}" class="side-menu__item {{Route::is('staff.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">All Staff</span>
+                    </a>
+                </li>
+                {{-- @if (in_array('Staff Roles', allowedPermissions())) --}}
                 <li class="slide">
                     <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
                         <span class="side-menu__label">Staff Roles</span>
                     </a>
                 </li>
-                @endif
-                @if (in_array('Staff Permissions', allowedPermissions()))
+                {{-- @endif --}}
+                {{-- @if (in_array('Staff Permissions', allowedPermissions())) --}}
                 <li class="slide">
                     <a href="{{ route('permission.index') }}" class="side-menu__item {{Route::is('permission.index') ? 'active' : '' }}">
                         <span class="side-menu__label">Staff Permissions</span>
                     </a>
                 </li>
-                @endif
+                {{-- @endif --}}
             </ul>
         </li>
 
@@ -44,16 +49,21 @@
             <ul class="slide-menu child1">
                 {{-- @if (in_array('Staff Roles', allowedPermissions())) --}}
                 <li class="slide">
-                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
+                    <a href="{{ route('customers.index') }}" class="side-menu__item {{Route::is('customers.index') ? 'active' : '' }}">
                         <span class="side-menu__label">All Customers</span>
                     </a>
                 </li>
                 <li class="slide">
-                    <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
-                        <span class="side-menu__label">Active</span>
+                    <a href="{{ route('customers.active') }}" class="side-menu__item {{Route::is('customers.active') ? 'active' : '' }}">
+                        <span class="side-menu__label">Active Customers</span>
                     </a>
                 </li>
                 <li class="slide">
+                    <a href="{{ route('customers.inactive') }}" class="side-menu__item {{Route::is('customers.inactive') ? 'active' : '' }}">
+                        <span class="side-menu__label">In Active Customers</span>
+                    </a>
+                </li>
+                {{-- <li class="slide">
                     <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
                         <span class="side-menu__label">Suspended</span>
                     </a>
@@ -62,11 +72,16 @@
                     <a href="{{ route('role.index') }}" class="side-menu__item {{Route::is('role.index') ? 'active' : '' }}">
                         <span class="side-menu__label">Blacklisted</span>
                     </a>
-                </li>
+                </li> --}}
                 {{-- @if (in_array('customerlevel.index', allowedPermissions()) || in_array(1, auth()->guard('admin')->user()->admin->roleIds())) --}}
                 <li class="slide">
                     <a href="{{ route('customerlevel.index') }}" class="side-menu__item {{Route::is('customerlevel.*') ? 'active' : '' }}">
                         <span class="side-menu__label">Customer Levels</span>
+                    </a>
+                </li>
+                <li class="slide">
+                    <a href="{{ route('accounts.index') }}" class="side-menu__item {{Route::is('accounts.index') ? 'active' : '' }}">
+                        <span class="side-menu__label">Reserved Accounts</span>
                     </a>
                 </li>
                 {{-- @endif --}}

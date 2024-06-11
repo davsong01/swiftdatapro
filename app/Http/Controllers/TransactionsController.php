@@ -39,6 +39,12 @@ class TransactionsController extends Controller
         return response()->json(getProductDiscount($request->amount, $request->product_id,$request->quantity ?? 1));
     }
 
+    public function transactionStatus($transaction_id)
+    {
+        $transaction = Transactions::where('transaction_id', $transaction_id)->first();
+        return view('customer.transaction_status', compact('transaction'));
+    }
+
     public function verify(Request $request){   
         $request['product'] = Product::where('id', $request->product_id)->first();
         $request['variation'] = Variation::where('id', $request->variation_id)->where('product_id', $request->product_id)->first();
@@ -827,7 +833,8 @@ class TransactionsController extends Controller
 
     function creditCustomerPage()
     {
-        return view('admin.transactions.credit_customer');
+        $users = User::where('kyc_status', 1)->get();
+        return view('admin.transactions.credit_customer', compact('users'));
     }
 
     function processCreditDebit(Request $request)
@@ -879,9 +886,13 @@ class TransactionsController extends Controller
             $data['provider'] = null;
             $data['billersCode'] = 'WALLET';
             $data['profit'] = 0;
+            $data['user_id'] = $user->id;
+
             $currency = settings()->currency;
             
-            $this->logTransaction($data);
+            $transaction =$this->logTransaction($data);
+      
+            $this->updateWalletBalance($user, $amount, $request->type);
 
             return back()->with('message', "Customer wallet has been {$request->type}ed with {$currency}" . number_format($amount));
         } catch (\Exception $e) {
@@ -923,7 +934,7 @@ class TransactionsController extends Controller
             $transactions = $transactions->where('created_at', $time);
         }
 
-        $transactions = $transactions->paginate(15)->withQueryString();;
+        $transactions = $transactions->paginate(50)->withQueryString();;
 
         return view('admin.transactions.index', compact('transactions','products'));
     }
