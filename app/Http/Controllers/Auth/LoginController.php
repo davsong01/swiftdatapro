@@ -147,9 +147,8 @@ class LoginController extends Controller
     }
 
     public function changePassword(Request $request){
-       
        $user = DB::table('password_reset_tokens')->where('token', $request->token)->first();
-      
+        
        if(Auth::check()){
             Auth::logout();
        }

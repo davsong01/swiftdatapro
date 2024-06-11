@@ -16,12 +16,31 @@ class RoleSeeder extends Seeder
     {
         $menu = [
             'Dashboard',
-            'Web Settings',
-            'My Site ApiKeys',
-            'Blacklist Number',
-            'Order Number',
+            'Staff',
+            'All Staff',
             'Staff Roles',
             'Staff Permissions',
+            'Customers',
+            'All Customers',
+            'Active Customers',
+            'In Active Customers',
+            'Customer Levels',
+            'Reserved Accounts',
+            'Settings',
+            'Contact Settings',
+            'Blacklist Biller',
+            'Order Number',
+            'Manual Bank Details',
+            'Catalogues',
+            'API Providers',
+            'Payment Gateways',
+            'Categories',
+            'Products',
+            'Notifications',
+            'Finance',
+            'Transactions',
+            'Credit Customer',
+            'Debit Customer',
         ];
 
         $permissions = [
@@ -37,10 +56,99 @@ class RoleSeeder extends Seeder
             'permission.update',
             'permission.destroy',
             'permission.create',
-
             'settings.edit',
             'settings.update',
+
+            'admin.dashboard',
+
+
+            'api.index',
+            'api.show',
+            'api.edit',
+            'api.update',
+            'api.destroy',
+
+            'paymentgateway.index',
+            'paymentgateway.show',
+            'paymentgateway.edit',
+            'paymentgateway.update',
+            'paymentgateway.destroy',
+
+            'category.index',
+            'category.show',
+            'category.edit',
+            'category.update',
+            'category.destroy',
+
+            'product.index',
+            'product.show',
+            'product.edit',
+            'product.update',
+            'product.destroy',
+
+            'customerlevel.index',
+            'customerlevel.show',
+            'customerlevel.edit',
+            'customerlevel.update',
+            'customerlevel.destroy',
+
+            'notification.index',
+            'notification.show',
+            'notification.edit',
+            'notification.update',
+            'notification.destroy',
+
+            'bank.index',
+            'bank.show',
+            'bank.edit',
+            'bank.update',
+            'bank.destroy',
+
+            'blacklist.index',
+            'blacklist.show',
+            'blacklist.edit',
+            'blacklist.update',
+            'blacklist.destroy',
+
+            'accounts.index',
+            'accounts.show',
+            'accounts.edit',
+            'accounts.update',
+            'accounts.destroy',
+
+            'customers.index',
+            'customers.show',
+            'customers.edit',
+            'customers.update',
+            'customers.destroy',
+
+            'staff.index',
+            'staff.show',
+            'staff.edit',
+            'staff.update',
+            'staff.destroy',
             
+            'account.update',
+            'products.update',
+            'customer.other.actions',
+            
+            'customers.active',
+            'customers.inactive',
+
+            'duplicate.product',
+
+            'variations.old.pull',
+            'variations.pull',
+            'variations.update',
+            'manual.variations.add',
+            'variation.delete',
+
+            'admin.credit.customer',
+            'admin.debit.customer',
+            'admin.process.credit.debit',
+            'admin.transactions',
+            'admin.single.transaction.view',
+            'transaction.receipt.download', 
         ];
 
         // RolePermission::truncate();

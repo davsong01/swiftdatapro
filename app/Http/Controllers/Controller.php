@@ -12,6 +12,7 @@ use App\Models\WebSetting;
 use App\Mail\EmailMessages;
 use App\Models\Transactions;
 use App\Models\CustomerLevel;
+use App\Models\AutomatedDeposit;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Intervention\Image\Facades\Image;
@@ -810,8 +811,56 @@ class Controller extends BaseController
 
             dump('Products created');
 
-            // Copy transactions table
+            // Create user reserved accounts
+            $users = User::all();
+            foreach($users as $user){
+                if(!empty($user->reserved_account)){
+                    $res = !empty($user->reserved_account) ? json_decode($user->reserved_account, true) : [];
+                    if(!empty($res['responseBody']) && !empty($res['responseBody']['accounts'])){
+                        foreach ($res['responseBody']['accounts'] as $account) {
+                            AutomatedDeposit::create([
+                                'account_reference' => $accounts['response']['responseBody']['accountReference'] ?? null,
+                                'account_number' => $account['accountNumber'] ?? null,
+                                'account_name' => $account['accountName'] ?? null,
+                                'bank_name' => $account['bankName'] ?? null,
+                                'bank_code' => $account['bankCode'] ?? null,
+                                'payment_gateway_id' => 1,
+                                'status' => 'active',
+                                'bvn' => $user->bvn ?? null,
+                                'nin' => $user->nin ?? null,
+                                'raw_response' => $user->reserved_account,
+                                'user_id' => $user->id,
+                            ]);
+                        }
+                    }
+                }
 
+                if (!empty($user->payvessel_reserved_account)) {
+                    $res = !empty($user->payvessel_reserved_account) ? json_decode($user->payvessel_reserved_account, true) : [];
+                    
+                    if (!empty($res['banks'])) {
+                        foreach ($res['banks'] as $account) {
+                            AutomatedDeposit::create([
+                                'account_reference' => $account['trackingReference'] ?? null,
+                                'account_number' => $account['accountNumber'] ?? null,
+                                'account_name' => $account['accountName'] ?? null,
+                                'bank_name' => $account['bankName'] ?? null,
+                                'bank_code' => $account['bankCode'] ?? null,
+                                'payment_gateway_id' => 2,
+                                'status' => 'active',
+                                'bvn' => $user->bvn ?? null,
+                                'nin' => $user->nin ?? null,
+                                'raw_response' => $user->payvessel_reserved_account,
+                                'user_id' => $user->id,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            dump('Reserved accounts created');
+
+            \DB::commit();
         } catch (\Throwable $th) {
             dump($th->getMessage());
         }

@@ -41,7 +41,7 @@ class StaffController extends Controller
         if (!empty($request->rolepermissions)) {
             $data['rolepermissions'] = implode(",", $request->rolepermissions);
         }
-
+        
         Admin::create([
             "full_name" => $data['full_name'],
             "username" => $data['username'],

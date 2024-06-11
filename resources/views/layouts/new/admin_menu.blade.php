@@ -1,5 +1,5 @@
 <nav class="main-menu-container nav nav-pills flex-column sub-open">
-    
+   
     <ul class="main-menu">
         <!-- Start::slide -->
         @if (in_array('Dashboard', allowedPermissions()))
@@ -97,7 +97,7 @@
             </a>
             <ul class="slide-menu child1">
                 <li class="slide">
-                    <a href="{{ route('settings.edit') }}" class="side-menu__item {{Route::is('settings.index') ? 'active' : '' }}" >Contact Settings</a>
+                    <a href="{{ route('settings.edit') }}" class="side-menu__item {{Route::is('settings.index') ? 'active' : '' }}">Contact Settings</a>
                 </li>
                 
                 <li class="slide">
@@ -120,7 +120,7 @@
             </a>
             <ul class="slide-menu child1">
                 <li class="slide">
-                    <a href="{{ route('api.index') }}" class="side-menu__item {{Route::is('api.*') ? 'active' : '' }}"  >API Providers</a>
+                    <a href="{{ route('api.index') }}" class="side-menu__item {{Route::is('api.*') ? 'active' : '' }}">API Providers</a>
                 </li>
                 <li class="slide">
                     <a href="{{ route('paymentgateway.index') }}" class="side-menu__item {{Route::is('paymentgateway.*') ? 'active' : '' }}">Payment Gateways</a>
