@@ -16,7 +16,7 @@ class Admin extends Authenticatable
     protected $appends = ['permissions'];
 
     protected $fillable = [
-        'name', 'username', 'email', 'pass','type','username','password', 'status','username', 'rolepermissions' // Update the column name
+        'full_name','name', 'username', 'email', 'pass','type','username','password', 'status','username', 'rolepermissions' // Update the column name
     ];
 
     protected $hidden = [
@@ -58,8 +58,5 @@ class Admin extends Authenticatable
         }
         
         return $routes;
-        
     }
-    
-
 }

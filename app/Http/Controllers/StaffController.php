@@ -35,7 +35,7 @@ class StaffController extends Controller
         $permissions = implode(",", $request->rolepermissions);
 
         if(!empty($request->password)){
-            $data['password'] = Hash::make($request->password);
+            $data['pass'] = Hash::make($request->password);
         }
 
         if (!empty($request->rolepermissions)) {
@@ -47,12 +47,62 @@ class StaffController extends Controller
             "username" => $data['username'],
             "email" => $data['email'],
             "status" => $data['status'],
-            "password" => $data['password'],
-            "rolepermission" => $data['rolepermissions']
+            "pass" => $data['pass'],
+            "rolepermissions" => $data['rolepermissions'],
         ]);
 
         return redirect(route('staff.index'))->with('message', 'Staff added succesfully');
     }
 
+    public function edit($id)
+    {
+        $staff = Admin::where('id', $id)->first();
+        $roles = Role::orderBy('created_at', 'DESC')->get();
+
+        return view('admin.admins.edit', compact('staff', 'roles'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $staff = Admin::where('id', $id)->first();
+
+        $data = $this->validate($request, [
+            'full_name' => 'required',
+            'username' => 'required',
+            'email' => 'required',
+            'status' => 'required',
+            'password' => 'nullable',
+            'rolepermissions' => 'required',
+        ]);
+
+        $permissions = implode(",", $request->rolepermissions);
+
+        if (!empty($request->password)) {
+            $data['pass'] = Hash::make($request->password);
+        }
+
+        if (!empty($request->rolepermissions)) {
+            $data['rolepermissions'] = implode(",", $request->rolepermissions);
+        }
+
+        $staff->update([
+            "full_name" => $data['full_name'],
+            "username" => $data['username'],
+            "email" => $data['email'],
+            "status" => $data['status'],
+            "pass" => $data['pass'] ?? $staff->pass,
+            "rolepermissions" => $data['rolepermissions'],
+        ]);
+
+        return redirect(route('staff.index'))->with('message', 'Staff updated succesfully');
+    }
+
+    public function destroy($id)
+    {
+        $staff = Admin::where('id', $id)->first();
+        $staff->delete();
+        
+        return back()->with('message', 'Deleted successfully');
+    }
 
 }
