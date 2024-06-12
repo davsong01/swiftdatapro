@@ -80,5 +80,5 @@
 
 <!-- Internal Datatables JS -->
 <script src="{{asset('new/assets/js/datatables.js')}}"></script>
-    
+
 @endsection

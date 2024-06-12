@@ -38,20 +38,6 @@
 
     </div>
 </div>
-{{-- <div class="col-xl-12">
-  <div class="alert" id="temp" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;">
-
-        <div id="response" style="text-align: left;">
-        <span>Commission Balance 
-            <span><button class="btn btn-success" style="font-size:10px;display:none" id="withdrawButton">Withdraw to wallet</button></span>
-        </span>
-        <br/>
-
-        <span style="color: #940798;font-weight: bold;font-size: 25px;">₦{{ number_format(auth()->user()->cashback, 2) }}</span>
-        </div>
-                  
-  </div>
-</div> --}}
 <div class="col-xl-12">
     <div class="white_card card_height_100 mb_30 sales_card_wrapper">
         <div class="white_card_header d-flex justify-content-end">
@@ -60,36 +46,47 @@
 
 
         <div class="alert" style="background-color: #fff;">
-            <form action="">
+            <form action="{{ route('customer.profile.update') }}" method="POST">
+                @csrf
+                
+                <label class="label-title">First Name</label> 
                 <div class="input-group mb-3">
-                    <div class="input-group-text">
-                        <span class="" id="basic-addon1"><i class="fa fa-user" style="font-size: 25px;"></i></span>
-                    </div>
-                    <input type="text" class="form-control" value="{{ auth()->user()->full_name }}" aria-describedby="basic-addon1">
+                    <input type="text" class="form-control" name="full_name" value="{{ auth()->user()->full_name }}">
                 </div>
 
+                <label class="label-title">Middle Name</label> 
                 <div class="input-group mb-3">
-                    <div class="input-group-text">
-                        <span class="" id="basic-addon1"><i class="fa fa-phone" style="font-size: 25px;"></i></span>
-                    </div>
-                    <input type="text" class="form-control" value="{{ auth()->user()->mobile ?? old('phone') }}" aria-describedby="basic-addon1">
+                    <input type="text" class="form-control" name="middle_name" value="{{ auth()->user()->middle_name ?? old('middle_name') }}">
                 </div>
 
+                <label class="label-title">Last Name</label> 
                 <div class="input-group mb-3">
-                    <div class="input-group-text">
-                        <span class="" id="basic-addon1"><i class="fa fa-envelope" style="font-size: 25px;"></i></span>
-                    </div>
-                    <input type="text" class="form-control" value="{{ auth()->user()->email ?? old('email') }}" aria-describedby="basic-addon1">
+                    <input type="text" class="form-control" name="last_name" value="{{ auth()->user()->last_name ?? old('last_name') }}">
+                </div>
+                <label class="label-title">Phone Number</label> 
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" disabled name="mobile" value="{{ auth()->user()->mobile ?? old('mobile') }}">
                 </div>
 
+                <label class="label-title">Email</label> 
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" value="{{ auth()->user()->email }}" readonly>
+                </div>
+
+                <label class="label-title">Gender</label> 
+                <div class="input-group mb-3">
+                    <select name="gender"  class="form-control" id="gender" name="gender">
+                        <option value="male" {{ auth()->user()->gender == 'male' ? 'selected' : ''}}>Male</option>
+                        <option value="female" {{ auth()->user()->gender == 'female' ? 'selected' : ''}}>Female</option>
+                    </select>
+                </div>
                 <button class="btn btn-primary" style="width: 100%">UPDATE PROFILE</button>
-
             </form>
             <hr>
 
-            <input type="checkbox" name=""> I want to deactivate my account.
+            {{-- <input type="checkbox" name=""> I want to deactivate my account.
             <br>
-            <button class="btn btn-danger">Deactivate</button>
+            <button class="btn btn-danger">Deactivate</button> --}}
         </div>
 
     </div>

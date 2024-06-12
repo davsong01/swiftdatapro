@@ -169,6 +169,7 @@ class TransactionsController extends Controller
             'buyer_prebal' => $balance,
             'buyer_postbal' => $balance - $request['total_amount'],
             'buyer_descr' => '',
+            'type' => 'debit',
             'buyer_status' => 'INITIATED',
             'buyer_service' => $resource->slug,
             // 'buyer_date' => $time,
@@ -887,6 +888,7 @@ class TransactionsController extends Controller
             $data['provider'] = null;
             $data['billersCode'] = 'WALLET';
             $data['profit'] = 0;
+            $data['type'] = strtolower($request->type);
             $data['user_id'] = $user->id;
 
             $currency = settings()->currency;

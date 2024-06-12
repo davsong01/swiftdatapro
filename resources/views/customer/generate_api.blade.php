@@ -33,10 +33,7 @@
 
 
 					<div class="alert" style="background-color: #fff; border-radius: 20px 20px 0px 0px;">
-
 						<!-- start -->
-
-
 						<div>
 							<p>
 								API-TOKEN<br />

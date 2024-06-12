@@ -925,9 +925,13 @@ class Controller extends BaseController
     
     }
 
-    public function generateRequestId(){
-        date_default_timezone_set("Africa/Lagos");
-        $trx = date("YmdHi") . rand(10000, 90000). 'SWFT';
+    public function generateRequestId($suffix=null){        
+        if(!empty($suffix)){
+            $trx = date("YmdHi") . rand(10000, 90000). '-'.$suffix;
+        }else{
+            $trx = date("YmdHi") . rand(10000, 90000) . '-SWFT';
+        }
+
         return $trx;
     }
     public function chargeUserWallet(){

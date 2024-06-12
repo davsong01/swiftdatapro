@@ -292,7 +292,6 @@ if (!function_exists("hasAccess")) {
         function referralBalance($user)
         {
             return $user->cashback;
-
         }
     }
 }

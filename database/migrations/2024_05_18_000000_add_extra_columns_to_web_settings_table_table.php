@@ -31,6 +31,12 @@ return new class extends Migration
             });
         }
 
+        if (!Schema::hasColumn('web_settings', 'kyc_settings')) {
+            Schema::table('web_settings', function (Blueprint $table) {
+                $table->longText('kyc_settings');
+            });
+        }
+
 
         // if (!Schema::hasColumn('web_settings', 'favicon')) {
         //     Schema::table('web_settings', function (Blueprint $table) {

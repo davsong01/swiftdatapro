@@ -42,15 +42,10 @@
 
 <div class="col-xl-12">
     <div class="alert" style="background-color: transparent;">
-        <center>
-            {{-- <span class="btn" style="font-size:12px;background-color:#940798;color:#fff" onclick="SalesAna()">Sales --}}
-                {{-- Summary</span> --}}
-            <span class="btn" style="font-size:12px;background-color:#940798;color:#fff"
-                onclick="Transact()">All Transactions</span>
-        </center>
+        <span class="btn" style="font-size:12px;background-color:#940798;color:#fff" onclick="Transact()">All Transactions</span>
+        <span class="btn" style="font-size:12px;background-color:blue;color:#fff" onclick="Earnings()">Earnings</span>
     </div>
 </div>
-
 
 <!-- Option-section -->
 <center>
@@ -117,22 +112,19 @@
                         </a>
                     </div>
                 </div>
-                <div class="col pb-15"
-                    style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
+                
+                @if(referralBalance(auth()->user()) > 1)
+                <div class="col pb-15" style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/withdraw">
-                            <div class="option-card-icon">
-
-                                <i class="fa fa-download" style="font-size: 25px;margin: 5px;color: #940798"></i>
-                            </div>
-                            <p style="font-weight:bold;font-size:10px;">Withdraw</p>
-                        </a>
+                        <div class="option-card-icon">
+                            <i class="fa fa-download" style="font-size: 25px;margin: 5px;color: #940798"></i>
+                        </div>
+                        <p id="withdraw" style="font-weight:bold;font-size:10px;">Withdraw commission</p>
                     </div>
                 </div>
+                @endif
             </div>
-
             <br />
-
             <div class="row gx-3">
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
@@ -180,27 +172,29 @@
         <div id="response"></div>
         <label style="color: red;">Refer a friend and earn extra cash on
             {{ config('app.name') }}</label>
-        <p>Get 50% bonus immediately a user you referred upgrade to level 2 or 3.</p>
+        <p>Get 50% bonus immediately a user you referred upgrades level.</p>
         <p class="text-dark" style="font-weight: bold;">Referral Link
             <span>{{ url('/') }}/regsiter?referral={{ auth()->user()->ref_code }}</span> <i
                 class="fa fa-copy" style="font-size: 13px;cursor: pointer;" onclick="copyFunction()">Copy</i> <span
                 id="refres"></span>
         </p>
-        @if (!empty($customer_levels))
-        <select class="form-control" id="level">
-        <option value="">--Choose--</option>
-            @foreach ($customer_levels as $level)
-            <option value="{{ $level->id }}">Upgrade To {{ $level->name }} =>{{ settings()->currency.number_format($level->upgrade_amount) }}</option>
-            @endforeach
-        </select>
+        
+        @if ($customer_levels->count() > 0) <br>
+            <label style="color: blue;">Upgrade Customer level</label>
+            <select class="form-control" id="level">
+            <option value="">--Select Level--</option>
+                @foreach ($customer_levels as $level)
+                <option value="{{ $level->id }}">Upgrade To {{ $level->name }} =>{{ settings()->currency.number_format($level->upgrade_amount) }}</option>
+                @endforeach
+            </select>
+            <br />
+            <button class="btn btn-success btn-block" style="width: 50%" id="upgrade">UPGRADE</button>
         @endif
 
-        <br />
-        <button class="btn btn-success btn-block" style="width: 100%" id="upgrade">UPGRADE</button>
     </div>
 
 </div>
- <input type="text" id="myCode" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}"
+<input type="text" id="myCode" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}"
     style="background-color: transparent; color: transparent; height: 0px;border: none;">
 
 @endsection
@@ -219,6 +213,11 @@
     function Transact() {
         $.LoadingOverlay("show");
         window.location.href = "transactions";
+    }
+
+    function Earnings() {
+        $.LoadingOverlay("show");
+        window.location.href = "cashback_earn";
     }
 </script>
 
@@ -301,6 +300,35 @@
             },
            
             
+        });
+
+        setTimeout(function () {
+            window.location.reload();
+        }, 2000);
+    })
+
+    $("#withdraw").click(function () {
+        // $.LoadingOverlay("show");
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            url: "{{ route('customer.withdraw.cashback') }}",
+            method: "GET",
+            dataType: "Json",
+            success: function (response) {
+                $.LoadingOverlay("hide");
+                if (response.status == 'success') {
+                    $("#message").val("");
+                    $("#successModal").modal("show");
+                    $("#successModal .modal-body").html(response.message);
+                } else {
+                    $("#errorModal").modal("show");
+                    $("#errorModal .modal-body").html(response.message);
+                }
+            },
         });
 
         setTimeout(function () {

@@ -88,6 +88,18 @@
                         </select>
                     </div>
                     <div class="col-md-6">
+                        {{-- {{dd($kyc_settings['status'])}} --}}
+                        <label for="kyc_settings" class="form-label">Enable KYC Check <small>(Customers will not be able to use the system except they complete KYC)</small><span
+                        class="text-danger">*</span></label>
+                        
+                        <select class="form-control" name="kyc_settings[status]" id="kyc_settings" required>
+                            <option value="" selected>Select</option>
+                            <option value="yes" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
                         <label for="seo_title" class="form-label">SEO Description<span
                         class="text-danger">*</span></label>
                         <textarea name="seo_description" class="form-control" id="" cols="30" rows="10" value="{{ $contact->seo_description ?? old('seo_description') }}">

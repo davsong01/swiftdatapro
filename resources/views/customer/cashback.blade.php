@@ -18,16 +18,19 @@
 @endsection
 @section('body')
 <div class="col-xl-12">
-  <div class="alert" id="temp" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;">
-        <div id="response" style="text-align: left;">
-        <span>Commission Balance 
-            <span><button class="btn btn-success" style="font-size:10px;display:none" id="withdrawButton">Withdraw to wallet</button></span>
-        </span>
-        <br/>
-
-        <span style="color: #940798;font-weight: bold;font-size: 25px;">₦{{ number_format(auth()->user()->cashback, 2) }}</span>
+    <div class="alert" id="temp" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;">
+            <div id="response" style="text-align: left;">
+            <span>Commission Balance 
+            </span>
+            <br/>
+                
+            <span style="color: #940798;font-weight: bold;font-size: 25px;">₦{{ number_format(auth()->user()->cashback, 2) }}</span> <br>
+            
+            @if(referralBalance(auth()->user()) > 1)
+                <p id="withdraw"><button onclick="return confirm('You are about to withdraw commissions?')" class="btn btn-success" style="font-size:10px;" id="withdrawButton">Withdraw commission to wallet</button></p>
+            @endif
         </div>       
-  </div>
+    </div>
 </div>
 <div class="row">
     <div class="col-xl-12">
@@ -40,8 +43,8 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <fieldset class="form-group">
-                                        <label for="transaction_id">Transaction ID</label>
-                                        <input type="text" class="form-control" id="transaction_id" name="transaction_id" placeholder="Enter transaction ID" value="{{ \Request::get('transaction_id')}}">
+                                        <label for="sys_reference">Transaction ID</label>
+                                        <input type="text" class="form-control" id="sys_reference" name="sys_reference" placeholder="Enter transaction ID" value="{{ \Request::get('sys_reference')}}">
                                     </fieldset>
                                 </div>
                                 <div class="col-md-2">
@@ -93,7 +96,7 @@
                                     
                                     <span class="title">Transaction Id</span>:
                                     <small>
-                                        {{ $transaction->transaction_id }}</strong>
+                                        {{ $transaction->sys_reference }}</strong>
                                     </small> <br>
                                     <span class="title">Initiated by</span>:
                                     <small>
@@ -125,5 +128,36 @@
         
     </div>
 </div>
+@endsection
+@section('scripts')
+<script>
+    $("#withdraw").click(function () {
+        $.LoadingOverlay("show");
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            url: "{{ route('customer.withdraw.cashback') }}",
+            method: "GET",
+            dataType: "Json",
+            success: function (response) {
+                $.LoadingOverlay("hide");
+                if (response.status == 'success') {
+                    $("#message").val("");
+                    $("#successModal").modal("show");
+                    $("#successModal .modal-body").html(response.message);
+                } else {
+                    $("#errorModal").modal("show");
+                    $("#errorModal .modal-body").html(response.message);
+                }
+            },
+        });
 
+        setTimeout(function () {
+            window.location.reload();
+        }, 2000);
+    })
+</script>
 @endsection

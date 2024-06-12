@@ -122,22 +122,22 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
 Auth::routes();
 Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
-    // Route::get('/home', [HomeController::class, 'dashboard'])->name('dashboard');
     Route::post('customer/review', [HomeController::class, 'customerReview'])->name('customer.review');
     Route::post('customer/level', [HomeController::class, 'upgradeLevel'])->name('customer.level');
     Route::get('/automated_pay', [HomeController::class, 'automatedTransfer'])->name('automated.pay');
     Route::get('/deposit_payment', [HomeController::class, 'depositPayment']);
     Route::get('transactions/{type?}', [HomeController::class, 'transactions'])->name('customer.transactions');
     Route::get('cashback_earn', [HomeController::class, 'cashbackEarned'])->name('customer.cashback');
-    // Route::get('customer/transactions', [HomeController::class, 'customerTransactions']);
-    // Route::get('reference/{reference?}', [HomeController::class, 'customerTransactions']);
+    Route::get('withdraw-cashback', [HomeController::class, 'withdrawCashbackEarned'])->name('customer.withdraw.cashback');
     Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
     Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
     Route::get('ref_downlines', [HomeController::class, 'downlines']);
-    Route::get('profile', [HomeController::class, 'profile']);
+    Route::get('profile', [HomeController::class, 'profile'])->name('customer.profile');
+    Route::post('profile', [HomeController::class, 'updateProfile'])->name('customer.profile.update');
     Route::get('generate-api', [HomeController::class, 'generateApi'])->name('generate_api');
+    Route::get('kyc-update', [HomeController::class, 'kycForm'])->name('kyc.form');
+    Route::post('kyc-update', [HomeController::class, 'generateApi'])->name('kyc.update');
 
-    
     Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
     Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
 

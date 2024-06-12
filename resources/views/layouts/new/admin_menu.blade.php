@@ -149,7 +149,7 @@
             <ul class="slide-menu child1">
                 @if (in_array('settings.edit', allowedPermissions()))
                 <li class="slide">
-                    <a href="{{ route('settings.edit') }}" class="side-menu__item {{Route::is('settings.edit') ? 'active' : '' }}">Contact Settings</a>
+                    <a href="{{ route('settings.edit') }}" class="side-menu__item {{Route::is('settings.edit') ? 'active' : '' }}">General Settings</a>
                 </li>
                 @endif
                 @if (in_array('blacklist.index', allowedPermissions()))
@@ -165,6 +165,11 @@
                 @if (in_array('bank.index', allowedPermissions()))
                 <li class="slide">
                     <a href="{{ route('bank.index') }}" class="side-menu__item {{Route::is('bank.index') ? 'active' : '' }}">Manual Bank Details</a>
+                </li>
+                @endif
+                @if (in_array('kyc.admin.settings', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('kyc.admin.settings') }}" class="side-menu__item {{Route::is('kyc.admin.settings') ? 'active' : '' }}">Kyc Settings</a>
                 </li>
                 @endif
             </ul>
