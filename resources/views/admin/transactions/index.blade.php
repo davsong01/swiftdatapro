@@ -102,7 +102,7 @@
                         @foreach($transactions as $transaction)
                         <tr>
                             <td>
-                                <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br><br>
+                                <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
                                 <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> <br>
                                 {{ $transaction->buyer_email }} <br>
                                 <a href="">{{ $transaction->customer?->id  }}</a> <br>

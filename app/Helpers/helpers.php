@@ -7,7 +7,22 @@ use App\Models\Discount;
 use App\Models\Variation;
 use App\Models\WebSetting;
 use App\Models\Notification;
+use App\Models\Transactions;
 use App\Models\RolePermission;
+
+if (!function_exists("topProduct")) {
+    function topProduct()
+    {
+        $transaction = Transactions::with('product')->whereNotNull('product_id')
+        ->whereIn('buyer_status', ['COMPLETED', 'SUCCESSFUL'])
+        ->addSelect(DB::raw('SUM(buyer_amount) as buyer_amount, COUNT(id) as count,product_id'))
+        ->groupBy('product_id')
+        // ->whereBetween('created_at', [$firstdayofmonth, Carbon::now()])
+            // ->orderBy('id', 'DESC')
+            ->first();
+        return $transaction;
+    }
+}
 
 if (!function_exists("getDownlines")) {
     function getDownlines($user)
@@ -220,16 +235,15 @@ if (!function_exists("activeCategories")) {
 if (!function_exists("allowedPermissions")) {
     function allowedPermissions($user=null)
     {
-        if(empty($user)){
-            $ids = auth()->guard('admin')->user()->roleids;
-            
-            if(in_array(1, $ids)){
-                return RolePermission::where('status', 'active')->pluck('id')->toArray();
-            }
-
-            return auth()->guard('admin')->user()->permissions;
+        $user = !empty($user) ? $user : auth()->guard('admin')->user();
+        $permissions = $user->permissions;
+        $roles = $user->roleids;
+        
+        if (in_array(1, $roles)) {
+            $permissions = RolePermission::pluck('route')->toArray();
+            return $permissions;
         }else{
-            return $user->permissions;
+            return $permissions;
         }
     }
 }

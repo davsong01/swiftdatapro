@@ -107,7 +107,7 @@
         </div>
         <ul id="sidebar_menu">
             <li>
-                <a href="{{url('/').'/dashboard' }}" aria-expanded="false">
+                <a href="{{ route('dashboard') }}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-home"></i>
                     </div>
@@ -130,40 +130,6 @@
                 <ul>
                     <li><a href="{{url('/').'/automated_pay' }}">Automated Transfer</a></li>
                     <li><a href="{{url('/').'/deposit_payment' }}">Manual Deposit/Transfer</a></li>
-                </ul>
-            </li>
-
-
-            <li class="">
-                <a class="has-arrow" href="#" aria-expanded="false">
-                    <div class="nav_icon_small">
-                        <i class="fa-solid fa-shopping-cart"></i>
-                    </div>
-                    <div class="nav_title">
-                        <span>Transactions</span>
-                    </div>
-                </a>
-                <ul>
-                    <li><a href="{{route('customer.transactions') }}">All Transactions</a></li>
-                    <li><a href="{{route('customer.cashback')}}">My Earnings</a></li>
-                    {{-- <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
-                    <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
-                    <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li> --}}
-                </ul>
-            </li>
-
-            <li class="">
-                <a class="has-arrow" href="#" aria-expanded="false">
-                    <div class="nav_icon_small">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="nav_title">
-                        <span>My Referrals</span>
-                    </div>
-                </a>
-                <ul>
-                    <li><a href="{{url('/').'/ref_downlines' }}">My Downlines</a></li>
-                    <li><a href="{{url('/').'/cashback_earn' }}">Cashback Earn.</a></li>
                 </ul>
             </li>
             <li>
@@ -243,7 +209,38 @@
                     </div>
                 </a>
             </li>
+            <li class="">
+                <a class="has-arrow" href="#" aria-expanded="false">
+                    <div class="nav_icon_small">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                    </div>
+                    <div class="nav_title">
+                        <span>My Transactions</span>
+                    </div>
+                </a>
+                <ul>
+                    <li><a href="{{route('customer.transactions') }}">All Transactions</a></li>
+                    <li><a href="{{route('customer.cashback')}}">My Earnings</a></li>
+                    {{-- <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
+                    <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
+                    <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li> --}}
+                </ul>
+            </li>
 
+            <li class="">
+                <a class="has-arrow" href="#" aria-expanded="false">
+                    <div class="nav_icon_small">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="nav_title">
+                        <span>My Referrals</span>
+                    </div>
+                </a>
+                <ul>
+                    <li><a href="{{url('/').'/ref_downlines' }}">My Downlines</a></li>
+                    <li><a href="{{url('/').'/cashback_earn' }}">Cashback Earn.</a></li>
+                </ul>
+            </li>
             <li class="">
                 <a class="has-arrow" href="#" aria-expanded="false">
                     <div class="nav_icon_small">

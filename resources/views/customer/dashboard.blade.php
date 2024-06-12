@@ -43,10 +43,10 @@
 <div class="col-xl-12">
     <div class="alert" style="background-color: transparent;">
         <center>
-            <span class="btn" style="font-size:12px;background-color:#940798;color:#fff" onclick="SalesAna()">Sales
-                Summary</span>
+            {{-- <span class="btn" style="font-size:12px;background-color:#940798;color:#fff" onclick="SalesAna()">Sales --}}
+                {{-- Summary</span> --}}
             <span class="btn" style="font-size:12px;background-color:#940798;color:#fff"
-                onclick="Transact()">Transactions</span>
+                onclick="Transact()">All Transactions</span>
         </center>
     </div>
 </div>

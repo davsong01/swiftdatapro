@@ -49,7 +49,8 @@ class RoleSeeder extends Seeder
             'role.edit',
             'role.update',
             'role.destroy',
-
+            'admin.profile',
+            'admin.profile.update',
             'permission.show',
             'permission.index',
             'permission.edit',

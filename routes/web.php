@@ -9,6 +9,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\FrontendController;
@@ -70,9 +71,9 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
     Route::get('/', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin-login', [AdminAuthController::class, 'login'])->name('admin.login.process');
     Route::post('/admin-logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+    Route::get('/admin-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
 
     Route::middleware(['auth.admin', 'adminRoute'])->group(function () {
-        Route::get('/admin-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
         Route::get('settings-update', [WebSettingController::class, 'edit'])->name('settings.edit');
         Route::post('settings-update', [WebSettingController::class, 'update'])->name('settings.update');
 
@@ -111,6 +112,8 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::get('admin-transactions', [TransactionsController::class, 'adminTransactions'])->name('admin.transactions');
         Route::get('single-transaction-view/{transaction}', [TransactionsController::class, 'singleTransactionView'])->name('admin.single.transaction.view');
         Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
+        Route::get('profile', [ProfileController::class, 'showProfilePage'])->name('admin.profile');
+        Route::get('post', [ProfileController::class, 'updateProfilePage'])->name('admin.profile.update');
 
     });
     

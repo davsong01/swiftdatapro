@@ -44,7 +44,7 @@ class User extends Authenticatable
     ];
 
     public function customer_level(){
-        return $this->belongsTo(CustomerLevel::class, 'level');
+        return $this->belongsTo(CustomerLevel::class, 'level', 'id');
     }
 
     public function filter_accounts($payment_gateway_id)

@@ -22,10 +22,11 @@ use App\Http\Controllers\TransactionController;
 class TransactionsController extends Controller
 {
     public function initialize($service){
-        // $productAccess = $this->getProductAccess();
+        $productAccess = productAccess(auth()->user());
+        
         $category = Category::with([
-            'products' => function ($query) {
-                return $query->where('status', 'active')->get();
+            'products' => function ($query) use ($productAccess)  {
+                return $query->where('status', 'active')->whereIn('id', $productAccess)->get();
             }
         ])->where('status', 'active')->where('slug', $service)->first();
         if(!$category){
@@ -998,6 +999,17 @@ class TransactionsController extends Controller
                 'status_code' => '100',
                 'message' => 'Basic Authorization Failed! Unable to fetch user record',
             );
+        }
+
+        // Product access 
+        $productAccess = productAccess(auth()->user());
+        
+        if(!in_array($product->id, $productAccess)){
+            $response = [
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Product not enable for customer, please contact support',
+            ];
         }
         
         if ($request->security_pin !== $user->transaction_pin) {

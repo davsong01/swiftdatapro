@@ -18,14 +18,12 @@ class RouteProtectionMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $curRouteName = Route::currentRouteName();
-        $ids = auth()->guard('admin')->user()->roleids;
-        $routes = allowedPermissions(auth()->guard('admin')->user());
-        // dd($routes);
-        // dd($routes, $curRouteName);
-        if (in_array($curRouteName, $routes) || in_array(1, $ids)) {
+        $allowed = allowedPermissions();
+
+        if (in_array($curRouteName, $allowed)) {
             return $next($request);
         } else {
-            return back()->with('error', 'You cannot access this resource');
+            return redirect(route('admin.dashboard'))->with('error', 'You cannot access this resource');
         }
 
         return $next($request);
