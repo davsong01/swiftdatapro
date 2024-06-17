@@ -17,6 +17,7 @@ use App\Http\Controllers\BlacklistController;
 use App\Http\Controllers\VariationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\WebSettingController;
+use App\Http\Controllers\Airtime2CashController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -83,6 +84,8 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::resource('paymentgateway', PaymentGatewayController::class);
         Route::resource('category', CategoryController::class);
         Route::resource('product', ProductController::class);
+        Route::resource('airtime2cash', Airtime2CashController::class);
+
         Route::resource('customerlevel', CustomerLevelController::class);
         Route::resource('notification', NotificationController::class);
         Route::resource('bank', BankController::class);
@@ -151,11 +154,15 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     // Transactions
     Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
     Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
+
+    Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
+    
     Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
     Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
     Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
     Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
     Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
+    Route::post('customer-get-charges', [TransactionsController::class, 'getCustomerCharges'])->name('get.customer.charges');
 
     Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
 

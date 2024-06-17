@@ -1,6 +1,9 @@
 @extends('layouts.new.app')
 @section('content')
 <div class="row">
+    <div class="card-header" style="margin-bottom:20px">
+        @include('includes.alerts')
+    </div>
     <div class="col-md-12 col-xl-12">
         <div class="row">
             <div class="col-md-4">

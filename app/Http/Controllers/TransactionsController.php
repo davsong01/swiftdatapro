@@ -29,6 +29,7 @@ class TransactionsController extends Controller
                 return $query->where('status', 'active')->whereIn('id', $productAccess)->get();
             }
         ])->where('status', 'active')->where('slug', $service)->first();
+        
         if(!$category){
             return redirect(route('dashboard'));
         }
@@ -38,6 +39,11 @@ class TransactionsController extends Controller
 
     public function getCustomerDiscount(Request $request){
         return response()->json(getProductDiscount($request->amount, $request->product_id,$request->quantity ?? 1));
+    }
+
+    public function getCustomerCharges(Request $request)
+    {
+        return response()->json(getProductCharges($request->amount, $request->product_id, $request->quantity ?? 1));
     }
 
     public function transactionStatus($transaction_id)
@@ -93,15 +99,11 @@ class TransactionsController extends Controller
     
         $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
         
-        $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
-        // $time = $dateTime->format("d-M-y  h:i A");
-        $timexx = $dateTime->format("YmdHi");
         // $timestring = time();
-        $api_reference = strtoupper($timexx . uniqid() . rand(10000, 90000)).'SWFT';
+        $api_reference = $this->generateRequestId();
         $request_id = $api_reference;
         $request['request_id'] = $request_id;
 
-        
         // Get amount
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $request['unit_price'] = $request['amount'];
@@ -118,7 +120,6 @@ class TransactionsController extends Controller
             $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
         }
         
-
         if (in_array($resource->category->slug, ['electricity', 'cable'])) {
             $request['billersCode'] = $request->billersCode;
         } else {
@@ -141,6 +142,7 @@ class TransactionsController extends Controller
         $request['quantity'] = $request->quantity ?? 1;
         $request['total_amount'] = $discountedAmount;
         $request['discount'] = $disCountApplied;
+
         $balance = walletBalance($user);
         
         if ($balance < $request['total_amount']) {
@@ -288,6 +290,85 @@ class TransactionsController extends Controller
         
         return response()->json($final_response);
     }
+
+    public function initializeAirtime2CashTransaction(Request $request)
+    {
+        $product = Product::where('id', $request->product)->first();
+        $variation = null;
+       
+        if (empty($product)) {
+            return back()->with('message', 'The selected product/service does not seem to exist, kindly check your selection');
+            // $response = array(
+            //     'status' => 'success',
+            //     'status_code' => '200',
+            //     'message' => 'The selected product/service does not seem to exist, kindly check your selection',
+            //     'title' => 'Invalid Product',
+            //     'desc' => '',
+            // );
+
+            // return response()->json($response);
+        }
+
+        $user = auth()->user();
+        $quantity = $request->quantity ?? 1;
+        
+        $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
+
+        $sys_reference = $this->generateRequestId('SWFTEXC');
+        $api_reference = $sys_reference;
+
+        $request['amount'] = $this->removeCharsInAmount($request->amount);
+
+        $request['unit_price'] = $request['amount'];
+        $api = $product->api;
+
+        if ($product->has_variations == 'yes') {
+            $resource = $variation;
+            $src_price = $variation->api_price * ($request['quantity'] ?? 1);
+            $discount = getProductCharges($request['amount'], $variation->id, $request['quantity'] ?? 1);
+        } else {
+            $resource = $product;
+            $src_price = !empty($product->system_price) ? $product->system_price * ($request['quantity'] ?? 1) : 0;
+            $discount = getProductCharges($request['amount'], $product->id, $request['quantity'] ?? 1);
+        }
+    
+        // checks
+        $checks = $this->runChecks($request, $product, $api);
+        
+        if (!empty($checks) && $checks['status'] == 'fail') {
+            return $service->build($checks);
+        }
+
+        $totalAmount = $discount['new_amount'];
+        $charge = $discount['charge'];
+
+        $request['quantity'] = $request->quantity ?? 1;
+        $request['total_amount'] = $totalAmount;
+        $request['discount'] = $charge;
+
+        $balance = walletBalance($user);
+        // $bank = Bank::where('cbn_code', $request->bank)->first();
+        // if (!empty($bank)) {
+        //     $bank_name = $bank->bank_name;
+        // } else {
+        //     $bank_name = '';
+        // }
+        $string = 'Hello Admin, I want to convert Airtime to cash on ' . config("app.name") . '. Please find below details of the transaction below: 
+        
+        *Name:* ' . $user->full_name . '
+        *Amount Charged:* ' . settings()->currency . number_format($request->total_amount, 2) . '
+        *Amount to Receive:* ' . settings()->currency . number_format($request->unit_price, 2) . '
+        *Charge:* ' .  settings()->currency . number_format($discount['charge']) . '
+        *Total Credit to transfer:* ' . settings()->currency . number_format($request->unit_price, 2) . '
+        *Phone Number:* ' . $request->mobile_no . '
+        *Network:* ' . $product->name . '
+        *Transaction Date:* ' . date("M jS, Y g:iA", strtotime(now())) . '';
+        
+        $string = "https://api.whatsapp.com/send?phone=" . settings()->whatsapp_no . "&text=" . urlencode($string);
+        
+        return redirect()->away($string);
+    }
+
 
     public function updateTransactionPinToNewFormat($request){
         $user = auth()->user();

@@ -7,7 +7,8 @@
     <meta charset="UTF-8">
     <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no'>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title> {{ $title ?? settings()->seo_title }}  </title>
+    
+    <title> {{ settings()->seo_title }} - @yield('title')</title>
     <meta name="Description" content="{{ settings()->seo_description }}">
     <meta name="Author" content="{{config('app.name')}}">
 	<meta name="keywords" content=".">
@@ -743,11 +744,8 @@
         <!-- Footer Start -->
         <footer class="footer mt-auto py-3 bg-white text-center">
             <div class="container">
-                <span class="text-muted"> Copyright © <span id="year"></span> <a
-                        href="javascript:void(0);" class="text-dark fw-semibold">Ynex</a>.
-                    Designed with <span class="bi bi-heart-fill text-danger"></span> by <a href="javascript:void(0);">
-                        <span class="fw-semibold text-primary text-decoration-underline">Spruko</span>
-                    </a> All
+                <span class="text-muted"> Copyright © <span id="year"></span>. 
+                    Designed</span> by <a target="_blank" href="https://davetech.com"><span class="fw-semibold text-primary text-decoration-underline">DaveTech</span></a> All
                     rights
                     reserved
                 </span>

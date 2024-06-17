@@ -47,11 +47,10 @@
                                         <label class="form-label" for="old_identifier">Old Identifier</label>
                                         <input type="text" class="form-control" name="old_identifier" placeholder="Enter old_identifier" id="old_identifier" value="{{ old('old_identifier')}}">
                                     </div>
-                                    
-                                    <div class="col-md-6">
+                                    {{-- <div class="col-md-6">
                                         <label for="formFile" class="form-label">Display Image</label>
                                         <input name="image" class="form-control" type="file" id="image" accept="image/*">
-                                    </div>
+                                    </div> --}}
                                     <div class="col-md-6">
                                         <label class="form-label" for="category">Category</label>
                                         <select class="form-control" name="category" id="category" required>
@@ -134,7 +133,7 @@
                                     </div>
                                     @foreach($customerlevel as $level)
                                     <div class="col-md-6">
-                                        <label class="form-label" for="productlevel">{{ $level->name }} Price ({!! getSettings()['currency']!!})</label>
+                                        <label class="form-label" for="productlevel">{{ $level->name }} Price ({!! settings()['currency']!!})</label>
                                         <input type="number" class="form-control tiny" id="productlevel" name="productlevel[{{ $level->id }}]"  value="">
                                     </div>
                                     @endforeach

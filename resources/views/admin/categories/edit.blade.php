@@ -71,11 +71,15 @@
                                     <option value="">Select...</option>
                                     <option value="flat" {{ $category->discount_type == 'flat' ? 'selected' : '' }}>Flat</option>
                                     <option value="percentage" {{ $category->discount_type == 'percentage' ? 'selected' : '' }}>Percentage</option>
-                                </select>
-                            </div>
-                            @foreach($customerlevel as $level)
-                            <div class="col-md-6">
-                                <label class="form-label" for="name">{{ $level->name }} Discount Value <span class="category-discount"> (Will be used if product or variations has no set discount)</span></label>
+                                    </select>
+                                    </div>
+                                @foreach($customerlevel as $level)
+                                <div class="col-md-6">
+                                    @if($category->slug == 'airtime2cash')
+                                        <label class="form-label">{{ $level->name }} @if($category->discount_type == 'flat') Charge Rate ({!! settings()['currency']!!}) @else Charge Rate (%) @endif</label>
+                                    @else
+                                        <label class="form-label" for="name">{{ $level->name }} Discount Value <span class="category-discount"> (Will be used if product or variations has no set discount)</span></label>
+                                    @endif
                                 <input type="number" step=".01" class="form-control" id="level" name="level[{{ $level->id }}]"  value="{{ $category->customer_level_price($level->id) }}">
                             </div>
                             @endforeach

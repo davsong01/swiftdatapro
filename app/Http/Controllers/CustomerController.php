@@ -69,7 +69,6 @@ class CustomerController extends Controller
         
         if(!empty($request->product_access_all)){
             $request['product_access'] = Product::pluck('id')->toArray();
-
         }
         
         $user->update([

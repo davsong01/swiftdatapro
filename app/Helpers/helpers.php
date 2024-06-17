@@ -122,6 +122,61 @@ if (!function_exists("getProductDiscount")) {
     }
 }
 
+if (!function_exists("getProductCharges")) {
+    function getProductCharges($amount, $product_id, $quantity = 1)
+    {
+        $response = [
+            'type' => null,
+            'charge' => 0,
+            'new_amount' => intval($amount) * $quantity,
+            'display_value' =>  settings()->currency . ($amount * $quantity),
+        ];
+
+        $level = auth()->user()->level;
+
+        if (empty($level)) {
+            return $response;
+        }
+
+        $product = Product::where('id', $product_id)->first();
+        $discount_type = $product->category->discount_type;
+
+        // Check if resource has a category discount
+        if ($product->category->user_discount) {
+            $discount = $product->category->user_discount;
+        }
+
+        // Check if resource has product discount
+        if ($product->user_discount) {
+            $discount = $product->user_discount;
+        }
+        
+        if (!empty($discount)) {
+            if ($discount_type == 'flat') {
+                $type = 'flat';
+                $new_amount = ($amount > $discount->price || $discount->price <= 0) ? ($amount * $quantity) : ($discount->price *  $quantity);
+                $discount_applied = abs($amount - $discount->price);
+                $display_amount = settings()->currency . number_format($new_amount);
+            } else {
+                $type = 'percentage';
+                $discount_applied = $discount->price;
+                $discount_applied = floor($discount_applied / 100 * $amount);
+                $n_amount = $amount + $discount_applied;
+                $new_amount = ($amount > $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
+                $display_amount = settings()->currency . intval($new_amount);
+            }
+        } else {
+            return $response;
+        }
+        return [
+            'type' => $type,
+            'charge' => $discount_applied * $quantity,
+            'new_amount' => intval($new_amount),
+            'display_value' => $display_amount
+        ];
+    }
+}
+
 if (!function_exists("getVariationDiscount")) {
     function getVariationDiscount($amount, $variation_id, $quantity = 1)
     {

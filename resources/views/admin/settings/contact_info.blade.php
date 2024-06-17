@@ -1,19 +1,19 @@
 @extends('layouts.new.app')
 @section('extra-css')
 @endsection
-@section('title', 'Edit Contact Settings')
+@section('title', 'Edit General Settings')
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{route('settings.update')}}">Contact Settings</a></li>
+<li class="breadcrumb-item"><a href="{{route('settings.update')}}">General Settings</a></li>
 @endsection
 @section('breadcrumb-active')
-<li class="breadcrumb-item active" aria-current="page">Edit Contact Settings</li>
+<li class="breadcrumb-item active" aria-current="page">Edit General Settings</li>
 @endsection
 @section('content')
 <div class="row">
     <div class="col-xl-12">
         <div class="card custom-card">
             <div class="card-header">
-                <h5>Edit Contact Settings</h5> <br>
+                <h5>Edit General Settings</h5> <br>
                 @include('includes.alerts')
             </div>
             <div class="card-body">

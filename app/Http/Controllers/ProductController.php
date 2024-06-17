@@ -14,13 +14,13 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['api', 'variations'])->orderBy('created_at', 'DESC')->get();
+        $products = Product::with(['api', 'variations'])->where('type', 'general')->orderBy('created_at', 'DESC')->get();
         return view('admin.products.index', compact('products'));
     }
 
     public function create()
     {
-        $categories = Category::where('status', 'active')->get();
+        $categories = Category::where('status', 'active')->where('slug', '!=', 'airtime-exchange')->get();
         $apis = Api::where('status', 'active')->get();
         $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>',1)->get();
 
@@ -104,8 +104,8 @@ class ProductController extends Controller
                         'product_id' => $product->id,
                         'price' => $price ?? 0,
                     ]);
-                 } else {
-                    Discount::where('id', $key)->delete();
+                } else {
+                    Discount::where('customer_level', $key)->where('product_id', $product->id)->delete();
                 }
             }
         }
@@ -126,7 +126,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $categories = Category::where('status', 'active')->get();
+        $categories = Category::where('status', 'active')->where('slug', '!=', 'airtime-exchange')->get();
         $variations = Variation::where('product_id', $product->id)->where('api_id', $product->api_id)->get();
         $apis = Api::where('status', 'active')->get();
         $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>', 1)->get();
@@ -204,7 +204,7 @@ class ProductController extends Controller
                         'price' => $price,
                     ]);
                 } else {
-                    Discount::where('id', $key)->delete();
+                    Discount::where('customer_level', $key)->where('product_id', $product->id)->delete();
                 }
             }
         }

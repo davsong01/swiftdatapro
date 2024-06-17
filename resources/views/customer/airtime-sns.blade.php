@@ -75,9 +75,9 @@
 
 
   <hr />
-  <div id="checkbal">
+  {{-- <div id="checkbal">
     <h5 style="font-weight:bold;color:#940798">To Check All Networks Airtime Balances: *310#</h5> <br>
-  </div>
+  </div> --}}
 </div>
 
 <div id="myModal2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">

@@ -27,7 +27,6 @@ class Controller extends BaseController
 
     public function populateData(){
         try {
-
             // Update user id in final transaction table
             $transactions = Transactions::all();
             foreach($transactions as $transaction){
@@ -122,6 +121,16 @@ class Controller extends BaseController
                     'live_base_url' => 'https://smeplug.ng/api/v1/vtu',
                     'sandbox_base_url' => 'https://smeplug.ng/api/v1/vtu'
                 ],
+                [
+                    'name' => 'Airtime Exchange',
+                    'status' => 'active',
+                    'api_key' => '',
+                    'secret_key' => '',
+                    'public_key' => '',
+                    'slug' => 'airtime2cash',
+                    'live_base_url' => '',
+                    'sandbox_base_url' => ''
+                ],
             ];
 
             foreach($apis as $api){
@@ -200,20 +209,6 @@ class Controller extends BaseController
                     "discount_type" => 'flat',
                 ],
                 [
-                    "name" => 'Airtime Exchane',
-                    "icon" => '',
-                    "display_name" => 'Airtime Exchane',
-                    "slug" => 'airtime-exchange',
-                    "status" => 'active',
-                    "order" => 4,
-                    "description" => 'Buy airtime Exchange',
-                    "seo_description" => 'Buy airtime Exchange',
-                    "seo_title" => 'Buy airtime Exchange',
-                    "seo_keywords" => 'Buy airtime Exchange',
-                    "unique_element" => 'phone',
-                    "discount_type" => 'flat',
-                ],
-                [
                     "name" => 'Cable TV',
                     "icon" => '',
                     "display_name" => 'Cable TV',
@@ -283,7 +278,22 @@ class Controller extends BaseController
                     "seo_keywords" => 'Buy Bulk SMS',
                     "unique_element" => 'phone',
                     "discount_type" => 'flat',
-                ]
+                ],
+                [
+                    "name" => 'Exchange Airtime',
+                    "icon" => '',
+                    "display_name" => 'Exchange Airtime',
+                    "slug" => 'airtime2cash',
+                    "status" => 'active',
+                    "order" => 9,
+                    "description" => 'Buy Bulk SMS',
+                    "seo_description" => 'Buy Bulk SMS',
+                    "seo_title" => 'Buy Bulk SMS',
+                    "seo_keywords" => 'Buy Bulk SMS',
+                    "unique_element" => 'phone',
+                    "discount_type" => 'percentage',
+                ],
+
             ];
 
             foreach($categories as $category){
@@ -731,26 +741,29 @@ class Controller extends BaseController
                             "display_name" => 'MTN VTU',
                             "category_id" => $category->id,
                             "slug" => 'mtn-sns',
-                            "api_id" => 1,
+                            "api_id" => 6,
                             "old_identifier" => 'mtn-sns',
                             "fixed_price" => 'no',
+                            "has_variations" => 'no',
                         ],
                         [
                             "name" => 'GLO SNS',
                             "display_name" => 'GLO SNS',
                             "category_id" => $category->id,
                             "slug" => 'glo-sns',
-                            "api_id" => 1,
+                            "api_id" => 6,
                             "old_identifier" => 'glo-SNS',
                             "fixed_price" => 'no',
+                            "has_variations" => 'no',
                         ],
                         [
                             "name" => 'AIRTEL SNS',
                             "display_name" => 'AIRTEL SNS',
                             "category_id" => $category->id,
                             "slug" => 'airtel-sns',
-                            "api_id" => 1,
+                            "api_id" => 6,
                             "old_identifier" => 'airtel-sns',
+                            "has_variations" => 'no',
                             "fixed_price" => 'no',
                         ],
                         [
@@ -758,13 +771,63 @@ class Controller extends BaseController
                             "display_name" => '9MOBILE SNS',
                             "category_id" => $category->id,
                             "slug" => 'etisalat-sns',
-                            "api_id" => 1,
+                            "api_id" => 6,
                             "old_identifier" => '9mobile-sns',
+                            "has_variations" => 'no',
                             "fixed_price" => 'no',
                         ],
                     ];
                 }
-                
+
+                if ($category->slug == 'airtime2cash') {
+                    $toAdd = [
+                        [
+                            "name" => 'MTN',
+                            "display_name" => 'MTN',
+                            "category_id" => $category->id,
+                            "slug" => 'mtn-exchange',
+                            "status" => 'active',
+                            "has_variations" => 'no',
+                            "api_id" => env('EXCHANGE_AIRTIME_API_ID'),
+                            "fixed_price" => 'no',
+                            "type" => 'airtime2cash',
+                        ],
+                        [
+                            "name" => 'GLO',
+                            "display_name" => 'GLO',
+                            "category_id" => $category->id,
+                            "slug" => 'glo-exchange',
+                            "status" => 'active',
+                            "has_variations" => 'no',
+                            "api_id" => env('EXCHANGE_AIRTIME_API_ID'),
+                            "fixed_price" => 'no',
+                            "type" => 'airtime2cash',
+                        ],
+                        [
+                            "name" => 'AIRTEL',
+                            "display_name" => 'AIRTEL',
+                            "category_id" => $category->id,
+                            "slug" => 'airtel-exchange',
+                            "status" => 'active',
+                            "has_variations" => 'no',
+                            "api_id" => env('EXCHANGE_AIRTIME_API_ID'),
+                            "fixed_price" => 'no',
+                            "type" => 'airtime2cash',
+                        ],
+                        [
+                            "name" => '9MOBILE',
+                            "display_name" => '9MOBILE',
+                            "category_id" => $category->id,
+                            "slug" => '9mobile-exchange',
+                            "has_variations" => 'no',
+                            "status" => 'active',
+                            "api_id" => env('EXCHANGE_AIRTIME_API_ID'),
+                            "fixed_price" => 'no',
+                            "type" => 'airtime2cash',
+                        ],
+                    ];
+                }
+
                 foreach ($toAdd as $product) {
                     $check = Product::where('slug',$product['slug'])->first();
                     if($check){
@@ -777,7 +840,7 @@ class Controller extends BaseController
                             "display_name" => $product['display_name'],
                             "category_id" => $category->id,
                             "slug" => $product['slug'],
-                            "old_identifier" => $product['old_identifier'],
+                            "old_identifier" => $product['old_identifier'] ?? null,
                             "has_variations" => $product['has_variations'] ?? 'yes',
                             "api_id" => $product['api_id'] ?? '1',
                         ],
@@ -787,7 +850,7 @@ class Controller extends BaseController
                             "display_name" => $product['display_name'],
                             "category_id" => $category->id,
                             "slug" => $product['slug'],
-                            "old_identifier" => $product['old_identifier'],
+                            "old_identifier" => $product['old_identifier'] ?? null,
                             "api_id" => $product['api_id'] ?? '1',
                             "description" => '',
                             "seo_title" => '',
@@ -804,14 +867,18 @@ class Controller extends BaseController
                             "max" => 0,
                             "allow_subscription_type" => 'no',
                             'referral_percentage' => 0,
+                            "type" => $product['type'] ?? 'general',
+
                         ]
                     );
                 }
             }
-
+            
             dump('Products created');
 
-            // Create user reserved accounts
+
+            // Create user reserved accounts and product access
+            $productaccess = Product::pluck('id')->toArray();
             $users = User::all();
             foreach($users as $user){
                 if(!empty($user->reserved_account)){
@@ -856,6 +923,10 @@ class Controller extends BaseController
                         }
                     }
                 }
+
+                $user->update([
+                    'product_access' => $productaccess,
+                ]);
             }
 
             dump('Reserved accounts created');

@@ -10,7 +10,7 @@
                             <path
                                 d="M520-600v-240h320v240H520ZM120-440v-400h320v400H120Zm400 320v-400h320v400H520Zm-400 0v-240h320v240H120Zm80-400h160v-240H200v240Zm400 320h160v-240H600v240Zm0-480h160v-80H600v80ZM200-200h160v-80H200v80Zm160-320Zm240-160Zm0 240ZM360-280Z" />
                         </svg>
-                <span class="side-menu__label">Dashboard</span>
+                <span class="side-menu__label">&nbsp;Dashboard</span>
             </a>
         </li>
         {{-- @endif --}}
@@ -24,7 +24,7 @@
                                 d="M280-600v-80h560v80H280Zm0 160v-80h560v80H280Zm0 160v-80h560v80H280ZM160-600q-17 0-28.5-11.5T120-640q0-17 11.5-28.5T160-680q17 0 28.5 11.5T200-640q0 17-11.5 28.5T160-600Zm0 160q-17 0-28.5-11.5T120-480q0-17 11.5-28.5T160-520q17 0 28.5 11.5T200-480q0 17-11.5 28.5T160-440Zm0 160q-17 0-28.5-11.5T120-320q0-17 11.5-28.5T160-360q17 0 28.5 11.5T200-320q0 17-11.5 28.5T160-280Z"
                                 fill="#a3aed2" />
                         </svg>
-                <span class="side-menu__label">Catalogues</span>
+                <span class="side-menu__label">&nbsp;Catalogues</span>
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">
@@ -48,6 +48,12 @@
                     <a href="{{ route('product.index') }}" class="side-menu__item {{Route::is('product.*') ? 'active' : '' }}">Products</a>
                 </li>
                 @endif
+                @if (in_array('airtime2cash.index', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('airtime2cash.index') }}" class="side-menu__item {{Route::is('airtime2cash.*') ? 'active' : '' }}">Exchange Airtime</a>
+                </li>
+                @endif
+                
             </ul>
         </li>
         @endif
@@ -56,7 +62,7 @@
                 <svg fill="#a3aed2" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24">
                 <path d="M400-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM80-160v-112q0-33 17-62t47-44q51-26 115-44t141-18h14q6 0 12 2-8 18-13.5 37.5T404-360h-4q-71 0-127.5 18T180-306q-9 5-14.5 14t-5.5 20v32h252q6 21 16 41.5t22 38.5H80Zm560 40-12-60q-12-5-22.5-10.5T584-204l-58 18-40-68 46-40q-2-14-2-26t2-26l-46-40 40-68 58 18q11-8 21.5-13.5T628-460l12-60h80l12 60q12 5 22.5 11t21.5 15l58-20 40 70-46 40q2 12 2 25t-2 25l46 40-40 68-58-18q-11 8-21.5 13.5T732-180l-12 60h-80Zm40-120q33 0 56.5-23.5T760-320q0-33-23.5-56.5T680-400q-33 0-56.5 23.5T600-320q0 33 23.5 56.5T680-240ZM400-560q33 0 56.5-23.5T480-640q0-33-23.5-56.5T400-720q-33 0-56.5 23.5T320-640q0 33 23.5 56.5T400-560Zm0-80Zm12 400Z" />
                 </svg>
-                <span class="side-menu__label">Staff</span>
+                <span class="side-menu__label">&nbsp;Staff</span>
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">
@@ -91,7 +97,7 @@
                             <path
                                 d="M660-570q-25 0-42.5-17.5T600-630q0-25 17.5-42.5T660-690q25 0 42.5 17.5T720-630q0 25-17.5 42.5T660-570Zm-360 0q-25 0-42.5-17.5T240-630q0-25 17.5-42.5T300-690q25 0 42.5 17.5T360-630q0 25-17.5 42.5T300-570Zm180 110q-25 0-42.5-17.5T420-520q0-25 17.5-42.5T480-580q25 0 42.5 17.5T540-520q0 25-17.5 42.5T480-460Zm0-220q-25 0-42.5-17.5T420-740q0-25 17.5-42.5T480-800q25 0 42.5 17.5T540-740q0 25-17.5 42.5T480-680Zm0 520q-20 0-40.5-3t-39.5-8v-143q0-35 23.5-60.5T480-400q33 0 56.5 25.5T560-314v143q-19 5-39.5 8t-40.5 3Zm-140-32q-20-8-38.5-18T266-232q-28-20-44.5-52T205-352q0-26-5.5-48.5T180-443q-10-13-37.5-39.5T92-532q-11-11-11-28t11-28q11-11 28-11t28 11l153 145q20 18 29.5 42.5T340-350v158Zm280 0v-158q0-26 10-51t29-42l153-145q12-11 28.5-11t27.5 11q11 11 11 28t-11 28q-23 23-50.5 49T780-443q-14 20-19.5 42.5T755-352q0 36-16.5 68.5T693-231q-16 11-34.5 21T620-192Z" />
                         </svg>
-                <span class="side-menu__label">Customers</span>
+                <span class="side-menu__label">&nbsp;Customers</span>
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">
@@ -143,7 +149,7 @@
                                 d="m480-560-56-56 63-64H320v-80h167l-64-64 57-56 160 160-160 160ZM280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM40-800v-80h131l170 360h280l156-280h91L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68.5-39t-1.5-79l54-98-144-304H40Z"
                                 fill="#a3aed2" />
                         </svg>
-                <span class="side-menu__label">Settings</span>
+                <span class="side-menu__label">&nbsp;Settings</span>
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">
@@ -192,7 +198,7 @@
                             <path
                                 d="M80-200v-80h400v80H80Zm0-200v-80h200v80H80Zm0-200v-80h200v80H80Zm744 400L670-354q-24 17-52.5 25.5T560-320q-83 0-141.5-58.5T360-520q0-83 58.5-141.5T560-720q83 0 141.5 58.5T760-520q0 29-8.5 57.5T726-410l154 154-56 56ZM560-400q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z" />
                         </svg>
-                <span class="side-menu__label">Finance</span>
+                <span class="side-menu__label">&nbsp;Finance</span>
                 <i class="fe fe-chevron-right side-menu__angle"></i>
             </a>
             <ul class="slide-menu child1">

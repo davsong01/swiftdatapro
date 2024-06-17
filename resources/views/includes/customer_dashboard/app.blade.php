@@ -167,7 +167,7 @@
             </li>
 
             <li>
-                <a href="{{ route('buy', 'exchange_airtime')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'airtime2cash')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
                     </div>
