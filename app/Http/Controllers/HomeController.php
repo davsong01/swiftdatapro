@@ -486,7 +486,7 @@ class HomeController extends Controller
     public function walletSummary(){
         $transaction = "";
         $lettr = DepositTransaction::where('user_username', auth()->user()->username)->orWhere('user_email', auth()->user()->email)->orderBy('id','desc')->get();
-
+        
         if(empty($lettr)){
             $transaction = '<div class="alert" style="background-color: #fff;border-radius: 10px 5px;color:black">No Funding Record Yet !!!</div>';
         }else{

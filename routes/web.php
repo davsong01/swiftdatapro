@@ -43,6 +43,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // Route::get('dump', [FrontendController::class, 'dumpData']);
 Route::get('populate', [Controller::class, 'populateData']);
+Route::post('webhook_payment/{type?}', [PaymentGatewayController::class, 'analyzeWebhookPayment']);
 
 Route::get('/', [FrontendController::class, 'index'])->name('welcome');
 Route::get('/tac', [FrontendController::class, 'tac'])->name('tac');
@@ -154,18 +155,12 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     // Transactions
     Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
     Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
-
     Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
-    
     Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
     Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
     Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
     Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
     Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
     Route::post('customer-get-charges', [TransactionsController::class, 'getCustomerCharges'])->name('get.customer.charges');
-
     Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
-
 });
-
-// Auth::routes(['verify' => true]);
