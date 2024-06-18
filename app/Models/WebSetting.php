@@ -9,6 +9,6 @@ class WebSetting extends Model
 {
     use HasFactory;
     public $timestamps = false;
-
+    protected $guarded = [];
     protected $table = 'web_settings';
 }

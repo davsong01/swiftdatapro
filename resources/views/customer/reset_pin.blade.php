@@ -56,7 +56,7 @@
         if (response_fd.status == 'success') {
           $("#successModal").modal("show");
           $("#successModal .modal-body").html(response_fd.message);
-            location.reload(); 
+            // location.reload(); 
         } else {
           $("#errorModal").modal("show");
           $("#errorModal .modal-body").html(response_fd.message);

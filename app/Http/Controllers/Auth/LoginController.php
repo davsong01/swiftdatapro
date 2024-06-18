@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use DateTime;
+use DateTimeZone;
 use App\Models\User;
 use App\Models\WebSetting;
 use Illuminate\Support\Str;
@@ -63,9 +65,15 @@ class LoginController extends Controller
 
         // $credentials = $request->only('email', 'pass');
         $user = User::where('email', $request->email)->orWhere('username', $request->username)->first();
-        
-        if(isset($user) && empty($user->pass)){
-            return redirect(route('password.reset.new', $user->id));
+        if(!$user){
+            return back()->with('error', 'Incorrect Username or Password');
+        }
+        if(empty($user->pass)){
+            if (md5($request->password) == $user->password) {
+                $user->update([
+                    'pass' => Hash::make($request->password),
+                ]);
+            }
         }
 
         if (!$user || !Hash::check($request->password, $user->pass)) {
@@ -73,6 +81,12 @@ class LoginController extends Controller
         }else{
             Auth::login($user);
 
+            $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
+            $lastlogin = $dateTime->format("d-M-y  h:i A"); 
+            $user->update([
+                'last_login' => $lastlogin,
+            ]);
+            
             $body = 'Dear ' . auth()->user()->full_name . '<br>Your login to ' . config('app.php') . ' at '.Carbon::now().' was successful<br>';
             $body .= '<br><br>Warm Regards<br>' . config('app.name');
 
@@ -133,9 +147,8 @@ class LoginController extends Controller
     }
 
     public function changePassword(Request $request){
-       
        $user = DB::table('password_reset_tokens')->where('token', $request->token)->first();
-      
+        
        if(Auth::check()){
             Auth::logout();
        }

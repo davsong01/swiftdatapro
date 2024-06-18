@@ -1,8 +1,4 @@
 @extends('includes.customer_dashboard.app')
-<?php 
-    use App\Models\WebSetting;
-    $web_settings = WebSetting::first();
-?>
 @section('header')
 <div class="col-xl-12">
     <div class="alert" style="background-color: #fff;color: blue;">
@@ -17,7 +13,6 @@
 @endsection
 @section('body')
 <div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">
-
     <!-- start -->
     @if(!empty($list_acctno))
         @foreach($list_acctno as $Acc_data)
@@ -37,26 +32,21 @@
 
 <div class="col-xl-12">
     <div class="alert" style="background-color: transparent;">
-
         <div id="response"></div>
         <label style="color: red;">Let us know your payment narration and your wallet will be funded when confirmed and
             note you will be charge N20 if you make payment below N1000</label>
         <textarea class="form-control" id="narration" name="narration" required="required"
             placeholder="Enter Your Payment Narration">
 
-                 </textarea>
-
+        </textarea>
         <br />
-
         <button class="btn btn-success btn-block" id="sendNotification">Send Notification</button>
-
     </div>
     <br>
 </div>
 
 @endsection
 @section('scripts')
-
 <script type="text/javascript">
     $(document).ready(function () {
         $("#narration").val("");
@@ -67,8 +57,7 @@
             $("#response").html('<div class="alert alert-danger">Please submit your payment narration</div>');
         } else {
             $.LoadingOverlay("show");
-            window.location.href =
-                "https://api.whatsapp.com/send?phone={{ $web_settings->whatsapp_no }}&text=Hello%20Admin!%20i%20make%20a%20deposit%20with%20the%20following%20narration%20%20" +
+            window.location.href = "https://api.whatsapp.com/send?phone={{ settings()->whatsapp_no }}&text=Hello%20Admin!%20i%20make%20a%20deposit%20with%20the%20following%20narration%20%20" +
                 narration + "";
             $.LoadingOverlay("hide");
         }

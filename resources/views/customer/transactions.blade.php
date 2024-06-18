@@ -3,166 +3,205 @@
     use App\Models\WebSetting;
     $web_settings = WebSetting::first();
 ?>
+@section('extra-css')
+<style>
+    .extra{
+        margin: 5px 0;
+        background: #940798;
+        padding: 5px 5px;
+        border-radius: 5px;
+        color: white;
+    }
+     .title{
+            font-weight: bold;
+        }
+</style>
+@endsection
 @section('header')
-<div class="col-xl-12">
-    <div class="alert" style="background-color: #fff;color: blue;">
-        <div id="response" style="text-align: center;">
-            <h4>Add Money</h4>
-            <p style="color: red;font-weight: bold;">Transfer money into one of the reserved account below and your
-                wallet will be automatically credited.</p>
-        </div>
-    </div>
-</div>
+
 
 @endsection
 @section('body')
-<div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">
-    <div class="container-fluid p-0 sm_padding_15px">
-        <div class="row justify-content-center">
+ <div class="content-body">
+    <div class="row">
+        <!-- Marketing Campaigns Starts -->
+        <div class="col-xl-12">
+            <div class="card">
+                <div class="card-body pb-0">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <form action="" method="GET">
+                                @csrf
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <fieldset class="form-group">
+                                            <label for="service">Service</label>
+                                            <select class="form-control" name="service" id="service">
+                                                <option value="">Select</option>
+                                                @foreach ($products as $product)
+                                                    <option value="{{ $product->id }}" {{ \Request::get('service') == $product->id ? 'selected' : ''}}>{{ $product->display_name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </fieldset>
+                                    </div>
+                                    
+                                    <div class="col-md-3">
+                                        <fieldset class="form-group">
+                                            <label for="transaction_id">Transaction ID</label>
+                                            <input type="text" class="form-control" id="transaction_id" name="transaction_id" placeholder="Enter transaction ID" value="{{ \Request::get('transaction_id')}}">
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <fieldset class="form-group">
+                                            <label for="status">Status</label>
+                                            <select class="form-control" name="status" id="status">
+                                                <option value="">Select</option>
+                                                <option value="SUCCESSFUL" {{ \Request::get('status') == 'SUCCESSFUL' ? 'selected' : ''}}>Successful</option>
+                                                <option value="FAILED" {{ \Request::get('status') == 'FAILED' ? 'selected' : ''}}>Failed</option>
+                                                <option value="ATTENTION-REQUIRED" {{ \Request::get('status') == 'ATTENTION-REQUIRED' ? 'selected' : ''}}>Pending</option>
+                                            </select>
+                                        </fieldset>
+                                        
+                                    </div>
+                                    <div class="col-md-3">
+                                        <fieldset class="form-group">
+                                            <label for="type">Type</label>
+                                            <select class="form-control" name="type" id="type">
+                                                <option value="">Select</option>
+                                                <option value="credit" {{ \Request::get('type') == 'credit' ? 'selected' : ''}}>Credit</option>
+                                                <option value="debit" {{ \Request::get('type') == 'debit' ? 'selected' : ''}}>Debit</option>
+                                            </select>
+                                        </fieldset>
+                                        
+                                    </div>
+                                    <div class="col-md-4">
+                                        <fieldset class="form-group">
+                                            <label for="billersCode">Unique Element</label>
+                                            <input type="text" class="form-control" id="billersCode" name="billersCode" placeholder="Enter billers code" value="{{ \Request::get('billersCode') }}">
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <fieldset class="form-group">
+                                            <label for="from">From</label>
+                                            <input type="date" class="form-control" value="{{ \Request::get('from')}}" name="from">
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <fieldset class="form-group">
+                                            <label for="to">To</label>
+                                            <input type="date" class="form-control" value="{{ \Request::get('to')}}" name="to">
+                                        </fieldset>
+                                    </div>
 
-            <div class="col-lg-12">
-                <div class="alert" style="background-color: #fff;color: #000;">
-                    <input type="text" id="search_data" class="form-control" placeholder="Search Mobile No.">
-                    <hr />
-                    <button class="btn btn-danger" onclick="findRec()">Search</button>
+                                    <div class="col-md-2">
+                                        <label style="color:white">sd</label>
+                                        <input type="submit" class="form-control btn btn-primary" value="Search">
+                                    </div>
+                                </div>
+                            </form>
+                            <hr>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                @foreach ($transactions as $transaction)
+                                <div class="col-md-4" style="box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;padding-top:10px;padding-bottom: 10px;">
+                                    <div class="">
+                                        @if(!empty($transaction->product_id))
+                                            <span class="title">Service</span>:
+                                            <small>
+                                            <span class="mr-50 text-bold-200">
+                                                <strong>{{ $transaction->product->name ?? $transaction->buyer_descr}}</strong>
+                                                    @if($transaction?->variation?->system_name) {{ " | ". $transaction?->variation?->system_name }} 
+                                                    @endif
+                                                </span> 
+                                            </small> <br>
+                                        @endif
+                                        <strong>
+                                        @if(in_array($transaction->buyer_status, ['INITIATED'.'FAILED','ATTENTION-REQUIRED']))
+                                            <span class="text-warning">{{ ucfirst($transaction->buyer_status) }}</span>
+                                        @else
+                                            <span class="text-success">{{ ucfirst($transaction->buyer_status) }}</span>
+                                        @endif <br>
+                                        </strong>
+                                        @if(!empty($transaction->extra))
+                                        <div class="extra">
+                                            <span class="title">{{$transaction->extra}} </span>
+                                        </div>
+                                       
+                                        @endif
+                                        <span class="title">Description: </span>
+                                        <small>
+                                            {{ $transaction->buyer_descr }}</strong>
+                                        </small>
+                                        @if(!empty($transaction->billersCode))
+                                         <br>
+                                        <span class="title">Biller</span>:
+                                        <small>
+                                            {{ $transaction->billersCode }}</strong>
+                                        </small> 
+                                        @endif
+                                        <br>
+                                        <span class="title">Unit Price</span>:
+                                        <small>{{ number_format($transaction->unit_price, 2) }}</small> <br>
+                                        <span class="title">Buyer Amount</span>:
+                                        <small style="color:{{$transaction->type == 'debit' ? 'red' : 'green' }}">{{$transaction->type == 'debit' ? '- ' : '+ '}}{!! settings()->currency !!}{{ number_format($transaction->buyer_amount, 2) }}
+                                        {{$transaction->type == 'debit' ? '(Debit)' : '(Credit)' }}
+                                        </small> 
+                                        @if($transaction->discount > 0)
+                                        <br>
+                                        <span class="title">Discount Applied</span>:
+                                        <small class="{{$transaction->type == 'debit' ? 'red' : 'green' }}">{!! settings()->currency !!}{{ number_format($transaction->discount, 2) }}
+                                        </small>
+                                        @endif
+                                        <br>
+                                        <span class="title">Pre Balance</span>:
+                                        <small class="">{!! settings()->currency !!}{{ number_format($transaction->buyer_prebal, 2) }}
+                                        </small>
+
+                                        <br>
+                                        <span class="title">Post Balance</span>:
+                                        <small class="">{!! settings()->currency !!}{{ number_format($transaction->buyer_postbal, 2) }}
+                                        </small>
+                                        <br>
+                                        
+                                        <span class="title">Transaction Id</span>:
+                                        <small>
+                                            {{ $transaction->sys_ref }}</strong>
+                                        </small> <br>
+                                        <span class="title">Payment Method</span>:
+                                        <small>
+                                            {{ $transaction->charge_from }}</strong>
+                                        </small> <br>
+                                        <span class="title">Date</span>:
+                                        <small>
+                                            {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }}
+                                        </small> <br>
+
+                                    </div>
+                                    <div class="statistics-date">
+                                        <small class="text-muted">
+                                            {{-- <a target="_blank" href="{{ route('transaction.status', $transaction->sys_ref) }}" class="btn btn-sm btn-primary glow mt-md-2 mb-1">View</a></small> <small class="text-muted"> --}}
+                                            <a target="_blank" href="{{ route('transaction.receipt.download', $transaction->id) }}" class="btn btn-sm btn-info glow mt-md-2 mb-1">Download Transaction Receipt</a>
+                                            {{-- @if(!in_array($transaction->reason, ['LEVEL-UPGRADE','WALLET-FUNDING']) && !in_array($transaction->buyer_status, ['failed']))
+                                            @endif --}}
+                                        </small>
+                                    </div>
+                                </div>
+                                <hr>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                    </div>
                 </div>
-                <div id="transactionsDiv">
+                <div class="card-footer">
+                    {!! $transactions->appends($_GET)->links() !!}
                 </div>
-                <br>
-                <div id="loadMoreDiv">
-                </div>
-                <br>
             </div>
+           
         </div>
     </div>
 </div>
-@endsection
-@section('scripts')
-<script>
-    function findRec() {
-        var search_data = $("#search_data").val();
-        $.LoadingOverlay("show");
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-        $.ajax({
-            url: '{{ url('/') }}/customer/transactions?search_data=' + search_data,
-            dataType: 'json',
-            success: function (transactionsRes) {
-                $.LoadingOverlay("hide");
-                $("#transactionsDiv").html(transactionsRes.message);
-                $("#loadMoreDiv").hide();
-            }
-        });
-    }
-
-    function rceipt(id) {
-        $.LoadingOverlay("show");
-        window.location.href = "/reference?reference=" + id;
-    }
-</script>
-@if(!isset($type))
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $.LoadingOverlay("show");
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                url: '{{ url('/') }}/customer/transactions?load_id=0&&status=all',
-                dataType: 'json',
-                success: function (transactionsRes) {
-                    $.LoadingOverlay("hide");
-                    $("#transactionsDiv").html(transactionsRes.message);
-                    $("#loadMoreDiv").html(transactionsRes.ctrlButton);
-                }
-            });
-        });
-
-        function showMore(id) {
-            $.LoadingOverlay("show");
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            $.ajax({
-                url: '{{ url('/') }}/customer/transactions?load_id=' + id,
-                dataType: 'json',
-                success: function (transactionsRes) {
-                    $.LoadingOverlay("hide");
-                    $("#transactionsDiv").html(transactionsRes.message);
-                    $("#loadMoreDiv").html(transactionsRes.ctrlButton);
-                }
-            });
-        }
-
-    </script>
-@endif
-@if(isset($type) & $type == 'success')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $.LoadingOverlay("show");
-            $.ajax({
-                url: '{{ url('/') }}/customer/transactions?load_id=500&type=success',
-                dataType: 'json',
-                success: function (transactionsRes) {
-                    $.LoadingOverlay("hide");
-                    $("#transactionsDiv").html(transactionsRes.message);
-                    $("#loadMoreDiv").html(transactionsRes.ctrlButton);
-                }
-            });
-        });
-
-        function showMore(id) {
-            $.LoadingOverlay("show");
-            $.ajax({
-                url: '{{ url('/') }}/customer/transactions?type=success&load_id=' + id,
-                dataType: 'json',
-                success: function (transactionsRes) {
-                    $.LoadingOverlay("hide");
-                    $("#transactionsDiv").html(transactionsRes.message);
-                    $("#loadMoreDiv").html(transactionsRes.ctrlButton);
-                }
-            });
-        }
-    </script>
-
-@endif
-
-@if(isset($type) & $type == 'failed')
-<script type="text/javascript">
-	$(document).ready(function () {
-	    $.LoadingOverlay("show");
-	    $.ajax({
-	        url: '{{ url('/') }}/customer/transactions?type=failed&load_id=500',
-	        dataType: 'json',
-	        success: function (transactionsRes) {
-	            $.LoadingOverlay("hide");
-	            $("#transactionsDiv").html(transactionsRes.message);
-	            $("#loadMoreDiv").html(transactionsRes.ctrlButton);
-	        }
-	    });
-	});
-
-	function showMore(id) {
-	    $.LoadingOverlay("show");
-	    $.ajax({
-	        url: '{{ url('/') }}/customer/transactions?type=failed&load_id=' + id,
-	        dataType: 'json',
-	        success: function (transactionsRes) {
-	            $.LoadingOverlay("hide");
-	            $("#transactionsDiv").html(transactionsRes.message);
-	            $("#loadMoreDiv").html(transactionsRes.ctrlButton);
-	        }
-	    });
-	}
-
-</script>
-
-@endif
 @endsection

@@ -1,7 +1,3 @@
-<?php 
-    use App\Models\WebSetting;
-    $web_settings = WebSetting::first();
-?>
 <!DOCTYPE html>
 <html lang="english">
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
@@ -13,7 +9,10 @@
     <title>{{ config('app.name') }} - {{ auth()->user()->full_name }} </title>
     <link rel="icon" type="image/x-icon" href="{{asset('assets/img/favicon/favicon.ico')}}" />
 
-    <link rel="stylesheet" href="{{ asset('backend/css/bootstrap1.min.css') }}" />
+    {{-- bootstrap --}}
+    {{-- <link rel="stylesheet" href="{{ asset('backend/css/bootstrap1.min.css') }}" /> --}}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="{{ asset('backend/vendors/themefy_icon/themify-icons.css') }}" />
 
@@ -46,10 +45,7 @@
 
     <link rel="stylesheet" href="{{ asset('backend/css/style1.css') }}" />
     <link rel="stylesheet" href="{{ asset('backend/css/colors/default.css') }}" id="colorSkinCSS">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
-    <script type="text/javascript" src="backend/js/overlay.js"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    
     <style type="text/css">
         .centered {
             position: realtive;
@@ -84,6 +80,10 @@
             left: 4%;
         }
 
+        .input-group-text{
+            border-radius: .25rem 0 0 .25rem !important;
+        }
+
         @media (min-width: 400px) {
             .trans{
                 width: 46%;
@@ -91,14 +91,15 @@
             }
         }
     </style>
+    @yield('extra-css')
 </head>
 
 <body class="crm_body_bg">
     <nav class="sidebar">
         <div class="logo">
             <h5 class="">Available Balance. <br /> <span style="color: #940798;font-weight: bold;font-size: 20px;">
-                    ₦{{ number_format(auth()->user()->wallets,2) }}</span></h5>
-            <h6 class="">Level: {{ auth()->user()->level }} <span
+                {{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span></h5>
+            <h6 class="">Level: {{ auth()->user()->customer_level->name }} <span
                     style="color: #940798;font-weight: bold;font-size: 18px;"></span></h6>
             <div class="sidebar_close_icon d-lg-none">
                 <i class="ti-close"></i>
@@ -106,7 +107,7 @@
         </div>
         <ul id="sidebar_menu">
             <li>
-                <a href="{{url('/').'/dashboard' }}" aria-expanded="false">
+                <a href="{{ route('dashboard') }}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-home"></i>
                     </div>
@@ -128,41 +129,7 @@
                 </a>
                 <ul>
                     <li><a href="{{url('/').'/automated_pay' }}">Automated Transfer</a></li>
-                    <li><a href="{{url('/').'/deposit_payment' }}">Deposit/Transfer</a></li>
-                </ul>
-            </li>
-
-
-            <li class="">
-                <a class="has-arrow" href="#" aria-expanded="false">
-                    <div class="nav_icon_small">
-                        <i class="fa-solid fa-shopping-cart"></i>
-                    </div>
-                    <div class="nav_title">
-                        <span>Transactions</span>
-                    </div>
-                </a>
-                <ul>
-                    <li><a href="{{url('/').'/transactions' }}">All Transactions</a></li>
-                    <li><a href="{{url('/').'/transactions/success' }}">Success Transactions</a></li>
-                    <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
-                    <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
-                    <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li>
-                </ul>
-            </li>
-
-            <li class="">
-                <a class="has-arrow" href="#" aria-expanded="false">
-                    <div class="nav_icon_small">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <div class="nav_title">
-                        <span>My Referrals</span>
-                    </div>
-                </a>
-                <ul>
-                    <li><a href="{{url('/').'/ref_downlines' }}">My Downlines</a></li>
-                    <li><a href="{{url('/').'/cashback_earn' }}">Cashback Earn.</a></li>
+                    <li><a href="{{url('/').'/deposit_payment' }}">Manual Deposit/Transfer</a></li>
                 </ul>
             </li>
             <li>
@@ -189,7 +156,7 @@
 
             <?php $baseurl = url('/'); ?>
             <li>
-                <a href="{{ route('buy', 'airtime_sns')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'airtime-sns')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fas fa-phone"></i>
                     </div>
@@ -200,7 +167,7 @@
             </li>
 
             <li>
-                <a href="{{ route('buy', 'exchange_airtime')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'airtime2cash')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa-solid fa-arrow-right-arrow-left"></i>
                     </div>
@@ -222,7 +189,7 @@
             </li>
 
             <li>
-                <a href="{{ route('buy', 'bills')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'electricity')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fas fa-lightbulb"></i>
                     </div>
@@ -233,7 +200,7 @@
             </li>
 
             <li>
-                <a href="{{ route('buy', 'epins')}}" aria-expanded="false">
+                <a href="{{ route('buy', 'exam-epins')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fa fa-qrcode"></i>
                     </div>
@@ -242,7 +209,38 @@
                     </div>
                 </a>
             </li>
+            <li class="">
+                <a class="has-arrow" href="#" aria-expanded="false">
+                    <div class="nav_icon_small">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                    </div>
+                    <div class="nav_title">
+                        <span>My Transactions</span>
+                    </div>
+                </a>
+                <ul>
+                    <li><a href="{{route('customer.transactions') }}">All Transactions</a></li>
+                    <li><a href="{{route('customer.cashback')}}">My Earnings</a></li>
+                    {{-- <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
+                    <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
+                    <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li> --}}
+                </ul>
+            </li>
 
+            <li class="">
+                <a class="has-arrow" href="#" aria-expanded="false">
+                    <div class="nav_icon_small">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="nav_title">
+                        <span>My Referrals</span>
+                    </div>
+                </a>
+                <ul>
+                    <li><a href="{{url('/').'/ref_downlines' }}">My Downlines</a></li>
+                    <li><a href="{{url('/').'/cashback_earn' }}">Cashback Earn.</a></li>
+                </ul>
+            </li>
             <li class="">
                 <a class="has-arrow" href="#" aria-expanded="false">
                     <div class="nav_icon_small">
@@ -253,10 +251,15 @@
                     </div>
                 </a>
                 <ul>
-                    <li><a href="<?php echo $baseurl; ?>/profile">My Profile</a></li>
-                    <li><a href="<?php echo $baseurl; ?>/change-password">Change Password</a></li>
-                    <li><a href="<?php echo $baseurl; ?>/generate-api">Generate API-KEY</a></li>
-                    <li><a href="<?php echo $baseurl; ?>/kyc-compliance">KYC Registration</a></li>
+                    <li><a href="{{ route('customer.profile') }}">My Profile</a></li>
+                    <li><a href="{{ route('password.change') }}">Change Password</a></li>
+                    <li><a href="{{ route('generate_api') }}">Generate API-KEY</a></li>
+                    <?php 
+                        $kyc_settings = !empty(settings()->kyc_settings) ? json_decode(settings()->kyc_settings, true) : [];  
+                    ?>
+                    @if(!empty($kyc_settings['status']) && $kyc_settings['status'] == 'yes')
+                    <li><a href="{{ route('kyc.form') }}">KYC Registration</a></li>
+                    @endif
                 </ul>
             </li>
 
@@ -299,9 +302,9 @@
                                 <?php
                                 
                                     if (auth()->user()->level == 1){
-                                        $social_link = $web_settings->group_link;
+                                        $social_link = settings()->group_link;
                                     }else {   
-                                        $social_link = $web_settings->group_link2;
+                                        $social_link = settings()->group_link2;
                                     }
                                 ?>
                                 <li>
@@ -349,7 +352,7 @@
                 </div>
             </div>
         </div>
-
+        @if(!empty(notification()))
         <div id="myModal3" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
@@ -359,7 +362,7 @@
                         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"
                             onclick="Closepopup()"></button>
                     </div>
-                    <div class="modal-body"> {{ $web_settings->notification }}</div>
+                    <div class="modal-body"> {!! notification() !!}</div>
 
                     <div class="modal-footer">
 
@@ -370,10 +373,10 @@
                 </div>
             </div>
         </div>
-
+        @endif
         <div id="successModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
             aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog" style="padding-top: 20px;">
                 <div class="modal-content">
 
                     <br />
@@ -484,7 +487,7 @@
         }
     </script>
   
-    @if($web_settings->notification_mode == "ON")
+    @if(!empty(notification1()) && notification1()->status == "active")
     <script type="text/javascript">
         $(document).ready(function () {
             $("#myModal3").modal("show");
@@ -502,25 +505,22 @@
                     <span style="float: right;"></span>
                 </span>
                 <br />
-
-                <span style="color: #940798;font-weight: bold;font-size: 25px;">₦
-                    <?php echo number_format(auth()->user()->wallets, 2); ?></span>
+                <span style="color: #940798;font-weight: bold;font-size: 25px;">{{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span>
 
             </div>
-
         </div>
-    </div>
         @yield('body')
     </div>
-    @yield('scripts')
+        
+   
 {{-- Footer --}}
-<div class="footer_part">
+<div class="">
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-12">
                 <div class="footer_iner text-center">
                     <h4>Download our mobile Apps</h4>
-        <p>
+                    <p>
                     <!-- <a target="_blank" href="https://play.google.com/store/apps/details?id=swift.data.ng"> -->
                     <a target="_blank" href="https://drive.google.com/drive/folders/107QE4pPKM4F2ah3c-uUM4nnxjM4O4EeC">
                         
@@ -572,13 +572,20 @@
 <i class="ti-angle-up"></i>
 </a>
 </div>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
+<script type="text/javascript" src="backend/js/overlay.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
-<script src="{{ asset('backend/js/jquery1-3.4.1.min.js') }}"></script>
 
-<script src="{{ asset('backend/js/popper1.min.js') }}"></script>
+{{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> --}}
 
-<script src="{{ asset('backend/js/bootstrap1.min.js') }}"></script>
+{{-- bootstrap --}}
+{{-- <script src="{{ asset('backend/js/popper1.min.js') }}"></script>
+<script src="{{ asset('backend/js/bootstrap1.min.js') }}"></script> --}}
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 
 <script src="{{ asset('backend/js/metisMenu.js') }}"></script>
 
@@ -633,7 +640,7 @@
 </script>
 <script src="{{ asset('backend/js/dashboard_init.js') }}"></script>
 <script src="{{ asset('backend/js/custom.js') }}"></script>
-
+ @yield('scripts')
 <script>
     var url = 'https://wati-integration-service.clare.ai/ShopifyWidget/shopifyWidget.js?66890';
     var s = document.createElement('script');
@@ -662,7 +669,7 @@
             "ctaText": "Start Chat",
             "borderRadius": "25",
             "autoShow": false,
-            "phoneNumber": "{{ $web_settings->whatsapp_no }}"
+            "phoneNumber": "{{ settings()->whatsapp_no }}"
         }
     };
     s.onload = function () {

@@ -2,30 +2,550 @@
 
 namespace App\Http\Controllers\Providers;
 
+use App\Models\Product;
+use App\Models\Discount;
+use App\Models\Variation;
 use App\Models\WebSetting;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\CustomerLevel;
 
 class EasyAccessController extends Controller
 {
-    public function getVariations($type, $product, $level, $plan_id=null)
+
+    public function getVariations($product)
     {
-        $response = [
-            'name' => '',
-            'price' => '',
-            'code' => '',
-            'val' => '',
+        $variations = $this->esayAccessProductVariations($product->slug);
+        if($variations){
+            $variations = $variations['variations'];
+            foreach ($variations as $variation) {
+                if(Variation::where('slug', $variation['variation_code'])->count() > 0){
+                    continue;
+                }
+                Variation::updateOrCreate([
+                    'product_id' => $product['id'],
+                    'category_id' => $product['category_id'],
+                    'api_id' => $product['api']['id'],
+                    'slug' => $variation['variation_code'],
+                ], [
+                    'product_id' => $product['id'],
+                    'category_id' => $product['category_id'],
+                    'api_id' => $product['api']['id'],
+                    'api_name' => $variation['name'],
+                    'slug' => $variation['variation_code'],
+                    'system_name' => $variation['name'],
+                    'fixed_price' => $variation['fixedPrice'],
+                    'api_price' => $variation['variation_amount'],
+                    'system_price' => $variation['variation_amount'],
+                    'network' => $variation['network'] ?? null,
+                ]);
+            }
+
+            return true;
+        }
+        return false;        
+    }
+
+    public function esayAccessProductVariations($product_slug)
+    {
+        $variations = [
+            'response_description' => '000',
+            'variations' => [
+                'mtn-cg' => [
+                    'variations' => [
+                        [
+                            'name' => '500MB (SME)',
+                            'variation_code' => 50,
+                            'fixedPrice' => 'yes',
+                            'variation_amount' => 129,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 51,
+                            'fixedPrice' => 'yes',
+                            'variation_amount' => 257,
+                            'name' => '1GB (SME) - 30days',
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 52,
+                            'fixedPrice' => 'yes',
+                            'name' => '2GB (SME) - 30days',
+                            'variation_amount' => 514,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 53,
+                            'fixedPrice' => 'yes',
+                            'name' => '3GB (SME) - 30days',
+                            'variation_amount' => 771,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 147,
+                            'fixedPrice' => 'yes',
+                            'name' => '70GB (CG) - 30days',
+                            'variation_amount' => 1576923600,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 148,
+                            'fixedPrice' => 'yes',
+                            'name' => '75GB (CG) -  30days',
+                            'variation_amount' => 1689561000,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 149,
+                            'fixedPrice' => 'yes',
+                            'name' => '80GB (CG) - 30days',
+                            'variation_amount' => 1802198400,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 150,
+                            'fixedPrice' => 'yes',
+                            'name' => '90GB (CG) - 30days',
+                            'variation_amount' => 2027473200,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 151,
+                            'fixedPrice' => 'yes',
+                            'name' => '100GB (CG) - 30days',
+                            'variation_amount' => 2252748000,
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 152,
+                            'fixedPrice' => 'yes',
+                            'variation_amount' => 47262500,
+                            'network' => 01,
+                            'name' => '750MB (Direct) - 14days',
+                            'network' => 01,
+                        ],
+                        [
+                            'variation_code' => 83,
+                            'fixedPrice' => 'yes',
+                            'name' => '1.5GB (Direct) - 30days',
+                            'variation_amount' => 965,
+                            'network' => 01,
+                        ],
+                    ],
+                ],
+
+                'glo-cg' => [
+                    'variations' => [
+                        [
+                            'name' => 'GLO 200MB (CG) - 14days',
+                            'variation_code' => 158,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 46,
+                            'network' => 02,
+                        ],
+                        [
+                            'name' => 'GLO 500MB (CG) - 30days',
+                            'variation_code' => 159,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 113,
+                            'network' => 02,
+
+                        ],
+                        [
+                            'name' => '1GB (CG) - 30days',
+                            'variation_code' => 160,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 225,
+                            'network' => 02,
+
+                        ],
+                        [
+                            'name' => '2GB (CG) - 30days',
+                            'variation_code' => 161,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 450,
+                            'network' => 02,
+
+                        ],
+                        [
+                            'name' => '3GB (CG) - 30days',
+                            'variation_code' => 162,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 675,
+                            'network' => 02,
+
+                        ],
+                        [
+                            'name' => '5GB (CG) - 30days',
+                            'variation_code' => 163,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 1125,
+                            'network' => 02,
+
+                        ],
+                        [
+                            'name' => '10GB (CG) - 30days',
+                            'variation_code' => 164,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 2250,
+                            'network' => 02,
+
+                        ],
+                    ],
+                ],
+
+                'airtel-cg' => [
+                    'variations' => [
+                        [
+                            'name' => 'AIRTEL 100MB (CG) - 7days',
+                            'variation_code' => 104,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 27,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 300MB (CG) - 7days',
+                            'variation_code' => 105,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 67,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 500MB (CG) - 30days',
+                            'variation_code' => 106,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 101,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 1GB (CG) - 30days',
+                            'variation_code' => 107,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 200,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 2GB (CG) - 30days',
+                            'variation_code' => 108,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 400,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 5GB (CG) - 30days',
+                            'variation_code' => 109,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 1000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 10GB (CG) - 30days',
+                            'variation_code' => 124,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 2000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 15GB (CG) - 30days',
+                            'variation_code' => 139,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 3000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 20GB (CG) - 30days',
+                            'variation_code' => 140,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 4000,
+                            'network' => 03,
+
+                        ],
+                    ],
+                ],
+
+                'etisalat-sme' => [
+                    'variations' => [
+                        [
+                            'variation_code' => 166,
+                            'name' => '100MB (SME) - 30days',
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 18,
+                            'network' => 04,
+                        ],
+                        [
+                            'variation_code' => 167,
+                            'name' => '300MB (SME) - 30days',
+                            'variation_amount' => 48,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 168,
+                            'name' => '500MB (SME) - 30days',
+                            'variation_amount' => 68,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 128,
+                            'name' => '1GB (SME) - 30days',
+                            'variation_amount' => 135,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 129,
+                            'name' => '1.5GB (SME) 30days',
+                            'variation_amount' => 203,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes'
+                        ],
+                        [
+                            'variation_code' => 130,
+                            'name' => '2GB (SME) - 30days',
+                            'variation_amount' => 270,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 131,
+                            'name' => '2.5GB (SME) - 30days',
+                            'variation_amount' => 3942000,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 132,
+                            'name' => '3GB (SME) - 30days',
+                            'variation_amount' => 405,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        // [
+                        //     'variation_code' => 132,
+                        //     'name' => '3GB (SME) - 30days',
+                        //     'variation_amount' => 405,
+                        //     'network' => 04,
+                        // ],
+                        [
+                            'variation_code' => 169,
+                            'name' => '4GB (SME) - 30days',
+                            'variation_amount' => 540,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 134,
+                            'name' => '5GB (SME) - 30days',
+                            'variation_amount' => 675,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 135,
+                            'name' => '6GB (SME) - 30days',
+                            'variation_amount' => 810,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 170,
+                            'name' => '7.5GB (SME) 30days',
+                            'variation_amount' => -1014,
+                            'network' => 01,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 136,
+                            'name' => '10GB (SME) - 30days',
+                            'variation_amount' => 1350,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ],
+                        [
+                            'variation_code' => 171,
+                            'name' => '11GB (SME) - 30days',
+                            'variation_amount' => 1485,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+
+                        ],
+                        [
+                            'variation_code' => 137,
+                            'name' => '15GB (SME) - 30days',
+                            'variation_amount' => 2025,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+
+                        ],
+                        [
+                            'variation_code' => 138,
+                            'name' => '20GB (SME) - 30days',
+                            'variation_amount' => 2700,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+
+                        ],
+                        [
+                            'variation_code' => 172,
+                            'name' => '25GB (SME) - 30days',
+                            'variation_amount' => 352316250,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+
+                        ],
+                        [
+                            'variation_code' => 173,
+                            'name' => '30GB (SME) - 30days',
+                            'variation_amount' => 42277950,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+
+                        ],
+                        [
+                            'variation_code' => 174,
+                            'name' => '40GB (SME) - 30days',
+                            'variation_amount' => 563706000,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+
+                        ],
+                        [
+                            'variation_code' => 175,
+                            'name' => '50GB (SME) - 30days',
+                            'variation_amount' => 704632500,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+
+                        ],
+                        [
+                            'variation_code' => 176,
+                            'name' => '100GB (SME) - 30days',
+                            'variation_amount' => 1409265000,
+                            'network' => 04,
+                            'fixedPrice' => 'Yes',
+                        ]
+                    ],
+                ],
+
+                'airtel-gifting' => [
+                    'variations' => [
+                        [
+                            'name' => 'AIRTEL 100MB (CG) - 7days',
+                            'variation_code' => 104,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 27,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 300MB (CG) - 7days',
+                            'variation_code' => 105,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 67,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 500MB (CG) - 30days',
+                            'variation_code' => 106,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 101,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 1GB (CG) - 30days',
+                            'variation_code' => 107,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 200,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 2GB (CG) - 30days',
+                            'variation_code' => 108,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 400,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 5GB (CG) - 30days',
+                            'variation_code' => 109,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 1000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 10GB (CG) - 30days',
+                            'variation_code' => 124,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 2000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 15GB (CG) - 30days',
+                            'variation_code' => 139,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 3000,
+                            'network' => 03,
+
+                        ],
+                        [
+                            'name' => 'AIRTEL 20GB (CG) - 30days',
+                            'variation_code' => 140,
+                            'fixedPrice' => 'Yes',
+                            'variation_amount' => 4000,
+                            'network' => 03,
+
+                        ],
+                    ],
+                ],
+            ],
         ];
-        // dd($type, $product, $level);
-        if ($type == 'data' && $product == 'mtn-cg') {
-            $response = \DB::table('mtncgdata_plan')->where('id', $level)->select('easy_access125', 'easy_access126', 'easy_access127', 'easy_access45', 'easy_access46', 'easy_access47', 'easy_access48', 'easy_access49', 'easy_access88', 'easy_access89', 'easy_access90', 'easy_access141', 'easy_access142', 'easy_access143', 'easy_access144', 'easy_access145', 'easy_access146', 'easy_access147', 'easy_access148', 'easy_access149', 'easy_access150', 'easy_access151')->first();
-            
-            $response = [
+
+        if (!empty($product_slug)) {
+            if(isset($variations['variations'][$product_slug])){
+                $response = $variations['variations'][$product_slug];
+                return $response;
+            }else{
+                return [];
+            }
+        }
+    }
+
+
+    public function getOldVariations($product)
+    {
+        $category = $product->category;
+        $productLevel = CustomerLevel::pluck('id')->toArray();
+        $old_identifier = $product->old_identifier;
+        
+        // Data products
+        if (isset($product->slug) && $product->slug == 'mtn-cg') {
+
+            // Get variations
+            // Loop through variations and create each variation
+            $response = \DB::connection('old')->table($old_identifier)->select('easy_access125', 'easy_access126', 'easy_access127', 'easy_access45', 'easy_access46', 'easy_access47', 'easy_access48', 'easy_access49', 'easy_access88', 'easy_access89', 'easy_access90', 'easy_access141', 'easy_access142', 'easy_access143', 'easy_access144', 'easy_access145', 'easy_access146', 'easy_access147', 'easy_access148', 'easy_access149', 'easy_access150', 'easy_access151')->first();
+            //create and update variation
+            $data = [
                 [
                     'name' => "MTN 50MB (CG) - 30days",
                     'price' => $response->easy_access125,
                     'code' => 125,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access125',
                     'val' => 50,
                 ],
@@ -33,6 +553,7 @@ class EasyAccessController extends Controller
                     'name' => "MTN 150MB (CG) - 30days",
                     'price' => $response->easy_access126,
                     'code' => 126,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access126',
                     'val' => 150,
                 ],
@@ -40,6 +561,7 @@ class EasyAccessController extends Controller
                     'name' => "MTN 250MB (CG) - 30days",
                     'price' => $response->easy_access127,
                     'code' => 127,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access127',
                     'val' => 250,
                 ],
@@ -48,6 +570,7 @@ class EasyAccessController extends Controller
                     'val' => 500,
                     'price' => $response->easy_access45,
                     'code' => 45,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access45',
                 ],
                 [
@@ -55,6 +578,7 @@ class EasyAccessController extends Controller
                     'val' => 1000,
                     'price' => $response->easy_access46,
                     'code' => 46,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access46',
                 ],
                 [
@@ -62,6 +586,7 @@ class EasyAccessController extends Controller
                     'val' => 2000,
                     'price' => $response->easy_access47,
                     'code' => 47,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access47',
                 ],
                 [
@@ -69,6 +594,7 @@ class EasyAccessController extends Controller
                     'val' => 3000,
                     'price' => $response->easy_access48,
                     'code' => 48,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access48',
                 ],
                 [
@@ -76,6 +602,7 @@ class EasyAccessController extends Controller
                     'val' => 5000,
                     'price' => $response->easy_access49,
                     'code' => 49,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access49'
                 ],
                 [
@@ -83,6 +610,7 @@ class EasyAccessController extends Controller
                     'val' => 10000,
                     'price' => $response->easy_access88,
                     'code' => 88,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access88',
                 ],
                 [
@@ -90,6 +618,7 @@ class EasyAccessController extends Controller
                     'val' => 12000,
                     'price' => $response->easy_access89,
                     'code' => 89,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access89',
                 ],
                 [
@@ -97,6 +626,7 @@ class EasyAccessController extends Controller
                     'val' => 15000,
                     'price' => $response->easy_access90,
                     'code' => 90,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access90',
                 ],
                 [
@@ -104,6 +634,7 @@ class EasyAccessController extends Controller
                     'val' => 20000,
                     'price' => $response->easy_access141,
                     'code' => 141,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access141',
                 ],
                 [
@@ -111,6 +642,7 @@ class EasyAccessController extends Controller
                     'val' => 25000,
                     'price' => $response->easy_access142,
                     'code' => 142,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access142',
                 ],
                 [
@@ -118,6 +650,7 @@ class EasyAccessController extends Controller
                     'val' => 30000,
                     'price' => $response->easy_access143,
                     'code' => 143,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access143',
                 ],
                 [
@@ -125,6 +658,7 @@ class EasyAccessController extends Controller
                     'val' => 40000,
                     'price' => $response->easy_access144,
                     'code' => 144,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access144',
                 ],
                 [
@@ -132,6 +666,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access145,
                     'val' => 50000,
                     'code' => 145,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access145',
                 ],
                 [
@@ -139,6 +674,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access146,
                     'val' => 60000,
                     'code' => 146,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access146',
                 ],
                 [
@@ -146,6 +682,7 @@ class EasyAccessController extends Controller
                     'price' => $response->easy_access147,
                     'val' => 70000,
                     'code' => 147,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access147',
                 ],
                 [
@@ -153,6 +690,7 @@ class EasyAccessController extends Controller
                     'val' => 75000,
                     'price' => $response->easy_access148,
                     'code' => 148,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access148',
                 ],
                 [
@@ -160,6 +698,7 @@ class EasyAccessController extends Controller
                     'val' => 80000,
                     'price' => $response->easy_access149,
                     'code' => 149,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access149',
                 ],
                 [
@@ -167,6 +706,7 @@ class EasyAccessController extends Controller
                     'val' => 90000,
                     'price' => $response->easy_access150,
                     'code' => 150,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access150',
                 ],
                 [
@@ -174,69 +714,175 @@ class EasyAccessController extends Controller
                     'val' => 100000,
                     'price' => $response->easy_access151,
                     'code' => 151,
+                    'fixedPrice' => 'yes',
                     'id' => 'easy_access151',
                 ],
 
             ];
+          
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => $d['fixedPrice'] ?? 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table($old_identifier)->select('easy_access125', 'easy_access126', 'easy_access127', 'easy_access45', 'easy_access46', 'easy_access47', 'easy_access48', 'easy_access49', 'easy_access88', 'easy_access89', 'easy_access90', 'easy_access141', 'easy_access142', 'easy_access143', 'easy_access144', 'easy_access145', 'easy_access146', 'easy_access147', 'easy_access148', 'easy_access149', 'easy_access150', 'easy_access151')->where('id',$level)->first();
+
+                    foreach($response as $key=>$value){
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+   
+                    }
+                }
+            }
         }
 
-        // MTN data
-        if ($type == "data" && $product == "mtn") {
-            $response = \DB::table('mtnsmedata_plan')->where('id', $level)->select('mtnsme_500', 'mtnsme_1', 'mtnsme_2', 'mtnsme_3', 'mtnsme_5', 'mtnsme_10')->first();
-
-            $response = [
+        if (isset($product->slug) && $product->slug == 'airtel-cg') {
+            $response = \DB::connection('old')->table('airtelcgdata_plan')->select('easy_access104', 'easy_access105', 'easy_access106', 'easy_access107', 'easy_access108', 'easy_access109', 'easy_access124', 'easy_access139', 'easy_access140')->first();
+            //create and update variation
+            $data = [
                 [
-                    'name' => "MTN SME 500M",
-                    'price' => $response->mtnsme_500,                   
-                    'code' => 50,
-                    'id' => '',
+                    'name' => "AIRTEL 100MB (CG) - 7days",
+                    'val' => 100,
+                    'price' => $response->easy_access104,
+                    'code' => 104,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access104',
+                ],
+                [
+                    'name' => "AIRTEL 300MB (CG) - 7days",
+                    'price' => $response->easy_access105,
+                    'val' => 300,
+                    'code' => 105,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access105',
+                ],
+                [
+                    'name' => "AIRTEL 500MB (CG) - 30days",
                     'val' => 500,
+                    'price' => $response->easy_access106,
+                    'code' => 106,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access106',
                 ],
                 [
-                    'name' => "MTN-SME 1GB",
-                    'price' => $response->mtnsme_1,                   
-                    'code' => 51,
-                    'id' => '',
+                    'name' => "AIRTEL 1GB (CG) - 30days",
                     'val' => 1000,
+                    'price' => $response->easy_access107,
+                    'code' => 107,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access107',
                 ],
                 [
-                    'name' => "MTN-SME 2GB",
-                    'price' => $response->mtnsme_2,                   
-                    'code' => 52,
-                    'id' => '',
+                    'name' => "AIRTEL 2GB (CG) - 30days",
                     'val' => 2000,
+                    'price' => $response->easy_access108,
+                    'code' => 108,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access108',
                 ],
                 [
-                    'name' => "MTN-SME 3GB",
-                    'price' => $response->mtnsme_3,                   
-                    'code' => 53,
-                    'id' => '',
-                    'val' => 3000,
-                ],
-                [
-                    'name' => "MTN-SME 5GB",
-                    'price' => $response->mtnsme_5,                   
-                    'code' => 54,
-                    'id' => '',
+                    'name' => "AIRTEL 5GB (CG) - 30days",
                     'val' => 5000,
+                    'price' => $response->easy_access109,
+                    'code' => 109,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access109',
                 ],
                 [
-                    'name' => "MTN-SME 10GB",
-                    'price' => $response->mtnsme_10,                   
-                    'code' => 91,
-                    'id' => '',
+                    'name' => "AIRTEL 10GB (CG) - 30days",
                     'val' => 10000,
+                    'price' => $response->easy_access124,
+                    'code' => 124,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access124',
                 ],
-
+                [
+                    'name' => "AIRTEL 15GB (CG) - 30days",
+                    'price' => $response->easy_access139,
+                    'val' => 15000,
+                    'code' => 139,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access139'
+                ],
+                [
+                    'name' => "AIRTEL 20GB (CG) - 30days",
+                    'val' => 20000,
+                    'price' => $response->easy_access140,
+                    'code' => 140,
+                    'fixedPrice' => 'yes',
+                    'id' => 'easy_access140',
+                ],
             ];
+
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => $d['fixedPrice'] ?? 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('airtelcgdata_plan')->select('easy_access104', 'easy_access105', 'easy_access106', 'easy_access107', 'easy_access108', 'easy_access109', 'easy_access124', 'easy_access139', 'easy_access140')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+                    }
+                }
+            }
         }
 
-        // Airtel cg
-        if ($type == 'data' && $product == 'airtel-cg') {
-
-            $response = \DB::table('airtelcgdata_plan')->where('id', $level)->select('easy_access104', 'easy_access105', 'easy_access106', 'easy_access107', 'easy_access108', 'easy_access109', 'easy_access124', 'easy_access139', 'easy_access140')->first();
-
-            $response = [
+        if (isset($product->slug) && $product->slug == 'airtel') {
+            $response = \DB::connection('old')->table('airtelcgdata_plan')->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69', 'easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96', 'easy_access97', 'easy_access157')->first();
+            //create and update variation
+            $data = [
                 [
                     'name' => "AIRTEL 100MB (CG) - 7days",
                     'val' => 100,
@@ -301,100 +947,51 @@ class EasyAccessController extends Controller
                     'id' => 'easy_access140',
                 ],
             ];
+
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('airteldata_plan')->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69', 'easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96', 'easy_access97', 'easy_access157')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+                    }
+                }
+            }
         }
+        
+        if (isset($product->slug) && $product->slug == 'glo') {
+            $response = \DB::connection('old')->table('glodata_plan')->select('easy_access59', 'easy_access60', 'easy_access87', 'easy_access61', 'easy_access62', 'easy_access63', 'easy_access64', 'easy_access92', 'easy_access93', 'easy_access94', 'easy_access100', 'easy_access101', 'easy_access102')->first();
 
-        // Aitel
-        if ($type == 'data' && $product == 'airtel') {
-            $response = \DB::table('airteldata_plan')->where('id', $level)->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69', 'easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96', 'easy_access97', 'easy_access157')->first();
-
-            $response = [
-                [
-                    'name' => "750MB (Direct) - 14days",
-                    'val' => 750,
-                    'price' => $response->easy_access66,
-                    'code' => 66,
-                    'id' => 'easy_access66',
-                ],
-                [
-                    'name' => "1.5GB (Direct) - 30days",
-                    'price' => $response->easy_access67,
-                    'val' => 1500,
-                    'code' => 67,
-                    'id' => 'easy_access67',
-                ],
-                [
-                    'name' => "2GB (Direct) - 30days",
-                    'val' => 2000,
-                    'price' => $response->easy_access68,
-                    'code' => 68,
-                    'id' => 'easy_access68',
-                ],
-                [
-                    'name' => '3GB (Direct) - 30days',
-                    'val' => 3000,
-                    'price' => $response->easy_access69,
-                    'code' => 69,
-                    'id' => 'easy_access69',
-                ],
-                [
-                    'name' => "4.5GB (Direct) - 30days",
-                    'val' => 4500,
-                    'price' => $response->easy_access70,
-                    'code' => 70,
-                    'id' => 'easy_access70',
-                ],
-                [
-                    'name' => "6GB (Direct) - 30days",
-                    'val' => 6000,
-                    'price' => $response->easy_access71,
-                    'code' => 71,
-                    'id' => 'easy_access71',
-                ],
-                [
-                    'name' => "10GB (Direct) - 30days,",
-                    'price' => $response->easy_access72,
-                    'val' => 15000,
-                    'code' => 72,
-                    'id' => 'easy_access72'
-                ],
-
-                [
-                    'name' => "20GB (Direct) - 30days",
-                    'val' => 20000,
-                    'price' => $response->easy_access74,
-                    'code' => 74,
-                    'id' => 'easy_access74',
-                ],
-                [
-                    'name' => "40GB (Direct) - 30days",
-                    'val' => 40000,
-                    'price' => $response->easy_access96,
-                    'code' => 96,
-                    'id' => 'easy_access96',
-                ],
-                [
-                    'name' => "75GB (Direct) - 30days",
-                    'val' => 75000,
-                    'price' => $response->easy_access97,
-                    'code' => 97,
-                    'id' => 'easy_access97',
-                ],
-                [
-                    'name' => "120GB (Direct) - 30days",
-                    'val' => 120000,
-                    'price' => $response->easy_access157,
-                    'code' => 157,
-                    'id' => 'easy_access157',
-                ],
-
-            ];
-        }
-
-        // Glo 
-        if ($type == 'data' && $product == 'glo') {
-            $response = \DB::table('glodata_plan')->where('id', $level)->select('easy_access59', 'easy_access60', 'easy_access87', 'easy_access61', 'easy_access62', 'easy_access63', 'easy_access64', 'easy_access92', 'easy_access93', 'easy_access94', 'easy_access100', 'easy_access101', 'easy_access102')->first();
-            
-            $response = [
+            $data = [
                 [
                     'name' => "1.35GB (Direct) - 14days",
                     'val' => 1500,
@@ -487,13 +1084,51 @@ class EasyAccessController extends Controller
                     'id' => 'easy_access102',
                 ],
             ];
+
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) { 
+                    $response = \DB::connection('old')->table('glodata_plan')->select('easy_access59', 'easy_access60', 'easy_access87', 'easy_access61', 'easy_access62', 'easy_access63', 'easy_access64', 'easy_access92', 'easy_access93', 'easy_access94', 'easy_access100', 'easy_access101', 'easy_access102')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+                    }
+                }
+            }
         }
 
-        // GLo cg
-        if ($type == 'data' && $product == 'glo-cg') {
-            $response = \DB::table('glocgdata_plan')->where('id', $level)->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->first();
+        if (isset($product->slug) && $product->slug == 'glo-cg') {
+            $response = \DB::connection('old')->table('glocgdata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->first();
 
-            $response = [
+            $data = [
                 [
                     'name' => "GLO 200MB (CG) - 14days",
                     'val' => 200,
@@ -544,59 +1179,98 @@ class EasyAccessController extends Controller
                     'id' => 'easy_access164',
                 ],
             ];
+
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('glocgdata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+                    }
+                }
+            }
         }
 
-        // SMEs
-        if (($type == 'data' || $type = 'sme') && ($product == 'apimobile-sme' || $product == 'mobile-sme')) {
-            $response = \DB::table('mobilesmedata_plan')->where('id', $level)->select('easy_access166', 'easy_access167', 'easy_access168', 'easy_access128', 'easy_access129', 'easy_access130', 'easy_access131', 'easy_access132', 'easy_access169', 'easy_access134', 'easy_access135', 'easy_access170', 'easy_access136', 'easy_access171', 'easy_access137', 'easy_access138', 'easy_access172', 'easy_access173', 'easy_access174', 'easy_access175', 'easy_access176')->first();
-            
-            $response = [
+
+        if (isset($product->slug) && $product->slug == 'apimobile-sme') {
+            $response = \DB::connection('old')->table('mobilesmedata_plan')->select('easy_access166', 'easy_access167', 'easy_access168', 'easy_access128', 'easy_access129', 'easy_access130', 'easy_access131', 'easy_access132', 'easy_access169', 'easy_access134', 'easy_access135', 'easy_access170', 'easy_access136', 'easy_access171', 'easy_access137', 'easy_access138', 'easy_access172', 'easy_access173', 'easy_access174', 'easy_access175', 'easy_access176')->first();
+
+            $data = [
                 [
                     'name' => "9MOBILE 100MB (SME) - 30days",
                     'val' => 100,
-                    'price' =>$response->easy_access166,
+                    'price' => $response->easy_access166,
                     'code' => 166,
                     'id' => 'easy_access166',
                 ],
                 [
                     'name' => "9MOBILE 300MB (SME) - 30days",
                     'val' => 300,
-                    'price' =>$response->easy_access167,
+                    'price' => $response->easy_access167,
                     'code' => 167,
                     'id' => 'easy_access167',
                 ],
                 [
                     'name' => "9MOBILE 500MB (SME) - 30days",
                     'val' => 500,
-                    'price' =>$response->easy_access168,
+                    'price' => $response->easy_access168,
                     'code' => 168,
                     'id' => 'easy_access168',
                 ],
                 [
                     'name' => "9MOBILE 1GB (SME) - N190 30days",
                     'val' => 1000,
-                    'price' =>$response->easy_access128,
+                    'price' => $response->easy_access128,
                     'code' => 128,
                     'id' => 'easy_access128',
                 ],
                 [
                     'name' => "9MOBILE 1.5GB (SME) - 30days",
                     'val' => 1500,
-                    'price' =>$response->easy_access129,
+                    'price' => $response->easy_access129,
                     'code' => 129,
                     'id' => 'easy_access129',
                 ],
                 [
                     'name' => "9MOBILE 2GB (SME) - 30days",
                     'val' => 2000,
-                    'price' =>$response->easy_access130,
+                    'price' => $response->easy_access130,
                     'code' => 130,
                     'id' => 'easy_access130',
                 ],
                 [
                     'name' => "9MOBILE 2.5GB (SME) - 30days",
                     'val' => 25000,
-                    'price' =>$response->easy_access131,
+                    'price' => $response->easy_access131,
                     'code' => 131,
                     'id' => 'easy_access131'
                 ],
@@ -604,21 +1278,21 @@ class EasyAccessController extends Controller
                 [
                     'name' => "9MOBILE 3GB (SME) - 30days",
                     'val' => 3000,
-                    'price' =>$response->easy_access132,
+                    'price' => $response->easy_access132,
                     'code' => 132,
                     'id' => 'easy_access132',
                 ],
                 [
                     'name' => "9MOBILE 4GB (SME) - 30days",
                     'val' => 4000,
-                    'price' =>$response->easy_access169,
+                    'price' => $response->easy_access169,
                     'code' => 169,
                     'id' => 'easy_access169',
                 ],
                 [
                     'name' => "9MOBILE 5GB (SME) - 30days",
                     'val' => 5000,
-                    'price' =>$response->easy_access134,
+                    'price' => $response->easy_access134,
                     'code' => 134,
                     'id' => 'easy_access134',
                 ],
@@ -701,14 +1375,52 @@ class EasyAccessController extends Controller
                 ],
 
             ];
+
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('mobilesmedata_plan')->select('easy_access166', 'easy_access167', 'easy_access168', 'easy_access128', 'easy_access129', 'easy_access130', 'easy_access131', 'easy_access132', 'easy_access169', 'easy_access134', 'easy_access135', 'easy_access170', 'easy_access136', 'easy_access171', 'easy_access137', 'easy_access138', 'easy_access172', 'easy_access173', 'easy_access174', 'easy_access175', 'easy_access176')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+                    }
+                }
+            }
         }
 
-        // Data card
-       
-        if ($type == 'data' && ($product == 'mtn-data-card' || $product == 'mtn-datacard')) {
-            $response = \DB::table('mtndata_card_plan')->where('id', $level)->first();
-           
-            $response = [
+
+        if (isset($product->slug) && $product->slug ==  'mtn-datacard') {
+            $response = \DB::connection('old')->table('mtndata_card_plan')->first();
+
+            $data = [
                 [
                     'name' => "MTN 1.5GB (DATACARD) - 30days",
                     'val' => 1500,
@@ -718,137 +1430,122 @@ class EasyAccessController extends Controller
                 ],
 
             ];
-        }
 
-        if (!empty($plan_id)) {
-            foreach ($response as $res) {
-                if ($plan_id == $res['code']) {
-                   
-                    $response = [
-                        'price' => $res['price'],
-                        'service' => $product,
-                        'databyte' => $res['val'],
-                        'name' => $res['name'],
-                        'code' => $res['code'],
-                    ];
+            foreach ($data as $d) {
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                ], [
+                    'product_id' => $product->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('mtndata_card_plan')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'product_id' => $product->id,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+                            'status' => 'active'
+                        ]);
+                    }
                 }
             }
         }
 
-        return $response;
+        // Data card
+        return back()->with('Old Variations pulled successfully');
     }
 
-    public function prepareParams(Request $request){
-        $postdata = $this->getPostData($request->all());
-        $easyaccess_token = WebSetting::first()->value('easyaccess_token');
-        $headers = [
-            "AuthorizationToken: ".$easyaccess_token."",
-            'cache-control: no-cache'
-        ];
-        
-        // Save post fields
-        $pstfields = [
-            'url' =>  $postdata['url'],
-            'payload' => $postdata,
-        ];
-       
-        $params = [
-            'url' => $postdata['url'],
-            'headers' => $headers,
-            'postfields' => $pstfields,
-            'payload' => Arr::except($postdata, 'url'),
-            'provider' => 'EASYACCESS',
-        ];
-     
-        return $params;
-    }
-
-    public function getPostData($request){
-        if ($request['network_module'] == 'MTN-CG' || $request['network_module'] == 'GIFTING') {
-            $type = 'data';
-            $product = 'mtn';
-            $ntwk = 01;
-            $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'AIRTEL-CG') {
-            $type = 'data';
-            $product = 'airtel-cg';
-            $ntwk = 03;
-            $url = "https://easyaccess.com.ng/api/data.php";
-
-        } elseif ($request['network_module'] == 'AIRTEL') {
-            $type = 'data';
-            $product = 'airtel';
-            $ntwk = 03;
-            $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'GLO-CG') {
-            $type = 'data';
-            $product = 'glo-cg';
-            $ntwk = 02;
-            $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'GLO') {
-            $type = 'data';
-            $product = 'glo';
-            $ntwk = 02;
-            $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'MOBILE-SME' || $request['network_module'] == 'MOBILE SME') {
-            $type = 'data';
-            $product = 'apimobile-sme';
-            $ntwk = 04;
-            $url = "https://easyaccess.com.ng/api/data.php";
-        } elseif ($request['network_module'] == 'MTN-DATACARD') {
-            $type = 'datacard';
-            $product = 'mtn-data-card';
-            $ntwk = 01;
-            $url = "https://easyaccess.com.ng/api/datacard.php";
-        }else if ($request['network_module'] == 'MTN' || $request['network_module'] == 'MTN-SME') {
-            $type = 'data';
-            $product = 'mtn';
-            $ntwk = 01;
-            $url = "https://easyaccess.com.ng/api/data.php";
+    public function getPostData($request, $api){
+        $slug = strtolower($request['resource']->slug);
+        $resource = $request['resource'];
+        if ($slug == 'mtn-cg' || $slug == 'mtn' || $slug == 'mtn-sme') {
+            $ntwk = '01';
+            $url = $api->live_base_url."data.php";
+        } elseif ($slug == 'airtel-cg' || $slug == 'airtel') {
+            $ntwk = '03';
+            $url = $api->live_base_url . "data.php";
+        } elseif ($slug == 'glo-cg' || $slug == 'glo' || $slug == 'glo-data') {;
+            $ntwk = '02';
+            $url = $api->live_base_url . "data.php";
+        } elseif ($slug == '9mobile-sme' || $slug == 'apimobile-sme') {
+            $ntwk = '04';
+            $url = $api->live_base_url . "data.php";
+        } elseif ($slug == 'mtn-datacard') {
+            $ntwk = '01';
+            $url = $api->live_base_url . "datacard.php";
         }
+
         $postdata = [
             'url' => $url,
             'network' => $ntwk,
-            'mobileno' =>  $request['mobile_no'] ?? '',
-            'dataplan' =>  $request['plan_id'],
-            'client_reference' => '',
-            'no_of_pins' => $request['no_of_pins'] ?? '',
+            'mobileno' =>  $request['mobile_number'] ?? '',
+            'dataplan' =>  $resource->slug,
+            'client_reference' => $request['sys_ref'],
+            'quantity' => $request['buyer_quantity'] ?? '',
         ];
-       
+        
         return $postdata;
 
     }
 
-    public function query($postdata, $request, $type){
-        $resX = $this->advancedApiCall($postdata['url'], $postdata['payload'], $postdata['headers']);
+    public function query($postdata, $api){
+        $headers = [
+            "Authorization: Token " . $api->api_key . "",
+            'cache-control: no-cache'
+        ];
+        
+        // Save post fields
+        $pstfields = $this->getPostData($postdata, $api);
 
-        // $resX = '{"success": "true","message": "Data Card Purchase was Successful","network": "MTN","pin": "408335193S","pin2": "184305851S","dataplan": "1.5GB","amount": 574,"balance_before": "27833","balance_after": 27259,"transaction_date": "07-04-2023 07:57:47 pm","reference_no": "ID5345892220","client_reference": "client_ref84218868382855","status": "Successful","auto_refund_status": "success"}';
-        // dd($resX, $postdata['payload'], $postdata['headers']);
-    
+        if(env('ENT') == 'local'){
+            $resX = '{"success": "true","message": "Data Card Purchase was Successful","network": "MTN","pin": "408335193S","pin2": "184305851S","dataplan": "1.5GB","amount": 574,"balance_before": "27833","balance_after": 27259,"transaction_date": "07-04-2023 07:57:47 pm","reference_no": "ID5345892220","client_reference": "client_ref84218868382855","status": "Successful","auto_refund_status": "success"}';
+        }else{
+            $resX = $this->advancedApiCall($pstfields['url'], $pstfields, $headers);
+        }
+        
         try {
-            $format = $this->processApiResponse($resX,$request, $type);
+            $format = $this->processApiResponse($resX);
             $format['api_response'] = $resX;      
+            $format['postfields'] = $pstfields;      
         } catch (\Throwable $th) {
-
             $format = [
+                'api_response' => $resX,         
+                'postfields' => $pstfields,
                 'status' => 'attention-required',
                 'response' => '',
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
-            $format['api_response'] = $resX;  
             
             return $format;
-
         }
        
         return $format;
     }
 
-    public function processApiResponse($res, $request, $type){
-       
+    public function processApiResponse($res){
         if(empty($res)){
             $formatted = [
-                'status' => 'failed',
+                'status' => 'attention-required',
                 'extra' => '',
                 'response' => 'Something went wrong, please try again later',
                 'error' => 'Something went wrong, please try again later',
@@ -874,7 +1571,7 @@ class EasyAccessController extends Controller
                 
                 $status = isset($result->status) ? strtolower($result->status) : 'failed';
                 $auto_refund_status = isset($result->auto_refund_status) ? strtolower($result->auto_refund_status) : 'nil';
-             
+            
                 if (isset($status) && $status !== "failed" && $auto_refund_status !== 'failed' && $auto_refund_status != 'nil') {
                     $status = 'success';
                     $true_response = $true_response;
@@ -904,5 +1601,9 @@ class EasyAccessController extends Controller
         }
         
         return $formatted;
+    }
+
+    public function requery($transaction){
+
     }
 }
