@@ -283,15 +283,12 @@ class PaymentGatewayController extends Controller
                                 'api_ref' => $api_reference,
                                 'payment_gateway_id' => $api->id,
                                 'account_number' => $account_number,
-                                'raw_response' => json_encode($request->all()), 
                             ]);
 
                             // $amountPaid - $charges
                             if ($deposit) {
                                 $data = [
                                     'mobile_number' => $user->mobile,
-                                    'buyer_email' => $user->email,
-                                    'buyer_username' => $user->username,
                                     'unit_price' => $final_amount,
                                     'buyer_amount' => $final_amount,
                                     'buyer_prebal' => $walletBal,
@@ -300,8 +297,6 @@ class PaymentGatewayController extends Controller
                                     'buyer_descr' => $order_descr,
                                     'buyer_status' => 'SUCCESSFUL',
                                     'buyer_service' => 'DEPOSIT',
-                                    // 'charge_from' => 'WALLET',
-                                    'user_type' => $user->level,
                                     'sys_ref' => $sys_reference,
                                     'api_ref' => $api_reference,
                                     'api_report' => 'DONE',
@@ -315,6 +310,7 @@ class PaymentGatewayController extends Controller
                                     'type' => 'credit',
                                     'user_id' => $user->id,
                                     'charges' => $charges,
+                                    'api_response' => json_encode($request->all()),
                                 ];
 
                                 $this->logTransaction($data);
@@ -409,12 +405,6 @@ class PaymentGatewayController extends Controller
                         'api_ref' => $api_reference,
                         'payment_gateway_id' => $api->id,
                         'account_number' => $account_number,
-                        'raw_response' => json_encode($request->all()), 
-                        // 'pay_gateway' => 'MONNIFY',
-                        // 'user_email' => $user->email,
-                        // 'user_username' => $user->username, 
-                        // 'user_date' => '', 
-                        // 'timestring' => '', 
                     ]);
 
                     // mysqli_query($con, "INSERT INTO `deposit_transactions` (`id`, `user_email`, `user_username`, `user_service`, `user_amount`, `user_prebal`, `user_postbal`, `user_descr`, `user_status`, `user_date`, `timestring`, `sys_ref`, `api_ref`, `pay_gateway`, `api_report`, `cashier`) VALUES (NULL, '$customer_email', '$username', 'DEPOSIT', '$final_amount', '$walletBal', '$NewBal', '$order_descr', 'SUCCESSFUL', '$time', '$timestring', '$transactionReference', '$api_reference', 'MONNIFY', 'GOOD', '$customer_email')");
@@ -435,7 +425,6 @@ class PaymentGatewayController extends Controller
                             'buyer_descr' => $order_descr,
                             'buyer_status' => 'SUCCESSFUL',
                             'buyer_service' => 'DEPOSIT',
-                            // 'charge_from' => 'WALLET',
                             'user_type' => $user->level,
                             'sys_ref' => $sys_reference,
                             'api_ref' => $api_reference,
@@ -450,6 +439,7 @@ class PaymentGatewayController extends Controller
                             'type' => 'credit',
                             'user_id' => $user->id,
                             'charges' => $charges,
+                            'api_response' => json_encode($request->all()),
                         ];
     
                         $this->logTransaction($data);

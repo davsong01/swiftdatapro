@@ -21,15 +21,31 @@
                         {{-- @csrf --}}
                         <div class="row gy-4">
                             <div class="col-md-3">
+                                <div class="form-group" >
+                                    <label for="sys_reference" class="form-label">System Reference</label>
+                                    <input type="text" class="form-control" id="sys_reference" name="sys_reference" placeholder="Enter sys reference or api reference" value="{{ \Request::get('sys_reference')}}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="email" class="form-label">Transaction Email</label>
+                                    <label for="billersCode" class="form-label">Biller</label>
+                                    <input type="billersCode" class="form-control" id="billersCode" name="billersCode" placeholder="Enter biller" value="{{ \Request::get('billersCode')}}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Customer Email</label>
                                     <input type="email" class="form-control" id="email" name="email" placeholder="Enter customer email address" value="{{ \Request::get('email')}}">
                                 </div>
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group">
-                                    <label for="phone" class="form-label">Transaction Phone</label>
-                                    <input type="phone" class="form-control" id="phone" name="phone" placeholder="Enter customer phone number" value="{{ \Request::get('phone')}}">
+                                    <label for="type" class="form-label">Transaction Type</label>
+                                    <select class="form-control" name="type" id="type">
+                                        <option value="">Select</option>
+                                        <option value="credit" {{ \Request::get('type') == 'credit' ? 'selected' : ''}}>Credit</option>
+                                        <option value="debit" {{ \Request::get('type') == 'debit' ? 'selected' : ''}}>Debit</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -37,18 +53,18 @@
                                     <label for="service" class="form-label">Service</label>
                                     <select class="form-control" name="service" id="service">
                                         <option value="">Select</option>
+                                        <option value="DEPOSIT" {{ \Request::get('service') == 'DEPOSIT' ? 'selected' : ''}}>DEPOSIT</option>
+                                        <option value="UPGRADE" {{ \Request::get('service') == 'UPGRADE' ? 'selected' : ''}}>UPGRADE</option>
+                                        <option value="EARNING WITHDRAWAL" {{ \Request::get('service') == 'EARNING WITHDRAWAL' ? 'selected' : ''}}>EARNING WITHDRAWAL</option>
+                                        <option value="ADMIN-CREDIT" {{ \Request::get('service') == 'ADMIN-CREDIT' ? 'selected' : ''}}>ADMIN-CREDIT</option>
+                                        <option value="ADMIN-DEBIT" {{ \Request::get('service') == 'ADMIN-DEBIT' ? 'selected' : ''}}>ADMIN-DEBIT</option>
                                         @foreach ($products as $product)
                                             <option value="{{ $product->id }}" {{ \Request::get('service') == $product->id ? 'selected' : ''}}>{{ $product->display_name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="form-group" >
-                                    <label for="sys_reference" class="form-label">System Reference</label>
-                                    <input type="text" class="form-control" id="sys_reference" name="sys_reference" placeholder="Enter transaction ID" value="{{ \Request::get('sys_reference')}}">
-                                </div>
-                            </div>
+                           
                             {{-- <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="unique_element" class="form-label">Unique Element</label>
@@ -60,9 +76,9 @@
                                     <label for="status" class="form-label">Status</label>
                                     <select class="form-control" name="status" id="status">
                                         <option value="">Select</option>
-                                        <option value="delivered" {{ \Request::get('status') == 'delivered' ? 'selected' : ''}}>Delivered</option>
-                                        <option value="failed" {{ \Request::get('status') == 'failed' ? 'selected' : ''}}>Failed</option>
-                                        <option value="attention-required" {{ \Request::get('status') == 'attention-required' ? 'selected' : ''}}>Attention Required</option>
+                                        <option value="SUCCESSFUL" {{ \Request::get('status') == 'SUCCESSFUL' ? 'selected' : ''}}>Successful</option>
+                                        <option value="FAILED" {{ \Request::get('status') == 'FAILED' ? 'selected' : ''}}>Failed</option>
+                                        <option value="ATTENTION-REQUIRED" {{ \Request::get('status') == 'ATTENTION-REQUIRED' ? 'selected' : ''}}>Attention Required</option>
                                     </select>
                                 </div>
                             </div>
@@ -102,13 +118,22 @@
                         @foreach($transactions as $transaction)
                         <tr>
                             <td>
+                                <strong>
+                                @if(!empty($transaction->product_id))
+                                    {{$transaction->product->display_name ?? ''}} @if(!empty($transaction->variation->system_name)) ({{$transaction->variation->system_name}})@endif
+                                @else
+                                    {{ $transaction->buyer_service }}
+                                @endif
+                                </strong>
+                                <br>
                                 <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
                                 <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> <br>
-                                {{ $transaction->buyer_email }} <br>
-                                <a href="">{{ $transaction->customer?->id  }}</a> <br>
+                                <strong><a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->full_name  }}</a> <br>
+                                <a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->email  }}</a> <br>
+                                </strong>
                                 {{ $transaction->mobile_number }} <br>
                                 {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>
-                                @if($transaction->status == 'success' || $transaction->buyer_status == 'SUCCESSFUL')
+                                @if($transaction->status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
                                 <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                 @else
                                 <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
@@ -117,11 +142,11 @@
                             <td>
                                 <small>
                                     <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
-                                    <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
+                                    <strong>Unit Price: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
                                     <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
+                                    <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->total_amount, 2) !!} <br>
                                     <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
-                                    <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
-                                    <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
+                                    <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                 </small>
                             </td>
                             

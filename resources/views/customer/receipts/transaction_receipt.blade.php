@@ -116,16 +116,12 @@
 						<table>
 							<tr>
 								<td class="title">
-									<?php 
+									{{-- <?php 
 										$image = !empty($transaction['product']) ? $transaction['product']['image'] : 'site/upgrade.jpg';
 									?>
 									
-									<img src="{{ url('/').'/'.settings()->logo}}" style="width: 20%; max-width: 500px"/>
-									{{-- @if(in_array($transaction['reason'], ['LEVEL-UPGRADE','WALLET-FUNDING']))
-								
-									@else
-									<img src="{{ url('/').'/'.$image  }}" style="width: 20%; max-width: 500px"/>
-									@endif --}}
+									<img src="{{ url('/').'/'.settings()->logo}}" style="width: 20%; max-width: 500px"/> --}}
+									
 								</td>
 
 								<td style="width: 50%;">
@@ -142,11 +138,11 @@
 							<tr>
 								<td style="padding-left: 0px;">
 									Payment for: <br />
-									{{-- @if(in_array($transaction['reason'], ['LEVEL-UPGRADE','WALLET-FUNDING']))
-										{{ ucfirst(str_replace("-"," ",$transaction['reason']))}}
-									@else --}}
-									<strong>{{ $transaction['product']['name'] ?? ''}}</strong>@if(!empty($transaction['variation']['system_name'])) {{ " | ". $transaction['variation']['system_name'] }}@endif
-									{{-- @endif --}}
+									@if(!empty($transaction['product_id']))
+										{{$transaction['product']['display_name'] ?? ''}} @if(!empty($transaction['variation']['system_name'])) ({{$transaction['variation']['system_name']}})@endif
+									@else
+										{{$transaction['buyer_service']}}
+									@endif
 								</td>
 							</tr>
 						</table>
@@ -179,7 +175,13 @@
 				@endif
 				<tr class="item">
 					<td>Payment Method</td>
-					<td>{{ ucfirst($transaction['charge_from']) }}</td>
+					<td>
+						@if(!empty($transaction['wallet_funding_provider']))
+						WALLET FUNDING
+						@else
+						WALLET
+						@endif
+					</td>
 				</tr>
 				<tr class="item">
 					<td>Service</td>
@@ -187,7 +189,11 @@
 						{{-- @if(in_array($transaction['reason'], ['LEVEL-UPGRADE','WALLET-FUNDING']))
 							{{ ucfirst(str_replace("-"," ",$transaction['reason']))}}
 						@else --}}
-						{{$transaction['product']['display_name'] ?? ''}} @if(!empty($transaction['variation']['system_name'])) ({{$transaction['variation']['system_name']}})@endif
+						@if(!empty($transaction['product_id']))
+							{{$transaction['product']['display_name'] ?? ''}} @if(!empty($transaction['variation']['system_name'])) ({{$transaction['variation']['system_name']}})@endif
+						@else
+						 	{{$transaction['buyer_service']}}
+						@endif
 						{{-- @endif --}}
 					</td>
 				</tr>
@@ -197,11 +203,15 @@
 				</tr>
 				<tr class="item">
 					<td>Biller</td>
-					<td>{{$transaction['biller'] ?? ''}}</td>
+					<td>{{$transaction['billersCode'] ?? ''}}</td>
+				</tr>
+				<tr class="item">
+					<td>Name</td>
+					<td>{{$transaction['customer']['full_name']}}</td>
 				</tr>
 				<tr class="item">
 					<td>Email</td>
-					<td>{{$transaction['buyer_email']}}</td>
+					<td>{{$transaction['customer']['email']}}</td>
 				</tr>
 				<tr class="item">
 					<td>Unit Price</td>
@@ -220,6 +230,10 @@
 					<td>Discount Applied</td>
 					<td>#{{ number_format($transaction['discount'], 2) }}</td>
 				</tr>
+				<tr class="item">
+					<td>Charges</td>
+					<td>#{{ number_format($transaction['charges'], 2) }}</td>
+				</tr>
 				{{-- @if(!empty($transaction->provider_charge))
                 <tr class="item">
 					<td>Convenience Fee</td>
@@ -228,7 +242,7 @@
                 @endif --}}
 				<tr class="item">
 					<td>Total Amount Paid</td>
-					<td>#{{ number_format($transaction['buyer_amount'], 2) }}</td>
+					<td>#{{ number_format($transaction['total_amount'], 2) }}</td>
 				</tr>
 				<tr class="item">
 					<td>Initial Balance</td>

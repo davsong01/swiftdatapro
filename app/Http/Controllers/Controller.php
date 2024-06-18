@@ -13,6 +13,7 @@ use App\Mail\EmailMessages;
 use App\Models\Transactions;
 use App\Models\CustomerLevel;
 use App\Models\AutomatedDeposit;
+use App\Models\DepositTransaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Intervention\Image\Facades\Image;
@@ -873,7 +874,7 @@ class Controller extends BaseController
                     );
                 }
             }
-            
+
             dump('Products created');
 
 
@@ -930,6 +931,17 @@ class Controller extends BaseController
             }
 
             dump('Reserved accounts created');
+
+            // Update deposit transactions
+            $deposit_transactions = DepositTransaction::whereNull('user_id')->get();
+
+            foreach($deposit_transactions as $transaction){
+                $user = User::where('email', $transaction->user_email)->orWhere('username', $transaction->user_username)->first();
+                $transaction->update([
+                    'user_id' =>$user->id,
+                ]);
+            }
+            dump('Deposit transactions updated');
 
             \DB::commit();
         } catch (\Throwable $th) {

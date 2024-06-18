@@ -69,11 +69,17 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3">
-                            <h5 style="color:black"><strong>{{ $transaction->buyer_service }}</strong></h5>
+                            <h5 style="color:black"><strong>
+                                @if(!empty($transaction->product_id))
+                                    {{$transaction->product->display_name ?? ''}} @if(!empty($transaction->variation->system_name)) ({{$transaction->variation->system_name}})@endif
+                                @else
+                                    {{ $transaction->buyer_service }}
+                                @endif
+                            </strong></h5>
                                 {{ $transaction->created_at }}
-                            @if(!in_array($transaction->buyer_status, ['SUCCESSFUL']))
+                            @if(in_array($transaction->buyer_status, ['SUCCESSFUL','DELIVERED']))
                             <br>
-                            <a href="{{ route('transaction.receipt.download', array_merge(request()->array, ['transaction_id' => $transaction->id]))}}" target="_blank" class="btn btn-info btn-sm" style="color:#fff;"><i class="fa fa-download"></i> Download Receipt</a> <br>
+                            <a href="{{ route('transaction.receipt.download', $transaction->id)}}" target="_blank" class="btn btn-info btn-sm" style="color:#fff;"><i class="fa fa-download"></i> Download Receipt</a> <br>
                             @endif
                         </div>
                         <div class="col-md-3">
@@ -126,50 +132,55 @@
                             <strong class="heads">Payment Details</strong> <br>
                             <strong>PAYMENT METHOD: </strong><span> {{ $transaction->charge_from}}</span> <br>
                             <strong>CHANNEL: </strong>{{ $transaction->channel}} <br>
-                            <strong>CUST. EMAIL: </strong>{{ $transaction->buyer_email }} <br>
+                            <strong>CUST. EMAIL: </strong><a target="_blank" href="{{ route('customers.edit', $transaction->customer->id) }}">{{ $transaction->customer->email  }}</a><br>
                             <strong>PHONE: </strong>{{ $transaction->mobile_number }} <br>
                             @if($transaction->variation)
                                 <strong>Variation: </strong>{{ $transaction->variation->system_name ?? 'null'}} <br>
                             @endif
-                            @if(!in_array($transaction->reason, ['LEVEL-UPGRADE','WALLET-FUNDING']))
-
-                                <br><br>
-                                <strong class="heads">Transaction Details</strong> <br>
-                                <strong>Product:</strong> {{ $transaction->buyer_service }}
-                                @if($transaction->category)<br>
-                                <strong>Category:</strong> {{ $transaction->category->name }}
-                                @endif
-                                @if($transaction->variation)
-                                <br>
-                                <strong>Variation:</strong> {{ $transaction->variation->name }}
-                                @endif
-                            @endif
+                            {{-- @if(!in_array($transaction->reason, ['LEVEL-UPGRADE','WALLET-FUNDING'])) --}}
                             <br>
-                            <strong>Provider:</strong> {{ $transaction->api->name ?? $transaction->provider }} <br>
+                            <strong class="heads">Transaction Details</strong> <br>
+                            <strong>Product:</strong> {{ $transaction->buyer_service }}
+                            @if($transaction->category)<br>
+                            <strong>Category:</strong> {{ $transaction->category->name }}
+                            @endif
+                            @if($transaction->variation)
+                            <br>
+                            <strong>Variation:</strong> {{ $transaction->variation->name }}
+                            @endif
+                            {{-- @endif --}}
+                            @if(!empty($transaction->wallet_funding_provider))
+                            <br>
+                            <strong>Provider:</strong> {{ ucfirst($transaction->gateway->name ?? 'N/A') }} <br>
+                            @else
+                            <br>
+                            <strong>Provider:</strong> {{  ucfirst($transaction->api->name ?? 'N/A') }} <br>
+                            @endif
                             
                         </div>
-                        @if(!in_array($transaction->reason, ['LEVEL-UPGRADE','WALLET-FUNDING']))
                         <div class="col-md-3">
-                            <strong class="heads">Request Payload</strong> <br>
-                            <div>
-                                <code style="margin:10px 0">
-                                    {!! $transaction->post_fields !!}
-                                </code>
+                            @if(!empty($transaction->post_fields))
+                                <strong class="heads">Request Payload</strong> <br>
+                                <div>
+                                    <code style="margin:10px 0">
+                                        {!! $transaction->post_fields !!}
+                                    </code>
 
-                            </div>
-
+                                </div>
+                            @endif
                         </div>
+                        
                         <div class="col-md-3">
-                            <strong class="heads">API Response ({{ $transaction->api->name ?? null }})</strong> <br>
+                            @if(!empty($transaction->api_response))
+                            <strong class="heads">API Response</strong> <br>
                             <div>
                                 <code style="margin:10px 0">
                                     {!! $transaction->api_response!!}
                                 </code>
 
                             </div>
-
+                            @endif
                         </div>
-                        @endif
                     </div>
 
                     <div class="row">

@@ -164,8 +164,6 @@ class TransactionsController extends Controller
         // Log transaction
         $data = [
             'mobile_number' => $request->mobile_no,
-            'buyer_email' => $user->email,
-            'buyer_username' => $user->username,
             'unit_price' => $request['unit_price'],
             'buyer_amount' => $request['total_amount'],
             'buyer_prebal' => $balance,
@@ -174,8 +172,6 @@ class TransactionsController extends Controller
             'type' => 'debit',
             'buyer_status' => 'INITIATED',
             'buyer_service' => $resource->slug,
-            // 'buyer_date' => $time,
-            // 'timestring' => $timestring,
             'charge_from' => 'WALLET',
             'user_type' => $user->level,
             'sys_ref' => $request_id,
@@ -958,7 +954,6 @@ class TransactionsController extends Controller
             $data['buyer_status'] = 'SUCCESSFUL';
             $data['buyer_service'] = 'ADMIN-' . strtoupper($request->type);
             $data['charge_from'] = 'WALLET';
-            $data['user_type'] = $user->level;
             $data['sys_ref'] = $requestId;
             $data['api_ref'] = $requestId;
             $data['api_report'] = 'DONE';
@@ -988,9 +983,12 @@ class TransactionsController extends Controller
     public function adminTransactions(Request $request){
         $transactions = Transactions::latest();
         $products = Product::all();
-
+       
         if ($request->email) {
-            $transactions = $transactions->where('customer_email', $request->email);
+            $user = User::where('email', $request->email);
+            if($user){
+                $transactions = $transactions->where('user_id', $user->id);
+            }
         }
 
         if ($request->phone) {
@@ -998,26 +996,35 @@ class TransactionsController extends Controller
         }
 
         if ($request->service) {
-            $transactions = $transactions->where('product_id', $request->service);
-        }
-        if ($request->sys_reference) {
-            $transactions = $transactions->where('sys_ref', $request->sys_reference);
-        }
-        // if ($request->unique_element) {
-        //     $transactions = $transactions->where('unique_element', $request->unique_element);
-        // }
-        if ($request->status) {
-            $transactions = $transactions->where('status', $request->status);
-        }
-        if ($request->from) {
-            $time = $request->from . ' 00:00:00';
-            $transactions = $transactions->where('created_at', '>', $time);
-        }
-        if ($request->to) {
-            $time = $request->to . ' 00:00:00';
-            $transactions = $transactions->where('created_at', $time);
+            if(is_numeric($request->service)){
+                $transactions = $transactions->where('product_id', $request->service);
+            }else{
+                $transactions = $transactions->where('buyer_service', $request->service);
+            }
         }
 
+        if ($request->sys_reference) {
+            $transactions = $transactions->where('sys_ref', $request->sys_reference)->orwhere('api_ref', $request->sys_reference);
+        }
+
+        if ($request->billersCode) {
+            $transactions = $transactions->where('billersCode', $request->billersCode);
+        }
+
+        if ($request->status) {
+            $transactions = $transactions->where('buyer_status', $request->status);
+        }
+
+        if ($request->from && $request->to) {
+            $from = $request->from . ' 00:00:00';
+            $to = $request->to . ' 23:59:59';
+            $transactions = $transactions->whereBetween('created_at', [$from, $to]);
+        }
+
+        if ($request->type) {
+            $transactions = $transactions->where('type', $request->type);
+        }
+        
         $transactions = $transactions->paginate(50)->withQueryString();;
 
         return view('admin.transactions.index', compact('transactions','products'));
@@ -1031,8 +1038,8 @@ class TransactionsController extends Controller
 
     public function transactionReceipt($transaction_id)
     {
-        $transaction = Transactions::with(['product', 'category', 'variation'])->where('id', $transaction_id)->first()->toArray();
-       
+        $transaction = Transactions::with(['product', 'category', 'variation','customer'])->where('id', $transaction_id)->first()->toArray();
+    
         $pdf = Pdf::loadView('customer.receipts.transaction_receipt', ['transaction' => $transaction])->setPaper('a4', 'portrait');
         return $pdf->download($transaction['sys_ref'] . '.pdf');
         // return view('customer.receipts.transaction_receipt', compact('transaction'));
