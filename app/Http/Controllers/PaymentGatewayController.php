@@ -217,78 +217,117 @@ class PaymentGatewayController extends Controller
 
     public function analyzeWebhookPayment(Request $request){
         $type = $request->type;
-
+        \Log::info(['payment webhook' => $request->all()]);
         if ($type == 'payvessel') {
             $api = PaymentGateway::where('id', 2)->first();
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // CSRF exemption
-                // {"transaction":{"date":"2023-10-14T19:36:29","reference":"100033231014183603000986812789","sessionid":"100033231014183603000986812789"},"order":{"currency":"NGN","amount":500,"settlement_amount":470,"fee":30,"description":"Inbound Transfer From PALMPAY - TAOFEEK PHILIP ADEBOLA/Palmpay to ADEGLOBAL-Admin/5121073865-9Payment Service Bank"},"customer":{"email":"adeglobaltelecom@gmail.com","phone":"09057566532"},"virtualAccount":{"virtualAccountNumber":"5121073865","virtualBank":"120001"},"sender":{"senderAccountNumber":"7046734407","SenderBankCode":"100033","senderBankName":"Palmpay","senderName":"PALMPAY - TAOFEEK PHILIP ADEBOLA"},"message":"Success","code":"00"}
                 $payload = file_get_contents('php://input');
-                $payvessel_signature = $_SERVER['HTTP_PAYVESSEL_HTTP_SIGNATURE'];
-
-                $ip_address = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'];
-                $hashkey = hash_hmac('sha512', $payload, $payvessel_api_secret_key);
-
+                $payvessel_signature = $_SERVER['HTTP_PAYVESSEL_HTTP_SIGNATURE'] ?? $request->header('HTTP_PAYVESSEL_HTTP_SIGNATURE'); 
+                $api = PaymentGateway::where('id', 2)->first();
+                $ip_address = ($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['REMOTE_HOST'];
+            
+                // $ip_address = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'];
+                $hashkey = hash_hmac('sha512', $payload, $api->secret_key);
+                
                 if (env('ENT') == 'local') {
                     $ip_address = '162.246.254.36';
                     $payvessel_signature = $hashkey;
                 }
 
                 if ($payvessel_signature == $hashkey && $ip_address == "162.246.254.36") {
-                    $data = json_decode($payload, true);
-
+                    if (env('ENT') == 'local') {
+                        $data = json_decode('{"transaction":{"date":"2023-10-14T19:36:29","reference":"100033231014183603000986812789","sessionid":"100033231014183603000986812789"},"order":{"currency":"NGN","amount":500,"settlement_amount":470,"fee":30,"description":"Inbound Transfer From PALMPAY - TAOFEEK PHILIP ADEBOLA/Palmpay to ADEGLOBAL-Admin/5121073865-9Payment Service Bank"},"customer":{"email":"adeglobaltelecom@gmail.com","phone":"09057566532"},"virtualAccount":{"virtualAccountNumber":"5121073865","virtualBank":"120001"},"sender":{"senderAccountNumber":"7046734407","SenderBankCode":"100033","senderBankName":"Palmpay","senderName":"PALMPAY - TAOFEEK PHILIP ADEBOLA"},"message":"Success","code":"00"}', true);
+                    }else{
+                        $data = json_decode($payload, true);
+                    }
+                    
                     $final_amount = floatval($data['order']['settlement_amount']);
-                    $fee = floatval($data['order']['fee']);
-                    $reference = $data['transaction']['reference'];
+                    $charges = floatval($data['order']['fee']);
+                    $api_reference = $data['transaction']['reference'];
+                    $sys_reference = $this->generateRequestId('SWFT');
                     $description = $data['order']['description'];
                     $customer_email = $data['customer']['email'];
-
-                    $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
-                    $time = $dateTime->format("d-M-y  h:i A");
-                    $timexx = time();
-
+                    $account_number = $data['virtualAccount']['virtualAccountNumber'];
+                
                     $user = User::where('email', $customer_email)->first();
                     if(!$user){
                         die();
                     }
 
-                    if ($final_amount > 0) {
+                    if ($final_amount > 0 && $data['message'] == 'Success') {
                         // check if reference exists
-                        $cx_trx = mysqli_query($con, "SELECT user_amount, sys_ref FROM deposit_transactions WHERE user_amount='" . $final_amount . "' AND sys_ref='" . $reference . "'");
-
-                        if (mysqli_num_rows($cx_trx) < 1) {
-                            $api_reference = strtoupper("PV" . $timexx . uniqid() . rand(10000, 90000));
-
-                            $cbal = mysqli_fetch_array(mysqli_query($con, "SELECT wallets,username, mobile, level FROM users WHERE email='" . $customer_email . "'"));
-
-                            $walletBal = $cbal[0];
-                            $username = $cbal[1];
-                            $userMobile = $cbal[2];
-                            $userType = $cbal[3];
+                      
+                        $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('api_ref', $api_reference)->count();
+                        
+                        if ($cx_trx < 1) {
+                            $cbal = walletBalance($user);
+                            $walletBal = $cbal;
 
                             $NewBal = $walletBal + $final_amount;
-
                             $order_descr = 'Wallet funding of N' . $final_amount . ' was successful';
 
-                            mysqli_query($con, "UPDATE users SET wallets='$NewBal' WHERE email='$customer_email'");
+                            // Update user balance
+                            $user->wallets = $NewBal;
+                            $user->save();
 
-                            mysqli_query($con, "INSERT INTO `deposit_transactions` (`id`, `user_email`, `user_username`, `user_service`, `user_amount`, `user_prebal`, `user_postbal`, `user_descr`, `user_status`, `user_date`, `timestring`, `sys_ref`, `api_ref`, `pay_gateway`, `api_report`, `cashier`) VALUES (NULL, '$customer_email', '$username', 'DEPOSIT', '$final_amount', '$walletBal', '$NewBal', '$order_descr', 'SUCCESSFUL', '$time', '$timestring', '$reference', '$api_reference', 'PAYVESSEL', 'GOOD', '$customer_email')");
+                            $deposit = DepositTransaction::create([
+                                'user_id' => $user->id,
+                                'user_service' => 'DEPOSIT',
+                                'user_amount' => $final_amount,
+                                'user_prebal' => $walletBal,
+                                'user_postbal' => $NewBal,
+                                'user_descr' => $order_descr,
+                                'user_status' => 'SUCCESSFUL',
+                                'sys_ref' => $sys_reference,
+                                'api_ref' => $api_reference,
+                                'payment_gateway_id' => $api->id,
+                                'account_number' => $account_number,
+                                'raw_response' => json_encode($request->all()), 
+                            ]);
 
+                            // $amountPaid - $charges
+                            if ($deposit) {
+                                $data = [
+                                    'mobile_number' => $user->mobile,
+                                    'buyer_email' => $user->email,
+                                    'buyer_username' => $user->username,
+                                    'unit_price' => $final_amount,
+                                    'buyer_amount' => $final_amount,
+                                    'buyer_prebal' => $walletBal,
+                                    'provider_charge' => $charges,
+                                    'buyer_postbal' => $NewBal,
+                                    'buyer_descr' => $order_descr,
+                                    'buyer_status' => 'SUCCESSFUL',
+                                    'buyer_service' => 'DEPOSIT',
+                                    // 'charge_from' => 'WALLET',
+                                    'user_type' => $user->level,
+                                    'sys_ref' => $sys_reference,
+                                    'api_ref' => $api_reference,
+                                    'api_report' => 'DONE',
+                                    'buyer_quantity' => 1,
+                                    'discount' => 0,
+                                    'src_price' => 0,
+                                    'channel' => 'website',
+                                    'wallet_funding_provider' => $api->id,
+                                    'billersCode' => 'WALLET-FUNDING',
+                                    'profit' => 0,
+                                    'type' => 'credit',
+                                    'user_id' => $user->id,
+                                    'charges' => $charges,
+                                ];
 
-                            mysqli_query($con, "INSERT INTO `final_transactions` (`id`, `mobile_number`, `buyer_email`, `buyer_username`, `buyer_service`, `buyer_amount`, `buyer_prebal`, `buyer_postbal`, `buyer_descr`, `buyer_status`, `buyer_date`, `timestring`, `charge_from`,`user_type`, `sys_ref`, `api_ref`, `api_report`,`api_response`,`src_price`,`profit`,`databyte`) VALUES (NULL, '$userMobile', '$customer_email', '$username', 'DEPOSIT', '$final_amount', '$walletBal', '$NewBal', '$order_descr', 'SUCCESSFUL', '$time', '$timestring', 'AUTO', '$userType', '$transactionReference', '$api_reference', 'GOOD','$payload','0','0','0')");
+                                $this->logTransaction($data);
+                            }
                         } else {
-                            exit();
+                            die();
                         }
                     }
                 } else {
-                    echo json_encode(["message" => "Permission denied, invalid hash or ip address."]);
-                    http_response_code(400);
+                    exit();
                 }
             } else {
                 exit();
-                // // Handle other HTTP methods if needed
-                // echo json_encode(["message" => "Method not allowed"]);
-                // http_response_code(405);
             }
         } elseif ($type == 'monnify') {
             $api = PaymentGateway::where('id', 1)->first();
@@ -345,7 +384,7 @@ class PaymentGatewayController extends Controller
                 $charges = $amountPaid * 1 / 100;
                 $final_amount = $amountPaid - $charges;
 
-                $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('sys_ref', $sys_reference)->count();
+                $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('api_ref', $api_reference)->count();
                 
                 if ($cx_trx < 1) {
                     $cbal = walletBalance($user);
@@ -396,7 +435,7 @@ class PaymentGatewayController extends Controller
                             'buyer_descr' => $order_descr,
                             'buyer_status' => 'SUCCESSFUL',
                             'buyer_service' => 'DEPOSIT',
-                            'charge_from' => 'WALLET',
+                            // 'charge_from' => 'WALLET',
                             'user_type' => $user->level,
                             'sys_ref' => $sys_reference,
                             'api_ref' => $api_reference,
@@ -406,7 +445,7 @@ class PaymentGatewayController extends Controller
                             'src_price' => 0,
                             'channel' => 'website',
                             'wallet_funding_provider' => $api->id,
-                            'billersCode' => 'WALLET',
+                            'billersCode' => 'WALLET-FUNDING',
                             'profit' => 0,
                             'type' => 'credit',
                             'user_id' => $user->id,
