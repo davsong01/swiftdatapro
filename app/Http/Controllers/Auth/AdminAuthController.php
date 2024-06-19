@@ -32,10 +32,6 @@ class AdminAuthController extends Controller
             $user->update([
                 'password' => Hash::make($request->password),
             ]);
-        }else{
-            return redirect()->back()->withInput($request->only('username'))->withErrors([
-                'username' => 'The provided credentials are incorrect.',
-            ]);
         }
         
         // dd($credentials, bcrypt('1A2b3c4d!@#'));
