@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\API;
+use App\Models\Api;
 use App\Models\Category;
 use App\Models\Discount;
 use App\Models\Variation;
@@ -21,7 +22,7 @@ class Product extends Model
 
     public function api()
     {
-        return $this->belongsTo(API::class);
+        return $this->belongsTo(Api::class);
     }
 
     public function category()
