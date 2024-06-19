@@ -5,14 +5,18 @@ namespace App\Http\Controllers;
 use DateTime;
 use DateTimeZone;
 use App\Models\User;
+use App\Models\Product;
 use App\Models\WebSetting;
 use Illuminate\Support\Str;
+use App\Models\Notification;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
+use App\Models\CustomerLevel;
 use App\Models\PasswordReset;
 use App\Models\CustomerReview;
 use App\Models\PaymentGateway;
 use Illuminate\Support\Carbon;
+use App\Models\AutomatedDeposit;
 use App\Models\DepositTransaction;
 use App\Models\EarnedTransactions;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +27,7 @@ use App\Services\JsonResponseService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\PaymentGatewayController;
 
 class HomeController extends Controller
 {
@@ -37,12 +42,17 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
+    public function kycForm(){
+        return view('customer.dashboard', compact('customer_levels'));
+
+    }
+
     public function dashboard()
     {
-        $web_settings = WebSetting::first();
-        $this->createReservedAccount();
-        $baseurl = url('/');
-        return view('customer.dashboard', compact('web_settings','baseurl'));
+        $this->createReservedAccount(auth()->user());
+        $customer_levels = CustomerLevel::where('id', '>', auth()->user()->level)->get();
+
+        return view('customer.dashboard', compact('customer_levels'));
     }
 
     public function customerReview(Request $request, JsonResponseService $response){
@@ -83,54 +93,31 @@ class HomeController extends Controller
             $response->handler($responseX);
         }
 
-        $setting = WebSetting::first();
-        $reference = strtoupper(time() . rand(1000, 9000) . rand(20000000, 90000000));
-        $reference2 = strtoupper(rand(1000, 9000) . rand(200000, 900000) . uniqid());
-        $level = $request->level;
-        $Account_Balance = auth()->user()->wallets;
+        $level = CustomerLevel::where('id', $request->level)->first();
+        $reference = $this->generateRequestId('SWFTUPGRD');
+
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
         $time = $dateTime->format("d-M-y  h:i A");
         $timestring = time();
 
-        if ($level == "2") {
-            $amount = $setting->level2_charge;
-            $refb = $setting->level2_charge - $setting->level2_adminch;
-            $admb = $setting->level2_adminch;
-            $package = 2;
-        }
-
-        if ($level == "3") {
-            $amount = $setting->level3_charge;
-            $refb = $setting->level3_charge - $setting->level3_adminch;
-            $admb = $setting->level3_adminch;
-            $package = 3;
-        }
-
-        if ($level == "4") {
-            $amount = $setting->level4_charge;
-            $refb = $setting->level4_charge - $setting->level4_adminch;
-            $admb = $setting->level4_adminch;
-            $package = 4;
-        }
+        $refb = $level->upgrade_amount - $level->admin_inch;
+        $admb = $level->admin_inch;
+        $amount = $level->upgrade_amount;
 
         $adinfo = User::where('username', 'ADMIN')->first();
         $refinfo = auth()->user();
+        $balanceBefore = walletBalance(auth()->user());
+        $package = $level->name;
         
-        if ($Account_Balance >= $amount && $amount > 0) {
+        if ($balanceBefore >= $amount && $amount > 0) {
             // Update user wallet and balance
-            $newbal = $Account_Balance - $amount;
-            auth()->user()->level = $package;
-            auth()->user()->wallets = $newbal;
-            auth()->user()->save();
-
-            $descr1 = 'Activation of level ' . $package . ' was successful';
+            $newbal = $balanceBefore - $amount;
             
+            $descr1 = 'Activation of level ' . $level->name . ' was successful';
             $descr2 = 'Referral bonus of N' . $refb . ' landed from ' . auth()->user()->username;
             $descr3 = 'Admin bonus of N' . $admb . ' landed from ' . auth()->user()->username;
-            $new_ad_bonus = $adinfo->wallets + $admb;
-
             $upline = $refinfo->ref_by;
-
+            
             if ($upline !== 'ADMIN') {
                 // Credit referral
                 $uplineDetails = User::where('ref_code', $upline)->orwhere('username', $upline)->first();
@@ -147,6 +134,7 @@ class HomeController extends Controller
                         'ref_code' => $refinfo->ref_code,
                         'amount' => $refb,
                         'type' => 'credit',
+                        'sys_reference' => $reference,
                         'description' => $descr2,
                         'created_at' => Carbon::now(),
                     ]);
@@ -165,6 +153,7 @@ class HomeController extends Controller
                         'ref_code' => $refinfo->ref_code,
                         'amount' => $refb,
                         'type' => 'credit',
+                        'sys_reference' => $reference,
                         'description' => $descr3,
                         'created_at' => Carbon::now(),
                     ]);
@@ -172,27 +161,32 @@ class HomeController extends Controller
                     $data = [
                         'mobile_number' => auth()->user()->mobile,
                         'buyer_email' => auth()->user()->email,
+                        'user_id' => auth()->user()->id,
                         'buyer_username' => auth()->user()->username,
                         'buyer_service' => 'UPGRADE',
                         'buyer_amount' => $amount,
-                        'buyer_prebal' => $Account_Balance,
+                        'buyer_prebal' => $balanceBefore,
                         'buyer_postbal' => $newbal,
                         'buyer_descr' => $descr1,
                         'buyer_status' => 'SUCCESSFUL',
                         'buyer_date' => $time,
+                        'type' => 'debit',
                         'timestring' => $timestring,
                         'charge_from' => 'WALLET',
                         'user_type' => $package,
                         'sys_ref' => $reference,
-                        'api_ref' => $reference2,
+                        'api_ref' => $reference,
                         'api_report' => 'GOOD',
                         'src_price' => '0',
                         'profit' => '0',
                         'databyte' => '0',
+                        'billersCode' => auth()->user()->ussername,
+                        'unit_price' => $amount,
                     ];
 
-                    $this->logTransaction($data);
-
+                    $transaction = $this->logTransaction($data);
+                    auth()->user()->wallets = $transaction->buyer_postbal;
+                    auth()->user()->save();
                     $responseX = [
                         'status_code' => 200,
                         'status' => 'success',
@@ -208,15 +202,16 @@ class HomeController extends Controller
                 $descr3 = 'Admin bonus of N' . $amount . ' landed from ' . auth()->user()->username;
 
                 // Update earnings
-                EarnedTransactions::create([
+                $earned = EarnedTransactions::create([
                     'user_id' => $adinfo->id,
                     'ref_code' => $refinfo->ref_code,
                     'amount' => $amount,
                     'type' => 'credit',
+                    'sys_reference' => $reference,
                     'description' => $descr3,
                     'created_at' => Carbon::now(),
                 ]);
-
+               
                 // Update cash back balance for balance
                 $adinfo->update([
                     'cashback' => $adinfo->cashback + $amount,
@@ -225,11 +220,12 @@ class HomeController extends Controller
                 // User upgrade transaction history
                 $data = [
                     'mobile_number' => auth()->user()->mobile, 
-                    'buyer_email' => auth()->user()->email, 
-                    'buyer_username' => auth()->user()->username, 
+                    'buyer_email' => auth()->user()->email,
+                    'buyer_username' => auth()->user()->username,
+                    'user_id' => auth()->user()->id, 
                     'buyer_service' => 'UPGRADE', 
                     'buyer_amount' => $amount, 
-                    'buyer_prebal' => $Account_Balance, 
+                    'buyer_prebal' => $balanceBefore, 
                     'buyer_postbal' => $newbal, 
                     'buyer_descr' => $descr1, 
                     'buyer_status' => 'SUCCESSFUL', 
@@ -238,11 +234,15 @@ class HomeController extends Controller
                     'charge_from' => 'WALLET', 
                     'user_type' => $package, 
                     'sys_ref' => $reference, 
-                    'api_ref' => $reference2, 
-                    'api_report' => 'GOOD', 
+                    'api_ref' => $reference, 
+                    'api_report' => 'GOOD',
+                    'type' => 'debit',
                     'src_price' => '0', 
-                    'profit' => '0', 
+                    'profit' => '0',
                     'databyte' => '0',
+                    'type' => 'debit',
+                    'billersCode' => auth()->user()->ussername,
+                    'unit_price' => $amount,
                 ];
 
                 $this->logTransaction($data);
@@ -253,6 +253,10 @@ class HomeController extends Controller
                 ];
                 $response->handler($responseX);
             }
+
+            auth()->user()->level = $level->id;
+            auth()->user()->save();
+            
         }else{
             $responseX = [
                 'status_code' => 100,
@@ -261,96 +265,158 @@ class HomeController extends Controller
             ];
             $response->handler($responseX);
         }
-       
     }
 
-    public function createReservedAccount(){
-        $payvesel = PaymentGateway::where('id', 2)->first();
-        $monnify = PaymentGateway::where('id', 1)->first();
-        
-        if ($payvesel->status == 'ON' && auth()->user()->payvessel_reserved_account == "") {
-            $api_key = $payvesel->api_key;
-            $public_key = $payvesel->public_key;
-            $secret_key = $payvesel->secret_key;
+    public function withdrawCashbackEarned(JsonResponseService $response){
+        $user = auth()->user();
+        $referral_balance = referralBalance($user);
+        $wallet_balance = walletBalance($user);
 
-            $payload = json_encode([
-                "name" => auth()->user()->full_name,
-                "email" => auth()->user()->email,
-                "phoneNumber" => auth()->user()->mobile,
-                "bankcode" => ["101", "120001"],
-                "businessid" => $payvesel->merchant_id
+        if ($wallet_balance < 1) {
+            $responseX = [
+                'status_code' => 100,
+                'status' => 'fail',
+                'message' => 'You do not have commission to withdraw',
+            ];
+
+            $response->handler($responseX);
+        }
+
+        $amount = $referral_balance;
+        $reference = $this->generateRequestId('SWFTCBW');
+        $descr = 'Withdrawal of '.settings()->currency.number_format($amount) .' from Earnings to Wallet was successful';
+        // Debit Earned transactions
+        try {
+            \DB::beginTransaction();
+
+            EarnedTransactions::create([
+                'user_id' =>  $user->id,
+                'ref_code' => $user->ref_code,
+                'amount' => $amount,
+                'type' => 'debit',
+                'sys_reference' => $reference,
+                'description' => $descr,
             ]);
 
-            $headers = [
-                'api-key:' . $api_key,
-                'api-secret:' . 'Bearer ' . $secret_key,
-                'Content-Type:application/json'
-            ];
-           
-            if (env('ENT') == 'local') {
-                // $url = "https://sandbox.payvessel.com/api/external/request/customerReservedAccount/";
-                $url = "https://api.payvessel.com/api/external/request/customerReservedAccount/";
-            } else {
-                $url = "https://api.payvessel.com/api/external/request/customerReservedAccount/";
-            }
+            // Log transaction
+            $data['mobile_number'] = $user->mobile;
+            $data['buyer_email'] = $user->email;
+            $data['buyer_username'] = $user->username;
+            $data['unit_price'] = $amount;
+            $data['buyer_amount'] = $amount;
+            $data['buyer_prebal'] = $wallet_balance;
+            $data['buyer_postbal'] = $wallet_balance + $amount;
+            $data['buyer_descr'] = $descr;
+            $data['buyer_status'] = 'SUCCESSFUL';
+            $data['buyer_service'] = 'EARNING WITHDRAWAL';
+            $data['charge_from'] = 'EARNINGS-WALLET';
+            $data['user_type'] = $user->level;
+            $data['sys_ref'] = $reference;
+            $data['api_ref'] = $reference;
+            $data['api_report'] = 'DONE';
+            $data['buyer_quantity'] = 1;
+            $data['discount'] = 0;
+            $data['src_price'] = 0;
+            $data['channel'] = 'website';
+            $data['provider'] = null;
+            $data['billersCode'] = 'EARNINGS-WALLET';
+            $data['profit'] = 0;
+            $data['type'] = 'credit';
+            $data['user_id'] = $user->id;
 
-            $response = $this->advancedApiCall($url, $payload, $headers);
-           
-            if($response){
-                auth()->user()->payvessel_reserved_account = $response;
-                auth()->user()->save();
-            }
+            $this->logTransaction($data);
+            // Update Customer cashback
+            $user->update([
+                'cashback' => $referral_balance - $amount,
+                'wallets' => $wallet_balance + $amount,
+            ]);
+
+            \DB::commit();
+            $responseX = [
+                'status_code' => 200,
+                'status' => 'success',
+                'message' => $descr,
+            ];
+
+            $response->handler($responseX);
+            //code...
+        } catch (\Throwable $th) {
+            \DB::rollback();
+            \Log::info(['Withdraw from Earnings error' => $th->getMessage().' Line: '. $th->getLine(). ' File: '.$th->getFile()]);
+            $responseX = [
+                'status_code' => 100,
+                'status' => 'failed',
+                'message' => 'An error occured while processing withdrawal, please try again',
+            ];
+
+            $response->handler($responseX);
+        }
+    }
+
+    public function createReservedAccount($user){
+        if($user->kyc_status != 1){
+            return;
         }
 
-        if ($monnify->status == 'ON' && auth()->user()->reserved_account == "") {
-            $monnify_hashkeys = $monnify->public_key.':'.$monnify->secret_key;
-            $stringk = base64_encode($monnify_hashkeys);
-            
-            $url = 'https://api.monnify.com/api/v1/auth/login';
-            $headers = [
-                "Authorization: Basic " . $stringk . "",
-            ];
+        $payvesel = PaymentGateway::where('slug', 'payvessel')->first();
+        $monnify = PaymentGateway::where('slug', 'monnify')->first();
+        $data = [
+            'accountName' => $user->full_name,
+            'accountReference' => 'SWIFT-' . uniqid() . rand(1000, 9000) . time(),
+            'currencyCode' => "NGN",
+            'customerEmail' => $user->email,
+            'customerName' => $user->full_name,
+            "getAllAvailableBanks" => false,
+            "preferredBanks" => ["035", "232", "50515", "058"]
+        ];
 
-            $response1 = $this->advancedApiCall($url, [], $headers);
-            $result = json_decode($response1, true);
-
-            $accessToken = $result['responseBody']['accessToken'];
-
-            $postdata = [
-                'accountName' => auth()->user()->full_name,
-                'accountReference' => uniqid(). rand(1000, 9000). time(),
-                'currencyCode' => "NGN",
-                'customerEmail' => auth()->user()->email,
-                'contractCode' => $monnify->api_key,
-                'customerName' => auth()->user()->full_name,
-                "getAllAvailableBanks" => false,
-                "preferredBanks" => ["035", "232", "50515", "058"]
-            ];
-
-            $headers2 = [
-                "Content-Type: application/json",
-                "Authorization:Bearer " . $accessToken,
-            ];
-
-            $url2 = 'https://api.monnify.com/api/v2/bank-transfer/reserved-accounts';
-         
-            $response2 = $this->advancedApiCall($url2, json_encode($postdata), $headers2);
-            
-            if ($response2) {
-                auth()->user()->reserved_account = $response2;
-                auth()->user()->save();
-            }
-
+        if(!empty($user->bvn)){
+            $data['bvn'] =  $user->bvn;
         }
+
+        if (!empty($user->nin)) {
+            $data['nin'] =  $user->nin;
+        }
+
+        if ($payvesel->status == 'active' && $user->filter_accounts($payvesel->id)->count() < 1) {
+            $account = new PaymentGatewayController();
+            $accounts = $account->createPayVesselReservedAccount($payvesel, $data);
+        }
+
+        if ($monnify->status == 'active' && $user->filter_accounts($monnify->id)->count() < 1) {
+            $account = new PaymentGatewayController();
+            $accounts = $account->createMonnifyReservedAccount($monnify, $data);
+        }
+
+        if(!empty($accounts) && $accounts['status'] == 'success'){
+            foreach($accounts['accounts'] as $account){
+                AutomatedDeposit::create([
+                    'account_reference' => $account['trackingReference'] ?? $accounts['response']['responseBody']['accountReference'] ?? null,
+                    'account_number' => $account['accountNumber'] ?? null,
+                    'account_name' => $account['accountName'] ?? null,
+                    'bank_name' => $account['bankName'] ?? null,
+                    'bank_code' => $account['bankCode'] ?? null,
+                    'payment_gateway_id' => $accounts['payment_gateway_id'] ?? null,
+                    'status' => 'active',
+                    'bvn' => $data['bvn'] ?? null,
+                    'nin' => $data['nin'] ?? null,
+                    'raw_response' => json_encode($accounts['response']),
+                    'user_id' => $user->id,
+                ]);
+            }
+            return 'success';
+        }else{
+            return 'fail';
+        }
+        
     }
 
 
     public function automatedTransfer(){
-        $payvesel = PaymentGateway::where('id', 2)->first();
-        $monnify = PaymentGateway::where('id', 1)->first();
-
-        return view('customer.automated_pay', compact('payvesel', 'monnify'));
-
+        $activeGateways = PaymentGateway::where('status', 'active')->pluck('id');
+        $accounts = AutomatedDeposit::where(['user_id' => auth()->user()->id, 'status' => 'active'])->whereIn('payment_gateway_id', $activeGateways)->get();
+        
+        return view('customer.automated_pay', compact('accounts'));
     }
 
     public function depositPayment(){
@@ -358,177 +424,69 @@ class HomeController extends Controller
         return view('customer.deposit_payment', compact('list_acctno'));
     }
 
-    public function transactions($type=null){
-        return view('customer.transactions', compact('type'));
+    public function transactions(Request $request){
+        $transactions = Transactions::with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
+        
+        if (!empty($request->service)) {
+            $transactions = $transactions->where('product_id', $request->service);
+        }
+
+        if (!empty($request->transaction_id)) {
+            $transactions = $transactions->where('sys_ref', $request->transaction_id);
+        }
+
+        if (!empty($request->status)) {
+            $transactions = $transactions->where('buyer_status', $request->status);
+        }
+
+        if (!empty($request->billersCode)) {
+            $transactions = $transactions->where('billersCode', 'LIKE', "%" . $request->billersCode . "%");
+        }
+
+        if (!empty($request->type)) {
+            $transactions = $transactions->where('type', $request->type);
+        }
+
+        if (!empty($request->from) && !empty($request->to)) {
+            $from = $request->from . " 00:00:00";
+            $to = $request->to . " 23:59:59";
+            $transactions = $transactions->whereBetween('created_at', [$from, $to]);
+        }
+
+        $transactions = $transactions->orderBy('created_at', 'DESC')->paginate(50);
+
+        $products = Product::where('status', 'active')->get();
+        return view('customer.transactions', compact('products','transactions'));
     }
 
-    public function customerTransactions(Request $request, JsonResponseService $response){
+    public function cashbackEarned(Request $request)
+    {
+        $transactions = EarnedTransactions::where('user_id', auth()->user()->id)->orderBy('created_at', 'DESC');
 
-        if(!empty($request->search_data)){
-            $transactionx = '<div class="row">';
-
-            $transactions = Transactions::where(function($query) use ($request) {
-                $query->where('buyer_username', auth()->user()->username)->where('buyer_descr', 'LIKE', $request->search_data);
-            })->orWhere(function($query) use ($request) {
-                $query->where('buyer_email', auth()->user()->email)->where('buyer_descr', 'LIKE', $request->search_data);
-            })->orderBy('id', 'desc')->get();
-            
-            
-            if ($transactions->count() < 1) {
-                $transactionX = '<div class="alert" style="background-color: #fff;border-radius: 10px 5px;color:black">No Transaction Record Yet</div>';
-            } else {
-                foreach($transactions as $transaction){
-                    if ($transaction->buyer_status == "SUCCESSFUL") {
-                        $actmode = "background-color: lightseagreen";
-                    } else {
-                        $actmode = "background-color: palevioletred";
-                    }
-
-                    $transactionX .= '<div class="col-md-6" style="' . $actmode . ';color:#fff;font-size:10px;cursor:pointer;" id="' . $transaction->sys_ref . '" onclick="rceipt(this.id)">
-
-                    <span>Refrence No. : ' . $transaction->sys_ref . '</span><br/>
-                    <span>Order: ' . $transaction->buyer_descr . '</span><br/>
-                    <span>Date: ' . $transaction->buyer_date . '</small><br/>
-                    <span>Amount: ₦' . $transaction->buyer_amount . '</span> <span style="float:right"><i class="fa fa-eye"></i></span><br/>
-
-                    <span>Prev Bal:</span> <span style="cursor: pointer;">₦' . $transaction->buyer_prebal . '</span>
-
-                    <span style="float:right">Post Bal: ₦' . $transaction->buyer_postbal . '</span>
-                    </p></div>';
-                }
-
-                $transactionx .= '</div>';
-
-                $responseX = [
-                    'status' => 'success',
-                    'message' => $transactionx,
-                ];
-                $response->handler($responseX);
-            }
-        }
-        $load_id = $request->load_id;
-        $load_amount = $load_id + 200;
-        $load_next = $load_amount;
-
-        $nextbtn = "";
-        $transaction = "";
-
-        if(!empty($request->reference)){
-            $receipt = "";
-            $buttons = "<a href='transactions'><button class='btn btn-danger'>Go Back </button></a> <button class='btn btn-success' id='PdfDial'>Print Slip </button>";
-            $reference = $request->reference;
-            $l = Transactions::where('sys_ref', $reference)->first();
-
-            if(!empty($l)){
-                $result = !empty($l->api_response) ? json_decode($l->api_response, true) : [];
-
-                $customer_name = '';
-                $customer_address = '';
-
-                $mainTokenUnits = '';
-                $mainTokenTax =  '';
-
-                $BSSTTOKEN =  '';
-                $BSSTTOKENDESCRIPTION =  '';
-                $BSSTTOKENUNIT =  '';
-                $BSSTTOKENTAX = '';
-                $BSSTTOKENAMOUNT = '';
-                // dd($result);
-                if (array_key_exists('content', $result)) {
-                    $customer_name = $result["customerName"] ?? null;
-                    $customer_address = $result["customerAddress"] ?? null;
-
-                    $mainTokenUnits = isset($result["mainTokenUnits"]) ? '<strong>Units:</strong> ' . $result["mainTokenUnits"] . '<br>' : '';
-                    $mainTokenTax = isset($result["mainTokenTax"]) ? '<strong>Token Tax:</strong> ' . $result["mainTokenTax"] . '<br>' : '';
-
-                    $BSSTTOKEN = isset($result["bonusToken"]) ? '<strong>BSST Token: </strong> ' . $result["bonusToken"] . '<br>' : '';
-                    $BSSTTOKENDESCRIPTION = isset($result["bonusTokenDescription"]) ? '<strong>BSST Token Description Tax:</strong> ' . $result["bonusTokenDescription"] . '<br>' : '';
-                    $BSSTTOKENUNIT = isset($result["bonusTokenUnits"]) ? '<strong>BSST Token Unit: </strong> ' . $result["bonusTokenUnits"] . '<br>' : '';
-                    $BSSTTOKENTAX = isset($result["bonusTokenTax"]) ? '<strong>BSST Token Tax: </strong> ' . $result["bonusTokenTax"] . '<br>' : '';
-                    $BSSTTOKENAMOUNT = isset($result["bonusTokenAmount"]) ? '<strong>BSST Token Amount: </strong> ' . $result["bonusTokenAmount"] . '<br>' : '';
-                }
-
-                if ($l->buyer_status == "SUCCESSFUL") {
-                    $actmode = "background-color: lightseagreen";
-                } else {
-                    $actmode = "background-color: palevioletred";
-                }
-
-                $receipt = '<div class="row "><div class="col-12 QA_section"><div class="card QA_table "><div class="card-header">Invoice<strong>' . $l->buyer_date . '</strong><span class="float-end"> <strong>Status:</strong> ' . $l->buyer_status . '</span></div><div class="card-body"><div class="row mb-4"><div class="col-sm-6">
-                <h6 class="mb-3">From:</h6><div><strong>Order 1</strong></div><div>' . $l->sys_ref . '</div><div>Buyer Email: ' . $l->buyer_email . '</div><div>Customer Name: ' . $customer_name . '</div><div>Customer Address: ' . $customer_address . '</div><div>Buyer Phone: ' . $l->mobile_number . '<br></div></div><div class="table-responsive-sm"><table class="table table-striped"><thead><tr><th class="center">#</th><th>Item</th><th>Description</th><th class="right">Cost</th></tr></thead><tbody><tr><td class="center">1</td><td class="left strong">' . strtoupper($l->buyer_service) . '</td><td class="left">' . $l->buyer_descr . '<br><strong style="color:blue">' . (isset($l->extra) && !empty($l->extra) ? $l->extra : '') . '</strong><br>' . $mainTokenUnits . '' . $mainTokenTax . '' . $BSSTTOKEN . '' . $BSSTTOKENDESCRIPTION . '' . $BSSTTOKENUNIT . '' . $BSSTTOKENTAX . '' . $BSSTTOKENAMOUNT . '</td><td class="right">' . $l->buyer_amount . '</td></tr><tr><td class="center"></td><td></td>' . isset($cu) . '.</td></tr></tbody></table></div><div class="row"><div class="col-lg-4 col-sm-5"></div><div class="col-lg-4 col-sm-5 ms-auto QA_section"><table class="table table-clear QA_table"><tbody><tr><td class="left"><strong>Amount</strong></td><td class="right">N ' . $l->buyer_amount . '</td></tr><tr><td class="left"><strong>Prev Bal.</strong></td><td class="right">N ' .$l->buyer_prebal . '</td></tr><tr><td class="left"><strong>Post Bal.</strong></td><td class="right">N ' . $l->buyer_postbal . '</td></tr></tbody></table></div></div>';
-
-            }else{
-                $receipt = '<div class="media_thumb ml_25"><br><br><br><br><br><br><br><br><center><h3 style="font-weight: bold;font-size: 20px;">Sorry !!! Transaction Not Found</h3><p>There is no reference no supply for this transaction !!! </p></center><br><br><br><br><br><br><br><br></div>';
-            }
-            return view('customer.transactions_invoice', compact('receipt','buttons'));
-
-        }else{
-            if(!empty($request->type)){
-                $type = $request->type == 'success' ? 'SUCCESSFUL' : 'FAILED';
-                
-                $transactions = Transactions::where(function ($query) use ($type) {
-                    $query->where('buyer_username', auth()->user()->username)->where('buyer_status', $type);
-                })->orWhere(function ($query) use ($type) {
-                    $query->where('buyer_email', auth()->user()->email)->where('buyer_status', $type);
-                })->orderBy('id', 'desc');
-    
-            }else{
-                $transactions = Transactions::where('buyer_username', auth()->user()->username)->orWhere('buyer_email', auth()->user()->email)->orderBy('id', 'desc');
-            }
+        if (!empty($request->sys_reference)) {
+            $transactions = $transactions->where('sys_reference', $request->sys_reference);
         }
 
-        
-        if ($transactions->count() > 200 && $transactions->count() > $load_next) {
-            $nextbtn = '<button class="btn btn-primary" id="' . $load_next . '"  onclick="showMore(this.id)">Load More >>> </button>';
-        }else{
-            $nextbtn = '';
+        if (!empty($request->type)) {
+            $transactions = $transactions->where('type', $request->type);
         }
-    
-        if($transactions->count() < 1){
-            $transactionx = '<div class="alert" style="background-color: #fff;border-radius: 10px 5px;color:black">No Transaction Record Yet</div>';
-        }else{
-            $transactions = $transactions->limit($load_amount)->get();
-            $transactionx = '<div class="row">';
-            
-            foreach($transactions as $transaction){
-                if ($transaction->buyer_status == "SUCCESSFUL") {
-                    $actmode = "background-color: #199263";
-                }else{
-                    $actmode = "background-color: #DB1A22";
-                }
 
-                $transactionx .= '<div class="col-md-6" style="' . $actmode . ';color:#fff;font-size:10px;cursor:pointer;padding:10px" id="' . $transaction->sys_ref . '" onclick="rceipt(this.id)">
-
-                <span>Refrence No. : ' . $transaction->sys_ref . '</span><br/>
-                <span>Order: ' . $transaction->buyer_descr . '</span><br>' . (isset($transaction->extra) && !empty($transaction->extra) ? '
-                <strong style="margin:5px 0; background: black;color: yellow;padding: 8px;font-size: medium;display: inline-flex;"><br>Extras: ' . $transaction->extra . '<br>' : '') . '</strong><br/>
-                <span>Date: ' . $transaction->buyer_date . '</small><br/>
-                <span>Amount: ₦' . $transaction->buyer_amount . '</span> <span style="float:right"><i class="fa fa-eye"></i></span><br/>
-
-                <span>Prev Bal:</span> <span style="cursor: pointer;">₦' . $transaction->buyer_prebal . '</span>
-
-                <span style="float:right">Post Bal: ₦' . $transaction->buyer_postbal . '</span>
-                    </p>
-                        
-                </div>';
-            }
-
-            $transactionx .= '</div>';
+        if (!empty($request->from) && !empty($request->to)) {
+            $from = $request->from . " 00:00:00";
+            $to = $request->to . " 23:59:59";
+            $transactions = $transactions->whereBetween('created_at', [$from, $to]);
         }
-        
-        $responseX = [
-            'status' => 'success',
-            'message' => $transactionx,
-            'ctrlButton' => $nextbtn,
 
-        ];
-        $response->handler($responseX);
+        $transactions = $transactions->orderBy('created_at', 'DESC');
+
+        $transactions = $transactions->paginate(50);
+        return view('customer.cashback', compact('transactions'));
     }
 
     public function walletSummary(){
         $transaction = "";
         $lettr = DepositTransaction::where('user_username', auth()->user()->username)->orWhere('user_email', auth()->user()->email)->orderBy('id','desc')->get();
-
+        
         if(empty($lettr)){
             $transaction = '<div class="alert" style="background-color: #fff;border-radius: 10px 5px;color:black">No Funding Record Yet !!!</div>';
         }else{
@@ -583,48 +541,49 @@ class HomeController extends Controller
         $transaction = "";
 
         // sme data
-        $seltdatabyte = $this->getSingleAnalysis('mtn-sme', $start, $end);
-        $total_smedatacost = $seltdatabyte['cost'];
-        $total_smedata = $seltdatabyte['data'];
+        $mtnsmedatabyte = $this->getSingleAnalysis('mtn-sme', $start, $end);
+        $total_smedatacost = $mtnsmedatabyte['cost'];
+        $total_smedata = $mtnsmedatabyte['data'];
 
         ////MTN-CG
-        $seltdatabyte = $this->getSingleAnalysis('mtn-cg', $start, $end);
-        $total_mtncgdatacost = $seltdatabyte['cost'];
-        $total_mtncgdata = $seltdatabyte['data'];
+        $mtncgdatabyte = $this->getSingleAnalysis('mtn-cg', $start, $end);
+        $total_mtncgdatacost = $mtncgdatabyte['cost'];
+        $total_mtncgdata = $mtncgdatabyte['data'];
         ///
 
         ////AIRTEL-CG
-        $seltdatabyte = $this->getSingleAnalysis('airtel-cg', $start, $end);
-        $total_airtelcgdata = $seltdatabyte['data'];
-        $total_airtelcgdatacost = $seltdatabyte['cost'];
+        $airtelcgdatabyte = $this->getSingleAnalysis('airtel-cg', $start, $end);
+        $total_airtelcgdata = $airtelcgdatabyte['data'];
+        $total_airtelcgdatacost = $airtelcgdatabyte['cost'];
 
         ////AIRTEL
-        $seltdatabyte = $this->getSingleAnalysis('airtel', $start, $end);
-        $total_airteldata = $seltdatabyte['data'];
-        $total_airteldatacost = $seltdatabyte['cost'];
+        $airteldatabyte = $this->getSingleAnalysis('airtel', $start, $end);
+        $total_airteldata = $airteldatabyte['data'];
+        $total_airteldatacost = $airteldatabyte['cost'];
        
         ////GLO
-        $seltdatabyte = $this->getSingleAnalysis('glo', $start, $end);
-        $total_glodata = $seltdatabyte['data'];
-        $total_glodatacost = $seltdatabyte['cost'];
+        $glodatabyte = $this->getSingleAnalysis('glo', $start, $end);
+        $total_glodata = $glodatabyte['data'];
+        $total_glodatacost = $glodatabyte['cost'];
         
         ////9MOBILE
-        $seltdatabyte = $this->getSingleAnalysis('9mobile', $start, $end);
-        $total_mobiledata = $seltdatabyte['data'];
-        $total_mobiledatacost = $seltdatabyte['cost'];
+        $mobiledatabyte = $this->getSingleAnalysis('9mobile', $start, $end);
+        $total_mobiledata = $mobiledatabyte['data'];
+        $total_mobiledatacost = $mobiledatabyte['cost'];
 
         ////AIRTIME-VTU
-        $seltdatabyte = $this->getSingleAnalysis('vtu', $start, $end, 'vtu');
-        $total_vtucost = $seltdatabyte['cost'];
+        $vtudatabyte = $this->getSingleAnalysis('vtu', $start, $end, 'vtu');
+        $total_vtucost = $vtudatabyte['cost'];
 
         ////AIRTIME-SNS
-        $seltdatabyte = $this->getSingleAnalysis('sns', $start, $end, 'sns');
-        $total_snscost = $seltdatabyte['cost'];
+        $sns = $this->getSingleAnalysis('sns', $start, $end, 'sns');
+        $total_snscost = $sns['cost'];
 
         ////BILLS
-        $seltdatabyte = $this->getSingleAnalysis('electric', $start, $end, 'electric');
-        $total_billscost = $seltdatabyte['cost'];
-       
+        $bill = $this->getSingleAnalysis('electric', $start, $end, 'electric');
+    
+        $total_billscost = $bill['cost'];
+    
         ////CABLETV
         $seltdatabyte1 = $this->getSingleAnalysis('gotv', $start, $end, 'gotv')['cost'];
         $seltdatabyte2 = $this->getSingleAnalysis('dstv', $start, $end, 'dstv')['cost'];
@@ -726,22 +685,31 @@ class HomeController extends Controller
     public function getSingleAnalysis($buyer_service, $start, $end, $like = null){
         
         if(!empty($like)){
-            $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])->where('buyer_service', 'LIKE','%'.$like.'%')->whereBetween('created_at', [$start, $end])->get();
+            // if($like == 'electric'){
+            //     $result = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])
+            //     ->where('buyer_service', 'LIKE', '%' . $like . '%')
+            //     ->whereBetween('created_at', [$start, $end])
+            //     ->get();
+            // }
+            $result = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_email' => auth()->user()->email])
+            ->where('buyer_service', 'LIKE','%'.$like.'%')
+            ->whereBetween('created_at', [$start, $end])
+            ->get();
         }else{
-            $seltdatabyte = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
+            $result = Transactions::where(['buyer_status' => 'SUCCESSFUL', 'buyer_service' => $buyer_service, 'buyer_email' => auth()->user()->email])->whereBetween('created_at', [$start, $end])->get();
         }
 
         try {
             //code...
-            $total_smedatacost = $seltdatabyte->sum('buyer_amount+0');
-            $total_smedata = $seltdatabyte->sum('databyte+0') > 0 ? $seltdatabyte->sum('databyte') / 1000 : 0;
+            $total_cost = $result->sum('buyer_amount');
+            $total_data = $result->sum('databyte') > 0 ? $result->sum('databyte') / 1000 : 0;
         } catch (\Throwable $th) {
             dd($th->getMessage(), $buyer_service);
         }
-
+        
         return [
-            'cost' => $total_smedatacost ?? 0,
-            'data' => $total_smedata ?? 0,
+            'cost' => $total_cost ?? 0,
+            'data' => $total_data ?? 0,
         ];
     }
 
@@ -757,14 +725,18 @@ class HomeController extends Controller
 
     }
 
-    public function cashbackEarned(){
-        // cashback_earn
-        $lettr = EarnedTransactions::where('user_id', auth()->user()->id)->orderBy('created_at','DESC')->paginate(20);
-        return view('customer.cashback', compact('lettr'));
-    }
-
     public function profile(){
         return view('customer.profile');
+    }
+
+    public function updateProfile(Request $request){
+        auth()->user()->update([
+            'full_name' => $request->full_name,
+            'middle_name' => $request->middle_name,
+            'last_name' => $request->last_name,
+            'gender' => $request->gender,
+        ]);
+        return back()->with('message', 'Update successful');
     }
 
     public function passwordChange(){
@@ -773,7 +745,7 @@ class HomeController extends Controller
 
     public function processPasswordChange(Request $request, JsonResponseService $response){
         $web_settings = WebSetting::first();
-       
+
         $validator = Validator::make($request->all(), [
             'old_password' => 'required',
         ]);
@@ -840,7 +812,7 @@ class HomeController extends Controller
 
     public function processResetPin(Request $request, JsonResponseService $response){
         $web_settings = WebSetting::first();
-
+    
         $validator = Validator::make($request->all(), [
             'old_pin' => 'required',
         ]);
@@ -854,7 +826,7 @@ class HomeController extends Controller
 
             $response->handler($responseX);
         }
-
+        
         if (!Hash::check($request->old_pin, auth()->user()->pass)) {
             $response = array(
                 'status' => 'fail',
@@ -884,6 +856,8 @@ class HomeController extends Controller
             'status' => 'success',
             'message' => '<div class="alert alert-success text-left">Thank you for reaching to us. PIN reset link has been forwarded to your email!!!</div>',
         ];
+
+        // return json_encode($responseX);
 
         $response->handler($responseX);
     }
@@ -934,7 +908,10 @@ class HomeController extends Controller
         ];
 
         $response->handler($responseX);
-       
+    }
+
+    public function generateApi(){
+        return view('customer.generate_api');
     }
     
 }

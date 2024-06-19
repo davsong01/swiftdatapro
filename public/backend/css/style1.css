@@ -1990,41 +1990,41 @@ p a:hover {
 
 /* line 1463, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .page-item.active .page-link {
-  background-color: #884FFB;
-  border-color: #884FFB;
+  background-color: #940798;
+  border-color: #940798;
 }
 
 /* line 1466, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .page-item.active .page-link:hover {
   color: #fff;
-  background-color: #884FFBe6;
-  border-color: #884FFBe6;
+  background-color: #940798e6;
+  border-color: #940798e6;
 }
 
 /* line 1472, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .page-link {
-  color: #884FFB;
+  color: #940798;
 }
 
 /* line 1474, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .page-link:hover {
   color: #fff;
-  background-color: #884FFBe6;
-  border-color: #884FFBe6;
+  background-color: #940798e6;
+  border-color: #940798e6;
 }
 
 /* line 1480, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .btn-primary {
   color: #fff;
-  background-color: #884FFB;
-  border-color: #884FFB;
+  background-color: #940798;
+  border-color: #940798;
 }
 
 /* line 1485, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .btn-primary:hover {
   color: #fff;
-  background-color: #884FFBe6;
-  border-color: #884FFBe6;
+  background-color: #940798e6;
+  border-color: #940798e6;
 }
 
 @media (max-width: 991px) {
@@ -2044,7 +2044,7 @@ p a:hover {
 
 /* line 1503, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .dashboard_header .dashboard_header_title h3 span {
-  color: #884FFB;
+  color: #940798;
 }
 
 /* line 1507, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
@@ -2073,7 +2073,7 @@ p a:hover {
 .dashboard_breadcam ul li {
   font-size: 17px;
   font-weight: 400;
-  color: #884FFB;
+  color: #940798;
   padding-left: 14px;
   position: relative;
 }
@@ -2090,7 +2090,7 @@ p a:hover {
 
 /* line 1536, G:/admin_project/8 admin/Analytic/scss/_reset.scss */
 .dashboard_breadcam ul li::before {
-  color: #884FFB;
+  color: #940798;
   content: "/";
   position: absolute;
   left: 4px;
@@ -2127,7 +2127,7 @@ p a:hover {
 .header_prise h5 {
   font-size: 16px;
   font-weight: 500;
-  color: #884FFB;
+  color: #940798;
   margin-bottom: 0;
 }
 
@@ -2643,7 +2643,7 @@ p a:hover {
   display: block;
   color: #fff;
   line-height: 40px;
-  background: #884FFB;
+  background: #940798;
   font-size: 15px;
   border-radius: 30px;
   -webkit-transition: 0.3s;
@@ -2677,8 +2677,8 @@ p a:hover {
 /******** base color css ********/
 /* line 2, G:/admin_project/8 admin/Analytic/scss/_button.scss */
 .btn_1 {
-  background-color: #884FFB;
-  border: 1px solid #884FFB;
+  background-color: #940798;
+  border: 1px solid #940798;
   color: #fff;
   display: inline-block;
   padding: 11px 25px;
@@ -2700,7 +2700,7 @@ p a:hover {
 /* line 18, G:/admin_project/8 admin/Analytic/scss/_button.scss */
 .btn_1:hover {
   color: #fff;
-  background-color: #884FFB;
+  background-color: #940798;
   box-shadow: 0 3px 11px rgba(136, 79, 251, 0.4);
 }
 
@@ -3054,8 +3054,8 @@ p a:hover {
 
 /* line 289, G:/admin_project/8 admin/Analytic/scss/_button.scss */
 .white_btn3:hover {
-  background-color: #884FFB !important;
-  border: 1px solid #884FFB !important;
+  background-color: #940798 !important;
+  border: 1px solid #940798 !important;
   color: #fff;
   opacity: 1 !important;
 }
@@ -3643,7 +3643,7 @@ table.dataTable.dtr-inline.collapsed > tbody > tr.parent > th:first-child::befor
 .header_iner .header_right .header_notification_warp li .serach_button {
   width: 32px;
   height: 32px;
-  background: #884FFB;
+  background: #940798;
   border-radius: 50%;
   text-align: center;
   line-height: 32px;
@@ -6176,7 +6176,7 @@ body::-webkit-scrollbar {
 
 /* line 22, G:/admin_project/8 admin/Analytic/scss/_footer.scss */
 .footer_part.fixed_footer .footer_iner {
-  border-top: 2px solid #884FFB;
+  border-top: 2px solid #940798;
 }
 
 /* line 26, G:/admin_project/8 admin/Analytic/scss/_footer.scss */
@@ -6231,7 +6231,7 @@ body::-webkit-scrollbar {
 
 /* line 57, G:/admin_project/8 admin/Analytic/scss/_footer.scss */
 .footer_part p a {
-  color: #884FFB;
+  color: #940798;
 }
 
 /* line 59, G:/admin_project/8 admin/Analytic/scss/_footer.scss */
@@ -6606,7 +6606,7 @@ canvas#highlights {
 
 /* line 144, G:/admin_project/8 admin/Analytic/scss/_lms_category.scss */
 .Activity_timeline ul li .activity_bell {
-  background: #884FFB;
+  background: #940798;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -6820,13 +6820,13 @@ canvas#highlights {
 /* line 26, G:/admin_project/8 admin/Analytic/scss/_summer_note.scss */
 .note-editor.note-frame .note-btn:hover {
   color: #fff;
-  background: #884FFB;
+  background: #940798;
 }
 
 /* line 30, G:/admin_project/8 admin/Analytic/scss/_summer_note.scss */
 .note-editor.note-frame .note-btn:hover i {
   color: #fff;
-  background: #884FFB;
+  background: #940798;
 }
 
 /* line 34, G:/admin_project/8 admin/Analytic/scss/_summer_note.scss */
@@ -7765,7 +7765,7 @@ canvas#highlights {
 
 /* line 40, G:/admin_project/8 admin/Analytic/scss/_projects.scss */
 .dataTables_paginate a.current {
-  background: #884FFB !important;
+  background: #940798 !important;
   box-shadow: 0px 5px 10px rgba(59, 118, 239, 0.3) !important;
   border: 0 !important;
   color: #fff !important;
@@ -7773,7 +7773,7 @@ canvas#highlights {
 
 /* line 46, G:/admin_project/8 admin/Analytic/scss/_projects.scss */
 .dataTables_paginate a:hover {
-  background: #884FFB !important;
+  background: #940798 !important;
   box-shadow: 0px 5px 10px rgba(59, 118, 239, 0.3);
   border: 0 !important;
   color: #fff !important;
@@ -7810,8 +7810,8 @@ canvas#highlights {
 /* line 74, G:/admin_project/8 admin/Analytic/scss/_projects.scss */
 .dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
   color: #fff !important;
-  border: 1px solid #884FFB;
-  background-color: #884FFB !important;
+  border: 1px solid #940798;
+  background-color: #940798 !important;
   box-shadow: 0px 5px 10px rgba(136, 79, 251, 0.04) !important;
 }
 
@@ -7969,7 +7969,7 @@ canvas#highlights {
   position: relative;
   position: relative;
   padding: 13px 20px;
-  background: #884FFB;
+  background: #940798;
   box-shadow: 0px 5px 10px rgba(76, 110, 248, 0.3);
   color: #fff;
   -webkit-transition: 0.3s;
@@ -8078,7 +8078,7 @@ canvas#highlights {
   position: relative;
   position: relative;
   padding: 13px 20px;
-  background: #884FFB;
+  background: #940798;
   box-shadow: 0px 5px 10px rgba(76, 110, 248, 0.3);
   color: #fff;
   -webkit-transition: 0.3s;
@@ -8311,8 +8311,8 @@ canvas#highlights {
 
 /* line 271, G:/admin_project/8 admin/Analytic/scss/_faq.scss */
 .messages_box_area .messages_chat .single_message_chat .message_content_view.red_border {
-  border: 1px solid #884FFB;
-  background: #884FFB;
+  border: 1px solid #940798;
+  background: #940798;
 }
 
 /* line 274, G:/admin_project/8 admin/Analytic/scss/_faq.scss */
@@ -8500,7 +8500,7 @@ canvas#highlights {
 
 /* line 37, G:/admin_project/8 admin/Analytic/scss/_mailbox.scss */
 .email-sidebar ul li a:hover i {
-  color: #884FFB;
+  color: #940798;
 }
 
 /* line 41, G:/admin_project/8 admin/Analytic/scss/_mailbox.scss */
@@ -8560,7 +8560,7 @@ canvas#highlights {
 /* line 44, ../../../../../../xampp/htdocs/CRM_frontend/admin/public/frontend/scss/_predefine.scss */
 /* line 96, G:/admin_project/8 admin/Analytic/scss/_mailbox.scss */
 .primary_checkbox input:checked ~ .checkmark {
-  background: #884FFB !important;
+  background: #940798 !important;
   box-shadow: 0px 5px 10px rgba(59, 118, 239, 0.3) !important;
   transition: .3s;
 }
@@ -9305,7 +9305,7 @@ canvas#highlights {
 /* line 507, G:/admin_project/8 admin/Analytic/scss/_byer_table.scss */
 .common_tab_btn a.active {
   color: #fff;
-  background-color: #884FFB;
+  background-color: #940798;
 }
 
 /* line 514, G:/admin_project/8 admin/Analytic/scss/_byer_table.scss */
@@ -9884,8 +9884,8 @@ canvas#highlights {
 
 /* line 36, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
 .default-datepicker .datepicker-inline .datepicker .datepicker--content .datepicker--days .datepicker--cells .datepicker--cell-day:hover {
-  background: #884FFB;
-  border: 2px solid #884FFB;
+  background: #940798;
+  border: 2px solid #940798;
   color: #fff;
 }
 
@@ -9918,7 +9918,7 @@ canvas#highlights {
   font-size: 30px;
   color: #2b2b2b;
   font-family: "Mulish", sans-serif;
-  color: #884FFB;
+  color: #940798;
 }
 
 /* line 67, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
@@ -9991,14 +9991,14 @@ canvas#highlights {
   color: #fff !important;
   border-radius: 15px;
   font-weight: bold;
-  border: 2px solid #884FFB;
-  background: #884FFB;
+  border: 2px solid #940798;
+  background: #940798;
 }
 
 /* line 130, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
 .default-datepicker .datepicker--cell.-focus- {
-  background: #884FFB;
-  border: 2px solid #884FFB;
+  background: #940798;
+  border: 2px solid #940798;
   color: #fff;
 }
 
@@ -10021,20 +10021,20 @@ canvas#highlights {
 /* line 152, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
 .datepicker--cell.-selected- {
   border: none;
-  background: #884FFB;
+  background: #940798;
   color: #fff;
 }
 
 /* line 157, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
 .datepicker--cell.-selected-.-current- {
   border: none;
-  background: #884FFB;
+  background: #940798;
   color: #fff;
 }
 
 /* line 163, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
 .default-datepicker .datepicker-inline .datepicker .datepicker--content .datepicker--days .datepicker--cells .datepicker--cell.-selected- {
-  background: #884FFB;
+  background: #940798;
   color: #fff;
   border-radius: 15px;
   position: relative;
@@ -10042,7 +10042,7 @@ canvas#highlights {
 
 /* line 171, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
 .datepicker--cell.-focus- {
-  background: #884FFB;
+  background: #940798;
   color: #fff;
 }
 
@@ -10051,7 +10051,7 @@ canvas#highlights {
   color: #000;
   border-radius: 5px;
   font-weight: bold;
-  border: 2px solid #884FFB;
+  border: 2px solid #940798;
 }
 
 /* line 181, G:/admin_project/8 admin/Analytic/scss/_datepicker.scss */
@@ -12441,7 +12441,7 @@ a.pswp__share--download:hover {
   display: inline-block;
   border-radius: 2px;
   padding: 6px 17px;
-  background: #884FFB;
+  background: #940798;
   color: #fff;
   transition: .3s;
 }
@@ -12835,12 +12835,12 @@ a.pswp__share--download:hover {
 
 /* line 52, G:/admin_project/8 admin/Analytic/scss/_product.scss */
 .ribbon1 span.rib1-primary::before, .ribbon1 span.rib1-primary {
-  background: #884FFB;
+  background: #940798;
 }
 
 /* line 55, G:/admin_project/8 admin/Analytic/scss/_product.scss */
 .ribbon1.rib1-primary::after {
-  border-top-color: #884FFB;
+  border-top-color: #940798;
 }
 
 /* line 58, G:/admin_project/8 admin/Analytic/scss/_product.scss */
@@ -12857,7 +12857,7 @@ a.pswp__share--download:hover {
 
 /* line 68, G:/admin_project/8 admin/Analytic/scss/_product.scss */
 .ribbon1 span.rib1-primary::before, .ribbon1 span.rib1-primary {
-  background: #884FFB;
+  background: #940798;
 }
 
 /* line 71, G:/admin_project/8 admin/Analytic/scss/_product.scss */
@@ -12876,7 +12876,7 @@ a.pswp__share--download:hover {
 
 /* line 81, G:/admin_project/8 admin/Analytic/scss/_product.scss */
 .ribbon1 span.rib1-primary::after {
-  background: #884FFB;
+  background: #940798;
 }
 
 /* line 84, G:/admin_project/8 admin/Analytic/scss/_product.scss */

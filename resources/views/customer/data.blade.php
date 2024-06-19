@@ -22,10 +22,6 @@
 </div>
 
 <div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">
-
-    <!-- start -->
-
-
     <div id="response"></div>
     <div id="extra"
         style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">
@@ -47,85 +43,48 @@
     </div>
 
     <form id="form-data">
-        @csrf
         <div class="input-group mb-3">
-            <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fa-solid fa-wifi" style="font-size: 25px;"></i></span>
-            </div>
-           
-            <select class="form-control" id="network_module" required>
-                <option value="">--Choose--</option>
-                
-                @if ($productAccess['m_lock1'] != 0)
-                    <option value="MTN">MTN-SME</option>
-                @endif
-                @if ($productAccess['mg_lock1'] != 0)
-                    <option value="MTN-CG">MTN-CG</option>
-                @endif
-                @if ($productAccess['mtn_data_card_lock'] != 0)
-                    <option value="MTN-DATACARD">MTN-DATACARD</option>
-                @endif
-                @if ($productAccess['g_lock1'] != 0)
-                    <option value="GLO">GLO</option>
-                @endif
-                @if ($productAccess['gcg_lock1'] != 0)
-                    <option value="GLO-CG">GLO-CG</option>
-                @endif
-                @if ($productAccess['a_lock1'] != 0)
-                    <option value="AIRTEL">AIRTEL</option>
-                @endif
-                @if ($productAccess['ag_lock1'] != 0)
-                    <option value="AIRTEL-CG">AIRTEL-CG</option>
-                @endif
-                @if ($productAccess['mo_lock1'] != 0)
-                    <option value="9MOBILE">9MOBILE</option>
-                @endif
-                @if ($productAccess['mobilesme_lock'] != 0)
-                    <option value="MOBILE-SME">9MOBILE SME</option>
-                @endif
-                @if ($productAccess['spectranet_lock'] != 0)
-                    <option value="SPECTRANET-DATA">SPECTRANET</option>
-                @endif
-                @if ($productAccess['smile_lock'] != 0)
-                    <option value="SMILE-DATA">SMILE</option>
-                @endif
-            </select>
+          <span class="input-group-text"><i style="font-weight: bold" class="fa-solid fa-wifi"></i></span>
+          <input type="hidden" id="network_discount">
+          
+          <select class="form-control" id="network_module" required>
+          <option value="">--Choose--</option>
+          @foreach($category->products as $product)
+            @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
+              <option data-fixed_price="{{ $product->fixed_price }}"
+                data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
+                data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
+                value="{{ $product->id }}">{{ $product->display_name }}</option>
+            @endif
+          @endforeach
+          </select>
         </div>
-
-        <br>
-
-        <div class="input-group mb-3">
-            <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fa fa-shopping-cart" style="font-size: 25px;"></i></span>
-            </div>
+      
+      <div class="input-group mb-3">
+          <span class="input-group-text"><i style="font-weight: bold" class="fa fa-shopping-cart"></i></span>
             @csrf
             <select class="form-control" class="dataplanload" style="font-size:11px" id="dataplanloader" required>
                 <option value="">--Select Network--</option>
             </select>
-
-        </div>
-        <br>
-
-        <div class="input-group mb-3" id="ask_pins" style="display:none">
-            <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fa fa-calculator" style="font-size: 25px;"></i></span>
-            </div>
-            <input type="number" class="form-control" placeholder="No of Pins" id="no_of_pins" value="">
-            <br>
-        </div>
+      </div>
+        
+      <div class="input-group mb-3" id="ask_pins" style="display:none">
+          <div class="input-group-text">
+              <span class="" id="basic-addon1"><i class="fa fa-calculator" style="font-size: 25px;"></i></span>
+          </div>
+          <input type="number" class="form-control" placeholder="No of Pins" id="quantity" value="">
+          <br>
+      </div>
 
         <small id="ask_pins_small" style="color:red;display:none">Phone number is optional<br></small>
         <div class="input-group mb-3">
-            <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fas fa-phone" style="font-size: 25px;"></i></span>
-            </div>
-            <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no" maxlength="11" required>
+          <span class="input-group-text"><i style="font-weight: bold" class="fas fa-phone"></i></span>
+          <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no" required>
         </div>
-
         <div class="input-group mb-3" id="smile-verify-email" style="margin-top: 35px;display:none">
             <div class=" input-group-text">
                 <br><br>
-                <span class="" id="smile-email"><i class="fas fa-envelope" style="font-size: 25px;"></i></span>
+                <span class="" id="smile-email"><i class="fas fa-envelope" style="font-weight: bold"></i></span>
             </div>
             <input type="email" class="form-control" placeholder="Email address associated with smile Account"
                 id="smile_email">
@@ -135,10 +94,10 @@
             style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">
         </div>
 
-        <small>Forget Pin ? <a href="{{ route('pin.reset') }}">Reset Here</a></small>
+        <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
         <div class="input-group mb-3">
             <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-size: 25px;"></i></span>
+                <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-weight: bold"></i></span>
             </div>
             <input type="password" class="form-control" placeholder="Security PIN" id="security_pin" required>
         </div>
@@ -188,44 +147,63 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
+  reset();
+  
+  function reset(){
+    $('#dataplanloader').find('option').remove();
+    $('#mobile_no').val();
+  }
+
   $("#network_module").change(function() {
+    var has_variation = $('#network_module').find(':selected').data('has_variations');
+    var product_id = $('#network_module').val();
+    var variation_id = $('#variation').val();
+    var allow_quantity = $('#product').find(':selected').data('allow_quantity');
+    var max = $('#network_module').find(':selected').data('max');
+    var min = $('#network_module').find(':selected').data('min');
+    var quantity_graduation = $('#network_module').find(':selected').data('quantity_graduation');
+    var fixed_price = $('#network_module').find(':selected').data('fixed_price');
+
+    var amount = $('#amount').val();
+
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
       $.LoadingOverlay("show");
       $.ajax({
-        url: '/variations?services=' + network_module + '&level={{ auth()->user()->level }}&product=data',
+        url: "{{ url('customer-get-variations') }}/" + product_id,
         method: 'GET',
         success: function(RES_data) {
           $.LoadingOverlay("hide");
-
           if ($("#network_module").val() == 'SMILE-DATA') {
             $("#smile-verify-email").show();
           } else {
             $("#smile-verify-email").hide();
 
           }
-          if (network_module == 'MTN-DATACARD') {
+          if (network_module == 'mtn-datacard') {
             $("#ask_pins").show();
             $("#ask_pins_small").show();
             $("#how_to_load").show();
             $("#how_to_load").show();
 
-            $("#no_of_pins").attr("required", true);
+            $("#quantity").attr("required", true);
             $("#mobile_no").attr("required", false);
 
           } else {
             $("#ask_pins").hide();
-            $("#no_of_pins").attr("required", false);
-            $("#no_of_pins").val("1");
+            $("#quantity").attr("required", false);
+            $("#quantity").val("1");
             $("#ask_pins_small").hide();
             $("#how_to_load").hide();
             $("#mobile_no").attr("required", true);
 
           }
           $("#dataplanloader").html(RES_data);
-
         }
       })
+    }else{
+      $('#dataplanloader').find('option').remove();
+      $('#mobile_no').val();
     }
   })
 
@@ -236,10 +214,10 @@
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
-      no_of_pins: $("#no_of_pins").val()
+      quantity: $("#quantity").val()
     };
 
-    if ($("#network_module").val() == 'SMILE-DATA') {
+    if ($("#network_module").val() == 'smile-data') {
       return verifySmile();
     }
     $.LoadingOverlay("show");
@@ -259,7 +237,7 @@
           $("#successModal").modal("show");
           $("#successModal .modal-body").html(response_fd.message);
 
-          if ($("#network_module").val() == 'MTN-DATACARD') {
+          if ($("#network_module").val() == 'mtn-datacard') {
             if (response_fd.extra) {
               $("#extra").html(response_fd.extra);
               $("#extra").show();
@@ -291,7 +269,7 @@
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
-      no_of_pins: $("#no_of_pins").val(),
+      quantity: $("#quantity").val(),
     };
 
     $.LoadingOverlay("show");
@@ -331,7 +309,7 @@
       mobile_no: $("#mobile_no").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
-      no_of_pins: $("#no_of_pins").val(),
+      quantity: $("#quantity").val(),
       account_id: account_id,
     };
 

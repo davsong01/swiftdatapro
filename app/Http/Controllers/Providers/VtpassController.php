@@ -2,35 +2,34 @@
 
 namespace App\Http\Controllers\Providers;
 
+use App\Models\Discount;
+use App\Models\Variation;
 use App\Models\BillersLog;
 use App\Models\WebSetting;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
+use App\Models\CustomerLevel;
 use App\Http\Controllers\Controller;
 
 class VtpassController extends Controller
 {
-    public function getVariations($type, $product, $level, $plan_id=null,$amount=null, $variation=null)
+    public function getOldVariations($product)
     {
+        $category = $product->category;
+        $productLevel = CustomerLevel::pluck('id')->toArray();
+        $old_identifier = $product->old_identifier;
         $environment = env('ENT');
-        $product = strtolower($product);
-        
-        $response = [
-            'name' => '',
-            'price' => '',
-            'code' => '',
-            'val' => '',
-        ];
         // dd($type, $product, $level, $plan_id);
-        if ($type == 'data' && $product == 'spectranet-data') {
-            $response = \DB::table('spectranetdata_plan')->where('id', $level)->select('spectranet1', 'spectranet2', 'spectranet3')->first();
+        if (isset($product->slug) && $product->slug == 'spectranet-data') {
+            $response =  \DB::connection('old')->table('spectranetdata_plan')->select('spectranet1', 'spectranet2', 'spectranet3')->first();
 
-            $response = [
+            $data = [
                 [
                     'name' => $environment == 'local' ? "Spectranet N5000" : "Spectranet N5000",
                     'variation_code' => $environment == 'local' ? "vt-5000" : "vt-5000",
                     'price' => $response->spectranet1,
                     'val' => 5000,
+                    'fixedPrice' => 'yes',
                     'id' => 'spectranet1',
                 ],
                 [
@@ -38,6 +37,7 @@ class VtpassController extends Controller
                     'variation_code' => $environment == 'local' ? "vt-7000" : "vt-7000",
                     'price' => $response->spectranet2,
                     'val' => 7000,
+                    'fixedPrice' => 'yes',
                     'id' => 'spectranet2',
                 ],
                 [
@@ -45,526 +45,123 @@ class VtpassController extends Controller
                     'variation_code' => $environment == 'local' ? "vt-10000" : "vt-10000",
                     'price' => $response->spectranet3,
                     'val' => 10000,
+                    'fixedPrice' => 'yes',
                     'id' => 'spectranet3',
 
                 ],
             ];
 
+        foreach ($data as $d) {
+                if(Variation::where('slug', $d['variation_code'])->count() > 0){
+                    continue;
+                }
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_id' => $product->api->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['variation_code'],
+                ], [
+                    'product_id' => $product->id,
+                    'api_id' => $product->api->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['variation_code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => $d['fixedPrice'] ?? 'yes',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
+
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('spectranetdata_plan')->select('spectranet1', 'spectranet2', 'spectranet3')->where('id', $level)->first();
+
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? null,
+                        ]);
+                    }
+                }
+            }
         }
-       
-        if($type == 'airtime'){
-            if ($product == "smile-vtu") {
-                $response = 
+
+        if ($product->category->slug == "electricity") {
+            $data = [
                 [
-                    [
-                        'serviceId' => "smile-direct",
-                        'variation_code' => 'airtime',
-                        'name' => strtoupper($product),
-                        'product' => strtoupper($product),
-                        'price' => $amount,
-                    ]
-                ];
-                
-            }
-            
-            if ($product == "mtn-vtu" || $product == "mtn") {
-                $response = [
-                    [
-                        'serviceId' => "mtn",
-                        'name' => strtoupper($product),
-                        'variation_code' => 'mtn',
-                        'product' => strtoupper($product),
-                        'price' => $amount,
-                    ]
-                ];
-
-            }
-
-            if ($product == "glo-vtu" || $product == "glo") {
-                $response = [
-                    [
-                        'serviceId' => "glo",
-                        'name' => strtoupper($product),
-                        'variation_code' => 'glo',
-                        'product' => strtoupper($product),
-                        'price' => $amount,
-                    ],
-                ];
-               
-            }
-
-            if ($product == "airtel-vtu" || $product == "airtel") {
-                $response = 
+                    'name' => 'Prepaid',
+                    'variation_code' => 'prepaid',
+                    'fixedPrice' => 'no',
+                    'price' => null,
+                ],
                 [
-                    [
-                        'serviceId' => "airtel",
-                        'name' => strtoupper($product),
-                        'variation_code' => 'airtel',
-                        'product' => strtoupper($product),
-                        'price' => $amount,
-                    ]
-                ];
-            }
+                    'name' => 'Postpaid',
+                    'variation_code' => 'postpaid',
+                    'fixedPrice' => 'no',
+                    'price' => null,
+                ],
+            ];
 
-            if ($product == "9mobile-vtu" || $product == "9mobile" || $product == "etisalat-vtu" || $product == "etisalat") {
-                $response = [
-                    [
-                        'serviceId' => "etisalat",
-                        'name' => strtoupper($product),
-                        'variation_code' => 'etisalat',
-                        'product' => strtoupper($product),
-                        'price' => $amount,
-                    ]
-                ];
-            }
+            foreach ($data as $d) {
+                if(Variation::where('slug', $d['variation_code'])->count() > 0){
+                        continue;
+                }
+                $variation = Variation::updateOrCreate([
+                    'product_id' => $product->id,
+                    'api_id' => $product->api->id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['variation_code'],
+                ], [
+                    'product_id' => $product->id,
+                    'api_id' => $product->api->id,
+                    'category_id' => $product->category_id,
+                    'api_name' =>  $d['name'],
+                    'slug' => $d['variation_code'],
+                    'api_id' => $product->api_id,
+                    'system_name' => $d['name'],
+                    'fixed_price' => $d['fixedPrice'] ?? 'no',
+                    'api_price' => $d['price'],
+                    'system_price' => $d['price'],
+                    'min' => null,
+                    'max' =>  null,
+                    'status' => 'active'
+                ]);
 
-        }
+                foreach ($productLevel as $level) {
+                    $response = \DB::connection('old')->table('spectranetdata_plan')->select('spectranet1', 'spectranet2', 'spectranet3')->where('id', $level)->first();
 
-        if ($type == 'electricity') {
-            if ($product == "aba-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "aba-electric",
-                        'code' => "aba-electric",
-                        'variation_code' => 'prepaid',
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "aba-electric",
-                        'code' => "aba-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "abuja-electric") {
-               
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "abuja-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "abuja-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-                
-            }
-
-            if ($product == "eko-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "eko-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "eko-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "ibadan-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "ibadan-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "ibadan-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "ikeja-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "ikeja-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "ikeja-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "kaduna-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "kaduna-electric",
-                        'variation_code' => 'prepaid',
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "kaduna-electric",
-                        'variation_code' => 'postpaid',
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "kano-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "kano-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "kano-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "jos-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "jos-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "jos-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "portharcourt-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "portharcourt-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "portharcourt-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "benin-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "benin-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "benin-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "enugu-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "enugu-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "enugu-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "abuja-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "abuja-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "abuja-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "eko-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "eko-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "eko-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "ibadan-electric") {
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "ibadan-electric",
-                        'variation_code' => 'prepaid',
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "ibadan-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "ikeja-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "ikeja-electric",
-                        'variation_code' => 'prepaid',
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "ikeja-electric",
-                        'variation_code' => 'postpaid',
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "kaduna-electric") {
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "kaduna-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "kaduna-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "kano-electric") {
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "kano-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "kano-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "jos-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "jos-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "jos-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "portharcourt-electric") {
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "portharcourt-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "portharcourt-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "benin-electric") {
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "benin-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "benin-electric",
-                        'variation_code' => 'postpaid',
-                        
-                        'price' => $amount,
-                    ],
-
-                ];
-            }
-
-            if ($product == "enugu-electric") {
-                $req = new \Illuminate\Http\Request(['services' => $product, 'level' => $level]);
-
-                $discount = app('App\Http\Controllers\TransactionsController')->discounts($req);
-                $response = [
-                    [
-                        'name' => 'Prepaid',
-                        'serviceId' => "enugu-electric",
-                        'variation_code' => 'prepaid',
-                        
-                        'price' => $amount,
-                    ],
-                    [
-                        'name' => 'Postpaid',
-                        'serviceId' => "enugu-electric",
-                        'variation_code' => 'postpaid',
-                        'price' => $amount,
-                    ],
-
-                ];
+                    foreach ($response as $key => $value) {
+                        $discount = Discount::updateOrCreate([
+                            'customer_level' => $level,
+                            'variation_id' => $variation->id
+                        ], [
+                            'customer_level' => $level,
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? null,
+                        ]);
+                    }
+                }
             }
         }
-     
-        if($type == 'cable') {
-            if ($product == "dstv") {
-                $response = \DB::table('dstv_planlist')->where('id', $level)->select('dstv_1', 'dstv_2', 'dstv_3', 'dstv_4', 'dstv_5', 'dstv_6', 'dstv_7', 'dstv_8', 'dstv_9', 'dstv_10', 'dstv_11', 'dstv_12', 'dstv_discount')->first();
+
+        if($product->category->slug  == 'cable') {
+            if ($product->slug == "dstv") {
+                $response =  \DB::connection('old')->table('dstv_planlist')->select('dstv_1', 'dstv_2', 'dstv_3', 'dstv_4', 'dstv_5', 'dstv_6', 'dstv_7', 'dstv_8', 'dstv_9', 'dstv_10', 'dstv_11', 'dstv_12', 'dstv_discount')->first();
                 
-                $response = [
+                $data = [
                     [
                         'serviceId' => 'dstv',
                         'name' => 'Dstv Padi',
                         'variation_code' => 'dstv-padi',
                         'price' => $response->dstv_1,
                         'val' => '',
-                        'code' => '800',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -572,7 +169,6 @@ class VtpassController extends Controller
                         'variation_code' => 'dstv-yanga',
                         'price' => $response->dstv_2,
                         'val' => '',
-                        'code' => '801',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -580,7 +176,6 @@ class VtpassController extends Controller
                         'variation_code' => 'dstv-confam',
                         'price' => $response->dstv_3,
                         'val' => '',
-                        'code' => '802',
                     ],
 
 
@@ -590,7 +185,6 @@ class VtpassController extends Controller
                         'variation_code' => 'padi-extra',
                         'price' => $response->dstv_4,
                         'val' => '',
-                        'code' => '803',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -598,7 +192,6 @@ class VtpassController extends Controller
                         'variation_code' => 'yanga-extra',
                         'price' => $response->dstv_5,
                         'val' => '',
-                        'code' => '804',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -606,7 +199,6 @@ class VtpassController extends Controller
                         'variation_code' => 'dstv6',
                         'price' => $response->dstv_6,
                         'val' => '',
-                        'code' => '805',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -614,7 +206,6 @@ class VtpassController extends Controller
                         'variation_code' => 'confam-extra',
                         'price' => $response->dstv_7,
                         'val' => '',
-                        'code' => '806',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -622,7 +213,6 @@ class VtpassController extends Controller
                         'variation_code' => 'dstv79',
                         'price' => $response->dstv_8,
                         'val' => '',
-                        'code' => '807',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -630,7 +220,6 @@ class VtpassController extends Controller
                         'variation_code' => 'dstv7',
                         'price' => $response->dstv_9,
                         'val' => '',
-                        'code' => '808',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -638,7 +227,6 @@ class VtpassController extends Controller
                         'variation_code' => 'extraview-access',
                         'price' => $response->dstv_10,
                         'val' => '',
-                        'code' => '809',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -646,7 +234,6 @@ class VtpassController extends Controller
                         'variation_code' => 'dstv10',
                         'price' => $response->dstv_11,
                         'val' => '',
-                        'code' => '810',
                     ],
                     [
                         'serviceId' => 'dstv',
@@ -654,24 +241,63 @@ class VtpassController extends Controller
                         'variation_code' => 'dstv10',
                         'price' => $response->dstv_12,
                         'val' => '',
-                        'code' => '811',
                     ],
                 ];
 
-                
+                foreach ($data as $d) {
+                    if (Variation::where('slug', $d['variation_code'])->count() > 0) {
+                        continue;
+                    }
+                    $variation = Variation::updateOrCreate(
+                        [
+                            'api_id' => $product->api->id,
+                            'product_id' => $product->id,
+                            'api_name' =>  $d['name'],
+                            'slug' => $d['variation_code'],
+                        ],[
+                        'api_id' => $product->api->id,
+                        'product_id' => $product->id,
+                        'api_name' =>  $d['name'],
+                        'slug' => $d['variation_code'],
+                        'category_id' => $product->category_id,
+                        'api_name' =>  $d['name'],
+                        'system_name' => $d['name'],
+                        'fixed_price' => $d['fixedPrice'] ?? 'yes',
+                        'api_price' => $d['price'],
+                        'system_price' => $d['price'],
+                        'min' => null,
+                        'max' =>  null,
+                        'status' => 'active'
+                    ]);
+
+                    foreach ($productLevel as $level) {
+                        $response = \DB::connection('old')->table('dstv_planlist')->select('dstv_1', 'dstv_2', 'dstv_3', 'dstv_4', 'dstv_5', 'dstv_6', 'dstv_7', 'dstv_8', 'dstv_9', 'dstv_10', 'dstv_11', 'dstv_12', 'dstv_discount')->where('id', $level)->first();
+
+                        foreach ($response as $key => $value) {
+                            $discount = Discount::updateOrCreate([
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id
+                            ], [
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id,
+                                'price' => $value ?? null,
+                            ]);
+                        }
+                    }
+                }
+
             }
 
             if ($product == "gotv") {
-                $response = \DB::table('gotv_planlist')->where('id', $level)->select('gotv_1', 'gotv_2', 'gotv_3', 'gotv_4', 'gotv_5', 'gotv_discount')->first();
+                $data =  \DB::connection('old')->table('gotv_planlist')->where('id', $level)->select('gotv_1', 'gotv_2', 'gotv_3', 'gotv_4', 'gotv_5', 'gotv_discount')->first();
 
-                $response = [
+                $data = [
                     [
                         'serviceId' => 'gotv',
                         'name' => 'GOTV SUPA',
                         'variation_code' => 'gotv-supa',
                         'price' => $response->gotv_1,
                         'val' => '',
-                        'code' => '600',
                     ],
                     [
                         'serviceId' => 'gotv',
@@ -679,7 +305,6 @@ class VtpassController extends Controller
                         'variation_code' => 'gotv-max',
                         'price' => $response->gotv_2,
                         'val' => '',
-                        'code' => '601',
                     ],
                     [
                         'serviceId' => 'gotv',
@@ -687,7 +312,6 @@ class VtpassController extends Controller
                         'variation_code' => 'gotv-jinja',
                         'price' => $response->gotv_4,
                         'val' => '',
-                        'code' => '602',
                     ],
                     [
                         'serviceId' => 'gotv',
@@ -695,7 +319,6 @@ class VtpassController extends Controller
                         'variation_code' => 'gotv-jolli',
                         'price' => $response->gotv_3,
                         'val' => '',
-                        'code' => '603',
                     ],
                     [
                         'serviceId' => 'gotv',
@@ -703,24 +326,61 @@ class VtpassController extends Controller
                         'variation_code' => 'gotv-smallie',
                         'price' => $response->gotv_5,
                         'val' => '',
-                        'code' => '604',
                     ],
                 ];
+
+                foreach ($data as $d) {
+                    if(Variation::where('slug', $d['variation_code'])->count() > 0){
+                        continue;
+                    }
+                    $variation = Variation::updateOrCreate([
+                        'product_id' => $product->id,
+                        'api_id' => $product->api->id,
+                        'api_name' =>  $d['name'],
+                        'slug' => $d['variation_code'],
+                    ],[
+                        'product_id' => $product->id,
+                        'api_id' => $product->api->id,
+                        'api_name' =>  $d['name'],
+                        'slug' => $d['variation_code'],
+                        'category_id' => $product->category_id,
+                        'system_name' => $d['name'],
+                        'fixed_price' => $d['fixedPrice'] ?? 'yes',
+                        'api_price' => $d['price'],
+                        'system_price' => $d['price'],
+                        'min' => null,
+                        'max' =>  null,
+                        'status' => 'active'
+                    ]);
+
+                    foreach ($productLevel as $level) {
+                        $response = \DB::connection('old')->table('gotv_planlist')->where('id', $level)->select('gotv_1', 'gotv_2', 'gotv_3', 'gotv_4', 'gotv_5', 'gotv_discount')->where('id', $level)->first();
+
+                        foreach ($response as $key => $value) {
+                            $discount = Discount::updateOrCreate([
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id
+                            ], [
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id,
+                                'price' => $value ?? null,
+                                'status' => 'active'
+                            ]);
+                        }
+                    }
+                }
             }
             
             if ($product == "showmax") {
-                $response = \DB::table('showmax_planlist')->where('id', $level)->select('showmax1', 'showmax2', 'showmax3', 'showmax4', 'showmax_discount')->first();
+                $response = \DB::connection('old')->table('showmax_planlist')->where('id', $level)->select('showmax1', 'showmax2', 'showmax3', 'showmax4', 'showmax_discount')->first();
                 
-                $discount = $response->showmax_discount;
-                
-                $response = [
+                $data = [
                     [
                         'serviceId' => 'showmax',
                         'name' => 'Showmax FULL',
                         'variation_code' => 'full',
                         'price' => $response->showmax1,
                         'val' => '',
-                        'code' => '900',
                     ],
                     [
                         'serviceId' => 'showmax',
@@ -728,7 +388,6 @@ class VtpassController extends Controller
                         'variation_code' => 'mobile_only',
                         'price' => $response->showmax2,
                         'val' => '',
-                        'code' => '901',
                     ],
                     [
                         'serviceId' => 'showmax',
@@ -736,7 +395,6 @@ class VtpassController extends Controller
                         'variation_code' => 'sports_full',
                         'price' => $response->showmax3,
                         'val' => '',
-                        'code' => '902',
                     ],
                     [
                         'serviceId' => 'showmax',
@@ -744,24 +402,63 @@ class VtpassController extends Controller
                         'variation_code' => 'sports_mobile_only',
                         'price' => $response->showmax4,
                         'val' => '',
-                        'code' => '903',
                     ],
                 ];
+
+
+                foreach ($data as $d) {
+                    if(Variation::where('slug', $d['variation_code'])->count() > 0){
+                        continue;
+                    }
+                    $variation = Variation::updateOrCreate([
+                        'product_id' => $product->id,
+                        'api_id' => $product->api->id,
+                        'api_name' =>  $d['name'],
+                        'slug' => $d['variation_code'],
+                    ],[
+                        'product_id' => $product->id,
+                        'api_name' =>  $d['name'],
+                        'api_id' => $product->api->id,
+                        'slug' => $d['variation_code'],
+                        'category_id' => $product->category_id,
+                        'api_name' =>  $d['name'],
+                        'system_name' => $d['name'],
+                        'fixed_price' => $d['fixedPrice'] ?? 'yes',
+                        'api_price' => $d['price'],
+                        'system_price' => $d['price'],
+                        'min' => null,
+                        'max' =>  null,
+                        'status' => 'active'
+                    ]);
+
+                    foreach ($productLevel as $level) {
+                        $response = \DB::connection('old')->table('showmax_planlist')->where('id', $level)->select('showmax_discount')->where('id', $level)->first();
+
+                        foreach ($response as $key => $value) {
+                            $discount = Discount::updateOrCreate([
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id
+                            ], [
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id,
+                                'price' => $value ?? null,
+                            ]);
+                        }
+                    }
+                }
             }
 
-            if ($product == "startimes") {
-                $response = \DB::table('startime_planlist')->where('id', $level)->select('star_1', 'star_2', 'star_3', 'star_4', 'star_5', 'star_6', 'star_7', 'star_8', 'star_9', 'star_10', 'star_discount')->first();
+            if ($product->slug == "startimes") {
+                $response =  \DB::connection('old')->table('startime_planlist')->where('id', $level)->select('star_1', 'star_2', 'star_3', 'star_4', 'star_5', 'star_6', 'star_7', 'star_8', 'star_9', 'star_10', 'star_discount')->first();
 
-                $discount = $response->star_discount;
-
-                $response = [
+                $data = [
                     [
                         'serviceId' => 'startimes',
                         'name' => 'STARTIMES NOVA WEEKLY',
                         'variation_code' => 'nova-weekly',
                         'price' => $response->star_1,
+                        'fixedPrice' => 'yes',
                         'val' => '',
-                        'code' => '701',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -769,7 +466,6 @@ class VtpassController extends Controller
                         'variation_code' => 'nova',
                         'price' => $response->star_2,
                         'val' => '',
-                        'code' => '702',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -777,7 +473,6 @@ class VtpassController extends Controller
                         'variation_code' => 'basic-weekly',
                         'price' => $response->star_3,
                         'val' => '',
-                        'code' => '703',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -785,7 +480,6 @@ class VtpassController extends Controller
                         'variation_code' => 'basic',
                         'price' => $response->star_4,
                         'val' => '',
-                        'code' => '704',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -793,7 +487,6 @@ class VtpassController extends Controller
                         'variation_code' => 'smart-weekly',
                         'price' => $response->star_5,
                         'val' => '',
-                        'code' => '705',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -801,7 +494,6 @@ class VtpassController extends Controller
                         'variation_code' => 'smart',
                         'price' => $response->star_6,
                         'val' => '',
-                        'code' => '706',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -809,7 +501,6 @@ class VtpassController extends Controller
                         'variation_code' => 'classic-weekly',
                         'price' => $response->star_7,
                         'val' => '',
-                        'code' => '707',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -817,7 +508,6 @@ class VtpassController extends Controller
                         'variation_code' => 'classic',
                         'price' => $response->star_8,
                         'val' => '',
-                        'code' => '708',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -825,7 +515,6 @@ class VtpassController extends Controller
                         'variation_code' => 'super-weekly',
                         'price' => $response->star_9,
                         'val' => '',
-                        'code' => '709',
                     ],
                     [
                         'serviceId' => 'startimes',
@@ -833,187 +522,192 @@ class VtpassController extends Controller
                         'variation_code' => 'super',
                         'price' => $response->star_10,
                         'val' => '',
-                        'code' => '710',
                     ],
+                ];
+
+                foreach ($data as $d) {
+                    if(Variation::where('slug', $d['variation_code'])->count() > 0){
+                        continue;
+                    }
+                    $variation = Variation::updateOrCreate([
+                        'product_id' => $product->id,
+                        'api_id' => $product->api->id,
+                        'api_name' =>  $d['name'],
+                        'slug' => $d['variation_code'],
+                    ],[
+                        'product_id' => $product->id,
+                        'api_id' => $product->api->id,
+                        'api_name' =>  $d['name'],
+                        'slug' => $d['variation_code'],
+                        'product_id' => $product->id,
+                        'category_id' => $product->category_id,
+                        'api_name' =>  $d['name'],
+                        'system_name' => $d['name'],
+                        'fixed_price' => $d['fixedPrice'] ?? 'yes',
+                        'api_price' => $d['price'],
+                        'system_price' => $d['price'],
+                        'min' => null,
+                        'max' =>  null,
+                        'status' => 'active'
+                    ]);
+
+                    foreach ($productLevel as $level) {
+                        $response = \DB::connection('old')->table('startime_planlist')->where('id', $level)->select('star_discount')->where('id', $level)->first();
+
+                        foreach ($response as $key => $value) {
+                            $discount = Discount::updateOrCreate([
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id
+                            ], [
+                                'customer_level' => $level,
+                                'variation_id' => $variation->id,
+                                'price' => $value ?? null,
+                                'status' => 'active'
+                            ]);
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return back()->with('Old Variations pulled successfully');
+    }
+
+    public function getVariations($product)
+    {
+        $variations = $this->vtpassProductVariations($product);
+        $variations = json_decode($variations, true);
+
+        $variations = (!empty($variations['response_description']) && !empty($variations['content'])) ? $variations['content'] : [];
+        $variations = $variations['variations'] ?? $variations['varations'];
+        
+        foreach ($variations as $variation) {
+            if (Variation::where(['slug' => $variation['variation_code'], 'product_id' => $product->id, 'api_id' => $product->api_id])->count() > 0) {
+                continue;
+            }
+            Variation::updateOrCreate([
+                'product_id' => $product['id'],
+                'category_id' => $product['category_id'],
+                'api_id' => $product['api']['id'],
+                'slug' => $variation['variation_code'],
+            ], [
+                'product_id' => $product['id'],
+                'api_id' => $product->api->id,
+                'category_id' => $product['category_id'],
+                'api_id' => $product['api']['id'],
+                'api_name' => $variation['name'],
+                'slug' => $variation['variation_code'],
+                'system_name' => $variation['name'],
+                'fixed_price' => strtolower($variation['fixedPrice']),
+                'api_price' => $variation['variation_amount'],
+                'system_price' => $variation['variation_amount'],
+            ]);
+        }
+
+        return true;
+    }
+
+    public function vtpassProductVariations($product){
+        $api = $product->api;
+        $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+        $url = $url.'service-variations?serviceID='.$product->slug;
+        $response = $this->advancedApiCall($url, [], [], 'GET');
+       
+        return $response;
+       
+    }
+
+    public function verify($request, $api){
+        $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+        $url = $url . 'merchant-verify';
+
+        $headers = [
+            'api-key: ' . $api->api_key,
+            'public-key: ' . $api->public_key,
+            'secret-key: ' . $api->secret_key,
+        ];
+
+        $postdata = [
+            'serviceID' => $request['product']->slug,
+            'type' => $request['variation']->slug,
+            'billersCode' => $request['billersCode'],
+        ];
+
+        $response = $this->advancedApiCall($url, $postdata, $headers, 'POST');
+
+        $result = json_decode($response);
+        
+        if (isset($result->code) && $result->code == 000 && !empty($result->content) && !empty($result->content->Customer_Name)) {
+
+            if ($request['variation']->category->slug == 'electricity') {
+                $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button>';
+                $address = $result->content->Address ?? '';
+                $response = [
+                    'status' => 'success',
+                    'provider' => 'VTPASS',
+                    'status_code' => '200',
+                    'customerName' => $result->content->Customer_Name ?? '',
+                    'customerAddress' => $address,
+                    'button_link' => $button,
+                    'message' => 'Account Name: ' . $result->content->Customer_Name . '<br/>Address: ' . $address . ' <br/><br/>' . $button . '',
+                    'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                    'raw_response' => $response,
                 ];
             }
 
-        }
+            if ($request['variation']->category->slug == 'cable') {
+                $button = '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button>';
+                // $renewal_amount = !empty($request['request_type']) && $request['request_type'] == 'renewal' ? $result->content->Renewal_Amount : ($request['price']);
+                $renewal_amount = $result->content->Renewal_Amount;
 
-
-        if (!empty($plan_id)) {
-            $responseX = [];
-            foreach ($response as $res) {
-               
-                $serviceId = $type == 'cable' ? $res['code'] : ($res['serviceId'] ?? $res['variation_code']);
-                if ($plan_id == $serviceId) {
-                    $responseX = [
-                        'serviceId' => $res['serviceId'], // required by vtpass
-                        'name' => strtoupper($product),
-                        'product' => strtoupper($product),
-                        'commission' => $commission ?? 0,
-                        'variation_code' => $res['variation_code'] ?? '',
-                        'price' => $res['price'],
-                    ];
-                }
-            }
-           
-            return $responseX;
-        }
-   
-        if (!empty($variation)) {
-            foreach ($response as $res) {
-                if ($variation == $res['variation_code']) {
-                    $responseX = [
-                        'serviceId' => $res['serviceId'],
-                        'name' => strtoupper($product),
-                        'product' => strtoupper($product),
-                        'commission' => $commission ?? 0,
-                        'variation_code' => $res['variation_code'] ?? '',
-                        'price' => $res['price'],
-                    ];
-                }
-            }
-            return $responseX;
-        }
-
-        return $response;
-    }
-
-    public function verify($request){
-        $product = $request['service_module'];
-        $vtpass = WebSetting::first();
-        $environment = env('ENT');
-        $api_key = $vtpass->vtpass_api_key ?? 'f742eb6055ff05d109de74caaf563b4f';
-        $public_key = $vtpass->vtpass_public ?? 'PK_84802bc898ef45c19317552eea90c660efaa2f67122';
-        $secret_key = $vtpass->vtpass_secret_key ?? 'SK_14525bc8c1f7e82026cadc079fcdb892d3c83d58025';
-
-        $headers = [
-            'api-key: ' . $api_key,
-            'public-key: ' . $public_key,
-            'secret-key: ' . $secret_key,
-        ];
-
-        // Save post fields
-        if ($environment == 'local') {
-            $url = "https://sandbox.vtpass.com/api/merchant-verify";
-        } else {
-            $url = "https://vtpass.com/api/merchant-verify";
-        }
-        
-        if(!empty($request['type']) && $request['type'] == 'electricity'){
-            $postdata = [
-                'serviceID' => $product,
-                'type' => $request['service_plan'],
-                'billersCode' => $request['smart_no'],
-            ];
-        }
-
-        if (!empty($request['type']) && $request['type'] == 'cable') {
-            $postdata = [
-                'billersCode' => $request['smart_no'],
-                'serviceID' => $product
-            ];
-        }
-
-        $pstfields = [
-            'url' =>  $url,
-            'payload' => $postdata,
-        ];
-
-        $params = [
-            'url' => $url,
-            'headers' => $headers,
-            'postfields' => $pstfields,
-            'payload' => Arr::except($postdata, 'url'),
-            'provider' => 'VTPASS',
-        ];
-
-        // Try local verification
-        // $check = BillersLog::where('unique_element', $request['smart_no'])->where('product', strtolower($product))->first();
-       
-        if(!empty($check)){
-
-        }else{
-            $vResponse = $this->advancedApiCall($url, $postdata,$headers);
-            $result = json_decode($vResponse);
-            
-            if(isset($result->code) && $result->code == 000 &&!empty($result->content) && !empty($result->content->Customer_Name)){
-    
-                if (!empty($request['type']) && $request['type'] == 'electricity') {
-                    $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
-    
-                    $response = [
-                        'status' => 'success',
-                        'provider' => 'VTPASS',
-                        'status_code' => '200',
-                        'customerName' => $result->content->Customer_Name ?? '',
-                        'customerAddress' => $result->content->Address ?? '',
-                        'button_link' => $button,
-                        'message' => 'Account Name: ' . $result->content->Customer_Name . '<br/>Address: ' . $result->content->Address .' <br/><br/>' . $button . '',
-                        'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
-                        'raw_response' => $vResponse,
-                    ];
-                }
-                
-                if (!empty($request['type']) && $request['type'] == 'cable') {
-                    $button = '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>';
-                    // $renewal_amount = !empty($request['request_type']) && $request['request_type'] == 'renewal' ? $result->content->Renewal_Amount : ($request['price']);
-                    $renewal_amount = $result->content->Renewal_Amount;
-    
-                    $response = [
-                        'status' => 'success',
-                        'provider' => 'VTPASS',
-                        'status_code' => '200',
-                        'current_bouque_code' => $result->content->Current_Bouquet_Code ?? null,
-                        'renewal_amount' => $result->content->Renewal_Amount?? null,
-                        'customerName' => $result->content->Customer_Number ?? '',
-                        'button_link' => $button,
-                        'message' => 'Account Name: '
-                        . $result->content->Customer_Name
+                $response = [
+                    'status' => 'success',
+                    'provider' => 'VTPASS',
+                    'status_code' => '200',
+                    'current_bouque_code' => $result->content->Current_Bouquet_Code ?? null,
+                    'renewal_amount' => $result->content->Renewal_Amount ?? null,
+                    'customerName' => $result->content->Customer_Number ?? '',
+                    'button_link' => $button,
+                    'message' => 'Account Name: '
+                    . $result->content->Customer_Name
                         . ' <br/>Status: '
                         . $result->content->Status
                         . '<br/>Due Date: '
                         . $result->content->Due_Date
-                            . '<br>Current Bouquet: '
-                            . $result->content->Current_Bouquet
-                            . '<br>'
-                            . 'Renewal Amount: N'
-                            . number_format($renewal_amount, 2)
-                            . '<br><br>'
-                            . $button . '',
-                        'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
-                        'raw_response' => $vResponse,
-                    ];
-                    
-                }
-    
-                if ($product == 'showmax') {
-                    $response = array(
-                        'status' => 'success',
-                        'message' =>  '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button> <button class="btn btn-danger" onclick="closeModal()">Close</button>',
-    
-                    );
-    
-                    // echo json_encode($response);
-                    // exit();
-                }
-                
-            }else{
-                $fail_response =  $fail_response = 'Validation Error: ' . $result->content->error ?? 'Unable to verify at the moment, please try again';
-    
-                $response = [
-                    'status' => 'failed',
-                    'status_code' => '100',
-                    'customerName' => '',
-                    'customerAddress' => '',
-                    'message' => $fail_response,
-                    'title' => 'Verification Failed',
-                    'raw_response' => $vResponse,
+                        . '<br>Current Bouquet: '
+                        . $result->content->Current_Bouquet
+                        . '<br>'
+                        . 'Renewal Amount: N'
+                        . number_format($renewal_amount, 2)
+                        . '<br><br>'
+                        . $button . '',
+                    'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                    'raw_response' => $response,
                 ];
             }
+
+            if ($request['product']->slug == 'showmax') {
+                $response = array(
+                    'status' => 'success',
+                    'message' =>  '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button>',
+
+                );
+            }
+        } else {
+            $fail_response =  $fail_response = 'Validation Error: ' . $result->content->error ?? 'Unable to verify at the moment, please try again';
+
+            $response = [
+                'status' => 'failed',
+                'status_code' => '100',
+                'customerName' => '',
+                'customerAddress' => '',
+                'message' => $fail_response,
+                'title' => 'Verification Failed',
+                'raw_response' => $response,
+            ];
         }
-        
+
         return $response;
     }
 
@@ -1044,7 +738,7 @@ class VtpassController extends Controller
                 'request_id' => $request['request_id'],
                 'amount' => $request['amount'] ?? $request['price'],
                 'phone' => $request['mobile_no'],
-                'quantity' => $request['no_of_pins'] ?? 1,
+                'quantity' => $request['quantity'] ?? 1,
             ];
         }
 
@@ -1101,40 +795,62 @@ class VtpassController extends Controller
         return $params;
     }
 
-    public function query($postdata, $request, $type){
-        $curl = curl_init();
+    public function query($request, $api){
+        $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+        $url = $url . 'pay';
+
         $headers = [
-            'api-key: '. $postdata['headers']['api-key'],
-            'public-key: '. $postdata['headers']['public-key'],
-            'secret-key: '.$postdata['headers']['secret-key'],    
+            'api-key: ' . $api->api_key,
+            'public-key: ' . $api->public_key,
+            'secret-key: ' . $api->secret_key,
+        ];
+        
+        if ($request['product']->category->slug == 'cable') {
+            $subscription_type = $request['request_type'];
+        }
+
+        $resource = $request['resource'];
+        
+        $postdata = [
+            'serviceID' => $request['product']->slug,
+            'billersCode' => $request['billersCode'],
+            'request_id' => $request['sys_ref'],
+            'variation_code' => $resource->slug,
+            'amount' => $request['buyer_amount'],
+            'phone' => $request['mobile_number'],
+            'subscription_type' => $subscription_type ?? null,
+            'quantity' => $request['quantity'] ?? 1,
         ];
 
-        $resX = $this->advancedApiCall($postdata['url'], $postdata['payload'], $headers);
+        
+        $resX = $this->advancedApiCall($url, $postdata, $headers);
         // dd($postdata['url'], $postdata['payload'], $headers, $resX);
         try {
-            $format = $this->processApiResponse($resX,$request, $type);
-            $format['api_response'] = $resX;      
+            $format = $this->processApiResponse($resX);
+            $format['api_response'] = $resX;
+            $format['postfields'] = json_encode($postdata);      
+
         } catch (\Throwable $th) {
 
             $format = [
+                'api_response' => $resX,         
                 'status' => 'attention-required',
                 'response' => '',
+                $format['postfields'] = json_encode($postdata),     
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
+            
             $format['api_response'] = $resX;  
             
-            return $format;
-
         }
        
         return $format;
     }
 
-    public function processApiResponse($res, $request, $type){
-       
+    public function processApiResponse($res){
         if(empty($res)){
             $formatted = [
-                'status' => 'failed',
+                'status' => 'attention-required',
                 'extra' => '',
                 'response' => 'Something went wrong, please try again later',
                 'error' => 'Something went wrong, please try again later',
@@ -1145,10 +861,10 @@ class VtpassController extends Controller
             try {
                 // Process APi call
                 $result = json_decode($res, true);
-                $status = $result['content']['transactions']['status'];
-                $response_description = $result['response_description'];
+                $status = $result['content']['transactions']['status'] ?? $status;
+                $response_description = $result['response_description'] ?? '';
                 $epin = isset($result['purchased_code']) ? $result['purchased_code'] : '';
-                $code = $result['code'] ?? '083';
+                $code = $result['code'];
 
                 $chargeableStatuses = ['pending', 'delivered'];
                 if (in_array($status, $chargeableStatuses)) {

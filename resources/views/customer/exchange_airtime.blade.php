@@ -35,8 +35,6 @@
     style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">
   </div>
 
-  <form id="form-data">
-    @csrf
     <div class="input-group mb-3">
       <div class="input-group-text">
         <span class="" id="basic-addon1"><i class="fa-solid fa-wifi" style="font-size: 25px;"></i></span>
@@ -76,7 +74,6 @@
 
     <br>
     <br>
-  </form>
 
 
   <hr />
@@ -127,6 +124,22 @@
 </div>
 @endsection
 @section('scripts')
+<script type="text/javascript">
+$("#network_module").change(function(){
+  if ($("#network_module").val() !=""){
+    var network_module=$("#network_module").val();
+    // $.LoadingOverlay("show");
+    // $.ajax({
+    //     url:'resources/plans/serviceslists?services='+network_module+'&level={{ auth()->user()->level }}',
+    //     method:'GET',
+    //     success:function(RES_data){
+    //     $.LoadingOverlay("hide");
+    //         $("#network_discount").val(RES_data);
+    //         }
+    //     })
+  }
+})
+</script>
 <script type="text/javascript">
   function CalDiscount() {
     var amount = $("#amount").val();

@@ -10,9 +10,8 @@ class EarnedTransactions extends Model
     use HasFactory;
 
     protected $table = 'earn_transactions';
-    public $timestamps = false;
 
-    protected $fillable = ['user_id', 'ref_code', 'amount','type','description','created_at'];
+    protected $fillable = ['user_id', 'ref_code', 'amount','type','description','sys_reference'];
 
     public function user(){
         return $this->belongsTo(User::class);

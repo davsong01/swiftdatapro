@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('variations', function (Blueprint $table) {
+            $table->id();
+            $table->integer('product_id');
+            $table->integer('category_id');
+            $table->integer('api_id');
+            $table->string('api_name')->nullable();
+            $table->string('status')->default('active');
+            $table->string('slug');
+            $table->string('system_name')->nullable();
+            $table->string('fixed_price')->nullable();
+            $table->decimal('api_price', 22, 2)->nullable();
+            $table->decimal('system_price',22, 2)->nullable();
+            $table->string('network')->nullable();
+            $table->string('verifiable')->default('no');
+            $table->integer('min')->nullable();
+            $table->integer('max')->nullable();
+            $table->string('network')->nullable();
+            
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('variations');
+    }
+};

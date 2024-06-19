@@ -49,64 +49,41 @@
   <form id="form-data">
     @csrf
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><i class="fa-solid fa-wifi" style="font-size: 25px;"></i></span>
-      </div>
+      <span class="input-group-text"><i style="font-weight: bold" class="fa-solid fa-wifi"></i></span>
       <input type="hidden" id="network_discount">
       <select class="form-control" id="network_module" required>
         <option value="">--Choose--</option>
-
-        @if($productAccess['m_lock2'] != 0)
-          <option value="MTN-VTU">MTN-VTU</option>
+        @foreach($category->products as $product)
+        @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
+          <option data-fixed_price="{{ $product->fixed_price }}"
+            data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
+            data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
+            value="{{ $product->id }}">{{ $product->display_name }}</option>
         @endif
-        @if($productAccess['g_lock2'] != 0)
-          <option value="GLO-VTU">GLO-VTU</option>
-        @endif
-        @if($productAccess['a_lock2'] != 0)
-          <option value="AIRTEL-VTU">AIRTEL-VTU</option>
-        @endif
-        @if($productAccess['mo_lock2'] != 0)
-          <option value="9MOBILE-VTU">9MOBILE-VTU</option>
-        @endif
-        @if($productAccess['smile_vtu_lock'] != 0)
-          <option value="SMILE-VTU">SMILE-VTU</option>
-        @endif
+        @endforeach
       </select>
     </div>
 
     <br>
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><i class="fas fa-phone" style="font-size: 25px;"></i></span>
-      </div>
+      <span class="input-group-text"><i style="font-weight: bold" class="fas fa-phone"></i></span>
       <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no" required>
     </div>
     <br>
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><span style="font-weight: bold;font-size: 22px;">₦</span></span>
-      </div>
-      <input type="tel" class="form-control" maxlength="4" placeholder="Amount" onkeyup="CalDiscount()" id="amount"
-        required>
+      <span class="input-group-text"><span style="font-weight: bold;padding: 0.1px 3.2px;;">{{ settings()->currency}}</span>
+      </span>
+      <input type="number" class="form-control" placeholder="Enter Amount" onkeyup="calDiscount()" id="amount">
     </div>
     <div>
-      <small style="color: red;font-weight: bold;" id="valAmount"></small>
+      <small style="color: red;font-weight: bold;" id="valAmount" style="display:none"></small>
     </div>
-
-    <br>
-
-    <small>Forget Pin ? <a href="{{ route('pin.reset') }}">Reset Here</a></small>
+    <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
     <div class="input-group mb-3">
-      <div class="input-group-text">
-        <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-size: 25px;"></i></span>
-      </div>
-      <input type="password" class="form-control" placeholder="Security PIN" id="security_pin" required>
+      <span class="input-group-text"><i style="font-weight: bold" class="fa fa-unlock-alt"></i></span>
+      <input type="password" class="form-control"  placeholder="Security PIN" id="security_pin" required>
     </div>
-
-    <br>
-
     <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">BUY NOW</button>
-
     <br>
     <br>
   </form>
@@ -132,35 +109,52 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
-  function CalDiscount() {
-    var amount = $("#amount").val();
-    var network_discount = $("#network_discount").val();
-    if (amount != "" && amount > 99 && network_discount != "") {
-      var charges = parseInt(amount) * parseInt(network_discount) / 100;
-      var fin_amount = amount - charges;
-      $("#valAmount").text("You will pay N" + fin_amount);
-    } else {
-      $("#valAmount").text("");
-    }
-  }
+  function calDiscount() {
+    var has_variation = $('#network_module').find(':selected').data('has_variations');
+    var product_id = $('#network_module').val();
+    var variation_id = $('#variation').val();
+    var allow_quantity = $('#product').find(':selected').data('allow_quantity');
+    var max = $('#network_module').find(':selected').data('max');
+    var min = $('#network_module').find(':selected').data('min');
+    var quantity_graduation = $('#network_module').find(':selected').data('quantity_graduation');
+    var fixed_price = $('#network_module').find(':selected').data('fixed_price');
 
-  $("#network_module").change(function() {
-    if ($("#network_module").val() != "") {
-      var network_module = $("#network_module").val();
-      $.LoadingOverlay("show");
+    var amount = $('#amount').val();
+    if (amount > 0) {
+      if (has_variation == 'yes') {
+        formData = {
+          variation_id: variation_id,
+          amount: amount
+        };
+      } else {
+        formData = {
+          product_id: product_id,
+          amount: amount
+        };
+      }
+
       $.ajax({
-        url: '/discounts?services=' + network_module + '&level={{ auth()->user()->level }}&&product=airtime',
-        method: 'GET',
-        success: function(RES_data) {
-          $.LoadingOverlay("hide");
-          //$("#result").html(RES_data);
-          $("#network_discount").val(RES_data);
+        url: "{{ url('customer-get-discount') }}",
+        method: 'POST',
+        dataType: 'json',
+        data: formData,
+        success: function (data) {
+          if (data.new_amount > 0) {
+            $('#valAmount').show();
+            $("#valAmount").text("You will pay " + data.display_value);
+          } else {
+            $('#valAmount').hide();
+            $('#valAmount').text("");
+          }
         }
-      })
+      });
+    } else {
+      $('#valAmount').hide();
+      $('#valAmount').text("");
     }
-  })
+  };
 
-  $("#form-data").submit(function(event) {
+  $("#form-data").submit(function (event) {
     var formData = {
       network_module: $("#network_module").val(),
       amount: $("#amount").val(),
@@ -171,21 +165,21 @@
 
     $.LoadingOverlay("show");
     $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      }
     });
     $.ajax({
       url: '/buy/airtime',
       method: 'POST',
       dataType: 'json',
       data: formData,
-      success: function(response_fd) {
+      success: function (response_fd) {
         $.LoadingOverlay("hide");
         if (response_fd.status == 'success') {
           $("#successModal").modal("show");
           $("#successModal .modal-body").html(response_fd.message);
-          setTimeout(function() {
+          setTimeout(function () {
             window.location.reload();
           }, 2000);
         } else {
@@ -197,6 +191,15 @@
 
     event.preventDefault();
   });
+
+  function resetAmount() {
+    $('#amount').val("");
+    $("#amount").attr({
+      "max": "",
+      "min": "",
+      "required": false,
+    });
+  }
 </script>
 
 

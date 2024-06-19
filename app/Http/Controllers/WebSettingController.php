@@ -44,7 +44,12 @@ class WebSettingController extends Controller
      */
     public function edit(WebSetting $webSetting)
     {
-        //
+        $contact = WebSetting::first();
+
+        $kyc_settings = !empty($contact->kyc_settings) ? json_decode($contact->kyc_settings, true) : [];
+        
+        return view('admin.settings.contact_info', compact('contact', 'kyc_settings'));
+        
     }
 
     /**
@@ -52,7 +57,24 @@ class WebSettingController extends Controller
      */
     public function update(Request $request, WebSetting $webSetting)
     {
-        //
+        $contact = WebSetting::first();
+        $data = $request->except(['_token', '1']);
+
+        if (!empty($request->logo)) {
+            $data['logo'] = $this->uploadFile($request->logo, 'site');
+        }
+
+        if (!empty($request->site_favicon)) {
+            $data['site_favicon'] = $this->uploadFile($request->site_favicon, 'site');
+        }
+       
+        if (!empty($request->kyc_settings)) {
+            $data['kyc_settings'] = json_encode($request->kyc_settings);
+        }
+
+        $contact->update($data);
+
+        return back()->with('message', 'Update Successful');
     }
 
     /**
