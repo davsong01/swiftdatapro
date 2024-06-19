@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\API;
 use App\Models\Api;
 use App\Models\Category;
 use App\Models\Discount;
