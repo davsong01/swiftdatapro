@@ -931,9 +931,14 @@ class Controller extends BaseController
         if (!empty($trans)) {
             foreach ($trans as $transaction) {
                 if (empty($transaction->created_at) && !empty($transaction->buyer_date)) {
-                    $transaction->update([
-                        'created_at' => Carbon::parse($transaction->buyer_date),
-                    ]);
+                    try {
+                        $transaction->update([
+                            'created_at' => Carbon::parse($transaction->buyer_date),
+                        ]);
+                    } catch (\Throwable $th) {
+                        continue;
+                    }
+                    
                 }
             }
         }
