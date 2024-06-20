@@ -126,7 +126,6 @@ class Controller extends BaseController
             // $web_settings = json_decode($web_settings, true);
             // dd($web_settings);
             $count = 0;
-            CustomerLevel::truncate();
             
             for($i=2;$i<=4;$i++){
                 $charge = 'level' . $i . '_charge';
@@ -853,7 +852,7 @@ class Controller extends BaseController
 
             dump('Products created');
 
-
+            AutomatedDeposit::truncate();
             // Create user reserved accounts and product access
             $productaccess = Product::pluck('id')->toArray();
             $users = User::all();
@@ -862,7 +861,7 @@ class Controller extends BaseController
                     $res = !empty($user->reserved_account) ? json_decode($user->reserved_account, true) : [];
                     if(!empty($res['responseBody']) && !empty($res['responseBody']['accounts'])){
                         foreach ($res['responseBody']['accounts'] as $account) {
-                            AutomatedDeposit::create([
+                            AutomatedDeposit::updateOrCreate(['account_number' => $account['accountNumber']], [
                                 'account_reference' => $accounts['response']['responseBody']['accountReference'] ?? null,
                                 'account_number' => $account['accountNumber'] ?? null,
                                 'account_name' => $account['accountName'] ?? null,
@@ -884,7 +883,7 @@ class Controller extends BaseController
                     
                     if (!empty($res['banks'])) {
                         foreach ($res['banks'] as $account) {
-                            AutomatedDeposit::create([
+                            AutomatedDeposit::updateOrCreate(['account_number' => $account['accountNumber']],[
                                 'account_reference' => $account['trackingReference'] ?? null,
                                 'account_number' => $account['accountNumber'] ?? null,
                                 'account_name' => $account['accountName'] ?? null,
