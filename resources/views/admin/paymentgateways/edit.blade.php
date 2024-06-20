@@ -54,11 +54,7 @@
                             class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="live_base_url" id="live_base_url" value="{{$paymentgateway->live_base_url ?? old('live_base_url')}}" required>
                         </div>
-                        <div class="col-md-6">
-                            <label for="public_key" class="form-label">Reserved Account Payment Charge
-                            </label>
-                            <input type="number" class="form-control" name="reserved_account_payment_charge" value="{{ $paymentgateway->reserved_account_payment_charge ?? old('reserved_account_payment_charge') }}" id="reserved_account_payment_charge" placeholder="Reserved Account Payment Charge">
-                        </div>
+                        
                         <div class="col-md-6">
                             <label for="public_key" class="form-label">Contract ID</label>
                             <input type="text" class="form-control" name="contract_id" value="{{ $paymentgateway->contract_id ?? old('contract_id') }}" id="contract_id" placeholder="Contract id">
@@ -87,14 +83,12 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="public_key" class="form-label">Reserved Account Payment Charge<span
-                            class="text-danger">*</span></label>
-                            <input type="number" class="form-control" name="reserved_account_payment_charge" value="{{ $paymentgateway->reserved_account_payment_charge ?? old('reserved_account_payment_charge') }}" id="reserved_account_payment_charge" placeholder="Public key">
+                            <label for="public_key" class="form-label">Reserved Account Payment Charge</label>
+                            <input type="number" class="form-control" name="reserved_account_payment_charge" value="{{ $paymentgateway->reserved_account_payment_charge ?? old('reserved_account_payment_charge') }}" id="reserved_account_payment_charge">
                         </div>
 
                         <div class="col-md-6">
-                            <label for="public_key" class="form-label">Card Payment Charge<span
-                            class="text-danger">*</span></label>
+                            <label for="public_key" class="form-label">Card Payment Charge</label>
                             <input type="number" class="form-control" value="{{ $paymentgateway->card_payment_charge }}" name="card_payment_charge" id="card_payment_charge" placeholder="Card Payment Charge">
                         </div>
                         

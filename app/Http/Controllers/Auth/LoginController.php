@@ -56,7 +56,7 @@ class LoginController extends Controller
     {
         $request->validate([
             'email' => 'required',
-            'pass' => 'required',
+            'password' => 'required',
         ]);
 
         // if (\Request::route()->getPrefix() == 'api/customer') {
@@ -65,10 +65,15 @@ class LoginController extends Controller
 
         // $credentials = $request->only('email', 'pass');
         $user = User::where('email', $request->email)->orWhere('username', $request->username)->first();
+       
         if(!$user){
             return back()->with('error', 'Incorrect Username or Password');
         }
         
+        if($user->status == 0 || $user->status == 'inactive'){
+            return back()->with('error', 'This account has been deactivated');
+        } 
+
         if (!$user || !Hash::check($request->password, $user->pass)) {
             return back()->with('error', 'Incorrect Username or Password');
         }else{
