@@ -978,18 +978,19 @@ class Controller extends BaseController
             }
         }
 
-        $users = User::where('status', 1)->orWhere('status',0)->get();
+        $users = User::where('status', 'active')->orWhere('status','inactive')->get();
+
         if (!empty($users)) {
             foreach ($users as $user) {
-                if ($user->status == 1) {
+                if ($user->status == 'active') {
                     $user->update([
-                        'status' => 'active',
+                        'status' => 1,
                     ]);
                 }
 
-                if ($user->status == 0) {
+                if ($user->status == 'inactive') {
                     $user->update([
-                        'status' => 'inactive',
+                        'status' => 0,
                     ]);
                 }
             }
