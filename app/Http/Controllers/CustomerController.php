@@ -11,25 +11,107 @@ use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $customers = User::orderby('id', 'DESC');
+
+        if (!empty($request->email)) {
+            $customers = $customers->where('email', 'like', $request->email);
+        }
+
+        if (!empty($request->username)) {
+            $customers = $customers->where('username', 'like', $request->username);
+        }
+
+        if (!empty($request->mobile)) {
+            $customers = $customers->where('mobile', 'like', $request->mobile);
+        }
+
+        if (!empty($request->level)) {
+            $customers = $customers->where('level', $request->level);
+        }
+
+        if (!empty($request->from) && !empty($request->to)) {
+            $from = $request->from . ' 00:00:00';
+            $to = $request->to . ' 23:59:59';
+
+            $customers = $customers->whereBetween('created_at', [$from, $to]);
+        }
+
+        $customers = $customers->paginate(100);
+
         $title = 'All Customers';
-        $customers = User::orderby('id', 'DESC')->paginate(100);
-        return view('admin.customers.index', compact('customers', 'title'));
+        $customer_levels = CustomerLevel::all();
+        return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
     }
 
-    public function activeCustomers()
+    public function activeCustomers(Request $request)
     {
         $title = 'Active Customers';
-        $customers = User::orderby('id', 'DESC')->where('status', 'active')->get();
-        return view('admin.customers.index', compact('customers','title'));
+        $customers = User::orderby('id', 'DESC')->where('status', 'active');
+
+        if (!empty($request->email)) {
+            $customers = $customers->where('email', 'like', $request->email);
+        }
+
+        if (!empty($request->username)) {
+            $customers = $customers->where('username', 'like', $request->username);
+        }
+
+        if (!empty($request->mobile)) {
+            $customers = $customers->where('mobile', 'like', $request->mobile);
+        }
+
+        if (!empty($request->level)) {
+            $customers = $customers->where('level', $request->level);
+        }
+
+        if (!empty($request->from) && !empty($request->to)) {
+            $from = $request->from . ' 00:00:00';
+            $to = $request->to . ' 23:59:59';
+
+            $customers = $customers->whereBetween('created_at', [$from, $to]);
+        }
+
+        $customers = $customers->paginate(100);
+        $customer_levels = CustomerLevel::all();
+
+        return view('admin.customers.index', compact('customers','title','customer_levels'));
     }
 
-    public function inActiveCustomers()
+    public function inActiveCustomers(Request $request)
     {
         $title = 'InActive Customers';
-        $customers = User::orderby('id', 'DESC')->where('status', 'inactive')->get();
-        return view('admin.customers.index', compact('customers', 'title'));
+        $customers = User::orderby('id', 'DESC')->where('status', 'inactive');
+
+        if (!empty($request->email)) {
+            $customers = $customers->where('email', 'like', $request->email);
+        }
+
+        if (!empty($request->username)) {
+            $customers = $customers->where('username', 'like', $request->username);
+        }
+
+        if (!empty($request->mobile)) {
+            $customers = $customers->where('mobile', 'like', $request->mobile);
+        }
+
+        if (!empty($request->level)) {
+            $customers = $customers->where('level', $request->level);
+        }
+
+        if (!empty($request->from) && !empty($request->to)) {
+            $from = $request->from . ' 00:00:00';
+            $to = $request->to . ' 23:59:59';
+
+            $customers = $customers->whereBetween('created_at', [$from, $to]);
+        }
+
+        $customers = $customers->paginate(100);
+
+        $customer_levels = CustomerLevel::all();
+
+        return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
     }
 
     public function edit($id)
