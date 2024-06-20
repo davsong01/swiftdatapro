@@ -12,6 +12,7 @@ use App\Models\WebSetting;
 use App\Mail\EmailMessages;
 use App\Models\Transactions;
 use App\Models\CustomerLevel;
+use Illuminate\Support\Carbon;
 use App\Models\AutomatedDeposit;
 use App\Models\DepositTransaction;
 use Illuminate\Support\Facades\DB;
@@ -29,32 +30,7 @@ class Controller extends BaseController
     public function populateData(){
         try {
             // Update user id in final transaction table
-            $transactions = Transactions::all();
-            foreach($transactions as $transaction){
-                $user = User::where('email', $transaction->buyer_email)->first();
-                
-                if($user){
-                    $transaction->update([
-                        'user_id' => $user->id,
-                    ]);
-                }
-
-                if($transaction->buyer_prebal > $transaction->buyer_postbal){
-                    $transaction->update([
-                        'type' => 'debit',
-                    ]);
-                }else if($transaction->buyer_prebal < $transaction->buyer_postbal){
-                    $transaction->update([
-                        'type' => 'credit',
-                    ]);
-                }
-
-                if (empty($transaction->unit_price)) {
-                    $transaction->update([
-                        'unit_price' => $transaction->type == 'debit' ? $transaction->buyer_prebal - $transaction->buyer_postbal : $transaction->buyer_amount,
-                    ]);
-                }
-            }
+            // Update user id in final transaction table
             //code...
             $web_settings = DB::connection('old')->table('web_settings')->first();
             Api::truncate();
@@ -845,7 +821,7 @@ class Controller extends BaseController
                             "has_variations" => $product['has_variations'] ?? 'yes',
                             "api_id" => $product['api_id'] ?? '1',
                         ],
-
+                        
                         [
                             "name" => $product['name'],
                             "display_name" => $product['display_name'],
@@ -948,6 +924,46 @@ class Controller extends BaseController
             dump($th->getMessage());
         }
 
+    }
+
+    public function synchronizeTransactions(){
+        $transactions = Transactions::whereNull('user_id')->take(5000)->get();
+        if (empty($transactions)) {
+            dd('all done');
+        }
+        foreach ($transactions as $transaction) {
+            $user = User::where('email', $transaction->buyer_email)->first();
+            
+            if ($user) {
+                $transaction->update([
+                    'user_id' => $user->id,
+                ]);
+            }
+
+            if(empty($transaction->created_at) && !empty($transaction->buyer_date)){
+                $transaction->update([
+                    'created_at' => Carbon::parse($transaction->buyer_date),
+                ]);
+            }
+            
+            if ($transaction->buyer_prebal > $transaction->buyer_postbal) {
+                $transaction->update([
+                    'type' => 'debit',
+                ]);
+            } else if ($transaction->buyer_prebal < $transaction->buyer_postbal) {
+                $transaction->update([
+                    'type' => 'credit',
+                ]);
+            }
+
+            if (empty($transaction->unit_price) && $transaction->buyer_prebal > 0 && $transaction->buyer_postbal > 0) {
+                $transaction->update([
+                    'unit_price' => (float) $transaction->type == 'debit' ? $transaction->buyer_prebal - $transaction->buyer_postbal :  $transaction->buyer_amount,
+                ]);
+            }
+        }
+
+        dd('done');
     }
 
     public function sendEmail($email_to, $subject, $body){

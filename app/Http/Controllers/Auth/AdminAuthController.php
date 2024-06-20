@@ -20,21 +20,20 @@ class AdminAuthController extends Controller
     {
         $credentials = $request->only('username', 'password');
 
-        $user = User::where('username', $request->username)->first();
+        // $user = User::where('username', $request->username)->first();
 
-        if (!$user) {
-            return redirect()->back()->withInput($request->only('username'))->withErrors([
-                'username' => 'The provided credentials are incorrect.',
-            ]);
-        }
-
-        if (md5($request->password) == $user->password) {
-            $user->update([
-                'password' => Hash::make($request->password),
-            ]);
-        }
+        // if (!$user) {
+        //     return redirect()->back()->withInput($request->only('username'))->withErrors([
+        //         'username' => 'The provided credentials are incorrect.',
+        //     ]);
+        // }
         
-        // dd($credentials, bcrypt('1A2b3c4d!@#'));
+        // if (md5($request->password) == $user->password) {
+        //     $user->update([
+        //         'password' => Hash::make($request->password),
+        //     ]);
+        // }
+        
         if (Auth::guard('admin')->attempt($credentials)) {
             return redirect()->intended(route('admin.dashboard'));
         }

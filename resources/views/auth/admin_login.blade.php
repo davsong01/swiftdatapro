@@ -12,10 +12,10 @@
         <input name="username" type="text" class="form-control form-control-lg" id="username" placeholder="user name" required>
     </div>
     <div class="col-xl-12 mb-2">
-        <label for="password" class="form-label text-default d-block">Password<a href="reset-password-basic.html" class="float-end text-danger">Forget password ?</a></label>
+        <label for="password" class="form-label text-default d-block">Password<a href="reset-pass-basic.html" class="float-end text-danger">Forget password ?</a></label>
         <div class="input-group">
-            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="password" required>
-            <button class="btn btn-light" type="button" id="password"><i class="ri-eye-off-line align-middle"></i></button>
+            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Enter password" required>
+            <button class="btn btn-light" type="button" onclick="createpassword('password',this)" id="button-addon2"><i class="ri-eye-off-line align-middle"></i></button>
         </div>
         <div class="mt-2">
             <div class="form-check">

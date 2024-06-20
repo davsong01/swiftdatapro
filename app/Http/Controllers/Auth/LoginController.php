@@ -56,7 +56,7 @@ class LoginController extends Controller
     {
         $request->validate([
             'email' => 'required',
-            'password' => 'required',
+            'pass' => 'required',
         ]);
 
         // if (\Request::route()->getPrefix() == 'api/customer') {
@@ -68,7 +68,7 @@ class LoginController extends Controller
         if(!$user){
             return back()->with('error', 'Incorrect Username or Password');
         }
-
+        
         if (!$user || !Hash::check($request->password, $user->pass)) {
             return back()->with('error', 'Incorrect Username or Password');
         }else{

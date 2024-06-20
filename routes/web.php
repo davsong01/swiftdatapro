@@ -43,6 +43,8 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // Route::get('dump', [FrontendController::class, 'dumpData']);
 Route::get('populate', [Controller::class, 'populateData']);
+Route::get('cron/synchronize', [Controller::class, 'synchronizeTransactions']);
+
 Route::post('webhook_payment/{type?}', [PaymentGatewayController::class, 'analyzeWebhookPayment']);
 
 Route::get('/', [FrontendController::class, 'index'])->name('welcome');
