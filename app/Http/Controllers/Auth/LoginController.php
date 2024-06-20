@@ -74,6 +74,12 @@ class LoginController extends Controller
             return back()->with('error', 'This account has been deactivated');
         } 
 
+        if (md5($request->password) == $user->password) {
+            $user->update([
+                'pass' => Hash::make($request->password),
+            ]);
+        }
+
         if (!$user || !Hash::check($request->password, $user->pass)) {
             return back()->with('error', 'Incorrect Username or Password');
         }else{
