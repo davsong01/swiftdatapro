@@ -978,21 +978,31 @@ class Controller extends BaseController
             }
         }
 
-        $users = User::where('status', 'active')->orWhere('status','inactive')->get();
+        // $users = User::where('status', 'active')->orWhere('status','inactive')->get();
 
-        if (!empty($users)) {
-            foreach ($users as $user) {
-                if ($user->status == 'active') {
-                    $user->update([
-                        'status' => 1,
-                    ]);
-                }
+        // if (!empty($users)) {
+        //     foreach ($users as $user) {
+        //         if ($user->status == 'active') {
+        //             $user->update([
+        //                 'status' => 1,
+        //             ]);
+        //         }
 
-                if ($user->status == 'inactive') {
-                    $user->update([
-                        'status' => 0,
-                    ]);
-                }
+        //         if ($user->status == 'inactive') {
+        //             $user->update([
+        //                 'status' => 0,
+        //             ]);
+        //         }
+        //     }
+        // }
+
+        $users2 = User::whereNull('email_verified_at')->get();
+
+        if (!empty($users2)) {
+            foreach ($users2 as $user) {
+                $user->update([
+                    'email_verified_at' => now(),
+                ]);
             }
         }
 
