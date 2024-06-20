@@ -19,7 +19,7 @@
                 @include('includes.alerts')
             </div>
             <div class="card-body">
-                <table id="file-export" class="table table-bordered text-nowrap"  style="width:100%">
+                <table class="table table-bordered responsive"  style="width:100%">
                     <thead>
                         <tr>
                             <th>Details</th>
@@ -65,7 +65,9 @@
                     </tbody>
                 </table>
             </div>
+            {!! $customers->appends($_GET)->links() !!}
         </div>
+
     </div>
 </div>
 @endsection

@@ -25,7 +25,7 @@
                         <div class="col-md-12">
                             <label for="email" class="form-label">Email<span
                             class="text-danger">*</span></label>
-                            <select class="js-example-basic-single"name="email" >
+                            <select class="js-example-basic-single" name="email" >
                                 <option value="">Select user</option>
                                 @foreach($users as $user)
                                 <option value="{{ $user->email }}">{{ $user->full_name }} ({{$user->username}})</option>
@@ -54,9 +54,9 @@
 @endsection
 @section('extra-js') 
 <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
-  <!-- Select2 Cdn -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<!-- Select2 Cdn -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- Internal Select-2.js -->
-    <script src="{{asset('new/assets/js/select2.js')}}"></script>
+<!-- Internal Select-2.js -->
+<script src="{{asset('new/assets/js/select2.js')}}"></script>
 @endsection

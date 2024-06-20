@@ -907,12 +907,13 @@ class TransactionsController extends Controller
 
     function debitCustomerPage()
     {
-        return view('admin.transactions.debit_customer');
+        $users = User::select('id', 'username', 'full_name', 'email')->get();
+        return view('admin.transactions.debit_customer', compact('users'));
     }
 
     function creditCustomerPage()
     {
-        $users = User::where('kyc_status', 1)->get();
+        $users = User::select('id','username','full_name','email')->get();
         return view('admin.transactions.credit_customer', compact('users'));
     }
 

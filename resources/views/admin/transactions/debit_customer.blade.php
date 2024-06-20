@@ -1,7 +1,7 @@
 @extends('layouts.new.app')
 @section('extra-css')
-<link rel="stylesheet" href="{{asset('new/assets/libs/quill/quill.snow.css')}}">
-<link rel="stylesheet" href="{{asset('new/assets/libs/quill/quill.bubble.css')}}">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+
 @endsection
 @section('title', 'Debit Customer')
 @section('breadcrumb')
@@ -22,10 +22,15 @@
                 <form action="{{ route('admin.process.credit.debit') }}" method="POST"  enctype="multipart/form-data">
                     @csrf
                     <div class="row gy-4">
-                        <div class="col-md-12">
-                            <label for="name" class="form-label">Email<span
+                       <div class="col-md-12">
+                            <label for="email" class="form-label">Email<span
                             class="text-danger">*</span></label>
-                            <input type="text" value="{{ old('email') }}" class="form-control" name="email" id="email" placeholder="Name" required>
+                            <select class="js-example-basic-single" name="email" >
+                                <option value="">Select user</option>
+                                @foreach($users as $user)
+                                <option value="{{ $user->email }}">{{ $user->full_name }} ({{$user->username}})</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <div class="col-md-12">
@@ -49,26 +54,9 @@
 @endsection
 @section('extra-js') 
 <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+<!-- Select2 Cdn -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<link href="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.snow.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.0-rc.2/dist/quill.js"></script>
-<script>
-        let quill = new Quill('.editor', {
-            theme: 'snow',
-            toolbar: true,
-            placeholder: 'Enter content...',
-            modules: {
-                syntax: true,
-                toolbar: '#toolbar-container',
-            },
-        });
-
-        $('form').on('submit', () => {
-            var myEditor = document.querySelector('#editor_id')
-            console.log( myEditor);
-            var html = myEditor.children[0].innerHTML;
-            $('#content').val(html);
-        });
-    </script>
+<!-- Internal Select-2.js -->
+<script src="{{asset('new/assets/js/select2.js')}}"></script>
 @endsection

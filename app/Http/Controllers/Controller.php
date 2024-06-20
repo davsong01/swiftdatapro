@@ -944,38 +944,54 @@ class Controller extends BaseController
         }
 
         $transactions = Transactions::whereNull('user_id')->take(5000)->get();
-        if (empty($transactions)) {
-            dd('all done');
+        if (!empty($transactions)) {
+            foreach ($transactions as $transaction) {
+                $user = User::where('email', $transaction->buyer_email)->first();
+                
+                if ($user) {
+                    $transaction->update([
+                        'user_id' => $user->id,
+                    ]);
+                }
+    
+                if(empty($transaction->created_at) && !empty($transaction->buyer_date)){
+                    $transaction->update([
+                        'created_at' => Carbon::parse($transaction->buyer_date),
+                    ]);
+                }
+                
+                if ($transaction->buyer_prebal > $transaction->buyer_postbal) {
+                    $transaction->update([
+                        'type' => 'debit',
+                    ]);
+                } else if ($transaction->buyer_prebal < $transaction->buyer_postbal) {
+                    $transaction->update([
+                        'type' => 'credit',
+                    ]);
+                }
+    
+                if (empty($transaction->unit_price) && $transaction->buyer_prebal > 0 && $transaction->buyer_postbal > 0) {
+                    $transaction->update([
+                        'unit_price' => (float) $transaction->type == 'debit' ? $transaction->buyer_prebal - $transaction->buyer_postbal :  $transaction->buyer_amount,
+                    ]);
+                }
+            }
         }
-        foreach ($transactions as $transaction) {
-            $user = User::where('email', $transaction->buyer_email)->first();
-            
-            if ($user) {
-                $transaction->update([
-                    'user_id' => $user->id,
-                ]);
-            }
 
-            if(empty($transaction->created_at) && !empty($transaction->buyer_date)){
-                $transaction->update([
-                    'created_at' => Carbon::parse($transaction->buyer_date),
-                ]);
-            }
-            
-            if ($transaction->buyer_prebal > $transaction->buyer_postbal) {
-                $transaction->update([
-                    'type' => 'debit',
-                ]);
-            } else if ($transaction->buyer_prebal < $transaction->buyer_postbal) {
-                $transaction->update([
-                    'type' => 'credit',
-                ]);
-            }
+        $users = User::where('status', 1)->orWhere('status',0)->get();
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                if ($user->status == 1) {
+                    $user->update([
+                        'status' => 'active',
+                    ]);
+                }
 
-            if (empty($transaction->unit_price) && $transaction->buyer_prebal > 0 && $transaction->buyer_postbal > 0) {
-                $transaction->update([
-                    'unit_price' => (float) $transaction->type == 'debit' ? $transaction->buyer_prebal - $transaction->buyer_postbal :  $transaction->buyer_amount,
-                ]);
+                if ($user->status == 0) {
+                    $user->update([
+                        'status' => 'inactive',
+                    ]);
+                }
             }
         }
 
