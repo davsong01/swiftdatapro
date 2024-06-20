@@ -926,6 +926,18 @@ class Controller extends BaseController
     }
 
     public function synchronizeTransactions(){
+
+        $trans = Transactions::whereNull('created_at')->take(50000)->get();
+        if (!empty($trans)) {
+            foreach ($trans as $transaction) {
+                if (empty($transaction->created_at) && !empty($transaction->buyer_date)) {
+                    $transaction->update([
+                        'created_at' => Carbon::parse($transaction->buyer_date),
+                    ]);
+                }
+            }
+        }
+
         $transactions = Transactions::whereNull('user_id')->take(5000)->get();
         if (empty($transactions)) {
             dd('all done');
