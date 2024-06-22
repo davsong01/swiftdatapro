@@ -284,7 +284,7 @@ class HomeController extends Controller
 
         $amount = $referral_balance;
         $reference = $this->generateRequestId('SWFTCBW');
-        $descr = 'Withdrawal of '.settings()->currency.number_format($amount) .' from Earnings to Wallet was successful';
+        $descr = 'Withdrawal of '.settings()->currency.number_format($amount) .' from Commissions to Wallet was successful';
         // Debit Earned transactions
         try {
             \DB::beginTransaction();
@@ -308,8 +308,8 @@ class HomeController extends Controller
             $data['buyer_postbal'] = $wallet_balance + $amount;
             $data['buyer_descr'] = $descr;
             $data['buyer_status'] = 'SUCCESSFUL';
-            $data['buyer_service'] = 'EARNING WITHDRAWAL';
-            $data['charge_from'] = 'EARNINGS-WALLET';
+            $data['buyer_service'] = 'COMMISSION WITHDRAWAL';
+            $data['charge_from'] = 'COMMISSIONS-WALLET';
             $data['user_type'] = $user->level;
             $data['sys_ref'] = $reference;
             $data['api_ref'] = $reference;
@@ -319,7 +319,7 @@ class HomeController extends Controller
             $data['src_price'] = 0;
             $data['channel'] = 'website';
             $data['provider'] = null;
-            $data['billersCode'] = 'EARNINGS-WALLET';
+            $data['billersCode'] = 'COMMISSIONS-WALLET';
             $data['profit'] = 0;
             $data['type'] = 'credit';
             $data['user_id'] = $user->id;
@@ -342,7 +342,7 @@ class HomeController extends Controller
             //code...
         } catch (\Throwable $th) {
             \DB::rollback();
-            \Log::info(['Withdraw from Earnings error' => $th->getMessage().' Line: '. $th->getLine(). ' File: '.$th->getFile()]);
+            \Log::info(['Withdraw from Commissions error' => $th->getMessage().' Line: '. $th->getLine(). ' File: '.$th->getFile()]);
             $responseX = [
                 'status_code' => 100,
                 'status' => 'failed',

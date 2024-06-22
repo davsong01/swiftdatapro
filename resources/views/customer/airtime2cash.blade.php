@@ -183,7 +183,7 @@
                     success: function(data) {
                         if (data.new_amount > 0) {
                             $('#valAmount').show();
-                            $("#valAmount").text("You will transfer " + data.display_value);
+                            $("#valAmount").text("You will recieve " + data.display_value);
                         } else {
                             $('#valAmount').hide();
                             $('#valAmount').text("");

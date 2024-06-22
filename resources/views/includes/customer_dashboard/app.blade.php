@@ -220,7 +220,7 @@
                 </a>
                 <ul>
                     <li><a href="{{route('customer.transactions') }}">All Transactions</a></li>
-                    <li><a href="{{route('customer.cashback')}}">My Earnings</a></li>
+                    <li><a href="{{route('customer.cashback')}}">My Commissions</a></li>
                     {{-- <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
                     <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
                     <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li> --}}

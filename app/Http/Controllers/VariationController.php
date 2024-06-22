@@ -47,7 +47,7 @@ class VariationController extends Controller
         $variations = Variation::where('product_id', $product->id)->where('status', 'active')->where('api_id', $product->api_id)->orderBy('system_price', 'ASC')->get();
         foreach ($variations as $key => $variation) {
             $discount = getVariationDiscount(amount: $variation->system_price, variation_id: $variation->id);
-            $variation->discount = $discount['new_amount'];
+            $variation->discount = $discount['display_value'];
             
             if (in_array($variation->category->unique_element, verifiableUniqueElements()) || in_array($variation->slug, array_keys(specialVerifiableVariations()))) {
                 $variation->verifiable = 'yes';
@@ -69,8 +69,9 @@ class VariationController extends Controller
         $data = [];
         
         foreach($variations as $variation){
-            $price = $variation->fixed_price == 'yes' ? ' -' . settings()->currency . intval($variation->discount) : '';
-            
+            $price = $variation->fixed_price == 'yes' ? ' -' . $variation->discount : '';
+            // $price = $variation->fixed_price == 'yes' ? ' -' . settings()->currency . intval($variation->discount) : '';
+
             $data[] = '<option data-product_id="' . $variation->product_id . '"  data-max="' . $variation->max . '"  data-min="' . $variation->min . '"  data-slug="' . $variation->slug . '"  data-fixed_price="' . $variation->fixed_price . '" data-verifiable="'. $variation->verifiable.'" value="' . $variation->id . '">' . $variation->system_name . $price . '</option>';
         }
 

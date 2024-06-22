@@ -55,7 +55,7 @@
                                         <option value="">Select</option>
                                         <option value="DEPOSIT" {{ \Request::get('service') == 'DEPOSIT' ? 'selected' : ''}}>DEPOSIT</option>
                                         <option value="UPGRADE" {{ \Request::get('service') == 'UPGRADE' ? 'selected' : ''}}>UPGRADE</option>
-                                        <option value="EARNING WITHDRAWAL" {{ \Request::get('service') == 'EARNING WITHDRAWAL' ? 'selected' : ''}}>EARNING WITHDRAWAL</option>
+                                        <option value="COMMISSION WITHDRAWAL" {{ \Request::get('service') == 'COMMISSION WITHDRAWAL' ? 'selected' : ''}}>COMMISSION WITHDRAWAL</option>
                                         <option value="ADMIN-CREDIT" {{ \Request::get('service') == 'ADMIN-CREDIT' ? 'selected' : ''}}>ADMIN-CREDIT</option>
                                         <option value="ADMIN-DEBIT" {{ \Request::get('service') == 'ADMIN-DEBIT' ? 'selected' : ''}}>ADMIN-DEBIT</option>
                                         @foreach ($products as $product)

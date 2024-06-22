@@ -43,7 +43,7 @@
 <div class="col-xl-12">
     <div class="alert" style="background-color: transparent;">
         <span class="btn" style="font-size:12px;background-color:#940798;color:#fff" onclick="Transact()">All Transactions</span>
-        <span class="btn" style="font-size:12px;background-color:blue;color:#fff" onclick="Earnings()">Earnings</span>
+        <span class="btn" style="font-size:12px;background-color:blue;color:#fff" onclick="Earnings()">Commissions</span>
     </div>
 </div>
 

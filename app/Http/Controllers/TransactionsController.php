@@ -190,7 +190,7 @@ class TransactionsController extends Controller
             'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
         ];
         $transaction = $this->logTransaction($data);
-
+        
         $data['resource'] = $resource;
         $data['product'] = $product;
         $data['billersCode'] = $request['billersCode'] ?? null;
@@ -287,7 +287,7 @@ class TransactionsController extends Controller
         return response()->json($final_response);
     }
 
-    public function initializeAirtime2CashTransaction(Request $request)
+    public function initializeAirtime2CashTransaction(Request $request,JsonResponseService $service)
     {
         $product = Product::where('id', $request->product)->first();
         $variation = null;
@@ -327,7 +327,7 @@ class TransactionsController extends Controller
             $src_price = !empty($product->system_price) ? $product->system_price * ($request['quantity'] ?? 1) : 0;
             $discount = getProductCharges($request['amount'], $product->id, $request['quantity'] ?? 1);
         }
-    
+        
         // checks
         $checks = $this->runChecks($request, $product, $api);
         
@@ -335,33 +335,31 @@ class TransactionsController extends Controller
             return $service->build($checks);
         }
 
-        $totalAmount = $discount['new_amount'];
-        $charge = $discount['charge'];
-
         $request['quantity'] = $request->quantity ?? 1;
-        $request['total_amount'] = $totalAmount;
-        $request['discount'] = $charge;
+        $request['total_amount'] = $request->amount;
+        $amount_to_pay = $request->amount;
+        $amount_to_recieve = $request->amount - $discount['charge'];
 
-        $balance = walletBalance($user);
         // $bank = Bank::where('cbn_code', $request->bank)->first();
         // if (!empty($bank)) {
         //     $bank_name = $bank->bank_name;
         // } else {
         //     $bank_name = '';
         // }
+        
         $string = 'Hello Admin, I want to convert Airtime to cash on ' . config("app.name") . '. Please find below details of the transaction below: 
         
         *Name:* ' . $user->full_name . '
-        *Amount Charged:* ' . settings()->currency . number_format($request->total_amount, 2) . '
-        *Amount to Receive:* ' . settings()->currency . number_format($request->unit_price, 2) . '
         *Charge:* ' .  settings()->currency . number_format($discount['charge']) . '
-        *Total Credit to transfer:* ' . settings()->currency . number_format($request->unit_price, 2) . '
+        *Amount Charged:* ' . settings()->currency . number_format($amount_to_pay, 2) . '
+        *Amount to Receive:* ' . settings()->currency . number_format($amount_to_recieve, 2) . '
+        *Total Credit to transfer:* ' . settings()->currency . number_format($amount_to_pay, 2) . '
         *Phone Number:* ' . $request->mobile_no . '
         *Network:* ' . $product->name . '
         *Transaction Date:* ' . date("M jS, Y g:iA", strtotime(now())) . '';
         
         $string = "https://api.whatsapp.com/send?phone=" . settings()->whatsapp_no . "&text=" . urlencode($string);
-        
+       
         return redirect()->away($string);
     }
 

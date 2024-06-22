@@ -50,6 +50,7 @@ class RoleSeeder extends Seeder
             'role.edit',
             'role.update',
             'role.destroy',
+            'role.store',
 
             'admin.profile',
             'admin.profile.update',

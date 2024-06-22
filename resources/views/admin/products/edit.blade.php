@@ -93,7 +93,7 @@
                                 </div>
                                 <div class="col-md-6" id="referral_percentage">
                                     <label class="form-label" for="referral_percentage">Referral Percentage(%)</label>
-                                    <input type="number" class="form-control" id="referral_percentage" step="0.01" name="referral_percentage" value="{{ $product->referral_percentage ?? old('referral_percentage') }}" placeholder="Enter percentage for referral earnings">
+                                    <input type="number" class="form-control" id="referral_percentage" step="0.01" name="referral_percentage" value="{{ $product->referral_percentage ?? old('referral_percentage') }}" placeholder="Enter percentage for referral commission">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label" for="seo_title">SEO Title</label>

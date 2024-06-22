@@ -73,7 +73,7 @@ if (!function_exists("getProductDiscount")) {
             'type' => null,
             'discount_applied' => 0,
             'new_amount' => intval($amount) * $quantity,
-            'display_value' =>  settings()->currency.($amount * $quantity),
+            'display_value' =>  settings()->currency.(number_format($amount * $quantity)),
         ];
         
         $level = auth()->user()->level;
@@ -96,7 +96,7 @@ if (!function_exists("getProductDiscount")) {
                 $discount = $product->user_discount;
             }
         }
-        
+
         if(!empty($discount)){
             if ($discount_type == 'flat') {
                 $type = 'flat';
@@ -119,7 +119,7 @@ if (!function_exists("getProductDiscount")) {
             'type' => $type,
             'discount_applied' => $discount_applied * $quantity,
             'new_amount' => intval($new_amount),
-            'display_value' => $display_amount
+            'display_value' => settings()->currency.number_format($display_amount)
         ];
     }
 }
@@ -131,7 +131,7 @@ if (!function_exists("getProductCharges")) {
             'type' => null,
             'charge' => 0,
             'new_amount' => intval($amount) * $quantity,
-            'display_value' =>  settings()->currency . ($amount * $quantity),
+            'display_value' =>  settings()->currency . (number_format($amount * $quantity)),
         ];
 
         $level = auth()->user()->level;
@@ -143,12 +143,6 @@ if (!function_exists("getProductCharges")) {
         $product = Product::where('id', $product_id)->first();
         $discount_type = $product->category->discount_type;
 
-        // Check if resource has a category discount
-        if ($product->category->user_discount) {
-            $discount = $product->category->user_discount;
-        }
-
-        // Check if resource has product discount
         if ($product->user_discount) {
             $discount = $product->user_discount;
         }
@@ -163,8 +157,8 @@ if (!function_exists("getProductCharges")) {
                 $type = 'percentage';
                 $discount_applied = $discount->price;
                 $discount_applied = floor($discount_applied / 100 * $amount);
-                $n_amount = $amount + $discount_applied;
-                $new_amount = ($amount > $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
+                $n_amount = $amount - $discount_applied;
+                $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
                 $display_amount = settings()->currency . intval($new_amount);
             }
         } else {
@@ -186,9 +180,8 @@ if (!function_exists("getVariationDiscount")) {
             'type' => null,
             'discount_applied' => 0,
             'new_amount' => intval($amount) * $quantity,
-            'display_value' =>  settings()->currency . ($amount * $quantity),
+            'display_value' =>  settings()->currency . (number_format($amount * $quantity)),
         ];
-
         $level = auth()->user()->level;
 
         if (empty($level)) {
@@ -226,7 +219,7 @@ if (!function_exists("getVariationDiscount")) {
                 $discount_applied = floor($discount_applied / 100 * $amount);
                 $n_amount = $amount - $discount_applied;
                 $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
-                $display_amount = settings()->currency . intval($new_amount);
+                $display_amount = settings()->currency . intval(number_format($new_amount));
             }
         } else {
             return $response;

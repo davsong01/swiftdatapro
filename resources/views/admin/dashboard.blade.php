@@ -38,7 +38,7 @@
                                 </span>
                             </div>
                             <div class="col-xxl-8 col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
-                                <div class="mb-2">Total Earning Balances</div>
+                                <div class="mb-2">Total Commission Balances</div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
                                         {{ settings()->currency.number_format($earnings_balance)}}
