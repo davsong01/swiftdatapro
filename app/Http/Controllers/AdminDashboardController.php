@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
@@ -9,7 +10,7 @@ use Illuminate\Http\Request;
 class AdminDashboardController extends Controller
 {
     public function dashboard(){
-        $trans = Transactions::orderBy('created_at', 'DESC');
+        $trans = Transactions::orderBy('created_at', 'DESC')->whereBetween('created_at', [Carbon::today(), Carbon::now()]);
         $wallet_balance = User::sum('wallets');
         $earnings_balance = User::sum('cashback');
         $transaction = $trans->latest()->limit(10);

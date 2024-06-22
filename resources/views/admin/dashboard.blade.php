@@ -83,7 +83,7 @@
                                 </span>
                             </div>
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
-                                <div class="mb-2">Total Pending</div>
+                                <div class="mb-2">Today's Total Pending</div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
                                         {{ settings()->currency.number_format($t_pending->sum('buyer_amount'))}} <small>({{$t_pending->count()}})</small>
@@ -106,7 +106,7 @@
                                 </span>
                             </div>
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
-                                <div class="mb-2">Total Failed</div>
+                                <div class="mb-2">Today's Total Failed</div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
                                         {{ settings()->currency.number_format($t_failed->sum('buyer_amount'))}} <small>({{$t_failed->count()}})</small>
@@ -129,7 +129,7 @@
                                 </span>
                             </div>
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
-                                <div class="mb-2">Total Profit</div>
+                                <div class="mb-2">Today's Total Profit</div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
                                         {{settings()->currency.number_format($t_profit)}}

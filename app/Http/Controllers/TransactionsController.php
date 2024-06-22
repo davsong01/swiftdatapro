@@ -984,8 +984,9 @@ class TransactionsController extends Controller
         $products = Product::all();
        
         if ($request->email) {
-            $user = User::where('email', $request->email);
-            if($user){
+            $user = User::where('email', $request->email)->first();
+            
+            if(!empty($user)){
                 $transactions = $transactions->where('user_id', $user->id);
             }
         }
