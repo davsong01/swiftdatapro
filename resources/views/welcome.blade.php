@@ -8,14 +8,18 @@
                     <h2 data-aos="fade-up">The Best Online Recharge & Subscriptions</h2>
                     <p data-aos="fade-up" data-aos-delay="100">Welcome to Nigeria's Favourite Online Vendor, Delivering
                         Efficient Service Without Compromising Quality. Join The Club To Start Flexing Today!</p>
-
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-lg-6 order-2 order-lg-1" data-aos="zoom-out">
-                    <a href="/register"><button class="btn btn-primary">Register</button></a>
-                    <a href="/login"><button class="btn btn-primary">Sign In</button></a>
+                    @guest
+                    <a href="{{ route('register') }}"><button class="btn btn-primary">Register</button></a>
+                    <a href="{{ route('login') }}"><button class="btn btn-primary">Sign In</button></a>
+                    @endguest
+                    @auth
+                    <a href="{{ route('dashboard') }}"><button class="btn btn-primary">My Account</button></a>
+                    @endauth
                 </div>
             </div>
 

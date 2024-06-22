@@ -74,17 +74,18 @@
                             <input type="text" class="form-control" name="public_key" id="public_key" value="{{$paymentgateway->public_key ?? old('public_key')}}" required>
                         </div>
                         <div class="col-md-6">
+                            {{-- {{dd($paymentgateway->reserved_account_payment_charge_type)}} --}}
                             <label for="input-label" class="form-label">Reserved Account Payment Type<span
                             class="text-danger">*</span></label>
                             <select required class="form-control" name="reserved_account_payment_charge_type" id="reserved_account_payment_charge_type">
                                 <option value="">Select</option>
                                 <option value="flat" {{ $paymentgateway->reserved_account_payment_charge_type == 'flat' ? 'selected' : ''}}>Flat</option>
-                                <option value="percentage" value="{{ $paymentgateway->reserved_account_payment_charge_type == 'percentage' ? 'selected' : ''}}">Percentage</option>
+                                <option value="percentage" {{ $paymentgateway->reserved_account_payment_charge_type == 'percentage' ? 'selected' : ''}}>Percentage</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="public_key" class="form-label">Reserved Account Payment Charge</label>
-                            <input type="number" class="form-control" name="reserved_account_payment_charge" value="{{ $paymentgateway->reserved_account_payment_charge ?? old('reserved_account_payment_charge') }}" id="reserved_account_payment_charge">
+                            <input type="number" class="form-control" name="reserved_account_payment_charge" step="0.1" value="{{ $paymentgateway->reserved_account_payment_charge ?? old('reserved_account_payment_charge') }}" id="reserved_account_payment_charge">
                         </div>
 
                         <div class="col-md-6">

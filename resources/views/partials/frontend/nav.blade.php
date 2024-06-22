@@ -16,7 +16,12 @@
                 <li><a href="{{ url('/').'/#about' }}">About</a></li>
                 <li><a href="{{ url('/').'/#service' }}">Services</a></li>
                 <li><a href="{{ url('/').'/#pricing' }}">Pricing</a></li>
+                @guest
                 <li><a href="{{ route('login') }}">Sign In</a></li>
+                @endguest
+                @auth
+                <li><a href="{{ route('dashboard') }}">My Account</a></li>
+                @endauth
                 <li><a href="{{ url('/').'/#contact' }}">Contact</a></li>
             </ul>
         </nav><!-- .navbar -->

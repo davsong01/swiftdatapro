@@ -45,8 +45,8 @@
                             </td>
                             
                             <td>
-                                All: {{ $product->variations->count() }} <br>
-                                <span style="color:green">Active: {{ $product->variations->where('status','active')->count() }}</span>
+                                All: {{ $product->variations()->count() }} <br>
+                                <span style="color:green">Active: {{ $product->variations()->where('status','active')->count() }}</span>
                             </td>
                             <td>{{ $product->api->name }}</td>
                             <td>{{ $product->status }}</td>

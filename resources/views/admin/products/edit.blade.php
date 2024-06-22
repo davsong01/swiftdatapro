@@ -40,28 +40,23 @@
                             @method('PATCH')
                             <div class="row gy-4">
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="name">Name</label>
+                                    <label class="form-label" for="name">Name</label>
                                     <input type="text" class="form-control" id="name" name="name" placeholder="Enter name" value="{{  $product->name ?? old('name')}}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="display_name">Display Name</label>
+                                    <label class="form-label" for="display_name">Display Name</label>
                                     <input type="text" class="form-control" id="display_name" name="display_name" placeholder="Enter display name" value="{{  $product->display_name ?? old('display_name')}}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="slug">Slug</label>
+                                    <label class="form-label" for="slug">Slug</label>
                                     <input type="text" class="form-control" name="slug" placeholder="Enter slug" id="slug" value="{{  $product->slug ?? old('slug')}}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="old_identifier">Old Identifier</label>
+                                    <label class="form-label" for="old_identifier">Old Identifier</label>
                                     <input type="text" class="form-control" name="old_identifier" placeholder="Enter old_identifier" id="old_identifier" value="{{  $product->old_identifier ?? old('old_identifier')}}">
                                 </div>
-                                
-                                {{-- <div class="col-md-6">
-                                    <label class="form-label" for="formFile" class="form-label">Replace Display Image</label>
-                                    <input name="image" class="form-control" type="file" id="image" accept="image/*">
-                                </div> --}}
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="category">Category</label>
+                                    <label class="form-label" for="category">Category</label>
                                     <select class="form-control" name="category" id="category" required>
                                         <option value="">Select</option>
                                         @foreach ($categories as $category)
@@ -70,7 +65,7 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="name">Allow Quantity</label>
+                                    <label class="form-label" for="name">Allow Quantity</label>
                                     <select class="form-control" name="allow_quantity" id="allow_quantity">
                                         <option value="">Select</option>
                                         <option value="yes" {{ $product->allow_quantity == 'yes' ? 'selected' : ''}}>Yes</option>
@@ -78,11 +73,11 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="name">Quantity Graduation</label>
+                                    <label class="form-label" for="name">Quantity Graduation</label>
                                     <input type="text" class="form-control" placeholder="Please enter each value seperated with a comma" id="quantity_graduation" name="quantity_graduation"  value="{{ $product->quantity_graduation ?? old('quantity_graduation') }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="name">Allow Subscription Type (For DSTV and GOTV purchses)</label>
+                                    <label class="form-label" for="name">Allow Subscription Type (For DSTV and GOTV purchses)</label>
                                     <select class="form-control" name="allow_subscription_type" id="allow_subscription_type">
                                         <option value="yes" {{ $product->allow_subscription_type == 'yes' ? 'selected' : ''}}>Yes</option>
                                         <option value="no" {{ $product->allow_subscription_type == 'no' ? 'selected' : ''}}>No</option>
@@ -97,19 +92,19 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6" id="referral_percentage">
-                                    <label class="form-label" class="form-label" for="referral_percentage">Referral Percentage(%)</label>
+                                    <label class="form-label" for="referral_percentage">Referral Percentage(%)</label>
                                     <input type="number" class="form-control" id="referral_percentage" step="0.01" name="referral_percentage" value="{{ $product->referral_percentage ?? old('referral_percentage') }}" placeholder="Enter percentage for referral earnings">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="seo_title">SEO Title</label>
+                                    <label class="form-label" for="seo_title">SEO Title</label>
                                     <input type="text" class="form-control" id="seo_title"  name="seo_title" placeholder="Enter SEO Title" value="{{ old('seo_title')}}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="seo_keywords">SEO Keywords</label>
+                                    <label class="form-label" for="seo_keywords">SEO Keywords</label>
                                     <input type="text" class="form-control"  name="seo_keywords" placeholder="Enter SEO Keywords" id="seo_keywords" value="{{ old('seo_keywords')}}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="helperText">API to use</label>
+                                    <label class="form-label" for="helperText">API to use</label>
                                     <select class="form-control" name="api" id="api" required>
                                         <option value="">Select</option>
                                         @foreach ($apis as $item)                          
@@ -117,9 +112,17 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="col-md-6" id="copy-variations-div" style="display:none">
+                                    <label class="form-label" for="copy_variations" style="color:red">Copy Product variations</label>
+                                    <select class="form-control tiny" name="copy_variations" id="copy_variations">
+                                        <option value="">Select</option>
+                                        <option value="yes" {{ $product->copy_variations == 'yes' ? 'selected' : ''}}>Yes</option>
+                                        <option value="no" {{ $product->copy_variations == 'no' ? 'selected' : ''}}>No</option> 
+                                    </select>
+                                </div>
                                 
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="status">Status</label>
+                                    <label class="form-label" for="status">Status</label>
                                     <select class="form-control" name="status" id="status" required>
                                         <option value="">Select</option>
                                         <option value="active" {{ $product->status == 'active' ? 'selected' : ''}}>Active</option>
@@ -128,7 +131,7 @@
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="fixed_price">Fixed Price</label>
+                                    <label class="form-label" for="fixed_price">Fixed Price</label>
                                     <select class="form-control" name="fixed_price" id="fixed_price" required>
                                         <option value="">Select</option>
                                         <option value="yes" {{ $product->fixed_price == 'yes' ? 'selected' : ''}}>Yes</option>
@@ -136,33 +139,33 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="name">System Price ({!! settings()['currency']!!})</label>
+                                    <label class="form-label" for="name">System Price ({!! settings()['currency']!!})</label>
                                     <input type="number" class="form-control" id="system_price" name="system_price"  value="{{ old('system_price') }}">
                                 </div>
 
                                 @foreach($customerlevel as $level)
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="name">{{ $level->name }} @if($product->category->discount_type == 'flat') Discounted Price ({!! settings()['currency']!!}) @else Discounted Percentage (%) @endif</label>
+                                    <label class="form-label" for="name">{{ $level->name }} @if($product->category->discount_type == 'flat') Discounted Price ({!! settings()['currency']!!}) @else Discounted Percentage (%) @endif</label>
                                     <input type="number" class="form-control" id="productlevel" name="productlevel[{{ $level->id }}]" step=".01" value="{{ $product->customer_level_price($level->id) }}">
                                 </div>
                                 @endforeach
 
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="min">Minimun Amount</label>
+                                    <label class="form-label" for="min">Minimun Amount</label>
                                     <input type="number" class="form-control" id="min" name="min"  value="{{  $product->min ?? old('min') }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="max">Maximum Amount</label>
+                                    <label class="form-label" for="max">Maximum Amount</label>
                                     <input type="number" class="form-control" id="max" name="max"  value="{{  $product->max ?? old('max') }}">
                                 </div>
                                 <input type="hidden" value="page1" name="route">
 
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="description">Description</label>
+                                    <label class="form-label" for="description">Description</label>
                                     <textarea class="form-control" id="description" name="description" rows="3" placeholder="Description" value="{{ old('description')}}"></textarea>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label" class="form-label" for="seo_description">SEO Description</label>
+                                    <label class="form-label" for="seo_description">SEO Description</label>
                                     <textarea class="form-control" id="seo_description" rows="3" name="seo_description" placeholder="SEO Description">{{ old('seo_description') }}</textarea>
                                 </div>
                                 <input type="hidden" value="product.update" name="route">
@@ -194,6 +197,8 @@
                             <form action="{{route('variations.update', $product->id)}}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 @foreach($product->variations as $variation)
+                                <input type="hidden" name="product_id" value="{{$product->id}}">
+                                <input type="hidden" name="category_id" value="{{$product->category->id}}">
                                 <div class="row gy-4 pt-4" style="margin-bottom:10px">
                                     <div class="col-md-3">
                                         <label class="form-label" for="api_name">API Name</label>
@@ -277,7 +282,21 @@
 @endsection
 @section('extra-js') 
 <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
-
+<script>
+    $("#api").on('change', function(e) {
+        var id = $("#api").val();
+        var currentId = "{{ $product->api->id }}";
+        var hasVariations = "{{ $product->has_variations }}";
+        
+        if(id != currentId && hasVariations == 'yes'){
+            $("#copy-variations-div").show();
+            $("#copy_variations").val('');
+        }else{
+            $("#copy-variations-div").hide();
+            $("#copy_variations").val('');
+        }
+    });
+</script>
 <script>
     $("#add-mode").on('click', function () {
         //get last ID

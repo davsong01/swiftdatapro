@@ -9,6 +9,8 @@
             <div class="modal-body">
                 <form action="{{route('manual.variations.add', $product->id)}}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <input type="hidden" name="product_id" value="{{$product->id}}">
+                    <input type="hidden" name="category_id" value="{{$product->category->id}}">
                     <section id="mode-holder">
                         <div class="row gy-4" id="mode-0">
                             <div class="col-md-3">

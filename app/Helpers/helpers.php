@@ -84,17 +84,19 @@ if (!function_exists("getProductDiscount")) {
 
         $product = Product::where('id', $product_id)->first();
         $discount_type = $product->category->discount_type;
-        
+
         // Check if resource has a category discount
-        if($product->category->user_discount){
-            $discount = $product->category->user_discount;
-        }
+        if ($discount_type == 'percentage') {
+            if($product->category->user_discount){
+                $discount = $product->category->user_discount;
+            }
 
-        // Check if resource has product discount
-        if ($product->user_discount) {
-            $discount = $product->user_discount;
+            // Check if resource has product discount
+            if ($product->user_discount) {
+                $discount = $product->user_discount;
+            }
         }
-
+        
         if(!empty($discount)){
             if ($discount_type == 'flat') {
                 $type = 'flat';
@@ -197,20 +199,21 @@ if (!function_exists("getVariationDiscount")) {
         $discount_type = $variation->category->discount_type;
         
         // Check if resource has a category discount
-        if ($variation->category->user_discount) {
-            $discount = $variation->category->user_discount;
-        }
-        
-        // if it has product discount use it
-        if ($variation->product->user_discount) {
-            $discount = $variation->product->user_discount;
+        if($discount_type == 'percentage'){
+            if ($variation->category->user_discount) {
+                $discount = $variation->category->user_discount;
+            }
+            
+            // if it has product discount use it
+            if ($variation->product->user_discount) {
+                $discount = $variation->product->user_discount;
+            }
         }
 
         // if it has its own discount, use it
         $individualdiscount = Discount::where(['variation_id' => $variation->id, 'customer_level' => $level])->first();
-
         $discount = !empty($individualdiscount) ? $individualdiscount : ($discount ?? NULL);
-        
+
         if (!empty($discount)) {
             if ($discount_type == 'flat') {
                 $type = 'flat';
@@ -228,6 +231,7 @@ if (!function_exists("getVariationDiscount")) {
         } else {
             return $response;
         }
+        // \Log::info(['discount' => $discount->price, 'system+price' => $variation->system_price, 'type' => $discount_type, 'new_amount' => $new_amount]);
         
         return [
             'type' => $type,

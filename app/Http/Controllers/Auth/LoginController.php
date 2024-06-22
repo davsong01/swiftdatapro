@@ -95,7 +95,7 @@ class LoginController extends Controller
             $body .= '<br><br>Warm Regards<br>' . config('app.name');
 
             $subject = "Welcome Back!";
-            $this->sendEmail(auth()->user()->email, $subject, $body);
+            // $this->sendEmail(auth()->user()->email, $subject, $body);
 
             return redirect()->intended('dashboard');
         }

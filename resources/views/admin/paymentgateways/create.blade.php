@@ -80,7 +80,7 @@
                         <div class="col-md-6">
                             <label for="public_key" class="form-label">Reserved Account Payment Charge<span
                             class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="reserved_account_payment_charge" id="reserved_account_payment_charge" placeholder="Public key">
+                            <input type="text" class="form-control" name="reserved_account_payment_charge" id="reserved_account_payment_charge" step="0.1" placeholder="Public key">
                         </div>
 
                         <div class="col-md-6">

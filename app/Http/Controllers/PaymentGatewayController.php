@@ -96,6 +96,7 @@ class PaymentGatewayController extends Controller
             "status" => $request->status,
             "charge" => $request->charge,
         ]);
+
         return back()->with('message', 'Updated successfully');
     }
 
