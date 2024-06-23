@@ -978,7 +978,7 @@ class Controller extends BaseController
                 }
 
                 if (empty($transaction->product_id)){
-                    $product = Product::where('slug', $transaction->buyer_service)->first();
+                    $product = Product::where('slug', 'like', $transaction->buyer_service)->first();
                     $variation = Variation::where('api_name', 'like', $transaction->buyer_descr)->first();
 
                     if($product){
