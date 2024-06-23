@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Settings;
+use App\Models\Variation;
 use App\Models\WebSetting;
 use App\Mail\EmailMessages;
 use App\Models\Transactions;
@@ -975,6 +976,26 @@ class Controller extends BaseController
                         'unit_price' => (float) $transaction->type == 'debit' ? $transaction->buyer_prebal - $transaction->buyer_postbal :  $transaction->buyer_amount,
                     ]);
                 }
+
+                if (empty($transaction->product_id)){
+                    $product = Product::where('slug', $transaction->buyer_service)->first();
+                    $variation = Variation::where('api_name', 'like', $transaction->buyer_descr)->first();
+
+                    if($product){
+                        $transaction->update([
+                            'product_id' => $product->id,
+                            'category_id' => $product->category->id
+                        ]);
+                    }
+
+                    if ($variation) {
+                        $transaction->update([
+                            'variation_id' => $variation->id,
+                        ]);
+                    }
+
+                }
+
             }
         }
 
