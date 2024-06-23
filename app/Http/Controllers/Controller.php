@@ -1019,15 +1019,13 @@ class Controller extends BaseController
         $transactionsXX = Transactions::whereNull('provider_id')->take(5000)->get();
 
         foreach ($transactionsXX  as $transaction) {
-            if (empty($transaction->provider_id)) {
-                $provider = strtolower($transaction->provider);
-                $api = Api::where('slug', 'like', $provider)->first();
+            $provider = strtolower($transaction->provider);
+            $api = Api::where('slug', 'like', $provider)->first();
 
-                if ($api) {
-                    $transaction->update([
-                        'provider_id' => $api->id,
-                    ]);
-                }
+            if ($api) {
+                $transaction->update([
+                    'provider_id' => $api->id,
+                ]);
             }
         }
 
