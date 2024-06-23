@@ -945,16 +945,19 @@ class Controller extends BaseController
         }
 
         $transactions = Transactions::whereNull('user_id')->take(5000)->get();
+
         if (!empty($transactions)) {
             foreach ($transactions as $transaction) {
-                $user = User::where('email', $transaction->buyer_email)->first();
-                
-                if ($user) {
-                    $transaction->update([
-                        'user_id' => $user->id,
-                    ]);
+                if(empty($transaction->user_id)){
+                    $user = User::where('email', $transaction->buyer_email)->first();
+                    
+                    if ($user) {
+                        $transaction->update([
+                            'user_id' => $user->id,
+                        ]);
+                    }
                 }
-    
+
                 if(empty($transaction->created_at) && !empty($transaction->buyer_date)){
                     $transaction->update([
                         'created_at' => Carbon::parse($transaction->buyer_date),
@@ -976,26 +979,55 @@ class Controller extends BaseController
                         'unit_price' => (float) $transaction->type == 'debit' ? $transaction->buyer_prebal - $transaction->buyer_postbal :  $transaction->buyer_amount,
                     ]);
                 }
+            }
+        }
 
-                if (empty($transaction->product_id)){
-                    $product = Product::where('slug', 'like', $transaction->buyer_service)->first();
-                    $variation = Variation::where('api_name', 'like', $transaction->buyer_descr)->first();
+        $transactionsX = Transactions::whereNull('product_id')->take(5000)->get();
+        
+        foreach($transactionsX  as $transaction){
+            if (empty($transaction->product_id)) {
+                $product = Product::where('slug', 'like', $transaction->buyer_service)->first();
+                $variation = Variation::where('api_name', 'like', $transaction->buyer_descr)->first();
 
-                    if($product){
-                        $transaction->update([
-                            'product_id' => $product->id,
-                            'category_id' => $product->category->id
-                        ]);
-                    }
-
-                    if ($variation) {
-                        $transaction->update([
-                            'variation_id' => $variation->id,
-                        ]);
-                    }
-
+                if ($product) {
+                    $transaction->update([
+                        'product_id' => $product->id,
+                        'category_id' => $product->category->id
+                    ]);
                 }
 
+                if ($variation) {
+                    $transaction->update([
+                        'variation_id' => $variation->id,
+                    ]);
+                }
+            }
+
+            if (empty($transaction->provider_id)) {
+                $provider = strtolower($transaction->provider);
+                $api = Api::where('slug', 'like', $provider)->first();
+
+                if ($api) {
+                    $transaction->update([
+                        'provider_id' => $api->id,
+                    ]);
+                }
+            }
+        }
+
+
+        $transactionsXX = Transactions::whereNull('provider_id')->take(5000)->get();
+
+        foreach ($transactionsXX  as $transaction) {
+            if (empty($transaction->provider_id)) {
+                $provider = strtolower($transaction->provider);
+                $api = Api::where('slug', 'like', $provider)->first();
+
+                if ($api) {
+                    $transaction->update([
+                        'provider_id' => $api->id,
+                    ]);
+                }
             }
         }
 
