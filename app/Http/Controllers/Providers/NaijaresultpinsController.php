@@ -54,13 +54,13 @@ class NaijaresultpinsController extends Controller
         ];
 
         $pstfields = $this->getPostData($postdata, $api);
+        
         if(env('ENT') == 'local'){
             $resX = '{"status": "success","message": "2 WAEC Scratch Card generated","reference": "qXFPHaTZM3rSkfY","amount": 6700,"quantity": "3","old_balance": 259800,"new_balance": 253100,"transaction_date": "2023-10-02 02:45:13","cards":[{"pin": "941264752596","serial_no": "WRN193474585"},{"pin": "941264877068","serial_no": "WRN193474586"}]}';
         }else{
             $resX = $this->advancedApiCall($pstfields['service_url'], $pstfields, $headers);
         }
         
-
         try {
             $format = $this->processApiResponse($resX);
             $format['api_response'] = $resX;

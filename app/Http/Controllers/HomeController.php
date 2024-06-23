@@ -211,7 +211,7 @@ class HomeController extends Controller
                     'description' => $descr3,
                     'created_at' => Carbon::now(),
                 ]);
-               
+            
                 // Update cash back balance for balance
                 $adinfo->update([
                     'cashback' => $adinfo->cashback + $amount,

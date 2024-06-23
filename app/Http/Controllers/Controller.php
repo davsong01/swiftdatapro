@@ -1085,6 +1085,7 @@ class Controller extends BaseController
         $data['app_version'] = Session::get('app_version');
         $data['domain_name'] = Session::get('domain_name');
         $data['ip_address'] = Session::get('ip_address');
+        $data['user_id'] = $request['user_id'] ?? auth()->user()->id;
         
         $transaction = Transactions::create($data);
         return $transaction;

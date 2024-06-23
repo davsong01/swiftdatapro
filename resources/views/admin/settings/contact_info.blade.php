@@ -88,7 +88,6 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        {{-- {{dd($kyc_settings['status'])}} --}}
                         <label for="kyc_settings" class="form-label">Enable KYC Check <small>(Customers will not be able to use the system except they complete KYC)</small><span
                         class="text-danger">*</span></label>
                         
@@ -96,6 +95,16 @@
                             <option value="" selected>Select</option>
                             <option value="yes" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'yes' ? 'selected' : '' }}>Yes</option>
                             <option value="no" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="allow_transaction_refferal_system" class="form-label">Allow Refferal Commission system<span
+                        class="text-danger">*</span></label>
+                        
+                        <select class="form-control" name="allow_transaction_refferal_system" id="allow_transaction_refferal_system" required>
+                            <option value="" selected>Select</option>
+                            <option value="yes" {{  $contact->allow_transaction_refferal_system == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{  $contact->allow_transaction_refferal_system == 'no' ? 'selected' : '' }}>No</option>
                         </select>
                     </div>
 

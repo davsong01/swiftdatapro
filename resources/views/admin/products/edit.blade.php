@@ -91,9 +91,9 @@
                                         <option value="no" {{ $product->has_variations == 'no' ? 'selected' : ''}}>No</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6" id="referral_percentage">
-                                    <label class="form-label" for="referral_percentage">Referral Percentage(%)</label>
-                                    <input type="number" class="form-control" id="referral_percentage" step="0.01" name="referral_percentage" value="{{ $product->referral_percentage ?? old('referral_percentage') }}" placeholder="Enter percentage for referral commission">
+                                <div class="col-md-6" id="referral_commission">
+                                    <label class="form-label" for="referral_commission">Referral Commission(%)</label>
+                                    <input type="number" class="form-control" id="referral_commission" step="0.01" name="referral_commission" value="{{ $product->referral_commission ?? old('referral_commission') }}" placeholder="Enter referral commission">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label" for="seo_title">SEO Title</label>
@@ -139,8 +139,12 @@
                                     </select>
                                 </div>
                                 <div class="col-md-6">
+                                    <label class="form-label" for="provider_percentage_discount">Provider Percentage Discount (%)</label>
+                                    <input type="number" step="0.1" class="form-control tiny" id="provider_percentage_discount" name="provider_percentage_discount"  value="{{ $product->provider_percentage_discount ?? old('provider_percentage_discount') }}" required>
+                                </div>
+                                <div class="col-md-6">
                                     <label class="form-label" for="name">System Price ({!! settings()['currency']!!})</label>
-                                    <input type="number" class="form-control" id="system_price" name="system_price"  value="{{ old('system_price') }}">
+                                    <input type="number" class="form-control" id="system_price" name="system_price"  value="{{ $product->system_price ?? old('system_price') }}">
                                 </div>
 
                                 @foreach($customerlevel as $level)

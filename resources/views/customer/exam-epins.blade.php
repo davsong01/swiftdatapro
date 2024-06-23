@@ -32,14 +32,14 @@
               <option data-system_price="{{ intval($product->system_price) }}" data-fixed_price="{{ $product->fixed_price }}"
                 data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
                 data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
-                value="{{ $product->id }}">{{ $product->display_name .' - '.settings()->currency.intval($product->system_price) }}</option>
+                value="{{ $product->id }}">{{ $product->display_name .' - '.getProductDiscount($product->system_price, $product->id)['display_value'] }}</option>
             @endif
           @endforeach
         </select>
     </div>
 
     <div class="alert alert-success" id="valAmount" style="display:none"></div>
-    
+    {{-- @if($product->allow_quantity == 'yes') --}}
     <div class="input-group mb-3">
       <span class="input-group-text"><i style="font-weight: bold" class="fa fa-shopping-cart"></i></span>
       <select class="form-control" id="service_quantity" onchange="calDiscount()">
@@ -52,7 +52,7 @@
         <option value="10">Ten Units</option>
       </select>
     </div>
-
+    {{-- @endif --}}
     <div class="input-group mb-3">
       <span class="input-group-text"><i style="font-weight: bold" class="fas fa-phone"></i></span>
       <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no" required>

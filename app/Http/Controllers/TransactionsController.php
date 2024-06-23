@@ -112,20 +112,12 @@ class TransactionsController extends Controller
         // Get discount
         if ($product->has_variations == 'yes') {
             $resource = $variation;
-            $src_price = $variation->api_price * ($request['quantity'] ?? 1);
             $discount = getVariationDiscount($request['amount'], $variation->id, $request['quantity'] ?? 1);
         } else {
             $resource = $product;
-            $src_price = !empty($product->system_price) ? $product->system_price * ($request['quantity'] ?? 1) : 0;
             $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
         }
         
-        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
-            $request['billersCode'] = $request->billersCode;
-        } else {
-            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
-        }
-
         // checks
         $checks = $this->runChecks($request,$product, $api);
         if(!empty($checks) && $checks['status'] == 'fail'){
@@ -142,6 +134,15 @@ class TransactionsController extends Controller
         $request['quantity'] = $request->quantity ?? 1;
         $request['total_amount'] = $discountedAmount;
         $request['discount'] = $disCountApplied;
+
+        // $request['quantity'] = 2;
+        $src_price = providerPrice($product, $variation, $request);
+        
+        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
+            $request['billersCode'] = $request->billersCode;
+        } else {
+            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
+        }
 
         $balance = walletBalance($user);
         
@@ -160,7 +161,6 @@ class TransactionsController extends Controller
         $request['variation_code'] = $variation->variation_code ?? null;
         $request['quantity'] = $quantity;
 
-        
         // Log transaction
         $data = [
             'mobile_number' => $request->mobile_no,
@@ -189,6 +189,7 @@ class TransactionsController extends Controller
             'category_id' => $resource->category->id,
             'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
         ];
+
         $transaction = $this->logTransaction($data);
         
         $data['resource'] = $resource;
@@ -200,6 +201,8 @@ class TransactionsController extends Controller
         
         if ($api_response['status'] == 'success') {
             $report = $this->formatOderReport($resource, $request,$transaction, $api_response);
+            $commission = getAndUpdateReferralCommission(auth()->user(), $product, $variation, $transaction);
+            
             $transaction->update([
                 'buyer_status' => 'SUCCESSFUL',
                 'buyer_descr' => $report['order_report'],
@@ -208,6 +211,7 @@ class TransactionsController extends Controller
                 'api_status' => $api_response['status'],
                 'extra' => $api_response['extra'] ?? null,
                 'post_fields' => $api_response['postfields'],
+                'commission' => $commission
             ]);
             
             $order_report = $report['order_report'] ?? '';
@@ -340,13 +344,6 @@ class TransactionsController extends Controller
         $amount_to_pay = $request->amount;
         $amount_to_recieve = $request->amount - $discount['charge'];
 
-        // $bank = Bank::where('cbn_code', $request->bank)->first();
-        // if (!empty($bank)) {
-        //     $bank_name = $bank->bank_name;
-        // } else {
-        //     $bank_name = '';
-        // }
-        
         $string = 'Hello Admin, I want to convert Airtime to cash on ' . config("app.name") . '. Please find below details of the transaction below: 
         
         *Name:* ' . $user->full_name . '

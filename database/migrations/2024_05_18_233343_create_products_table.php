@@ -31,11 +31,12 @@ return new class extends Migration
             $table->string('has_variations')->default('no');
             $table->string('api_id');
             $table->string('fixed_price')->nullable();
-            $table->double('commission')->nullable();
+            $table->double('referral_commission')->nullable();
+            $table->string('referral_commission_type')->nullable();
             $table->string('allow_quantity')->default('no');
             $table->string('allow_subscription_type')->default('no');
             $table->string('quantity_graduation')->nullable();
-            $table->double('referral_percentage')->nullable();
+            $table->double('provider_percentage_discount')->nullable();
             $table->string('network')->nullable();
             $table->string('type')->default('general');
             

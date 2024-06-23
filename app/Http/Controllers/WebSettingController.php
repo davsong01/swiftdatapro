@@ -71,9 +71,9 @@ class WebSettingController extends Controller
         if (!empty($request->kyc_settings)) {
             $data['kyc_settings'] = json_encode($request->kyc_settings);
         }
-
+        
         $contact->update($data);
-
+        
         return back()->with('message', 'Update Successful');
     }
 

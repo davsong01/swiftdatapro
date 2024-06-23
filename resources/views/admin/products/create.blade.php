@@ -60,14 +60,14 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                        <div class="col-md-6">
+                                    {{-- <div class="col-md-6">
                                         <label class="form-label" for="name">Allow Quantity</label>
                                         <select class="form-control" name="allow_quantity" id="allow_quantity">
                                             <option value="">Select</option>
                                             <option value="yes" {{ old('allow_quantity') == 'yes' ? 'selected' : ''}}>Yes</option>
                                             <option value="no" {{ old('allow_quantity') == 'no' ? 'selected' : ''}}>No</option>
                                         </select>
-                                    </div>
+                                    </div> --}}
                                     <div class="col-md-6">
                                         <label class="form-label" for="name">Quantity Graduation</label>
                                         <input type="text" class="form-control tiny" placeholder="Please enter each value seperated with a comma" id="quantity_graduation" name="quantity_graduation"  value="{{ old('quantity_graduation') }}">
@@ -80,9 +80,21 @@
                                             <option value="no" {{ old('allow_subscription_type') == 'no' ? 'selected' : ''}}>No</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-6" id="referral_percentage">
+                                    {{-- <div class="col-md-6" id="referral_percentage">
                                         <label class="form-label" for="referral_percentage">Referral Percentage(%)</label>
                                         <input type="number" class="form-control" id="referral_percentage" step="0.01" name="referral_percentage" value="{{ old('referral_percentage') }}" placeholder="Enter percentage for referral commission">
+                                    </div> --}}
+                                    <div class="col-md-6" id="referral_commission_type">
+                                        <label class="form-label" for="referral_commission_type">Referral Commission Type</label>
+                                        <select class="form-control" name="referral_commission_type" id="referral_commission_type">
+                                            <option value="">Select</option>
+                                            <option value="flat" {{ old('referral_commission_type') == 'flat' ? 'selected' : ''}}>Flat</option>
+                                            <option value="percnetage" {{ old('referral_commission_type') == 'percnetage' ? 'selected' : ''}}>No</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6" id="referral_commission">
+                                        <label class="form-label" for="referral_commission">Referral Commission(%)</label>
+                                        <input type="number" class="form-control" id="referral_commission" step="0.01" name="referral_commission" value="{{ old('referral_commission') }}" placeholder="Enter commission">
                                     </div>
                                     
                                     <div class="col-md-6">
@@ -126,6 +138,10 @@
                                             <option value="yes" {{ old('fixed_price') == 'yes' ? 'selected' : ''}}>Yes</option>
                                             <option value="no" {{ old('fixed_price') == 'no' ? 'selected' : ''}}>No</option>
                                         </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label" for="provider_percentage_discount">Provider Percentage Discount (%)</label>
+                                        <input step="0.1" type="number" class="form-control tiny" id="provider_percentage_discount" name="provider_percentage_discount" required value="{{ old('provider_percentage_discount') }}">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="name">System Price</label>

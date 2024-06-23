@@ -49,6 +49,7 @@ class ProductController extends Controller
             "image" => "required|mimes:jpeg,png|max:1024",
             "allow_subscription_type" => 'nullable',
             'referral_percentage' => 'nullable',
+            'provider_percentage_discount' => 'nullable'
         ]);
 
         if (!empty($request->image)) {
@@ -89,6 +90,8 @@ class ProductController extends Controller
                 "max" => $request->max,
                 "allow_subscription_type" => $request->allow_subscription_type ?? 'no',
                 'referral_percentage' => $request->referral_percentage,
+                'provider_percentage_discount' => $request->provider_percentage_discount,
+                
             ]
         );
 
@@ -155,23 +158,23 @@ class ProductController extends Controller
             "image" => "nullable|mimes:jpeg,png|max:1024",
             "fixed_price" => 'nullable',
             "system_price" => 'nullable',
-            "allow_quantity" => 'required',
+            "allow_quantity" => 'nullable',
             "quantity_graduation" => 'nullable',
             "min" => 'nullable',
             "max" => 'nullable',
             "allow_subscription_type" => "nullable",
-            'referral_percentage' => 'nullable',
-
+            'referral_commission' => 'nullable',
+            'provider_percentage_discount'
         ]);
 
         if (!empty($request->image)) {
             $image = $this->uploadFile($request->image, 'products');
         }
 
-        if (!empty($request->copy_variations) && $request->copy_variations == 'yes') {
-            $currentVariations = Variation::where('product_id', $product->id)->where('api_id', $product->api_id)->get();
-            $apivariations = Variation::where('product_id', $product->id)->where('api_id', $request->api)->pluck('slug')->toArray();
-            
+        $currentVariations = Variation::where('product_id', $product->id)->where('api_id', $product->api_id)->get();
+        $apivariations = Variation::where('product_id', $product->id)->where('api_id', $request->api)->pluck('slug')->toArray();
+        
+        if (!empty($currentVariations)) {
             foreach ($currentVariations as $variation) {
                 $newVariation = $variation->replicate();
 
@@ -191,13 +194,12 @@ class ProductController extends Controller
                             "variation_id" => $newVariation->id,
                             "customer_level" => $discount->customer_level,
                             "price" => $discount->price,
-                            "status" => $discount->status,
                         ]);
                     }
                 }
             }
         }
-
+        
         $product->update([
             "name" => $request->name,
             "display_name" => $request->display_name,
@@ -219,7 +221,8 @@ class ProductController extends Controller
             "allow_quantity" => $request->allow_quantity,
             "quantity_graduation" => $request->quantity_graduation,
             "allow_subscription_type" => $request->allow_subscription_type,
-            'referral_percentage' => $request->referral_percentage,
+            'referral_commission' => $request->referral_commission,
+            'provider_percentage_discount' => $request->provider_percentage_discount,
         ]);
 
         $productLevel = $request->productlevel;

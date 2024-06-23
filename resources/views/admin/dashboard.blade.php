@@ -226,7 +226,7 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
-                                                                <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->buyer_email }} </a><br>
+                                                                <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->customer->id }} </a><br>
                                                                 <strong>{{ $transaction->customer->full_name }}</strong> <br>
                                                                 {{ $transaction->mobile_number }} <br>
                                                                 {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>

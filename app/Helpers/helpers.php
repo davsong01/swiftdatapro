@@ -1,5 +1,6 @@
 <?php
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
@@ -9,6 +10,7 @@ use App\Models\WebSetting;
 use App\Models\Notification;
 use App\Models\Transactions;
 use App\Models\RolePermission;
+use App\Models\EarnedTransactions;
 
 if (!function_exists("topProduct")) {
     function topProduct()
@@ -84,9 +86,11 @@ if (!function_exists("getProductDiscount")) {
 
         $product = Product::where('id', $product_id)->first();
         $discount_type = $product->category->discount_type;
-
+        
         // Check if resource has a category discount
-        if ($discount_type == 'percentage') {
+        // Bypass percentage discount type
+        $byPassProducts = !empty(env('BY_PASS_PRODUCT_IDS')) ? explode(',',env('BY_PASS_PRODUCT_IDS')) : [];
+        if ($discount_type == 'percentage' || in_array($product->id,$byPassProducts)) {
             if($product->category->user_discount){
                 $discount = $product->category->user_discount;
             }
@@ -96,20 +100,20 @@ if (!function_exists("getProductDiscount")) {
                 $discount = $product->user_discount;
             }
         }
-
+        
         if(!empty($discount)){
             if ($discount_type == 'flat') {
                 $type = 'flat';
                 $new_amount = ($amount < $discount->price || $discount->price <= 0) ? ($amount * $quantity) : ($discount->price *  $quantity) ;
                 $discount_applied = abs($amount - $discount->price);
-                $display_amount = settings()->currency . number_format($new_amount);
+                $display_amount = intval($new_amount);
             } else {
                 $type = 'percentage';
                 $discount_applied = $discount->price;
                 $discount_applied = floor($discount_applied/100 * $amount);
                 $n_amount = $amount - $discount_applied;
                 $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
-                $display_amount = settings()->currency . intval($new_amount);
+                $display_amount = intval($new_amount);
             }
         }else{
             return $response;
@@ -118,8 +122,8 @@ if (!function_exists("getProductDiscount")) {
         return [
             'type' => $type,
             'discount_applied' => $discount_applied * $quantity,
-            'new_amount' => intval($new_amount),
-            'display_value' => settings()->currency.number_format($display_amount)
+            'new_amount' => $new_amount,
+            'display_value' => settings()->currency . number_format($display_amount)
         ];
     }
 }
@@ -232,6 +236,77 @@ if (!function_exists("getVariationDiscount")) {
             'new_amount' => intval($new_amount),
             'display_value' => $display_amount
         ];
+    }
+}
+
+if (!function_exists("providerPrice")) {
+    function providerPrice($product, $variation, $request){
+        $provider_percentage_discount = $product->provider_percentage_discount;
+
+        if ($product->has_variations == 'yes' && !empty($variation)) {
+            if (!empty($provider_percentage_discount)) {
+                $discount_off = $provider_percentage_discount / 100 * $variation->api_price;
+                $src_price = ($variation->api_price - $discount_off);
+                $src_price =  $src_price * $request['quantity'];
+            } else {
+                $src_price = 0;
+            }
+        } else {
+            if(!empty($provider_percentage_discount)){
+                $discount_off = $provider_percentage_discount / 100 * $request['unit_price'];
+                $src_price = ($request['unit_price'] -  $discount_off );
+                $src_price =  $src_price * $request['quantity'];
+            }else{
+                $src_price = 0;
+            }
+        }
+
+        return $src_price;
+    }
+}
+
+if (!function_exists("getAndUpdateReferralCommission")) {
+    function getAndUpdateReferralCommission($user, $product, $variation, $transaction)
+    {
+        $earned = null;
+        if(!empty(settings()->allow_transaction_refferal_system) && settings()->allow_transaction_refferal_system == 'yes'){
+            // Get upline
+            $upline = User::select('id', 'ref_by', 'cashback')->where('ref_code', $user->ref_by)->orwhere('username', $user->ref_by)->first();
+            $referral_commission = $product->referral_commission;
+            
+            if(!$upline || empty($referral_commission)){
+                return null;
+            }
+
+            $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
+
+            if($referral_commission <= 0){
+                return null;
+            }
+            
+            // Update earning
+            $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
+
+            // Update earnings
+            $earned = EarnedTransactions::create([
+                'user_id' => $upline->id,
+                'ref_code' => $user->ref_code,
+                'amount' =>  $referral_commission,
+                'type' => 'credit',
+                'sys_reference' => $transaction->sys_ref,
+                'description' => $descr,
+                'created_at' => Carbon::now(),
+            ]);
+
+            // Update cash back balance for balance
+            $upline->update([
+                'cashback' => $upline->cashback + $referral_commission,
+            ]);
+
+            $earned = $earned->amount;
+        }
+
+        return $earned;
     }
 }
 
