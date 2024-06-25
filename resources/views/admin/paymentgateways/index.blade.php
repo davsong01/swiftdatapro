@@ -39,7 +39,7 @@
                         <tr>
                             <td>{{ $gateway->name }}</td>
                             <td>
-                                <a href="{{ url('/').'/log-callback/'.$gateway->id }}">{{ url('/').'/log-callback/'.$gateway->id }}</a> <br>
+                                <a href="{{ url('/').'/webhook_payment/'.$gateway->id }}">{{ url('/').'/webhook_payment/'.$gateway->id }}</a> <br>
                             </td>
                             <td style="color:{{ $gateway->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($gateway->status) }}</td>
                             <td>{{ $gateway->created_at }}</td>

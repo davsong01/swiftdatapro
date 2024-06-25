@@ -217,9 +217,9 @@ class PaymentGatewayController extends Controller
     }
 
     public function analyzeWebhookPayment(Request $request){
-        $type = $request->type;
-        \Log::info(['payment webhook' => $request->all()]);
-        if ($type == 'payvessel') {
+        $type = $request->id;
+
+        if ($type == 2) {
             $api = PaymentGateway::where('id', 2)->first();
             if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // CSRF exemption
@@ -326,7 +326,7 @@ class PaymentGatewayController extends Controller
             } else {
                 exit();
             }
-        } elseif ($type == 'monnify') {
+        } elseif ($type == 1) {
             $api = PaymentGateway::where('id', 1)->first();
             $ip = ($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : $_SERVER['REMOTE_HOST'];
             
