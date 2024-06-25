@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use PDO;
 use DateTime;
 use DateTimeZone;
 use App\Models\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\PaymentGateway;
+use App\Models\AutomatedDeposit;
 use App\Models\DepositTransaction;
-use PDO;
 
 class PaymentGatewayController extends Controller
 {
@@ -185,6 +186,7 @@ class PaymentGatewayController extends Controller
         $url2 = $base_url.'v2/bank-transfer/reserved-accounts';
 
         $response2 = $this->advancedApiCall($url2, json_encode($data), $headers2);
+        
         $res = json_decode($response2, true);
 
         if ($res && $res['responseCode'] == 0 && $res['responseMessage'] == 'success'){
@@ -217,7 +219,7 @@ class PaymentGatewayController extends Controller
     }
 
     public function analyzeWebhookPayment(Request $request){
-        $type = $request->id;
+        $type = $request->type;
 
         if ($type == 2) {
             $api = PaymentGateway::where('id', 2)->first();
@@ -260,6 +262,11 @@ class PaymentGatewayController extends Controller
                         // check if reference exists
                       
                         $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('api_ref', $api_reference)->count();
+                        $account = AutomatedDeposit::where('account_number', $account_number)->first();
+
+                        if(!$account){
+                            die();
+                        }
                         
                         if ($cx_trx < 1) {
                             $cbal = walletBalance($user);
@@ -365,21 +372,27 @@ class PaymentGatewayController extends Controller
             // $settlementAmount = $data->eventData->settlementAmount;
             // $eventType = $data->eventType;
 
-
             $user = User::where('email', $customer_email)->first();
             if(!$user){
                 die();
             }
-
+            
             $data_decod = $json;
             $computedHash = $this->computeSHA512TransactionHash($data_decod, $DEFAULT_MERCHANT_CLIENT_SECRET);
+            
             if(env('ENT') == 'local'){
                 $MONNIFY_SIGNATURE = $computedHash;
-            }  
-            
+            }
+
             if ($MONNIFY_SIGNATURE == $computedHash && $amountPaid > 50 && $paymentStatus == 'PAID') {
                 $charges = $amountPaid * 1 / 100;
                 $final_amount = $amountPaid - $charges;
+
+                $account = AutomatedDeposit::where('account_number', $account_number)->first();
+                
+                if (!$account) {
+                    die();
+                }
 
                 $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('api_ref', $api_reference)->count();
                 
