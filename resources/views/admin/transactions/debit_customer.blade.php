@@ -28,7 +28,7 @@
                             <select class="js-example-basic-single" name="email" >
                                 <option value="">Select user</option>
                                 @foreach($users as $user)
-                                <option value="{{ $user->email }}">{{ $user->full_name }} ({{$user->username}})</option>
+                                <option value="{{ $user->email }}">{{ $user->email }} ({{$user->username}})</option>
                                 @endforeach
                             </select>
                         </div>
