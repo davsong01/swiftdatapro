@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use DB;
 use PDO;
 use DateTime;
 use DateTimeZone;
@@ -245,8 +246,9 @@ class PaymentGatewayController extends Controller
                         $data = json_decode($payload, true);
                     }
                     
-                    $final_amount = floatval($data['order']['settlement_amount']);
-                    $charges = floatval($data['order']['fee']);
+                    $provider_charges = floatval($data['order']['fee'] ?? 0);
+                    $charges = $this->calculateGatewayCharge($data['order']['amount'], $api);
+                    $final_amount = floatval($data['order']['amount']) - $charges;
                     $api_reference = $data['transaction']['reference'];
                     $sys_reference = $this->generateRequestId('SWFT');
                     $description = $data['order']['description'];
@@ -257,13 +259,12 @@ class PaymentGatewayController extends Controller
                     if(!$user){
                         die();
                     }
-
+                   
                     if ($final_amount > 0 && $data['message'] == 'Success') {
                         // check if reference exists
-                      
                         $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('api_ref', $api_reference)->count();
-                        $account = AutomatedDeposit::where('account_number', $account_number)->first();
-
+                        $account = AutomatedDeposit::where('account_number', $account_number)->where('payment_gateway_id', $api->id)->first();
+                        
                         if(!$account){
                             die();
                         }
@@ -279,50 +280,63 @@ class PaymentGatewayController extends Controller
                             $user->wallets = $NewBal;
                             $user->save();
 
-                            $deposit = DepositTransaction::create([
-                                'user_id' => $user->id,
-                                'user_service' => 'DEPOSIT',
-                                'user_amount' => $final_amount,
-                                'user_prebal' => $walletBal,
-                                'user_postbal' => $NewBal,
-                                'user_descr' => $order_descr,
-                                'user_status' => 'SUCCESSFUL',
-                                'sys_ref' => $sys_reference,
-                                'api_ref' => $api_reference,
-                                'payment_gateway_id' => $api->id,
-                                'account_number' => $account_number,
-                            ]);
+                            try {
 
-                            // $amountPaid - $charges
-                            if ($deposit) {
-                                $data = [
-                                    'mobile_number' => $user->mobile,
-                                    'unit_price' => $final_amount,
-                                    'buyer_amount' => $final_amount,
-                                    'buyer_prebal' => $walletBal,
-                                    'provider_charge' => $charges,
-                                    'buyer_postbal' => $NewBal,
-                                    'buyer_descr' => $order_descr,
-                                    'buyer_status' => 'SUCCESSFUL',
-                                    'buyer_service' => 'DEPOSIT',
+                                \DB::beginTransaction();
+
+                                $deposit = DepositTransaction::create([
+                                    'user_id' => $user->id,
+                                    'user_service' => 'DEPOSIT',
+                                    'user_amount' => $final_amount,
+                                    'user_prebal' => $walletBal,
+                                    'user_postbal' => $NewBal,
+                                    'user_descr' => $order_descr,
+                                    'user_status' => 'SUCCESSFUL',
                                     'sys_ref' => $sys_reference,
                                     'api_ref' => $api_reference,
-                                    'api_report' => 'DONE',
-                                    'buyer_quantity' => 1,
-                                    'discount' => 0,
-                                    'src_price' => 0,
-                                    'channel' => 'website',
-                                    'wallet_funding_provider' => $api->id,
-                                    'billersCode' => 'WALLET-FUNDING',
-                                    'profit' => 0,
-                                    'type' => 'credit',
-                                    'user_id' => $user->id,
-                                    'charges' => $charges,
-                                    'api_response' => json_encode($request->all()),
-                                ];
+                                    'payment_gateway_id' => $api->id,
+                                    'account_number' => $account_number,
+                                ]);
 
-                                $this->logTransaction($data);
+                                if ($deposit) {
+                                    $data = [
+                                        'mobile_number' => $user->mobile,
+                                        'unit_price' => $final_amount,
+                                        'buyer_amount' => $final_amount,
+                                        'buyer_prebal' => $walletBal,
+                                        'provider_charge' => $provider_charges,
+                                        'buyer_postbal' => $NewBal,
+                                        'buyer_descr' => $order_descr,
+                                        'buyer_status' => 'SUCCESSFUL',
+                                        'buyer_service' => 'DEPOSIT',
+                                        'sys_ref' => $sys_reference,
+                                        'api_ref' => $api_reference,
+                                        'api_report' => 'DONE',
+                                        'buyer_quantity' => 1,
+                                        'discount' => 0,
+                                        'src_price' => 0,
+                                        'channel' => 'website',
+                                        'wallet_funding_provider' => $api->id,
+                                        'billersCode' => 'WALLET-FUNDING',
+                                        'profit' => 0,
+                                        'type' => 'credit',
+                                        'user_id' => $user->id,
+                                        'charges' => $charges,
+                                        'user_type' => $user->level,
+                                        'api_response' => json_encode($request->all()),
+                                    ];
+
+                                    $this->logTransaction($data);
+                                }
+
+                                DB::commit();
+                            } catch (\Throwable $th) {
+                                DB:: rollback();
+                                \Log::info(['Payment Webhook Error: ' => $th->getMessage().' Line: '.$th->getLine(). ' File: '.$th->getFile() ]);
+                                //throw $th; 
                             }
+
+                            
                         } else {
                             die();
                         }
@@ -341,12 +355,7 @@ class PaymentGatewayController extends Controller
                 if ($ip != "35.242.133.146") die("Invalid IP");
             }
     
-            $raw_request = file_get_contents('php://input');
             $MONNIFY_SIGNATURE = $_SERVER['HTTP_MONNIFY_SIGNATURE'] ?? $request->header('HTTP_MONNIFY_SIGNATURE'); 
-
-            $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
-            $time = $dateTime->format("d-M-y  h:i A");
-            $timexx = time();
 
             $DEFAULT_MERCHANT_CLIENT_SECRET = "$api->secret_key"; // SK
             $json = file_get_contents('php://input');
@@ -359,19 +368,11 @@ class PaymentGatewayController extends Controller
             $paymentStatus = $data->eventData->paymentStatus;
             $customer_email = $data->eventData->customer->email;
             $account_number = $data->eventData->destinationAccountInformation->accountNumber;
-            // $pay_name = $data->eventData->customer->name;
-            // $paymentDescription = $data->eventData->paymentDescription;
-            // $totalPayable = $data->eventData->totalPayable;
-            // $paidOn = $data->eventData->paidOn;
-            // $paymentReference = $data->eventData->paymentReference;
 
-            // $code = $data->eventData->offlineProductInformation->code; //
-            // $type2 = $data->eventData->offlineProductInformation->type; //
-            // $paymentMethod = $data->eventData->paymentMethod;
-            // $currency = $data->eventData->currency;
-            // $settlementAmount = $data->eventData->settlementAmount;
-            // $eventType = $data->eventType;
+            $provider_charges = $charges = $this->calculateGatewayCharge($amountPaid, $api);
 
+            $final_amount = $amountPaid - $charges;
+            
             $user = User::where('email', $customer_email)->first();
             if(!$user){
                 die();
@@ -384,10 +385,7 @@ class PaymentGatewayController extends Controller
                 $MONNIFY_SIGNATURE = $computedHash;
             }
 
-            if ($MONNIFY_SIGNATURE == $computedHash && $amountPaid > 50 && $paymentStatus == 'PAID') {
-                $charges = $amountPaid * 1 / 100;
-                $final_amount = $amountPaid - $charges;
-
+            if ($MONNIFY_SIGNATURE == $computedHash && $final_amount > 0 && $paymentStatus == 'PAID') {
                 $account = AutomatedDeposit::where('account_number', $account_number)->first();
                 
                 if (!$account) {
@@ -407,56 +405,60 @@ class PaymentGatewayController extends Controller
                     $user->wallets = $NewBal;
                     $user->save();
 
-                    $deposit = DepositTransaction::create([
-                        'user_id' => $user->id, 
-                        'user_service' => 'DEPOSIT', 
-                        'user_amount' => $final_amount, 
-                        'user_prebal' => $walletBal, 
-                        'user_postbal' => $NewBal, 
-                        'user_descr' => $order_descr , 
-                        'user_status' => 'SUCCESSFUL', 
-                        'sys_ref' => $sys_reference, 
-                        'api_ref' => $api_reference,
-                        'payment_gateway_id' => $api->id,
-                        'account_number' => $account_number,
-                    ]);
+                    try {
 
-                    // mysqli_query($con, "INSERT INTO `deposit_transactions` (`id`, `user_email`, `user_username`, `user_service`, `user_amount`, `user_prebal`, `user_postbal`, `user_descr`, `user_status`, `user_date`, `timestring`, `sys_ref`, `api_ref`, `pay_gateway`, `api_report`, `cashier`) VALUES (NULL, '$customer_email', '$username', 'DEPOSIT', '$final_amount', '$walletBal', '$NewBal', '$order_descr', 'SUCCESSFUL', '$time', '$timestring', '$transactionReference', '$api_reference', 'MONNIFY', 'GOOD', '$customer_email')");
-
-                    // mysqli_query($con, "INSERT INTO `final_transactions` (`id`, `mobile_number`, `buyer_email`, `buyer_username`, `buyer_service`, `buyer_amount`, `buyer_prebal`, `buyer_postbal`, `buyer_descr`, `buyer_status`, `buyer_date`, `timestring`, `charge_from`, `user_type`, `sys_ref`, `api_ref`, `api_report`,`src_price`,`profit`,`databyte`) VALUES (NULL, '$userMobile', '$customer_email', '$username', 'DEPOSIT', '$final_amount', '$walletBal', '$NewBal', '$order_descr', 'SUCCESSFUL', '$time', '$timestring', 'AUTO', '$userType', '$transactionReference', '$api_reference', 'GOOD','0','0','0')");
-                    
-                    // $amountPaid - $charges
-                    if($deposit){
-                        $data = [
-                            'mobile_number' => $user->mobile,
-                            'buyer_email' => $user->email,
-                            'buyer_username' => $user->username,
-                            'unit_price' => $final_amount,
-                            'buyer_amount' => $final_amount,
-                            'buyer_prebal' => $walletBal,
-                            'provider_charge' => $charges,
-                            'buyer_postbal' => $NewBal,
-                            'buyer_descr' => $order_descr,
-                            'buyer_status' => 'SUCCESSFUL',
-                            'buyer_service' => 'DEPOSIT',
-                            'user_type' => $user->level,
-                            'sys_ref' => $sys_reference,
+                        \DB::beginTransaction();
+                        $deposit = DepositTransaction::create([
+                            'user_id' => $user->id, 
+                            'user_service' => 'DEPOSIT', 
+                            'user_amount' => $final_amount, 
+                            'user_prebal' => $walletBal, 
+                            'user_postbal' => $NewBal, 
+                            'user_descr' => $order_descr , 
+                            'user_status' => 'SUCCESSFUL', 
+                            'sys_ref' => $sys_reference, 
                             'api_ref' => $api_reference,
-                            'api_report' => 'DONE',
-                            'buyer_quantity' => 1,
-                            'discount' => 0,
-                            'src_price' => 0,
-                            'channel' => 'website',
-                            'wallet_funding_provider' => $api->id,
-                            'billersCode' => 'WALLET-FUNDING',
-                            'profit' => 0,
-                            'type' => 'credit',
-                            'user_id' => $user->id,
-                            'charges' => $charges,
-                            'api_response' => json_encode($request->all()),
-                        ];
-    
-                        $this->logTransaction($data);
+                            'payment_gateway_id' => $api->id,
+                            'account_number' => $account_number,
+                        ]);
+
+                        if($deposit){
+                            $data = [
+                                'mobile_number' => $user->mobile,
+                                'buyer_email' => $user->email,
+                                'buyer_username' => $user->username,
+                                'unit_price' => $final_amount,
+                                'buyer_amount' => $final_amount,
+                                'buyer_prebal' => $walletBal,
+                                'provider_charge' => $charges,
+                                'buyer_postbal' => $NewBal,
+                                'buyer_descr' => $order_descr,
+                                'buyer_status' => 'SUCCESSFUL',
+                                'buyer_service' => 'DEPOSIT',
+                                'user_type' => $user->level,
+                                'sys_ref' => $sys_reference,
+                                'api_ref' => $api_reference,
+                                'api_report' => 'DONE',
+                                'buyer_quantity' => 1,
+                                'discount' => 0,
+                                'src_price' => 0,
+                                'channel' => 'website',
+                                'wallet_funding_provider' => $api->id,
+                                'billersCode' => 'WALLET-FUNDING',
+                                'profit' => 0,
+                                'type' => 'credit',
+                                'user_id' => $user->id,
+                                'charges' => $charges,
+                                'api_response' => json_encode($request->all()),
+                            ];
+        
+                            $this->logTransaction($data);
+                        }
+                        DB::commit();
+                    }catch (\Throwable $th) {
+                        DB:: rollback();
+                        \Log::info(['Payment Webhook Error: ' => $th->getMessage().' Line: '.$th->getLine(). ' File: '.$th->getFile() ]);
+                        //throw $th; 
                     }
                 } else {
                     die();
@@ -471,5 +473,20 @@ class PaymentGatewayController extends Controller
     {
         $computedHash = hash_hmac('sha512', $stringifiedData, $clientSecret);
         return $computedHash;
+    }
+
+
+    private function calculateGatewayCharge($amount, $gateway){
+        $reserved_account_payment_charge_type = $gateway->reserved_account_payment_charge_type;
+        $reserved_account_payment_charge = $gateway->reserved_account_payment_charge;
+
+        $charge = 50;
+        if($reserved_account_payment_charge_type == 'flat'){
+            $charge = !empty($reserved_account_payment_charge) ? $reserved_account_payment_charge : $charge;
+        }else{
+            $charge = !empty($reserved_account_payment_charge) ? ($reserved_account_payment_charge / 100) * $amount : $charge;
+        }
+        
+        return $charge;
     }
 }
