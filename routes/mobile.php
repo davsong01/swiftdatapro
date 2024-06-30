@@ -1,9 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\VariationController;
 use App\Http\Controllers\Mobile\MobileController;
 
 Route::group(['prefix' => 'v1', 'before' => 'v1'], function () {
@@ -21,26 +18,23 @@ Route::group(['prefix' => 'v1', 'before' => 'v1'], function () {
             Route::get('get-transactions/{type?}', 'transactions');
             Route::get('get-downlines', 'downlines');
             
+            // Route::get('change-pin', [HomeController::class, 'resetPin'])->name('pin.reset');
+            // Route::post('change-pin', [HomeController::class, 'processResetPin'])->name('pin.process.reset');
+            // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
+            // Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
+            // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
             // Route::get('/deposit_payment', [HomeController::class, 'depositPayment']);
+            // Route::post('profile', [HomeController::class, 'updateProfile'])->name('customer.profile.update');
+
             // Route::get('cashback_earn', [HomeController::class, 'cashbackEarned'])->name('customer.cashback');
             // Route::get('withdraw-cashback', [HomeController::class, 'withdrawCashbackEarned'])->name('customer.withdraw.cashback');
-            // Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
-            // Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
-            // Route::get('profile', [HomeController::class, 'profile'])->name('customer.profile');
-            // Route::post('profile', [HomeController::class, 'updateProfile'])->name('customer.profile.update');
-            // Route::get('generate-api', [HomeController::class, 'generateApi'])->name('generate_api');
+            // Route::get('generate-api-keys', [HomeController::class, 'generateApi'])->name('generate_api');
             // Route::get('kyc-update', [HomeController::class, 'kycForm'])->name('kyc.form');
             // Route::post('kyc-update', [HomeController::class, 'generateApi'])->name('kyc.update');
 
             // Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
             // Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
 
-            // Route::get('change-pin', [HomeController::class, 'resetPin'])->name('pin.reset');
-            // Route::post('change-pin', [HomeController::class, 'processResetPin'])->name('pin.process.reset');
-            // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
-            // Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
-
-            // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
 
             // // Transactions
             Route::get('get-products/{service?}', 'initialize');
