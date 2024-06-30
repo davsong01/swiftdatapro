@@ -163,7 +163,7 @@ if (!function_exists("getProductCharges")) {
                 $discount_applied = floor($discount_applied / 100 * $amount);
                 $n_amount = $amount - $discount_applied;
                 $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
-                $display_amount = settings()->currency . intval($new_amount);
+                $display_amount = settings()->currency . number_format(intval($new_amount));
             }
         } else {
             return $response;

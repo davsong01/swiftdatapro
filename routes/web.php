@@ -51,7 +51,6 @@ Route::get('/', [FrontendController::class, 'index'])->name('welcome');
 Route::get('/tac', [FrontendController::class, 'tac'])->name('tac');
 
 Route::get('email/verify/{token}', [VerificationController::class, 'verifyAccount'])->name('user.verify')->middleware(['auth']);
-
 Route::get('/resendverification/{email}', [RegisterController::class, 'resendEmailVerificationLink'])->name('resend.verification.link');
 // Route::get('reset-password', function(){
 //     return view('reset-password-view');
@@ -126,6 +125,7 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
 });
 
 Auth::routes();
+
 Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
     Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
     Route::post('customer/review', [HomeController::class, 'customerReview'])->name('customer.review');

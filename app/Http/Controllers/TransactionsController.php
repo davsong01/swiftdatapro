@@ -21,6 +21,12 @@ use App\Http\Controllers\TransactionController;
 
 class TransactionsController extends Controller
 {
+    private $jsonresponseservice;
+    
+    public function __construct(){
+        $this->jsonresponseservice = new JsonResponseService();
+    }
+
     public function initialize($service){
         $productAccess = productAccess(auth()->user());
         
@@ -29,7 +35,11 @@ class TransactionsController extends Controller
                 return $query->where('status', 'active')->whereIn('id', $productAccess)->get();
             }
         ])->where('status', 'active')->where('slug', $service)->first();
-        
+
+        if (\Request::is('mobile/*')) {
+            return $category->products;
+        }
+
         if(!$category){
             return redirect(route('dashboard'));
         }
@@ -48,7 +58,12 @@ class TransactionsController extends Controller
 
     public function transactionStatus($transaction_id)
     {
-        $transaction = Transactions::where('transaction_id', $transaction_id)->first();
+        $transaction = Transactions::select(['product_id', 'variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_username', 'buyer_service', 'type', 'buyer_amount', 'unit_price', 'charges', 'discount', 'buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra'])->where('id', $transaction_id)->first();
+
+        if (\Request::is('mobile/*')) {
+            return $transaction;
+        }
+
         return view('customer.transaction_status', compact('transaction'));
     }
 
@@ -87,11 +102,13 @@ class TransactionsController extends Controller
 
     }
 
-    public function processBuy(Request $request, JsonResponseService $service, $type)
+    public function processBuy(Request $request)
     {
+        // \Log::info($request->all());
         $user = auth()->user();
         $product_id = $request->product_id ?? $request->network_module;
         $product = Product::where('id', $product_id)->first();
+        
         $var = $request->variation ?? $request->dataplanloader; 
         $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
         
@@ -108,7 +125,7 @@ class TransactionsController extends Controller
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $request['unit_price'] = $request['amount'];
         $api = $variation->api ?? $product->api;
-
+        
         // Get discount
         if ($product->has_variations == 'yes') {
             $resource = $variation;
@@ -120,8 +137,12 @@ class TransactionsController extends Controller
         
         // checks
         $checks = $this->runChecks($request,$product, $api);
+        
         if(!empty($checks) && $checks['status'] == 'fail'){
-            return $service->build($checks);
+            if (\Request::is('mobile/*')) {
+                return $checks;
+            }
+            return $this->jsonresponseservice->build($checks);
         }
 
         $discountedAmount = $discount['new_amount'];
@@ -153,7 +174,11 @@ class TransactionsController extends Controller
                 'message' => 'Insufficient Wallet Balance, Please fund wallet and retry again',
             );
 
-            return $service->build($response);
+            if (\Request::is('mobile/*')) {
+                return 'Insufficient Wallet Balance, Please fund wallet and retry again';
+            }
+
+            return $this->jsonresponseservice->build($response);
         }
 
         $request['package_name'] = $resource->display_name;
@@ -198,7 +223,6 @@ class TransactionsController extends Controller
         $data['request_type'] = $request->request_type;
         // Make Api call
         $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
-        
         if ($api_response['status'] == 'success') {
             $report = $this->formatOderReport($resource, $request,$transaction, $api_response);
             $commission = getAndUpdateReferralCommission(auth()->user(), $product, $variation, $transaction);
@@ -217,7 +241,7 @@ class TransactionsController extends Controller
             $order_report = $report['order_report'] ?? '';
             $final_response = $report['final_response'];
 
-            $body = 'Dear ' . auth()->user()->full_name . '<br>The transaction below was carried out on your account on' . config('app.name') . '<br><br>
+            $body = 'Dear ' . auth()->user()->full_name . '<br> The transaction below was carried out on your account on' . config('app.name') . '<br><br>
             Amount Charged : ₦' . number_format($transaction->buyer_amount) . '<br>
             Previous Balance : ₦' . number_format($transaction->buyer_prebal) . '<br>
             Current Balance : ₦' . number_format($transaction->buyer_postbal) . '<br>
@@ -247,7 +271,7 @@ class TransactionsController extends Controller
                 'post_fields' => $api_response['postfields'],
             ]);
 
-            $body = 'Dear ' . auth()->user()->email . 'The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
+            $body = 'Dear ' . auth()->user()->full_name . ' The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
             Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
             Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
             Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
@@ -273,7 +297,7 @@ class TransactionsController extends Controller
                 'failure_reason' => $api_response['error'] ?? ($api_response['response'] ?? 'unknown error'),
             ]);
 
-            $body = 'Dear ' . auth()->user()->email . 'The transaction below failed on your account on ' . config('app.name') . '<br><br>
+            $body = 'Dear ' . auth()->user()->full_name . ' The transaction below failed on your account on ' . config('app.name') . '<br><br>
             Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
             Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
             Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
@@ -287,26 +311,23 @@ class TransactionsController extends Controller
         $user->wallets = $transaction->buyer_postbal;
         $user->save();
         $this->sendEmail(auth()->user()->email, $subject, $body);
-        
+
+        $final_response['id'] = $transaction->id;
+        $final_response['system_reference'] = $transaction->sys_ref;
+
+        if (\Request::is('mobile/*')) {
+            return $final_response;
+        }
         return response()->json($final_response);
     }
 
-    public function initializeAirtime2CashTransaction(Request $request,JsonResponseService $service)
+    public function initializeAirtime2CashTransaction(Request $request)
     {
         $product = Product::where('id', $request->product)->first();
         $variation = null;
        
         if (empty($product)) {
             return back()->with('message', 'The selected product/service does not seem to exist, kindly check your selection');
-            // $response = array(
-            //     'status' => 'success',
-            //     'status_code' => '200',
-            //     'message' => 'The selected product/service does not seem to exist, kindly check your selection',
-            //     'title' => 'Invalid Product',
-            //     'desc' => '',
-            // );
-
-            // return response()->json($response);
         }
 
         $user = auth()->user();
@@ -336,7 +357,7 @@ class TransactionsController extends Controller
         $checks = $this->runChecks($request, $product, $api);
         
         if (!empty($checks) && $checks['status'] == 'fail') {
-            return $service->build($checks);
+            return $this->jsonresponseservice->build($checks);
         }
 
         $request['quantity'] = $request->quantity ?? 1;

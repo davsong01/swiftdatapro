@@ -37,6 +37,11 @@ class CheckIpMiddleware
                 die();
             }
         }
+
+        if(\Request::is('mobile/*')){
+            return $next($request);
+        }
+        
         Session::put('ipaddress', $ipaddress);
         Session::put('domain_name', $domain);
         Session::put('app_version', '2');

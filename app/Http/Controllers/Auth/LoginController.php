@@ -59,47 +59,37 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        // if (\Request::route()->getPrefix() == 'api/customer') {
-
-        // }
-
-        // $credentials = $request->only('email', 'pass');
-        $user = User::where('email', $request->email)->orWhere('username', $request->username)->first();
-       
+        $user = User::where('email', $request->email)->orWhere('username', $request->email)->first();
+        
         if(!$user){
             return back()->with('error', 'Incorrect Username or Password');
         }
         
         if($user->status == 0 || $user->status == 'inactive'){
             return back()->with('error', 'This account has been deactivated');
-        } 
-
-        if (md5($request->password) == $user->password) {
-            $user->update([
-                'pass' => Hash::make($request->password),
-            ]);
         }
 
+        if (empty($request->password)) {
+            if (md5($request->password) == $user->password) {
+                $user->update([
+                    'pass' => Hash::make($request->password),
+                ]);
+            } else {
+                return back()->with('error', 'Incorrect Username or Password');
+            }
+        }
+        
         if (!$user || !Hash::check($request->password, $user->pass)) {
             return back()->with('error', 'Incorrect Username or Password');
         }else{
             Auth::login($user);
 
-            $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
-            $lastlogin = $dateTime->format("d-M-y  h:i A"); 
             $user->update([
-                'last_login' => $lastlogin,
+                'last_login' => now(),
             ]);
             
-            $body = 'Dear ' . auth()->user()->full_name . '<br>Your login to ' . config('app.php') . ' at '.Carbon::now().' was successful<br>';
-            $body .= '<br><br>Warm Regards<br>' . config('app.name');
-
-            $subject = "Welcome Back!";
-            // $this->sendEmail(auth()->user()->email, $subject, $body);
-
             return redirect()->intended('dashboard');
         }
-
     }
 
     public function resetNewPassword($user_id){

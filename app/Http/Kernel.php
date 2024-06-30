@@ -42,6 +42,7 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
 
@@ -67,6 +68,7 @@ class Kernel extends HttpKernel
         'verify_email' => \App\Http\Middleware\VerifyEmail::class,
         'ipcheck' => \App\Http\Middleware\CheckIpMiddleware::class,
         'adminRoute' => \App\Http\Middleware\RouteProtectionMiddleware::class,
+        'mobile' => \App\Http\Middleware\MobileMiddleware::class,
         // 'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
 }

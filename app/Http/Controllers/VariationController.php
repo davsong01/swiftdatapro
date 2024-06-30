@@ -45,6 +45,7 @@ class VariationController extends Controller
     public function getCustomerVariations(Product $product)
     {
         $variations = Variation::where('product_id', $product->id)->where('status', 'active')->where('api_id', $product->api_id)->orderBy('system_price', 'ASC')->get();
+
         foreach ($variations as $key => $variation) {
             $discount = getVariationDiscount(amount: $variation->system_price, variation_id: $variation->id);
             $variation->discount = $discount['display_value'];
@@ -67,14 +68,34 @@ class VariationController extends Controller
         }
         
         $data = [];
-        
-        foreach($variations as $variation){
-            $price = $variation->fixed_price == 'yes' ? ' -' . $variation->discount : '';
-            // $price = $variation->fixed_price == 'yes' ? ' -' . settings()->currency . intval($variation->discount) : '';
 
-            $data[] = '<option data-product_id="' . $variation->product_id . '"  data-max="' . $variation->max . '"  data-min="' . $variation->min . '"  data-slug="' . $variation->slug . '"  data-fixed_price="' . $variation->fixed_price . '" data-verifiable="'. $variation->verifiable.'" value="' . $variation->id . '">' . $variation->system_name . $price . '</option>';
+
+        if (\Request::is('mobile/*')) {
+            foreach ($variations as $variation) {
+                $price = $variation->fixed_price == 'yes' ? ' -' . $variation->discount : '';
+                $data[] = [
+                    'product_id' => $variation->product_id,
+                    'max' => $variation->max,
+                    'min' => $variation->min,
+                    'slug' => $variation->slug,
+                    'fixed_price' => $variation->fixed_price,
+                    'verifiable' => $variation->verifiable,
+                    'variation_id' => $variation->variation_id,
+                    'system_name' => $variation->system_name . $price,
+                    'system_price' => $variation->system_price,
+                    'discount' => $variation->discount
+                ];
+            }
+
+            return $data;
+
+        }else{
+            foreach($variations as $variation){
+                $price = $variation->fixed_price == 'yes' ? ' -' . $variation->discount : '';
+                $data[] = '<option data-product_id="' . $variation->product_id . '"  data-max="' . $variation->max . '"  data-min="' . $variation->min . '"  data-slug="' . $variation->slug . '"  data-fixed_price="' . $variation->fixed_price . '" data-verifiable="'. $variation->verifiable.'" value="' . $variation->id . '">' . $variation->system_name . $price . '</option>';
+            }
+
         }
-
         return response()->json($data);
     }
 

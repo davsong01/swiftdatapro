@@ -1127,6 +1127,7 @@ class Controller extends BaseController
 
         return $trx;
     }
+
     public function chargeUserWallet(){
 
     }
@@ -1157,6 +1158,7 @@ class Controller extends BaseController
     public function getDomainDetails(){
         
     }
+
     public function advancedApiCall($url, $payload=[], $headers, $method = 'POST', $status_code=null)
     {
         \Log::info(['Begin connection...', $url, $payload, $headers]);
@@ -1266,5 +1268,13 @@ class Controller extends BaseController
         }
 
         return $controller;
+    }
+
+    public function sendLoginEmail($user){
+        $body = 'Dear ' . $user->full_name . '<br>Your login to ' . config('app.php') . ' at ' . Carbon::now() . ' was successful<br>';
+        $body .= '<br><br>Warm Regards<br>' . config('app.name');
+        $subject = "Welcome Back!";
+
+        // $this->sendEmail($user->email, $subject, $body);
     }
 }

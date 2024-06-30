@@ -335,8 +335,6 @@ class PaymentGatewayController extends Controller
                                 \Log::info(['Payment Webhook Error: ' => $th->getMessage().' Line: '.$th->getLine(). ' File: '.$th->getFile() ]);
                                 //throw $th; 
                             }
-
-                            
                         } else {
                             die();
                         }

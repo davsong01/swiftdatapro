@@ -408,14 +408,19 @@ class HomeController extends Controller
         }else{
             return 'fail';
         }
-        
     }
-
 
     public function automatedTransfer(){
         $activeGateways = PaymentGateway::where('status', 'active')->pluck('id');
         $accounts = AutomatedDeposit::where(['user_id' => auth()->user()->id, 'status' => 'active'])->whereIn('payment_gateway_id', $activeGateways)->get();
         
+        if(\Request::is('mobile/*')){
+            return [
+                'active_gateways' => $activeGateways,
+                'accounts' => $accounts,
+            ];
+        }
+
         return view('customer.automated_pay', compact('accounts'));
     }
 
@@ -425,7 +430,7 @@ class HomeController extends Controller
     }
 
     public function transactions(Request $request){
-        $transactions = Transactions::with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
+        $transactions = Transactions::select(['product_id','variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_username', 'buyer_service', 'type','buyer_amount', 'unit_price', 'charges', 'discount','buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra'])->with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
         
         if (!empty($request->service)) {
             $transactions = $transactions->where('product_id', $request->service);
@@ -455,7 +460,14 @@ class HomeController extends Controller
 
         $transactions = $transactions->orderBy('created_at', 'DESC')->paginate(50);
 
-        $products = Product::where('status', 'active')->get();
+        $products = Product::select('id', 'category_id','type', 'display_name')->where('status', 'active')->get();
+
+        if (\Request::is('mobile/*')) {
+            return [
+                'products' => $products,
+                'transactions' => $transactions,
+            ];
+        }
         return view('customer.transactions', compact('products','transactions'));
     }
 
@@ -713,13 +725,17 @@ class HomeController extends Controller
         ];
     }
 
-    public function downlines(Request $request, JsonResponseService $response){
+    public function downlines(Request $request){
 
         $referral_code = strtoupper($request->referral_code);
         $amount = 0;
         $transaction = '<div class="col-md-12">';
 
-        $lettr = User::where('ref_by', $referral_code)->orWhere('ref_by', auth()->user()->username)->orderBy('id', 'desc')->paginate(20);
+        $lettr = User::select('id','ref_by','username','full_name','middle_name','gender', 'last_name', 'email', 'level')->where('ref_by', $referral_code)->orWhere('ref_by', auth()->user()->username)->orderBy('id', 'desc')->paginate(20);
+
+        if (\Request::is('mobile/*')) {
+            return $lettr;
+        }
 
         return view('customer.downlines', compact('lettr'));
 
