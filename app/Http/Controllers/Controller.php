@@ -1237,12 +1237,13 @@ class Controller extends BaseController
             $location = $year . '/' . $month . '/' . $day;
         }
 
-        // if (env('ENT') == 'local') {
-        //     $path = "/Applications/MAMP/htdocs/kingsvtu/public";
-        // } else {
-        //     $path = '/home/kingntxc/portal.kingsvtu.ng';
-        // }
-        $path = public_path();
+        if (env('ENT') == 'local') {
+            $path = "/Applications/MAMP/htdocs/kingsvtu/public";
+        } else {
+            $path = '/home/swifvmvz/beta.swiftdatang.com';
+        }
+
+        // $path = public_path();
         // 
         
         if (!is_dir($path . '/' . $location)) {

@@ -14,7 +14,7 @@
 	<meta name="keywords" content=".">
     
     <!-- Favicon -->
-    <link rel="icon" href="{{ settings()->favicon }}" type="image/x-icon">
+    <link rel="icon" href="{{ asset(settings()->site_favicon) }}" type="image/x-icon">
     
     <!-- Choices JS -->
     <script src="{{ asset('new/assets/libs/choices.js/public/assets/scripts/choices.min.js') }}"></script>
