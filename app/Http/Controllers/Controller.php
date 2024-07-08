@@ -1244,6 +1244,7 @@ class Controller extends BaseController
         // }
         $path = public_path();
         // 
+        
         if (!is_dir($path . '/' . $location)) {
             mkdir($path . '/' . $location, 0777, true);
         }

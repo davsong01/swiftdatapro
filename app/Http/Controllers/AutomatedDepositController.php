@@ -63,6 +63,6 @@ class AutomatedDepositController extends Controller
      */
     public function destroy(AutomatedDeposit $automatedDeposit)
     {
-        dd($automatedDeposi);
+        // dd($automatedDeposi);
     }
 }

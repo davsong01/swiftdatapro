@@ -37,19 +37,22 @@ class ProductController extends Controller
             "seo_title" => "nullable",
             "seo_keywords" => "nullable",
             "slug" => "required",
-            "old_identifier" => "nullable",
+            "old_identifier"=> "nullable",
             "api" => "required",
             "status" => "required",
             "seo_description" => "nullable",
             "route" => "required",
             "has_variations" => "required",
-            "fixed_price" => "nullable",
-            "allow_quantity" => "required",
-            "system_price" => "nullable",
-            "image" => "required|mimes:jpeg,png|max:1024",
-            "allow_subscription_type" => 'nullable',
-            'referral_percentage' => 'nullable',
-            'provider_percentage_discount' => 'nullable'
+            "image" => "nullable|mimes:jpeg,png|max:1024",
+            "fixed_price" => 'nullable',
+            "system_price" => 'nullable',
+            "allow_quantity" => 'nullable',
+            "quantity_graduation" => 'nullable',
+            "min" => 'nullable',
+            "max" => 'nullable',
+            "allow_subscription_type" => "nullable",
+            'referral_commission' => 'nullable',
+            'provider_percentage_discount'
         ]);
 
         if (!empty($request->image)) {
@@ -89,7 +92,7 @@ class ProductController extends Controller
                 "min" => $request->min,
                 "max" => $request->max,
                 "allow_subscription_type" => $request->allow_subscription_type ?? 'no',
-                'referral_percentage' => $request->referral_percentage,
+                'referral_commission' => $request->referral_commission,
                 'provider_percentage_discount' => $request->provider_percentage_discount,
                 
             ]
