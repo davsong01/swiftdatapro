@@ -126,21 +126,21 @@
             </div>
             <br />
             <div class="row gx-3">
-                <div class="col pb-15"
+                {{-- <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/bulk-sms">
+                        <a href="{{ route('buy', 'bulk-sms')}}">
                             <div class="option-card-icon">
                                 <i class="fa fa-envelope" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
                             <p style="font-weight:bold;font-size:10px;">Bulk SMS</p>
                         </a>
                     </div>
-                </div>
+                </div> --}}
                 <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/exchange_airtime">
+                        <a href="{{ route('buy', 'airtime2cash')}}">
                             <div class="option-card-icon">
                                 <i class="fa fa-wallet" style="font-size: 25px;margin: 5px;color: #940798"></i>
                             </div>
@@ -148,7 +148,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="col pb-15"
+                {{-- <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
                         <a href="{{ url('/') }}/get_flyer">
@@ -158,7 +158,7 @@
                             <p style="font-weight:bold;font-size:10px;">Get Graphic</p>
                         </a>
                     </div>
-                </div>
+                </div> --}}
             </div>
 
 

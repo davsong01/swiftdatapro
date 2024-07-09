@@ -18,6 +18,7 @@ class RouteProtectionMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $curRouteName = Route::currentRouteName();
+        
         $allowed = allowedPermissions();
         
         if (in_array($curRouteName, $allowed)) {

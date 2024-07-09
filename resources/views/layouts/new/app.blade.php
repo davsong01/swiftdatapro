@@ -94,7 +94,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="">
+                    {{-- <div class="">
                         <p class="switcher-style-head">Directions:</p>
                         <div class="row switcher-style gx-0">
                             <div class="col-4">
@@ -114,8 +114,8 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="">
+                    </div> --}}
+                    {{-- <div class="">
                         <p class="switcher-style-head">Navigation Styles:</p>
                         <div class="row switcher-style gx-0">
                             <div class="col-4">
@@ -137,7 +137,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                     <div class="navigation-menu-styles">
                         <p class="switcher-style-head">Vertical & Horizontal Menu Styles:</p>
                         <div class="row switcher-style gx-0 pb-2 gy-2">
@@ -200,7 +200,7 @@
                                         id="switcher-closed-menu">
                                 </div>
                             </div>
-                            <div class="col-sm-6">
+                            {{-- <div class="col-sm-6">
                                 <div class="form-check switch-select">
                                     <label class="form-check-label" for="switcher-icontext-menu">
                                         Icon Text
@@ -208,7 +208,7 @@
                                     <input class="form-check-input" type="radio" name="sidemenu-layout-styles"
                                         id="switcher-icontext-menu">
                                 </div>
-                            </div>
+                            </div> --}}
                             <div class="col-sm-6">
                                 <div class="form-check switch-select">
                                     <label class="form-check-label" for="switcher-icon-overlay">
@@ -335,7 +335,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="">
+                    {{-- <div class="">
                         <p class="switcher-style-head">Loader:</p>
                         <div class="row switcher-style gx-0">
                             <div class="col-4">
@@ -357,7 +357,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
                 <div class="tab-pane fade border-0" id="switcher-profile" role="tabpanel" aria-labelledby="switcher-profile-tab" tabindex="0">
                     <div>
@@ -596,7 +596,7 @@
                         <a href="#" class="header-link dropdown-toggle" id="mainHeaderProfile" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                             <div class="d-flex align-items-center">
                                 <div class="me-sm-2 me-0">
-                                    <img src="{{ asset('new/assets/images/faces/9.jpg')}}" alt="img" width="32" height="32" class="rounded-circle">
+                                    {{-- <img src="{{ asset('new/assets/images/faces/9.jpg')}}" alt="img" width="32" height="32" class="rounded-circle"> --}}
                                 </div>
                                 <div class="d-sm-block d-none">
                                     <p class="fw-semibold mb-0 lh-1">{{ auth()->guard('admin')->user()->full_name}}</p>

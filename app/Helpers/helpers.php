@@ -12,6 +12,13 @@ use App\Models\Transactions;
 use App\Models\RolePermission;
 use App\Models\EarnedTransactions;
 
+if (!function_exists("mask")) {
+    function mask($word, $a = 2, $b = 9, $c = 9, $d = 10)
+    {
+        return substr_replace($word, "*******", $a, $b) . substr($word, $c, $d);
+    }
+}
+
 if (!function_exists("topProduct")) {
     function topProduct()
     {
@@ -360,10 +367,9 @@ if (!function_exists("activeCategories")) {
 
 
 if (!function_exists("allowedPermissions")) {
-    function allowedPermissions($user=null)
-    {
+    function allowedPermissions($user=null){
         $user = !empty($user) ? $user : auth()->guard('admin')->user();
-        $permissions = $user->permissions;
+        $permissions = $user->permissions ?? [];
         $roles = $user->roleids;
         
         if (in_array(1, $roles)) {
@@ -374,7 +380,6 @@ if (!function_exists("allowedPermissions")) {
         }
     }
 }
-
 
 if (!function_exists("hasAccess")) {
     function hasAccess($route)

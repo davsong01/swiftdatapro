@@ -52,27 +52,25 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="middle_name">Middle Name</label>
-                                <input type="text" class="form-control" name="middle_name"
-                                    placeholder="Middle name" value="{{ $customer->middle_name }}"
+                                <input type="text" class="form-control" placeholder="Middle name" value="{{ $customer->middle_name }}"
                                     name="middle_name">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="last_name">Last Name</label>
                                 <input type="text" class="form-control" name="last_name"
-                                    placeholder="Last name" value="{{ $customer->last_name }}"
-                                    name="last_name">
+                                    placeholder="Last name" value="{{ $customer->last_name }}">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="bvn">BVN</label>
-                                <input type="text" class="form-control" name="bvn"
-                                    placeholder="BVN" value="{{ $customer->bvn }}"
-                                    name="bvn">
+                                <input type="text" class="form-control"
+                                    placeholder="BVN" value="{{ mask($customer->bvn) }}"
+                                    >
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="nin">NIN</label>
-                                <input type="text" class="form-control" name="nin"
-                                    placeholder="NIN" value="{{ $customer->nin }}"
-                                    name="nin">
+                                <input type="text" class="form-control"
+                                    placeholder="NIN" value="{{ mask($customer->nin) }}"
+                                    >
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="ref_code">Ref Code</label>

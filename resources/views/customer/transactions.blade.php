@@ -119,17 +119,18 @@
                                             </small> <br>
                                         @endif
                                         <strong>
-                                        @if(in_array($transaction->buyer_status, ['INITIATED'.'FAILED','ATTENTION-REQUIRED']))
-                                            <span class="text-warning">{{ ucfirst($transaction->buyer_status) }}</span>
+                                        @if($transaction->status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
+                                        <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                         @else
-                                            <span class="text-success">{{ ucfirst($transaction->buyer_status) }}</span>
-                                        @endif <br>
+                                        <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+                                        @endif 
+                                        <br>
                                         </strong>
                                         @if(!empty($transaction->extra))
                                         <div class="extra">
                                             <span class="title">{{$transaction->extra}} </span>
                                         </div>
-                                       
+                                    
                                         @endif
                                         <span class="title">Description: </span>
                                         <small>
