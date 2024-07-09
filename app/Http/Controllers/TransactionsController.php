@@ -134,8 +134,14 @@ class TransactionsController extends Controller
             $resource = $product;
             $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
         }
-        
+
         // checks
+        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
+            $request['billersCode'] = $request->billersCode;
+        } else {
+            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
+        }
+
         $checks = $this->runChecks($request,$product, $api);
         
         if(!empty($checks) && $checks['status'] == 'fail'){
@@ -159,12 +165,6 @@ class TransactionsController extends Controller
         // $request['quantity'] = 2;
         $src_price = providerPrice($product, $variation, $request);
         
-        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
-            $request['billersCode'] = $request->billersCode;
-        } else {
-            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
-        }
-
         $balance = walletBalance($user);
         
         if ($balance < $request['total_amount']) {
@@ -354,6 +354,7 @@ class TransactionsController extends Controller
         }
         
         // checks
+        $request['billersCode'] = $request->mobile_no;
         $checks = $this->runChecks($request, $product, $api);
         
         if (!empty($checks) && $checks['status'] == 'fail') {
@@ -1098,6 +1099,7 @@ class TransactionsController extends Controller
 
     public function runChecks($request, $product, $api){
         $checkBlacklist = Blacklist::where('biller', $request->billersCode)->first();
+        
         $user = auth()->user();
         $response = null;
         
@@ -1136,8 +1138,8 @@ class TransactionsController extends Controller
             ];
 
         } 
-
-        if ($checkBlacklist) {
+        
+        if (!empty($checkBlacklist)) {
             $response = array(
                 'status' => 'fail',
                 'status_code' => '100',

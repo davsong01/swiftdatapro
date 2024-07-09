@@ -171,7 +171,7 @@ class PaymentGatewayController extends Controller
         $headers = [
             "Authorization: Basic " . $stringk . "",
         ];
-
+        
         $response1 = $this->advancedApiCall($url, [], $headers);
         
         $result = json_decode($response1, true);
