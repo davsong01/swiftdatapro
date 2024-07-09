@@ -761,7 +761,7 @@ class EasyAccessController extends Controller
             }
         }
 
-        if (isset($product->slug) && $product->slug == 'airtel-cg') {
+        if (isset($product->slug) && ($product->slug == 'airtel-cg' || $product->slug == 'airtel-gifting')) {
             $response = \DB::connection('old')->table('airtelcgdata_plan')->select('easy_access104', 'easy_access105', 'easy_access106', 'easy_access107', 'easy_access108', 'easy_access109', 'easy_access124', 'easy_access139', 'easy_access140')->first();
             //create and update variation
             $data = [
