@@ -116,11 +116,11 @@
 						<table>
 							<tr>
 								<td class="title">
-									{{-- <?php 
-										$image = !empty($transaction['product']) ? $transaction['product']['image'] : 'site/upgrade.jpg';
+									<?php 
+										// $image = !empty($transaction['product']) ? $transaction['product']['image'] : 'site/upgrade.jpg';
 									?>
 									
-									<img src="{{ url('/').'/'.settings()->logo}}" style="width: 20%; max-width: 500px"/> --}}
+									<img src="{{ url('/').'/'.settings()->logo}}" style="width: 20%; max-width: 500px"/>
 									
 								</td>
 
@@ -173,6 +173,12 @@
 					</tr>
 					@endforeach
 				@endif
+				<tr class="item">
+					<td>Transaction Id</td>
+					<td>
+						{{$transaction['sys_ref'] ?? ''}}
+					</td>
+				</tr>
 				<tr class="item">
 					<td>Payment Method</td>
 					<td>
