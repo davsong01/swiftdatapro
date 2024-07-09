@@ -1125,7 +1125,7 @@ class EasyAccessController extends Controller
             }
         }
 
-        if (isset($product->slug) && $product->slug == 'glo-cg') {
+        if (isset($product->slug) && ($product->slug == 'glo-cg' || $product->slug == 'glo-gifting')) {
             $response = \DB::connection('old')->table('glocgdata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->first();
 
             $data = [
