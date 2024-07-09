@@ -47,7 +47,7 @@
 			}
 
 			.invoice-box table tr.heading td {
-				background: #1a233a;;
+				background: #940798;
 				border-bottom: 1px solid #ddd;
 				font-weight: bold;
 				color:white
@@ -119,12 +119,13 @@
 									<?php 
 										// $image = !empty($transaction['product']) ? $transaction['product']['image'] : 'site/upgrade.jpg';
 									?>
-									
+									{{-- {{dd(settings()->logo)}} --}}
 									<img src="{{ url('/').'/'.settings()->logo}}" style="width: 20%; max-width: 500px"/>
 									
 								</td>
 
 								<td style="width: 50%;">
+									<strong>{{ url('/') }} </strong><br />
 									<strong>{{ date("M jS, Y g:iA", strtotime($transaction['created_at'])) }} </strong><br />
 								</td>
 							</tr>
