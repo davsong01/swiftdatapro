@@ -13,7 +13,7 @@ class AdminDashboardController extends Controller
         $trans = Transactions::orderBy('created_at', 'DESC')->whereBetween('created_at', [Carbon::today(), Carbon::now()]);
         $wallet_balance = User::sum('wallets');
         $earnings_balance = User::sum('cashback');
-        $transaction = $trans->latest()->limit(10);
+        $transaction = $trans->latest()->limit(20);
         $clone1 = clone $transaction;
         $clone2 = clone $transaction;
         $clone3 = clone $transaction;
@@ -23,8 +23,11 @@ class AdminDashboardController extends Controller
         $transactions3 = clone $trans;
         $transactions4 = clone $trans;
         $transactions5 = clone $trans;
+        $transactions6 = clone $trans;
 
         $t_pending = $transactions1->whereIn('buyer_status', ['ATTENTION-REQUIRED', 'PENDING']);
+        $t_all = $transactions6;
+
         $t_success = $transactions2->whereIn('buyer_status', ['DELIVERED', 'SUCCESSFUL']);
         $t_failed = $transactions3->whereIn('buyer_status', ['FAILED']);
         $t_profit = $transactions4->sum('profit');
@@ -35,6 +38,6 @@ class AdminDashboardController extends Controller
         $success = $clone3->whereIn('buyer_status',['DELIVERED', 'SUCCESSFUL'])->get();
         $customers = User::count();
 
-        return view('admin.dashboard', compact('t_profit','pending','failed','success', 'wallet_balance', 'earnings_balance','t_pending','t_success','t_failed','customers'));
+        return view('admin.dashboard', compact('t_profit','pending','failed','success', 'wallet_balance', 'earnings_balance','t_pending','t_success','t_failed','customers', 't_all'));
     }
 }

@@ -198,8 +198,13 @@
                         </div>
                         <div>
                             <ul class="nav nav-tabs justify-content-end nav-tabs-header mb-0 d-sm-flex d-block mt-sm-0 mt-2" role="tablist">
+                                
                                 <li class="nav-item">
                                     <a class="nav-link active" data-bs-toggle="tab" role="tab" aria-current="page"
+                                    href="#all" aria-selected="true">All</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-bs-toggle="tab" role="tab" aria-current="page"
                                     href="#pending" aria-selected="true">Pending</a>
                                 </li>
                                 <li class="nav-item">
@@ -215,7 +220,64 @@
                     </div>
                     <div class="card-body p-0">
                         <div class="tab-content">
-                            <div class="tab-pane show active text-muted border-0 p-0" id="pending"
+                            <div class="tab-pane show active text-muted border-0 p-0" id="all"
+                                role="tabpanel">
+                                <div class="table-responsive">
+                                    <table class="table card-table table-vcenter text-nowrap mb-0">
+                                        <tbody class="active-tab">
+                                            @if(!empty($t_all))
+                                                @foreach($t_all as $transaction)
+                                                <tr>
+                                                    <td class="col-md-4" style="width: 30%;">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="align-items-center">
+                                                                <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->customer->id }} </a><br>
+                                                                <strong>{{ $transaction->customer->full_name }}</strong> <br>
+                                                                {{ $transaction->mobile_number }} <br>
+                                                                {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>
+                                                                @if($transaction->status == 'success' || $transaction->buyer_status == 'SUCCESSFUL')
+                                                                <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+                                                                @else
+                                                                <button class="btn btn-warning btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+                                                                @endif 
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="col-md-4" style="width: 30%;">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="align-items-center">
+                                                                <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
+                                                                <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> 
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td class="col-md-4" style="width: 30%;">
+                                                        <div class="align-items-center">
+                                                            <small>
+                                                            <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
+                                                            <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
+                                                            <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
+                                                            <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                                            <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
+                                                            </small>
+                                                        </div>
+                                                    </td>
+                                                    <td class="col-md-4" style="width: 10%;">
+                                                        <div class="align-items-center">
+                                                            @if(hasAccess('admin.single.transaction.view'))
+                                                                <a target="_blank" class="btn btn-info-light btn-wave btn-sm" href="{{ route('admin.single.transaction.view', $transaction->id) }}">View</a>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            @endif
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="tab-pane show text-muted border-0 p-0" id="pending"
                                 role="tabpanel">
                                 <div class="table-responsive">
                                     <table class="table card-table table-vcenter text-nowrap mb-0">
@@ -241,7 +303,7 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
-                                                               <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
+                                                                <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
                                                                 <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> 
                                                             </div>
                                                         </div>
