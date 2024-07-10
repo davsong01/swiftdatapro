@@ -26,7 +26,7 @@ class AdminDashboardController extends Controller
         $transactions6 = clone $trans;
 
         $t_pending = $transactions1->whereIn('buyer_status', ['ATTENTION-REQUIRED', 'PENDING']);
-        $t_all = $transactions6;
+        $t_all = $transactions6->get();
 
         $t_success = $transactions2->whereIn('buyer_status', ['DELIVERED', 'SUCCESSFUL']);
         $t_failed = $transactions3->whereIn('buyer_status', ['FAILED']);

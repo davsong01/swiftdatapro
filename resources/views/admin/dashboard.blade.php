@@ -231,8 +231,7 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
-                                                                <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->customer->id }} </a><br>
-                                                                <strong>{{ $transaction->customer->full_name }}</strong> <br>
+                                                                <a target="_blank" href="{{ route('customers.edit', $transaction->customer->id )}}"><strong>{{ $transaction->customer->full_name }}</strong> </a><br>
                                                                 {{ $transaction->mobile_number }} <br>
                                                                 {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>
                                                                 @if($transaction->status == 'success' || $transaction->buyer_status == 'SUCCESSFUL')
