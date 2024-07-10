@@ -448,8 +448,8 @@ class VtpassController extends Controller
                 }
             }
 
-            if ($product->slug == "startimes") {
-                $response =  \DB::connection('old')->table('startime_planlist')->where('id', $level)->select('star_1', 'star_2', 'star_3', 'star_4', 'star_5', 'star_6', 'star_7', 'star_8', 'star_9', 'star_10', 'star_discount')->first();
+            if ($product->slug == "startimes" || $product->slug == "startime") {
+                $response =  \DB::connection('old')->table('startime_planlist')->select('star_1', 'star_2', 'star_3', 'star_4', 'star_5', 'star_6', 'star_7', 'star_8', 'star_9', 'star_10', 'star_discount')->first();
 
                 $data = [
                     [
@@ -552,8 +552,8 @@ class VtpassController extends Controller
                     ]);
 
                     foreach ($productLevel as $level) {
-                        $response = \DB::connection('old')->table('startime_planlist')->where('id', $level)->select('star_discount')->where('id', $level)->first();
-
+                        $response = \DB::connection('old')->table('startime_planlist')->select('star_discount')->where('id', $level)->first();
+                        
                         foreach ($response as $key => $value) {
                             $discount = Discount::updateOrCreate([
                                 'customer_level' => $level,
@@ -567,6 +567,8 @@ class VtpassController extends Controller
                         }
                     }
                 }
+
+
             }
 
         }
