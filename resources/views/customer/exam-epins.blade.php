@@ -24,7 +24,6 @@
   <form id="form-data">
     <div class="input-group mb-3">
       <span class="input-group-text"><i style="font-weight: bold" class="fa fa-graduation-cap"></i></span>
-      
       <select class="form-control" id="service_module">
           <option value="">--Choose--</option>
           @foreach($category->products as $product)

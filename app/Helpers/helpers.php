@@ -95,9 +95,10 @@ if (!function_exists("getProductDiscount")) {
         $discount_type = $product->category->discount_type;
         
         // Check if resource has a category discount
-        // Bypass percentage discount type
+        // Bypass discount type
         $byPassProducts = !empty(env('BY_PASS_PRODUCT_IDS')) ? explode(',',env('BY_PASS_PRODUCT_IDS')) : [];
-        if ($discount_type == 'percentage' || in_array($product->id,$byPassProducts)) {
+        
+        if ($discount_type == 'percentage' || !in_array($product->id, $byPassProducts)) {
             if($product->category->user_discount){
                 $discount = $product->category->user_discount;
             }
