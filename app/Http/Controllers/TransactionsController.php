@@ -318,9 +318,20 @@ class TransactionsController extends Controller
             
             return response()->json($final_response);
         } catch (\Exception $e) {
+
             DB::rollBack();
-            \Log::error('Transaction failed: ' . $e->getMessage());
-            return response()->json(['status' => 'fail', 'message' => 'Transaction failed. Please try again later.'], 500);
+            $final_response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'old_balance' => $transaction->buyer_prebal, 
+                'new_balance' => $transaction->buyer_postbal, 
+                'amountPaid' => $transaction->buyer_amount,
+                'message' => 'An error occured, please try again later',
+            );
+
+            \Log::error('Transaction failed: ' . $e->getMessage().' File: '. $e->getFile() .' Line: ' . $e->getLine());
+
+            return response()->json($final_response);
         }
     }
     

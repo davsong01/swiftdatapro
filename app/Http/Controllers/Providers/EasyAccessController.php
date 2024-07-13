@@ -1490,7 +1490,13 @@ class EasyAccessController extends Controller
     }
 
     public function getPostData($request, $api){
-        $slug = strtolower($request['resource']->slug);
+        // $slug = strtolower($request['resource']->slug);
+        if($request['resource']->product->has_variations == 'yes'){
+            $slug = strtolower($request['resource']->product->slug);
+        }else{
+            $slug = strtolower($request['resource']->slug);
+        }
+        
         $resource = $request['resource'];
         if ($slug == 'mtn-cg' || $slug == 'mtn' || $slug == 'mtn-sme') {
             $ntwk = '01';
