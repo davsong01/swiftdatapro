@@ -1288,7 +1288,7 @@ class TransactionsController extends Controller
         }
 
         if ($request->download && $request->download == 'on') {
-            dd('export');
+            
             $transactions = $transactions->where('type', $request->type);
         }
 

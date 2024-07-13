@@ -17,7 +17,7 @@ class GongzoController extends Controller
         $variations = $variations['variations'];
 
         foreach ($variations as $variation) {
-            if (Variation::where(['slug' => $variation['variation_code'], 'product_id' => $product->id, 'api_id' => $product->api_id])->count() > 0) {
+            if (Variation::where(['slug' => $variation['code'], 'product_id' => $product->id, 'api_id' => $product->api_id])->count() > 0) {
                 continue;
             }
             Variation::updateOrCreate([
@@ -253,7 +253,7 @@ class GongzoController extends Controller
                     ],
                 ],
 
-                'airtel' => [
+                'airtel-gifting' => [
                     'variations' => [
                         [
                             'name' => "	AIRTEL GIFTING 750.0 MB - 14DAYS",
@@ -415,7 +415,7 @@ class GongzoController extends Controller
                     ]
                 ],
 
-                'glo' => [
+                'glo-gifting' => [
                     'variations' => [
                         [
                             'name' => "GLO 1.3GB",
@@ -609,6 +609,7 @@ class GongzoController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -647,6 +648,7 @@ class GongzoController extends Controller
         if (isset($product->slug) && $product->slug == 'airtel-cg') {
             $response = \DB::connection('old')->table('airtelcgdata_plan')->select('gongzo_data312', 'gongzo_data313', 'gongzo_data314', 'gongzo_data315', 'gongzo_data317', 'gongzo_data318', 'gongzo_data319')->first();
             //create and update variation
+            
             $data = [
                 [
                     'name' => "AIRTEL CG 500MB - 7days",
@@ -709,6 +711,8 @@ class GongzoController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -744,7 +748,7 @@ class GongzoController extends Controller
             }
         }
 
-        if (isset($product->slug) && $product->slug == 'airtel') {
+        if (isset($product->slug) && $product->slug == 'airtel-gifting') {
             $response = \DB::connection('old')->table('airteldata_plan')->select('gongzo_data40', 'gongzo_data45', 'gongzo_data46', 'gongzo_data47', 'gongzo_data48', 'gongzo_data144', 'gongzo_data145', 'gongzo_data146', 'gongzo_data296', 'gongzo_data297', 'gongzo_data298')->first();
             //create and update variation
 
@@ -832,6 +836,8 @@ class GongzoController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -869,7 +875,6 @@ class GongzoController extends Controller
 
         if (isset($product->slug) && $product->slug == 'glo-cg') {
             $response = \DB::connection('old')->table('glocgdata_plan')->select('gongzo_data321', 'gongzo_data322', 'gongzo_data323', 'gongzo_data324', 'gongzo_data325', 'gongzo_data326', 'gongzo_data327', 'gongzo_data337')->first();
-
             $data = [
                 [
                     'name' => "GLO (CG) 1.0 GB - 30days",
@@ -934,6 +939,8 @@ class GongzoController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_price' => $d['price'],
+                    'api_id' => $product->api_id,
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -969,7 +976,7 @@ class GongzoController extends Controller
             }
         }
 
-        if (isset($product->slug) && $product->slug == 'glo') {
+        if (isset($product->slug) && $product->slug == 'glo-gifting') {
             $response = \DB::connection('old')->table('glodata_plan')->select('glo_105', 'glo_29', 'glo_41', 'glo_58', 'glo_77', 'glo_10', 'glo_1325', 'glo_1825', 'glo_295', 'glo_50', 'glo_93')->first();
 
             $data = [
@@ -1057,6 +1064,7 @@ class GongzoController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,

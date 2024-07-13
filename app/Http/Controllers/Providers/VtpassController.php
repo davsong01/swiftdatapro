@@ -29,7 +29,7 @@ class VtpassController extends Controller
                     'variation_code' => $environment == 'local' ? "vt-5000" : "vt-5000",
                     'price' => $response->spectranet1,
                     'val' => 5000,
-                    'fixedPrice' => 'yes',
+                    
                     'id' => 'spectranet1',
                 ],
                 [
@@ -37,7 +37,7 @@ class VtpassController extends Controller
                     'variation_code' => $environment == 'local' ? "vt-7000" : "vt-7000",
                     'price' => $response->spectranet2,
                     'val' => 7000,
-                    'fixedPrice' => 'yes',
+                    
                     'id' => 'spectranet2',
                 ],
                 [
@@ -45,7 +45,7 @@ class VtpassController extends Controller
                     'variation_code' => $environment == 'local' ? "vt-10000" : "vt-10000",
                     'price' => $response->spectranet3,
                     'val' => 10000,
-                    'fixedPrice' => 'yes',
+                    
                     'id' => 'spectranet3',
 
                 ],
@@ -457,7 +457,7 @@ class VtpassController extends Controller
                         'name' => 'STARTIMES NOVA WEEKLY',
                         'variation_code' => 'nova-weekly',
                         'price' => $response->star_1,
-                        'fixedPrice' => 'yes',
+                        
                         'val' => '',
                     ],
                     [

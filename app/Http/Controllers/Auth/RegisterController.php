@@ -9,7 +9,6 @@ use App\Models\UserVerify;
 use App\Models\WebSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Rules\DomainRestrictedEmail;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;

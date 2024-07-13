@@ -140,14 +140,14 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'GLO 200MB (CG) - 14days',
                             'variation_code' => 158,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 46,
                             'network' => 02,
                         ],
                         [
                             'name' => 'GLO 500MB (CG) - 30days',
                             'variation_code' => 159,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 113,
                             'network' => 02,
 
@@ -155,7 +155,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => '1GB (CG) - 30days',
                             'variation_code' => 160,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 225,
                             'network' => 02,
 
@@ -163,7 +163,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => '2GB (CG) - 30days',
                             'variation_code' => 161,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 450,
                             'network' => 02,
 
@@ -171,7 +171,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => '3GB (CG) - 30days',
                             'variation_code' => 162,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 675,
                             'network' => 02,
 
@@ -179,7 +179,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => '5GB (CG) - 30days',
                             'variation_code' => 163,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 1125,
                             'network' => 02,
 
@@ -187,7 +187,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => '10GB (CG) - 30days',
                             'variation_code' => 164,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 2250,
                             'network' => 02,
 
@@ -200,7 +200,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 100MB (CG) - 7days',
                             'variation_code' => 104,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 27,
                             'network' => 03,
 
@@ -208,7 +208,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 300MB (CG) - 7days',
                             'variation_code' => 105,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 67,
                             'network' => 03,
 
@@ -216,7 +216,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 500MB (CG) - 30days',
                             'variation_code' => 106,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 101,
                             'network' => 03,
 
@@ -224,7 +224,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 1GB (CG) - 30days',
                             'variation_code' => 107,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 200,
                             'network' => 03,
 
@@ -232,7 +232,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 2GB (CG) - 30days',
                             'variation_code' => 108,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 400,
                             'network' => 03,
 
@@ -240,7 +240,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 5GB (CG) - 30days',
                             'variation_code' => 109,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 1000,
                             'network' => 03,
 
@@ -248,7 +248,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 10GB (CG) - 30days',
                             'variation_code' => 124,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 2000,
                             'network' => 03,
 
@@ -256,7 +256,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 15GB (CG) - 30days',
                             'variation_code' => 139,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 3000,
                             'network' => 03,
 
@@ -264,7 +264,7 @@ class EasyAccessController extends Controller
                         [
                             'name' => 'AIRTEL 20GB (CG) - 30days',
                             'variation_code' => 140,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 4000,
                             'network' => 03,
 
@@ -277,7 +277,7 @@ class EasyAccessController extends Controller
                         [
                             'variation_code' => 166,
                             'name' => '100MB (SME) - 30days',
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                             'variation_amount' => 18,
                             'network' => 04,
                         ],
@@ -286,21 +286,21 @@ class EasyAccessController extends Controller
                             'name' => '300MB (SME) - 30days',
                             'variation_amount' => 48,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 168,
                             'name' => '500MB (SME) - 30days',
                             'variation_amount' => 68,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 128,
                             'name' => '1GB (SME) - 30days',
                             'variation_amount' => 135,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 129,
@@ -314,21 +314,21 @@ class EasyAccessController extends Controller
                             'name' => '2GB (SME) - 30days',
                             'variation_amount' => 270,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 131,
                             'name' => '2.5GB (SME) - 30days',
                             'variation_amount' => 3942000,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 132,
                             'name' => '3GB (SME) - 30days',
                             'variation_amount' => 405,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         // [
                         //     'variation_code' => 132,
@@ -341,42 +341,42 @@ class EasyAccessController extends Controller
                             'name' => '4GB (SME) - 30days',
                             'variation_amount' => 540,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 134,
                             'name' => '5GB (SME) - 30days',
                             'variation_amount' => 675,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 135,
                             'name' => '6GB (SME) - 30days',
                             'variation_amount' => 810,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 170,
                             'name' => '7.5GB (SME) 30days',
                             'variation_amount' => -1014,
                             'network' => 01,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 136,
                             'name' => '10GB (SME) - 30days',
                             'variation_amount' => 1350,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ],
                         [
                             'variation_code' => 171,
                             'name' => '11GB (SME) - 30days',
                             'variation_amount' => 1485,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
 
                         ],
                         [
@@ -384,7 +384,7 @@ class EasyAccessController extends Controller
                             'name' => '15GB (SME) - 30days',
                             'variation_amount' => 2025,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
 
                         ],
                         [
@@ -392,7 +392,7 @@ class EasyAccessController extends Controller
                             'name' => '20GB (SME) - 30days',
                             'variation_amount' => 2700,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
 
                         ],
                         [
@@ -400,7 +400,7 @@ class EasyAccessController extends Controller
                             'name' => '25GB (SME) - 30days',
                             'variation_amount' => 352316250,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
 
                         ],
                         [
@@ -408,7 +408,7 @@ class EasyAccessController extends Controller
                             'name' => '30GB (SME) - 30days',
                             'variation_amount' => 42277950,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
 
                         ],
                         [
@@ -416,7 +416,7 @@ class EasyAccessController extends Controller
                             'name' => '40GB (SME) - 30days',
                             'variation_amount' => 563706000,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
 
                         ],
                         [
@@ -424,7 +424,7 @@ class EasyAccessController extends Controller
                             'name' => '50GB (SME) - 30days',
                             'variation_amount' => 704632500,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
 
                         ],
                         [
@@ -432,86 +432,87 @@ class EasyAccessController extends Controller
                             'name' => '100GB (SME) - 30days',
                             'variation_amount' => 1409265000,
                             'network' => 04,
-                            'fixedPrice' => 'Yes',
+                            'fixedPrice' => 'yes',
                         ]
                     ],
                 ],
 
                 'airtel-gifting' => [
-                    'variations' => [
-                        [
-                            'name' => 'AIRTEL 100MB (CG) - 7days',
-                            'variation_code' => 104,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 27,
-                            'network' => 03,
+                    // 'variations' => [
+                    //     [
+                    //         'name' => "750MB (Direct) - 14days",
+                    //         'variation_code' => 66,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 27,
+                    //         'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 300MB (CG) - 7days',
+                    //         'variation_code' => 105,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 67,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 300MB (CG) - 7days',
-                            'variation_code' => 105,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 67,
-                            'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 500MB (CG) - 30days',
+                    //         'variation_code' => 106,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 101,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 500MB (CG) - 30days',
-                            'variation_code' => 106,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 101,
-                            'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 1GB (CG) - 30days',
+                    //         'variation_code' => 107,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 200,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 1GB (CG) - 30days',
-                            'variation_code' => 107,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 200,
-                            'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 2GB (CG) - 30days',
+                    //         'variation_code' => 108,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 400,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 2GB (CG) - 30days',
-                            'variation_code' => 108,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 400,
-                            'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 5GB (CG) - 30days',
+                    //         'variation_code' => 109,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 1000,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 5GB (CG) - 30days',
-                            'variation_code' => 109,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 1000,
-                            'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 10GB (CG) - 30days',
+                    //         'variation_code' => 124,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 2000,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 10GB (CG) - 30days',
-                            'variation_code' => 124,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 2000,
-                            'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 15GB (CG) - 30days',
+                    //         'variation_code' => 139,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 3000,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 15GB (CG) - 30days',
-                            'variation_code' => 139,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 3000,
-                            'network' => 03,
+                    //     ],
+                    //     [
+                    //         'name' => 'AIRTEL 20GB (CG) - 30days',
+                    //         'variation_code' => 140,
+                    //         'fixedPrice' => 'yes',
+                    //         'variation_amount' => 4000,
+                    //         'network' => 03,
 
-                        ],
-                        [
-                            'name' => 'AIRTEL 20GB (CG) - 30days',
-                            'variation_code' => 140,
-                            'fixedPrice' => 'Yes',
-                            'variation_amount' => 4000,
-                            'network' => 03,
+                    //     ],
+                    // ],
 
-                        ],
-                    ],
+           
                 ],
             ],
         ];
@@ -725,6 +726,8 @@ class EasyAccessController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -844,6 +847,8 @@ class EasyAccessController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -968,6 +973,8 @@ class EasyAccessController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -1105,6 +1112,8 @@ class EasyAccessController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -1200,6 +1209,8 @@ class EasyAccessController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -1395,6 +1406,8 @@ class EasyAccessController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
@@ -1450,6 +1463,8 @@ class EasyAccessController extends Controller
                     'product_id' => $product->id,
                     'api_name' =>  $d['name'],
                     'slug' => $d['code'],
+                    'api_id' => $product->api_id,
+
                 ], [
                     'product_id' => $product->id,
                     'category_id' => $product->category_id,
