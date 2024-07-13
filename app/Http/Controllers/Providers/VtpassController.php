@@ -660,35 +660,56 @@ class VtpassController extends Controller
 
             if ($request['variation']->category->slug == 'cable') {
                 $button = '<button class="btn btn-success btn-block" onclick="pay4Tv()">Make Payment</button>';
+                
                 // $renewal_amount = !empty($request['request_type']) && $request['request_type'] == 'renewal' ? $result->content->Renewal_Amount : ($request['price']);
-                $renewal_amount = $result->content->Renewal_Amount;
+                $renewal_amount = $result->content->Renewal_Amount ?? null;
+                $message = '';
 
+                if(!empty($result->content->Customer_Name)){
+                    $message .= 'Account Name: ' . $result->content->Customer_Name;
+                }
+
+                if (!empty($result->content->Status)) {
+                    $message .= '<br/>Status: ' . $result->content->Status;
+                }
+
+                if (!empty($result->content->Due_Date)) {
+                    $message .= '<br/>Due Date:' . $result->content->Due_Date;
+                }
+
+                if (!empty($result->content->Current_Bouquet)) {
+                    $message .= '<br>Current Bouquet:' . $result->content->Current_Bouquet;
+                }
+
+                if (!empty($result->content->Balance)) {
+                    $message .= '<br>Balance: N' . number_format($result->content->Balance, 2);
+                }
+
+                if (!empty($result->content->Smartcard_Number)) {
+                    $message .= '<br>Smart Card Number: ' . $result->content->Smartcard_Number;
+                }
+
+                if (!empty($renewal_amount)) {
+                    $message .= '<br>Renewal Amount: N' . number_format($renewal_amount, 2);
+                }
+                
+                
+                $message .= $button . '<br>';
+                
                 $response = [
                     'status' => 'success',
                     'provider' => 'VTPASS',
                     'status_code' => '200',
                     'current_bouque_code' => $result->content->Current_Bouquet_Code ?? null,
-                    'renewal_amount' => $result->content->Renewal_Amount ?? null,
+                    'renewal_amount' => $renewal_amount,
                     'customerName' => $result->content->Customer_Number ?? '',
                     'button_link' => $button,
-                    'message' => 'Account Name: '
-                    . $result->content->Customer_Name
-                        . ' <br/>Status: '
-                        . $result->content->Status
-                        . '<br/>Due Date: '
-                        . $result->content->Due_Date
-                        . '<br>Current Bouquet: '
-                        . $result->content->Current_Bouquet
-                        . '<br>'
-                        . 'Renewal Amount: N'
-                        . number_format($renewal_amount, 2)
-                        . '<br><br>'
-                        . $button . '',
+                    'message' => $message,
                     'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
                     'raw_response' => $response,
                 ];
             }
-
+            
             if ($request['product']->slug == 'showmax') {
                 $response = array(
                     'status' => 'success',

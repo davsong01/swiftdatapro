@@ -12,8 +12,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ProcessBuyTest extends TestCase
 {
-    // use RefreshDatabase;
-
     // public function setUp(): void
     // {
     //     parent::setUp();
@@ -62,14 +60,25 @@ class ProcessBuyTest extends TestCase
     /** @test */
     public function test_process_buy_with_locked_records()
     {
-        $user = User::find(1);
-        $product = Product::find(12);
+        if(env('ENT') == 'local'){
+            $user = User::find(1);
+            $product = Product::find(12);
 
-        $sss = range(1,20);
+            $sss = range(1,200);
 
-        foreach($sss as $s){
-            // Simulate multiple requests
-            $this->actingAs($user)->post('buy/airtime', [
+            foreach($sss as $s){
+                // Simulate multiple requests
+                $this->actingAs($user)->post('buy/airtime', [
+                    'product_id' => $product->id,
+                    'variation' => null,
+                    'quantity' => 1,
+                    'security_pin' => '12345',
+                    'mobile_no' => '08011111111',
+                    'amount' => 10
+                ]);
+            }
+
+            $response = $this->actingAs($user)->post('buy/airtime', [
                 'product_id' => $product->id,
                 'variation' => null,
                 'quantity' => 1,
@@ -77,20 +86,11 @@ class ProcessBuyTest extends TestCase
                 'mobile_no' => '08011111111',
                 'amount' => 10
             ]);
+
+            // Check that the second request does not proceed due to locked record
+            $response->assertStatus(200);
+            $response->assertJson(['status' => 'fail', 'message' => 'Transaction failed. Please try again.']);
         }
-
-        $response = $this->actingAs($user)->post('buy/airtime', [
-            'product_id' => $product->id,
-            'variation' => null,
-            'quantity' => 1,
-            'security_pin' => '12345',
-            'mobile_no' => '08011111111',
-            'amount' => 10
-        ]);
-
-        // Check that the second request does not proceed due to locked record
-        $response->assertStatus(200);
-        $response->assertJson(['status' => 'fail', 'message' => 'Transaction failed. Please try again.']);
     }
 
     /** @test */

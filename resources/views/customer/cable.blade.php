@@ -124,7 +124,7 @@
         }
       });
 
-      // $.LoadingOverlay("show");
+      $.LoadingOverlay("show");
 
       $.ajax({
         url: "{{ url('customer-get-variations') }}/" + product_id,
@@ -142,9 +142,12 @@
 
   $("#submitTV").click(function (event) {
     var inputs = document.getElementById("form-data").getElementsByTagName("input");
+    var selects =  document.getElementById("form-data").getElementsByTagName("select");
+
+    var elements = Array.prototype.slice.call(inputs).concat(Array.prototype.slice.call(selects));
     // Loop through each input and perform validation
-    for (var i = 0; i < inputs.length; i++) {
-        var input = inputs[i];
+    for (var i = 0; i < elements.length; i++) {
+        var input = elements[i];
 
         // Check if the input is required and empty
         if (input.hasAttribute("required") && input.value.trim() === "") {
@@ -152,6 +155,7 @@
             return;
         }
     }
+
     var formData = {
       product_id: $("#network_module").val(),
       variation_id: $("#dataplanloader").val(),
@@ -167,7 +171,7 @@
       }
     });
     $.ajax({
-      url: '{{ url("/") }}/verify/' + network_module,
+      url: '{{ url("/") }}/verify',
       method: 'POST',
       dataType: 'json',
       data: formData,
@@ -195,7 +199,6 @@
   
    function pay4Tv() {
     var formData = {
-      network_module: $("#network_module").val(),
       network_module: $("#network_module").val(),
       dataplanloader: $("#dataplanloader").val(),
       renewal_amount: $("#renewal_amount").val(),

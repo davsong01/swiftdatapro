@@ -82,7 +82,7 @@ class TransactionsController extends Controller
                 'desc' => $verify['message'] ?? '',
             );
         }
-       
+    
         if ($request['variation']->category->slug == 'cable') {
             $response = array(
                 'status' => $verify['status'] ?? '',
