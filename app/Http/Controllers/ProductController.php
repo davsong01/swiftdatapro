@@ -176,8 +176,8 @@ class ProductController extends Controller
 
         $currentVariations = Variation::where('product_id', $product->id)->where('api_id', $product->api_id)->get();
         $apivariations = Variation::where('product_id', $product->id)->where('api_id', $request->api)->pluck('slug')->toArray();
-        
-        if (!empty($currentVariations)) {
+
+        if (!empty($request->copy_variations) && $request->copy_variations == 'yes') {
             foreach ($currentVariations as $variation) {
                 $newVariation = $variation->replicate();
 
