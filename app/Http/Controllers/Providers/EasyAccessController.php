@@ -761,7 +761,7 @@ class EasyAccessController extends Controller
             }
         }
 
-        if (isset($product->slug) && ($product->slug == 'airtel-cg' || $product->slug == 'airtel-gifting')) {
+        if (isset($product->slug) && ($product->slug == 'airtel-cg')) {
             $response = \DB::connection('old')->table('airtelcgdata_plan')->select('easy_access104', 'easy_access105', 'easy_access106', 'easy_access107', 'easy_access108', 'easy_access109', 'easy_access124', 'easy_access139', 'easy_access140')->first();
             //create and update variation
             $data = [
@@ -879,75 +879,90 @@ class EasyAccessController extends Controller
             }
         }
 
-        if (isset($product->slug) && $product->slug == 'airtel') {
-            $response = \DB::connection('old')->table('airtelcgdata_plan')->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69', 'easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96', 'easy_access97', 'easy_access157')->first();
-            //create and update variation
+        if (isset($product->slug) && $product->slug == 'airtel-gifting') {
+            $response = \DB::connection('old')->table('airteldata_plan')->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69','easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96','easy_access97','easy_access157')->first();
+            
             $data = [
                 [
-                    'name' => "AIRTEL 100MB (CG) - 7days",
-                    'val' => 100,
-                    'price' => $response->easy_access104,
-                    'code' => 104,
-                    'id' => 'easy_access104',
+                    'name' => "750MB (Direct) - 14days",
+                    'val' => 750,
+                    'price' => $response->easy_access66,
+                    'code' => 66,
+                    'id' => 'easy_access66',
                 ],
                 [
-                    'name' => "AIRTEL 300MB (CG) - 7days",
-                    'price' => $response->easy_access105,
-                    'val' => 300,
-                    'code' => 105,
-                    'id' => 'easy_access105',
+                    'name' => "1.5GB (Direct) - 30days",
+                    'price' => $response->easy_access67,
+                    'val' => 1500,
+                    'code' => 67,
+                    'id' => 'easy_access67',
                 ],
                 [
-                    'name' => "AIRTEL 500MB (CG) - 30days",
-                    'val' => 500,
-                    'price' => $response->easy_access106,
-                    'code' => 106,
-                    'id' => 'easy_access106',
-                ],
-                [
-                    'name' => "AIRTEL 1GB (CG) - 30days",
-                    'val' => 1000,
-                    'price' => $response->easy_access107,
-                    'code' => 107,
-                    'id' => 'easy_access107',
-                ],
-                [
-                    'name' => "AIRTEL 2GB (CG) - 30days",
+                    'name' => "2GB (Direct) - 30days",
                     'val' => 2000,
-                    'price' => $response->easy_access108,
-                    'code' => 108,
-                    'id' => 'easy_access108',
+                    'price' => $response->easy_access68,
+                    'code' => 68,
+                    'id' => 'easy_access68',
                 ],
                 [
-                    'name' => "AIRTEL 5GB (CG) - 30days",
-                    'val' => 5000,
-                    'price' => $response->easy_access109,
-                    'code' => 109,
-                    'id' => 'easy_access109',
+                    'name' => '3GB (Direct) - 30days',
+                    'val' => 3000,
+                    'price' => $response->easy_access69,
+                    'code' => 69,
+                    'id' => 'easy_access69',
                 ],
                 [
-                    'name' => "AIRTEL 10GB (CG) - 30days",
-                    'val' => 10000,
-                    'price' => $response->easy_access124,
-                    'code' => 124,
-                    'id' => 'easy_access124',
+                    'name' => "4.5GB (Direct) - 30days",
+                    'val' => 4500,
+                    'price' => $response->easy_access70,
+                    'code' => 70,
+                    'id' => 'easy_access70',
                 ],
                 [
-                    'name' => "AIRTEL 15GB (CG) - 30days",
-                    'price' => $response->easy_access139,
+                    'name' => "6GB (Direct) - 30days",
+                    'val' => 6000,
+                    'price' => $response->easy_access71,
+                    'code' => 71,
+                    'id' => 'easy_access71',
+                ],
+                [
+                    'name' => "10GB (Direct) - 30days,",
+                    'price' => $response->easy_access72,
                     'val' => 15000,
-                    'code' => 139,
-                    'id' => 'easy_access139'
+                    'code' => 72,
+                    'id' => 'easy_access72'
+                ],
+
+                [
+                    'name' => "20GB (Direct) - 30days",
+                    'val' => 20000,
+                    'price' => $response->easy_access74,
+                    'code' => 74,
+                    'id' => 'easy_access74',
                 ],
                 [
-                    'name' => "AIRTEL 20GB (CG) - 30days",
-                    'val' => 20000,
-                    'price' => $response->easy_access140,
-                    'code' => 140,
-                    'id' => 'easy_access140',
+                    'name' => "40GB (Direct) - 30days",
+                    'val' => 40000,
+                    'price' => $response->easy_access96,
+                    'code' => 96,
+                    'id' => 'easy_access96',
                 ],
-            ];
+                [
+                    'name' => "75GB (Direct) - 30days",
+                    'val' => 75000,
+                    'price' => $response->easy_access97,
+                    'code' => 97,
+                    'id' => 'easy_access97',
+                ],
+                [
+                    'name' => "120GB (Direct) - 30days",
+                    'val' => 120000,
+                    'price' => $response->easy_access157,
+                    'code' => 157,
+                    'id' => 'easy_access157',
+                ],
 
+            ];
             foreach ($data as $d) {
                 $variation = Variation::updateOrCreate([
                     'product_id' => $product->id,
@@ -969,7 +984,7 @@ class EasyAccessController extends Controller
                 ]);
 
                 foreach ($productLevel as $level) {
-                    $response = \DB::connection('old')->table('airteldata_plan')->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69', 'easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96', 'easy_access97', 'easy_access157')->where('id', $level)->first();
+                    $response = \DB::connection('old')->table('airteldata_plan')->select('easy_access66', 'easy_access67', 'easy_access68', 'easy_access69','easy_access70', 'easy_access71', 'easy_access72', 'easy_access74', 'easy_access96','easy_access97','easy_access157')->where('id', $level)->first();
 
                     foreach ($response as $key => $value) {
                         $discount = Discount::updateOrCreate([
@@ -988,7 +1003,7 @@ class EasyAccessController extends Controller
             }
         }
         
-        if (isset($product->slug) && $product->slug == 'glo') {
+        if (isset($product->slug) && $product->slug == 'glo-gifting') {
             $response = \DB::connection('old')->table('glodata_plan')->select('easy_access59', 'easy_access60', 'easy_access87', 'easy_access61', 'easy_access62', 'easy_access63', 'easy_access64', 'easy_access92', 'easy_access93', 'easy_access94', 'easy_access100', 'easy_access101', 'easy_access102')->first();
 
             $data = [
@@ -1125,7 +1140,7 @@ class EasyAccessController extends Controller
             }
         }
 
-        if (isset($product->slug) && ($product->slug == 'glo-cg' || $product->slug == 'glo-gifting')) {
+        if (isset($product->slug) && ($product->slug == 'glo-cg')) {
             $response = \DB::connection('old')->table('glocgdata_plan')->select('easy_access158', 'easy_access159', 'easy_access160', 'easy_access161', 'easy_access162', 'easy_access163', 'easy_access164')->first();
 
             $data = [
@@ -1219,7 +1234,6 @@ class EasyAccessController extends Controller
                 }
             }
         }
-
 
         if (isset($product->slug) && $product->slug == 'apimobile-sme') {
             $response = \DB::connection('old')->table('mobilesmedata_plan')->select('easy_access166', 'easy_access167', 'easy_access168', 'easy_access128', 'easy_access129', 'easy_access130', 'easy_access131', 'easy_access132', 'easy_access169', 'easy_access134', 'easy_access135', 'easy_access170', 'easy_access136', 'easy_access171', 'easy_access137', 'easy_access138', 'easy_access172', 'easy_access173', 'easy_access174', 'easy_access175', 'easy_access176')->first();

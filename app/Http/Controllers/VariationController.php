@@ -206,7 +206,7 @@ class VariationController extends Controller
 
         // dd($variation);
         $variation->delete();
-
+        
         return back()->with('message', 'Variation deleted successfully');
         // Discount::
     }

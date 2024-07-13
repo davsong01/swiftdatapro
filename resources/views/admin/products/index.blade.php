@@ -39,7 +39,9 @@
                     <tbody>
                         @foreach($products as $product)
                         <tr>
-                            <td><img src="{{asset($product->image)}}" alt="{{$product->image}}" style="width: 50px;float:left">{{ $product->name }}</td>
+                            <td><img src="{{asset($product->image)}}" alt="{{$product->image}}" style="width: 50px;float:left">{{ $product->name }} <br>
+                                <small><strong>Slug: </strong>{{$product->slug}}</small>
+                            </td>
                             <td>{{ $product->category->name }} <br>
                                 <strong>API:</strong> {{ $product->api->name }}
                             </td>
