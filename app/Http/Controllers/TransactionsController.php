@@ -55,7 +55,7 @@ class TransactionsController extends Controller
 
     public function transactionStatus($transaction_id)
     {
-        $transaction = Transactions::select(['product_id', 'variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_username', 'buyer_service', 'type', 'buyer_amount', 'unit_price', 'charges', 'discount', 'buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra'])->where('id', $transaction_id)->first();
+        $transaction = Transactions::select(['product_id', 'variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_username', 'buyer_service', 'type', 'buyer_amount', 'unit_price', 'charges', 'discount', 'buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra','created_at'])->where('id', $transaction_id)->first();
 
         if (\Request::is('mobile/*')) {
             return $transaction;

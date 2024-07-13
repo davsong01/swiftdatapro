@@ -1,5 +1,4 @@
 <nav class="main-menu-container nav nav-pills flex-column sub-open">
-   
     <ul class="main-menu">
         <!-- Start::slide -->
         {{-- @if (in_array('Dashboard', allowedPermissions())) --}}

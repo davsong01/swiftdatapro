@@ -121,6 +121,8 @@
                                         <strong>
                                         @if($transaction->status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
                                         <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+                                        @elseif(in_array($transaction->buyer_statusbuyer_status, ['ATTENTION-REQUIRED', 'PENDING']))
+                                        <button class="btn btn-warning btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                         @else
                                         <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                         @endif 
@@ -177,6 +179,7 @@
                                         </small> <br>
                                         <span class="title">Date</span>:
                                         <small>
+                                            
                                             {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }}
                                         </small> <br>
 

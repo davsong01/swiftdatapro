@@ -227,7 +227,7 @@
         }
     });
     $.ajax({
-      url: '{{ config('app.url')}}/buy/data',
+      url: '/buy/data',
       method: 'POST',
       dataType: 'json',
       data: formData,
