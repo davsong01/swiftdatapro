@@ -16,7 +16,7 @@ class CheckIpMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $domain = $_SERVER['SERVER_NAME'];
+        $domain = env('ENT') == 'local' ? 'localhost' : $_SERVER['SERVER_NAME'];
 
         if (substr($domain, 0, 4) === 'www.') $domain = substr($domain, 4, strlen($domain));
         

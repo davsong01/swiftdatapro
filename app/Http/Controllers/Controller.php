@@ -1144,6 +1144,7 @@ class Controller extends BaseController
     }
 
     public function updateWalletBalance($user, $amount, $type){
+        
         if($type == 'credit'){
             $user->wallets = $user->wallets + $amount;
         }else{

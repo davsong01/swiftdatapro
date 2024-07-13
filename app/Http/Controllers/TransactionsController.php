@@ -2,22 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use DateTime;
-use DateTimeZone;
+
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Blacklist;
 use App\Models\Variation;
-use App\Models\BillersLog;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 use App\Services\JsonResponseService;
-use Illuminate\Support\Facades\Session;
-use App\Http\Controllers\WalletController;
-use App\Http\Controllers\TransactionController;
+
 
 class TransactionsController extends Controller
 {
@@ -104,144 +101,142 @@ class TransactionsController extends Controller
 
     public function processBuy(Request $request)
     {
-        // \Log::info($request->all());
-        $user = auth()->user();
-        $product_id = $request->product_id ?? $request->network_module;
-        $product = Product::where('id', $product_id)->first();
-        
-        $var = $request->variation ?? $request->dataplanloader; 
-        $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
-        
-        $quantity = $request->quantity ?? 1;
-    
-        $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
-        
-        // $timestring = time();
-        $api_reference = $this->generateRequestId();
-        $request_id = $api_reference;
-        $request['request_id'] = $request_id;
+        DB::beginTransaction();
 
-        // Get amount
-        $request['amount'] = $this->getAmount($product, $variation, $request);
-        $request['unit_price'] = $request['amount'];
-        $api = $variation->api ?? $product->api;
-        
-        // Get discount
-        if ($product->has_variations == 'yes') {
-            $resource = $variation;
-            $discount = getVariationDiscount($request['amount'], $variation->id, $request['quantity'] ?? 1);
-        } else {
-            $resource = $product;
-            $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
-        }
+        try {
+            $user = auth()->user();
+            $product_id = $request->product_id ?? $request->network_module;
+            $product = Product::where('id', $product_id)->first();
 
-        // checks
-        if (in_array($resource->category->slug, ['electricity', 'cable'])) {
-            $request['billersCode'] = $request->billersCode;
-        } else {
-            $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
-        }
+            $var = $request->variation ?? $request->dataplanloader;
+            $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
 
-        $checks = $this->runChecks($request,$product, $api);
-        
-        if(!empty($checks) && $checks['status'] == 'fail'){
-            if (\Request::is('mobile/*')) {
-                return $checks;
-            }
-            return $this->jsonresponseservice->build($checks);
-        }
+            $quantity = $request->quantity ?? 1;
+            $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
 
-        $discountedAmount = $discount['new_amount'];
-        $disCountApplied = $discount['discount_applied'];
-        //
-        if ($product->category->slug == 'cable' && in_array($product->slug, ['dstv', 'gotv']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')) {
-            $variations['price'] = $request->renewal_amount ?? $discount;
-        }
-        //
-        $request['quantity'] = $request->quantity ?? 1;
-        $request['total_amount'] = $discountedAmount;
-        $request['discount'] = $disCountApplied;
+            $api_reference = $this->generateRequestId();
+            $request_id = $api_reference;
+            $request['request_id'] = $request_id;
 
-        // $request['quantity'] = 2;
-        $src_price = providerPrice($product, $variation, $request);
-        
-        $balance = walletBalance($user);
-        
-        if ($balance < $request['total_amount']) {
-            $response = array(
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Insufficient Wallet Balance, Please fund wallet and retry again',
-            );
+            $request['amount'] = $this->getAmount($product, $variation, $request);
+            $request['unit_price'] = $request['amount'];
+            $api = $variation->api ?? $product->api;
 
-            if (\Request::is('mobile/*')) {
-                return 'Insufficient Wallet Balance, Please fund wallet and retry again';
+            if ($product->has_variations == 'yes') {
+                $resource = $variation;
+                $discount = getVariationDiscount($request['amount'], $variation->id, $request['quantity'] ?? 1);
+            } else {
+                $resource = $product;
+                $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
             }
 
-            return $this->jsonresponseservice->build($response);
-        }
+            if (in_array($resource->category->slug, ['electricity', 'cable'])) {
+                $request['billersCode'] = $request->billersCode;
+            } else {
+                $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
+            }
 
-        $request['package_name'] = $resource->display_name;
-        $request['serviceId'] = $resource->slug ?? null;
-        $request['variation_code'] = $variation->variation_code ?? null;
-        $request['quantity'] = $quantity;
+            $checks = $this->runChecks($request, $product, $api);
 
-        // Log transaction
-        $data = [
-            'mobile_number' => $request->mobile_no,
-            'unit_price' => $request['unit_price'],
-            'buyer_amount' => $request['total_amount'],
-            'buyer_prebal' => $balance,
-            'buyer_postbal' => $balance - $request['total_amount'],
-            'buyer_descr' => '',
-            'type' => 'debit',
-            'buyer_status' => 'INITIATED',
-            'buyer_service' => $resource->slug,
-            'charge_from' => 'WALLET',
-            'user_type' => $user->level,
-            'sys_ref' => $request_id,
-            'api_ref' => $api_reference,
-            'api_report' => 'PENDING',
-            'buyer_quantity' => $request->quantity,
-            'provider_id' => $api->id ?? null,
-            'variation_id' => $variation->id ?? null,
-            'product_id' => $product->id ?? null,
-            'discount' => $disCountApplied,
-            'src_price' => $src_price,
-            'channel' => 'website',
-            'provider' => $api->name,
-            'billersCode' => $request['billersCode'] ?? null,
-            'category_id' => $resource->category->id,
-            'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
-        ];
+            if (!empty($checks) && $checks['status'] == 'fail') {
+                DB::rollBack();
+                if (\Request::is('mobile/*')) {
+                    return $checks;
+                }
+                return $this->jsonresponseservice->build($checks);
+            }
 
-        $transaction = $this->logTransaction($data);
-        
-        $data['resource'] = $resource;
-        $data['product'] = $product;
-        $data['billersCode'] = $request['billersCode'] ?? null;
-        $data['request_type'] = $request->request_type;
-        // Make Api call
-        $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
-        if ($api_response['status'] == 'success') {
-            $report = $this->formatOderReport($resource, $request,$transaction, $api_response);
-            $commission = getAndUpdateReferralCommission(auth()->user(), $product, $variation, $transaction);
-            
-            $transaction->update([
-                'buyer_status' => 'SUCCESSFUL',
-                'buyer_descr' => $report['order_report'],
-                'api_response' => $api_response['api_response'],
-                'api_report' => 'DONE',
-                'api_status' => $api_response['status'],
-                'extra' => $api_response['extra'] ?? null,
-                'post_fields' => $api_response['postfields'],
-                'commission' => $commission
-            ]);
-            
-            $order_report = $report['order_report'] ?? '';
-            $final_response = $report['final_response'];
+            $discountedAmount = $discount['new_amount'];
+            $disCountApplied = $discount['discount_applied'];
 
-            $body = 'Dear ' . auth()->user()->full_name . '<br> The transaction below was carried out on your account on' . config('app.name') . '<br><br>
+            if ($product->category->slug == 'cable' && in_array($product->slug, ['dstv', 'gotv']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')) {
+                $variations['price'] = $request->renewal_amount ?? $discount;
+            }
+
+            $request['quantity'] = $request->quantity ?? 1;
+            $request['total_amount'] = $discountedAmount;
+            $request['discount'] = $disCountApplied;
+
+            $src_price = providerPrice($product, $variation, $request);
+
+            $balance = walletBalance($user);
+
+            if ($balance < $request['total_amount']) {
+                DB::rollBack();
+                $response = array(
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => 'Insufficient Wallet Balance, Please fund wallet and retry again',
+                );
+
+                if (\Request::is('mobile/*')) {
+                    return 'Insufficient Wallet Balance, Please fund wallet and retry again';
+                }
+
+                return $this->jsonresponseservice->build($response);
+            }
+
+            $request['package_name'] = $resource->display_name;
+            $request['serviceId'] = $resource->slug ?? null;
+            $request['variation_code'] = $variation->variation_code ?? null;
+            $request['quantity'] = $quantity;
+
+            // Log transaction
+            $data = [
+                'mobile_number' => $request->mobile_no,
+                'unit_price' => $request['unit_price'],
+                'buyer_amount' => $request['total_amount'],
+                'buyer_prebal' => $balance,
+                'buyer_postbal' => $balance - $request['total_amount'],
+                'buyer_descr' => '',
+                'type' => 'debit',
+                'buyer_status' => 'INITIATED',
+                'buyer_service' => $resource->slug,
+                'charge_from' => 'WALLET',
+                'user_type' => $user->level,
+                'sys_ref' => $request_id,
+                'api_ref' => $api_reference,
+                'api_report' => 'PENDING',
+                'buyer_quantity' => $request->quantity,
+                'provider_id' => $api->id ?? null,
+                'variation_id' => $variation->id ?? null,
+                'product_id' => $product->id ?? null,
+                'discount' => $disCountApplied,
+                'src_price' => $src_price,
+                'channel' => 'website',
+                'provider' => $api->name,
+                'billersCode' => $request['billersCode'] ?? null,
+                'category_id' => $resource->category->id,
+                'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
+            ];
+
+            $transaction = $this->logTransaction($data);
+
+            $data['resource'] = $resource;
+            $data['product'] = $product;
+            $data['billersCode'] = $request['billersCode'] ?? null;
+            $data['request_type'] = $request->request_type;
+
+            $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
+            if ($api_response['status'] == 'success') {
+                $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
+                $commission = getAndUpdateReferralCommission(auth()->user(), $product, $variation, $transaction);
+
+                $transaction->update([
+                    'buyer_status' => 'SUCCESSFUL',
+                    'buyer_descr' => $report['order_report'],
+                    'api_response' => $api_response['api_response'],
+                    'api_report' => 'DONE',
+                    'api_status' => $api_response['status'],
+                    'extra' => $api_response['extra'] ?? null,
+                    'post_fields' => $api_response['postfields'],
+                    'commission' => $commission
+                ]);
+
+                $order_report = $report['order_report'] ?? '';
+                $final_response = $report['final_response'];
+
+                $body = 'Dear ' . auth()->user()->full_name . '<br> The transaction below was carried out on your account on' . config('app.name') . '<br><br>
             Amount Charged : ₦' . number_format($transaction->buyer_amount) . '<br>
             Previous Balance : ₦' . number_format($transaction->buyer_prebal) . '<br>
             Current Balance : ₦' . number_format($transaction->buyer_postbal) . '<br>
@@ -250,54 +245,54 @@ class TransactionsController extends Controller
             Transaction Date : ' . $transaction->buyer_date . '<br>
             Transaction Status : Success<br>';
 
-            if (isset($api_response['extra']) && !empty($api_response['extra'])) {
-                $body .= 'Extra Information : ' . $api_response['extra'];
-            }
+                if (isset($api_response['extra']) && !empty($api_response['extra'])) {
+                    $body .= 'Extra Information : ' . $api_response['extra'];
+                }
 
-            $body .= '<br><br><br>Warm Regards<br>' . config('app.name');
-            $subject = "Transaction Notification";
-        } else if ($api_response['status'] == 'attention-required') {
-            $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
-            $order_report = $report['order_report'] ?? '';
-            $final_response = $report['final_response'];
+                $body .= '<br><br><br>Warm Regards<br>' . config('app.name');
+                $subject = "Transaction Notification";
+            } else if ($api_response['status'] == 'attention-required') {
+                $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
+                $order_report = $report['order_report'] ?? '';
+                $final_response = $report['final_response'];
 
-            $transaction->update([
-                'buyer_status' => 'ATTENTION-REQUIRED',
-                'buyer_descr' => $order_report,
-                'api_response' => $api_response['api_response'],
-                'api_report' => 'pending',
-                'failure_reason' => $api_response['error'],
-                'extra' => $api_response['extra'] ?? null,
-                'post_fields' => $api_response['postfields'],
-            ]);
+                $transaction->update([
+                    'buyer_status' => 'ATTENTION-REQUIRED',
+                    'buyer_descr' => $order_report,
+                    'api_response' => $api_response['api_response'],
+                    'api_report' => 'pending',
+                    'failure_reason' => $api_response['error'],
+                    'extra' => $api_response['extra'] ?? null,
+                    'post_fields' => $api_response['postfields'],
+                ]);
 
-            $body = 'Dear ' . auth()->user()->full_name . ' The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
+                $body = 'Dear ' . auth()->user()->full_name . ' The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
             Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
             Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
             Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
             Description : ' . $transaction->$order_report . '<br>
             Transaction Reference : ' . $transaction->sys_ref . '<br>
             Transaction Date : ' . $transaction->buyer_date . '<br>
-            Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name').'
+            Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name') . '
             Transaction Status : Pending<br>';
-            $subject = "Transaction Notification";
-        } else if($api_response['status'] == 'failed'){
-            $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
+                $subject = "Transaction Notification";
+            } else if ($api_response['status'] == 'failed') {
+                $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
 
-            $order_report = $report['order_report'];
-            $final_response = $report['final_response'];
+                $order_report = $report['order_report'];
+                $final_response = $report['final_response'];
 
-            $transaction->update([
-                'buyer_status' => 'FAILED',
-                'post_fields' => $api_response['postfields'],
-                'buyer_descr' => $order_report,
-                'buyer_postbal' => $transaction->buyer_prebal,
-                'api_response' => $api_response['api_response'],
-                'api_report' => 'FAILED',
-                'failure_reason' => $api_response['error'] ?? ($api_response['response'] ?? 'unknown error'),
-            ]);
+                $transaction->update([
+                    'buyer_status' => 'FAILED',
+                    'post_fields' => $api_response['postfields'],
+                    'buyer_descr' => $order_report,
+                    'buyer_postbal' => $transaction->buyer_prebal,
+                    'api_response' => $api_response['api_response'],
+                    'api_report' => 'FAILED',
+                    'failure_reason' => $api_response['error'] ?? ($api_response['response'] ?? 'unknown error'),
+                ]);
 
-            $body = 'Dear ' . auth()->user()->full_name . ' The transaction below failed on your account on ' . config('app.name') . '<br><br>
+                $body = 'Dear ' . auth()->user()->full_name . ' The transaction below failed on your account on ' . config('app.name') . '<br><br>
             Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
             Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
             Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
@@ -305,21 +300,248 @@ class TransactionsController extends Controller
             Transaction Reference : ' . $transaction->sys_ref . '<br>
             Transaction Date : ' . $transaction->buyer_date . '<br>
             Transaction Status : Failed<br>';
-            $subject = "Transaction Notification";
+                $subject = "Transaction Notification";
+            }
+
+            $user->wallets = $transaction->buyer_postbal;
+            $user->save();
+            $this->sendEmail(auth()->user()->email, $subject, $body);
+
+            DB::commit();
+
+            $final_response['id'] = $transaction->id;
+            $final_response['system_reference'] = $transaction->sys_ref;
+
+            if (\Request::is('mobile/*')) {
+                return $final_response;
+            }
+            
+            return response()->json($final_response);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Transaction failed: ' . $e->getMessage());
+            return response()->json(['status' => 'fail', 'message' => 'Transaction failed. Please try again later.'], 500);
         }
-
-        $user->wallets = $transaction->buyer_postbal;
-        $user->save();
-        $this->sendEmail(auth()->user()->email, $subject, $body);
-
-        $final_response['id'] = $transaction->id;
-        $final_response['system_reference'] = $transaction->sys_ref;
-
-        if (\Request::is('mobile/*')) {
-            return $final_response;
-        }
-        return response()->json($final_response);
     }
+    
+    // public function processBuy(Request $request)
+    // {
+    //     // \Log::info($request->all());
+    //     $user = auth()->user();
+    //     $product_id = $request->product_id ?? $request->network_module;
+    //     $product = Product::where('id', $product_id)->first();
+
+    //     $var = $request->variation ?? $request->dataplanloader;
+    //     $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
+
+    //     $quantity = $request->quantity ?? 1;
+
+    //     $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
+
+    //     // $timestring = time();
+    //     $api_reference = $this->generateRequestId();
+    //     $request_id = $api_reference;
+    //     $request['request_id'] = $request_id;
+
+    //     // Get amount
+    //     $request['amount'] = $this->getAmount($product, $variation, $request);
+    //     $request['unit_price'] = $request['amount'];
+    //     $api = $variation->api ?? $product->api;
+
+    //     // Get discount
+    //     if ($product->has_variations == 'yes') {
+    //         $resource = $variation;
+    //         $discount = getVariationDiscount($request['amount'], $variation->id, $request['quantity'] ?? 1);
+    //     } else {
+    //         $resource = $product;
+    //         $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
+    //     }
+
+    //     // checks
+    //     if (in_array($resource->category->slug, ['electricity', 'cable'])) {
+    //         $request['billersCode'] = $request->billersCode;
+    //     } else {
+    //         $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
+    //     }
+
+    //     $checks = $this->runChecks($request, $product, $api);
+
+    //     if (!empty($checks) && $checks['status'] == 'fail') {
+    //         if (\Request::is('mobile/*')) {
+    //             return $checks;
+    //         }
+    //         return $this->jsonresponseservice->build($checks);
+    //     }
+
+    //     $discountedAmount = $discount['new_amount'];
+    //     $disCountApplied = $discount['discount_applied'];
+    //     //
+    //     if ($product->category->slug == 'cable' && in_array($product->slug, ['dstv', 'gotv']) && !empty($request->renewal_amount && $request->renewal_amount > 0 && $request->request_type == 'renewal')) {
+    //         $variations['price'] = $request->renewal_amount ?? $discount;
+    //     }
+    //     //
+    //     $request['quantity'] = $request->quantity ?? 1;
+    //     $request['total_amount'] = $discountedAmount;
+    //     $request['discount'] = $disCountApplied;
+
+    //     // $request['quantity'] = 2;
+    //     $src_price = providerPrice($product, $variation, $request);
+
+    //     $balance = walletBalance($user);
+
+    //     if ($balance < $request['total_amount']) {
+    //         $response = array(
+    //             'status' => 'fail',
+    //             'status_code' => '100',
+    //             'message' => 'Insufficient Wallet Balance, Please fund wallet and retry again',
+    //         );
+
+    //         if (\Request::is('mobile/*')) {
+    //             return 'Insufficient Wallet Balance, Please fund wallet and retry again';
+    //         }
+
+    //         return $this->jsonresponseservice->build($response);
+    //     }
+
+    //     $request['package_name'] = $resource->display_name;
+    //     $request['serviceId'] = $resource->slug ?? null;
+    //     $request['variation_code'] = $variation->variation_code ?? null;
+    //     $request['quantity'] = $quantity;
+
+    //     // Log transaction
+    //     $data = [
+    //         'mobile_number' => $request->mobile_no,
+    //         'unit_price' => $request['unit_price'],
+    //         'buyer_amount' => $request['total_amount'],
+    //         'buyer_prebal' => $balance,
+    //         'buyer_postbal' => $balance - $request['total_amount'],
+    //         'buyer_descr' => '',
+    //         'type' => 'debit',
+    //         'buyer_status' => 'INITIATED',
+    //         'buyer_service' => $resource->slug,
+    //         'charge_from' => 'WALLET',
+    //         'user_type' => $user->level,
+    //         'sys_ref' => $request_id,
+    //         'api_ref' => $api_reference,
+    //         'api_report' => 'PENDING',
+    //         'buyer_quantity' => $request->quantity,
+    //         'provider_id' => $api->id ?? null,
+    //         'variation_id' => $variation->id ?? null,
+    //         'product_id' => $product->id ?? null,
+    //         'discount' => $disCountApplied,
+    //         'src_price' => $src_price,
+    //         'channel' => 'website',
+    //         'provider' => $api->name,
+    //         'billersCode' => $request['billersCode'] ?? null,
+    //         'category_id' => $resource->category->id,
+    //         'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
+    //     ];
+
+    //     $transaction = $this->logTransaction($data);
+
+    //     $data['resource'] = $resource;
+    //     $data['product'] = $product;
+    //     $data['billersCode'] = $request['billersCode'] ?? null;
+    //     $data['request_type'] = $request->request_type;
+    //     // Make Api call
+    //     $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
+    //     if ($api_response['status'] == 'success') {
+    //         $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
+    //         $commission = getAndUpdateReferralCommission(auth()->user(), $product, $variation, $transaction);
+
+    //         $transaction->update([
+    //             'buyer_status' => 'SUCCESSFUL',
+    //             'buyer_descr' => $report['order_report'],
+    //             'api_response' => $api_response['api_response'],
+    //             'api_report' => 'DONE',
+    //             'api_status' => $api_response['status'],
+    //             'extra' => $api_response['extra'] ?? null,
+    //             'post_fields' => $api_response['postfields'],
+    //             'commission' => $commission
+    //         ]);
+
+    //         $order_report = $report['order_report'] ?? '';
+    //         $final_response = $report['final_response'];
+
+    //         $body = 'Dear ' . auth()->user()->full_name . '<br> The transaction below was carried out on your account on' . config('app.name') . '<br><br>
+    //         Amount Charged : ₦' . number_format($transaction->buyer_amount) . '<br>
+    //         Previous Balance : ₦' . number_format($transaction->buyer_prebal) . '<br>
+    //         Current Balance : ₦' . number_format($transaction->buyer_postbal) . '<br>
+    //         Description : ' . $order_report . '<br>
+    //         Transaction Reference : ' . $transaction->sys_ref . '<br>
+    //         Transaction Date : ' . $transaction->buyer_date . '<br>
+    //         Transaction Status : Success<br>';
+
+    //         if (isset($api_response['extra']) && !empty($api_response['extra'])) {
+    //             $body .= 'Extra Information : ' . $api_response['extra'];
+    //         }
+
+    //         $body .= '<br><br><br>Warm Regards<br>' . config('app.name');
+    //         $subject = "Transaction Notification";
+    //     } else if ($api_response['status'] == 'attention-required') {
+    //         $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
+    //         $order_report = $report['order_report'] ?? '';
+    //         $final_response = $report['final_response'];
+
+    //         $transaction->update([
+    //             'buyer_status' => 'ATTENTION-REQUIRED',
+    //             'buyer_descr' => $order_report,
+    //             'api_response' => $api_response['api_response'],
+    //             'api_report' => 'pending',
+    //             'failure_reason' => $api_response['error'],
+    //             'extra' => $api_response['extra'] ?? null,
+    //             'post_fields' => $api_response['postfields'],
+    //         ]);
+
+    //         $body = 'Dear ' . auth()->user()->full_name . ' The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
+    //         Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
+    //         Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
+    //         Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
+    //         Description : ' . $transaction->$order_report . '<br>
+    //         Transaction Reference : ' . $transaction->sys_ref . '<br>
+    //         Transaction Date : ' . $transaction->buyer_date . '<br>
+    //         Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name') . '
+    //         Transaction Status : Pending<br>';
+    //         $subject = "Transaction Notification";
+    //     } else if ($api_response['status'] == 'failed') {
+    //         $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
+
+    //         $order_report = $report['order_report'];
+    //         $final_response = $report['final_response'];
+
+    //         $transaction->update([
+    //             'buyer_status' => 'FAILED',
+    //             'post_fields' => $api_response['postfields'],
+    //             'buyer_descr' => $order_report,
+    //             'buyer_postbal' => $transaction->buyer_prebal,
+    //             'api_response' => $api_response['api_response'],
+    //             'api_report' => 'FAILED',
+    //             'failure_reason' => $api_response['error'] ?? ($api_response['response'] ?? 'unknown error'),
+    //         ]);
+
+    //         $body = 'Dear ' . auth()->user()->full_name . ' The transaction below failed on your account on ' . config('app.name') . '<br><br>
+    //         Amount Charged : ' . number_format($transaction->buyer_amount) . '<br>
+    //         Previous Balance : ' . number_format($transaction->buyer_prebal) . '<br>
+    //         Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
+    //         Description : ' . $transaction->$order_report . '<br>
+    //         Transaction Reference : ' . $transaction->sys_ref . '<br>
+    //         Transaction Date : ' . $transaction->buyer_date . '<br>
+    //         Transaction Status : Failed<br>';
+    //         $subject = "Transaction Notification";
+    //     }
+
+    //     $user->wallets = $transaction->buyer_postbal;
+    //     $user->save();
+    //     $this->sendEmail(auth()->user()->email, $subject, $body);
+
+    //     $final_response['id'] = $transaction->id;
+    //     $final_response['system_reference'] = $transaction->sys_ref;
+
+    //     if (\Request::is('mobile/*')) {
+    //         return $final_response;
+    //     }
+    //     return response()->json($final_response);
+    // }
 
     public function initializeAirtime2CashTransaction(Request $request)
     {
@@ -942,25 +1164,32 @@ class TransactionsController extends Controller
             'type' => 'required'
         ]);
 
-        $user = User::where('email', $request->email)->first();
-
-        if (!$user)return back()->with('error', 'Account not found!');
-        $amount = $request->amount;
-        $currAmount = walletBalance($user);
-        
-        if ($request->type == 'credit') {
-            $balance_after = $currAmount + $amount;
-        } else {
-            $balance_after = $currAmount - $amount;
-        }
-
-        $requestId = $this->generateRequestId();
-        $reason = $request->type == 'debit' ? 'ADMIN-DEBIT' : 'ADMIN-CREDIT';
-
-        $reason = $reason. ' was successful';
+        // Start a database transaction
+        DB::beginTransaction();
 
         try {
-            //code...
+            // Lock the user row for update
+            $user = User::where('email', $request->email)->lockForUpdate()->first();
+
+            if (!$user) {
+                DB::rollBack();
+                return back()->with('error', 'Account not found!');
+            }
+
+            $amount = $request->amount;
+            $currAmount = walletBalance($user);
+
+            if ($request->type == 'credit') {
+                $balance_after = $currAmount + $amount;
+            } else {
+                $balance_after = $currAmount - $amount;
+            }
+
+            $requestId = $this->generateRequestId();
+            $reason = $request->type == 'debit' ? 'ADMIN-DEBIT' : 'ADMIN-CREDIT';
+
+            $reason = $reason . ' was successful';
+
             $data['mobile_number'] = $user->mobile;
             $data['buyer_email'] = $user->email;
             $data['buyer_username'] = $user->username;
@@ -986,15 +1215,19 @@ class TransactionsController extends Controller
             $data['user_id'] = $user->id;
 
             $currency = settings()->currency;
-            
-            $transaction =$this->logTransaction($data);
-      
+
+            $transaction = $this->logTransaction($data);
+
             $this->updateWalletBalance($user, $amount, $request->type);
+
+            // Commit the transaction
+            DB::commit();
 
             return back()->with('message', "Customer wallet has been {$request->type}ed with {$currency}" . number_format($amount));
         } catch (\Exception $e) {
-
-            return back()->with('error', 'An error occured' . $e->getMessage() . $e->getLine() . $e->getFile());
+            // Rollback the transaction in case of error
+            DB::rollBack();
+            return back()->with('error', 'An error occurred: ' . $e->getMessage() . ' on line ' . $e->getLine() . ' in file ' . $e->getFile());
         }
     }
 

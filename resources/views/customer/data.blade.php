@@ -168,7 +168,7 @@
 
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
-      // $.LoadingOverlay("show");
+      $.LoadingOverlay("show");
       $.ajax({
         url: "{{ url('customer-get-variations') }}/" + product_id,
         method: 'GET',

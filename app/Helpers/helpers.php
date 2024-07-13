@@ -207,7 +207,7 @@ if (!function_exists("getVariationDiscount")) {
             if ($variation->category->user_discount) {
                 $discount = $variation->category->user_discount;
             }
-            
+
             // if it has product discount use it
             if ($variation->product->user_discount) {
                 $discount = $variation->product->user_discount;
@@ -219,18 +219,18 @@ if (!function_exists("getVariationDiscount")) {
         $discount = !empty($individualdiscount) ? $individualdiscount : ($discount ?? NULL);
 
         if (!empty($discount)) {
+            $type = $discount_type;
             if ($discount_type == 'flat') {
-                $type = 'flat';
                 $new_amount = ($amount < $discount->price || $discount->price <= 0) ? ($amount * $quantity) : ($discount->price *  $quantity);
                 $discount_applied = abs($amount - $discount->price);
                 $display_amount = settings()->currency . number_format($new_amount);
             } else {
-                $type = 'percentage';
+                
                 $discount_applied = $discount->price;
                 $discount_applied = floor($discount_applied / 100 * $amount);
                 $n_amount = $amount - $discount_applied;
                 $new_amount = ($amount < $n_amount || $n_amount <= 0) ? $amount * $quantity : $n_amount * $quantity;
-                $display_amount = settings()->currency . intval(number_format($new_amount));
+                $display_amount = settings()->currency . number_format(intval($new_amount));
             }
         } else {
             return $response;
@@ -276,21 +276,24 @@ if (!function_exists("getAndUpdateReferralCommission")) {
     function getAndUpdateReferralCommission($user, $product, $variation, $transaction)
     {
         $earned = null;
-        if(!empty(settings()->allow_transaction_refferal_system) && settings()->allow_transaction_refferal_system == 'yes'){
-            // Get upline
-            $upline = User::select('id', 'ref_by', 'cashback')->where('ref_code', $user->ref_by)->orwhere('username', $user->ref_by)->first();
+        if (!empty(settings()->allow_transaction_refferal_system) && settings()->allow_transaction_refferal_system == 'yes') {
+            $upline = User::where('ref_code', $user->ref_by)
+                ->orWhere('username', $user->ref_by)
+                ->lockForUpdate()
+                ->first(['id', 'ref_by', 'cashback']);
+
             $referral_commission = $product->referral_commission;
-            
-            if(!$upline || empty($referral_commission)){
+
+            if (!$upline || empty($referral_commission)) {
                 return null;
             }
 
             $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
 
-            if($referral_commission <= 0){
+            if ($referral_commission <= 0) {
                 return null;
             }
-            
+
             // Update earning
             $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
 
@@ -305,7 +308,7 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                 'created_at' => Carbon::now(),
             ]);
 
-            // Update cash back balance for balance
+            // Update cash back balance
             $upline->update([
                 'cashback' => $upline->cashback + $referral_commission,
             ]);
@@ -316,6 +319,7 @@ if (!function_exists("getAndUpdateReferralCommission")) {
         return $earned;
     }
 }
+
 
 if (!function_exists("notification1")) {
     function notification1()

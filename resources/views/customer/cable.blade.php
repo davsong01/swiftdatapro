@@ -32,7 +32,7 @@
     <div class="input-group mb-3">
       <span class="input-group-text"><i style="font-weight: bold" class="fa-solid fa-wifi"></i></span>
       <input type="hidden" id="network_discount">
-      <select class="form-control" id="service_module" required>
+      <select class="form-control" id="network_module" required>
         <option value="">--Choose--</option>
         @foreach($category->products as $product)
         @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
@@ -108,34 +108,35 @@
   reset();
 
   function reset() {
-    // $('#request_type').find('option').not(':first').remove();
-    $('#dataplanloader').find('option').not(':first').remove();
-    $('#service_plan').find('option').remove();
-    $('#mobile_no').val();
-    $('#amount').val();
+      $('#dataplanloader').find('option').remove();
+      // $('#request_type').find('option').not(':first').remove();
+      // $('#dataplanloader').find('option').not(':first').remove();
+      $('#mobile_no').val();
+      $('#amount').val();
   }
 
-  $("#service_module").change(function () {
-    if ($("#service_module").val() != "") {
-      var product_id = $("#service_module").val();
+  $("#network_module").change(function () {
+    if ($("#network_module").val() != "") {
+      var product_id = $("#network_module").val();
       $.ajaxSetup({
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
       });
 
-      $.LoadingOverlay("show");
+      // $.LoadingOverlay("show");
 
       $.ajax({
         url: "{{ url('customer-get-variations') }}/" + product_id,
         method: 'GET',
         success: function (RES_data) {
           $.LoadingOverlay("hide");
-          $("#dataplanloader").append(RES_data);
+          $("#dataplanloader").html(RES_data);
         }
       })
     }else{
-      reset();
+      $('#dataplanloader').find('option').remove();
+      $('#mobile_no').val();
     }
   })
 
@@ -152,7 +153,7 @@
         }
     }
     var formData = {
-      product_id: $("#service_module").val(),
+      product_id: $("#network_module").val(),
       variation_id: $("#dataplanloader").val(),
       billersCode: $("#smart_no").val(),
       security_pin: $("#security_pin").val(),
@@ -166,7 +167,7 @@
       }
     });
     $.ajax({
-      url: '{{ url("/") }}/verify/' + service_module,
+      url: '{{ url("/") }}/verify/' + network_module,
       method: 'POST',
       dataType: 'json',
       data: formData,
@@ -194,8 +195,8 @@
   
    function pay4Tv() {
     var formData = {
-      service_module: $("#service_module").val(),
-      network_module: $("#service_module").val(),
+      network_module: $("#network_module").val(),
+      network_module: $("#network_module").val(),
       dataplanloader: $("#dataplanloader").val(),
       renewal_amount: $("#renewal_amount").val(),
       billersCode: $("#smart_no").val(),
