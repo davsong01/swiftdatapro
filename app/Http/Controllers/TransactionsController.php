@@ -603,7 +603,6 @@ class TransactionsController extends Controller
         
         *Name:* ' . $user->full_name . '
         *Charge:* ' .  settings()->currency . number_format($discount['charge']) . '
-        *Amount Charged:* ' . settings()->currency . number_format($amount_to_pay, 2) . '
         *Amount to Receive:* ' . settings()->currency . number_format($amount_to_recieve, 2) . '
         *Total Credit to transfer:* ' . settings()->currency . number_format($amount_to_pay, 2) . '
         *Phone Number:* ' . $request->mobile_no . '
@@ -1285,6 +1284,11 @@ class TransactionsController extends Controller
         }
 
         if ($request->type) {
+            $transactions = $transactions->where('type', $request->type);
+        }
+
+        if ($request->download && $request->download == 'on') {
+            dd('export');
             $transactions = $transactions->where('type', $request->type);
         }
 

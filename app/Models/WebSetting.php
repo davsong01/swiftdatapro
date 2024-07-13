@@ -11,4 +11,8 @@ class WebSetting extends Model
     public $timestamps = false;
     protected $guarded = [];
     protected $table = 'web_settings';
+
+    protected $casts = [
+        'allowed_domain_emails_for_registration' => 'array',
+    ];
 }

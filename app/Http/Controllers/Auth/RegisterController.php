@@ -6,8 +6,10 @@ use DateTime;
 use DateTimeZone;
 use App\Models\User;
 use App\Models\UserVerify;
+use App\Models\WebSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Rules\DomainRestrictedEmail;
 use Illuminate\Support\Facades\Hash;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Validator;
@@ -47,6 +49,12 @@ class RegisterController extends Controller
 
     public function showRegistrationForm(Request $request)
     {
+        $disable_registration = WebSetting::value('disable_registration');
+        
+        if($disable_registration == 'yes'){
+            return redirect(route('welcome'));
+        }
+
         if (isset($request->referral)) {
             $myrefferal = $request->referral;
         } else {
@@ -63,17 +71,24 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        $settings = WebSetting::first();
+        $allowedDomains = $settings->allowed_domain_emails_for_registration;
+        $allowedDomains = !empty($allowedDomains) ? json_decode($allowedDomains, true) : [];
+        
+        $allowedDomainsString = implode('|', $allowedDomains);
+
         return Validator::make($data, [
             'full_name' => ['required', 'string', 'max:15'],
             'referral' => ['required', 'string', 'exists:users,ref_code', 'max:50'],
-            'middle_name' => ['required', 'string', 'max:15'],
+            'middle_name' => ['nullable', 'string', 'max:15'],
             'last_name' => ['required', 'string', 'max:15'],
             'mobile' => ['required', 'string', 'max:11', 'min:11', 'unique:users'],
             'username' => ['required', 'string', 'max:30', 'unique:users'],
             'gender' => ['required', 'string', 'in:Male,Female', 'max:10'],
-            'email' => ['required', 'string', 'email', 'max:50', 'unique:users'],
+            'email' => ['required', 'string', 'email', 'max:50', 'unique:users', 'regex:/^[A-Za-z0-9._%+-]+@(' . $allowedDomainsString . ')$/i'],
             'password' => ['required', 'string', 'min:5'],
         ]);
+
     }
 
     /**
@@ -84,6 +99,12 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        $disable_registration = WebSetting::value('disable_registration');
+        
+        if ($disable_registration == 'yes') {
+            return redirect(route('welcome'));
+        }
+
         // Get referral
         $myrefferal = User::where('ref_code', $data['referral'])->first();
 

@@ -72,6 +72,32 @@
                         <input type="file" class="form-control" id="site_favicon" name="site_favicon">
                     </div>
                     <div class="col-md-6">
+                        <label for="kyc_settings" class="form-label">Enable KYC Check <small>(Customers will not be able to use the system except they complete KYC)</small><span
+                        class="text-danger">*</span></label>
+                        
+                        <select class="form-control" name="kyc_settings[status]" id="kyc_settings" required>
+                            <option value="" selected>Select</option>
+                            <option value="yes" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="disable_registration" class="form-label">Disable New Registration<span
+                        class="text-danger">*</span></label>
+                        
+                        <select class="form-control" name="disable_registration" id="disable_registration" required>
+                            <option value="" selected>Select</option>
+                            <option value="yes" {{ $contact->disable_registration == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{ $contact->disable_registration == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="seo_title" class="form-label">Allowed domain emails for registration<span
+                        class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="allowed_domain_emails_for_registration" name="allowed_domain_emails_for_registration" value="{{ $allowed_domains_for_registration ?? old('allowed_domain_emails_for_registration') }}" required>
+                    </div>
+                    
+                    <div class="col-md-6">
                         <label for="enable_mode_selector" class="form-label">Enable Mode Selector<span
                         class="text-danger">*</span></label>
                         <select class="form-control" name="enable_mode_selector" id="enable_mode_selector" required>
@@ -87,16 +113,7 @@
                             <option value="no" {{ $contact->enable_switcher == 'no' ? 'selected' : '' }}>No</option>
                         </select>
                     </div>
-                    <div class="col-md-6">
-                        <label for="kyc_settings" class="form-label">Enable KYC Check <small>(Customers will not be able to use the system except they complete KYC)</small><span
-                        class="text-danger">*</span></label>
-                        
-                        <select class="form-control" name="kyc_settings[status]" id="kyc_settings" required>
-                            <option value="" selected>Select</option>
-                            <option value="yes" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'yes' ? 'selected' : '' }}>Yes</option>
-                            <option value="no" {{ !empty($kyc_settings['status']) && $kyc_settings['status'] == 'no' ? 'selected' : '' }}>No</option>
-                        </select>
-                    </div>
+                    
                     <div class="col-md-6">
                         <label for="allow_transaction_refferal_system" class="form-label">Allow Refferal Commission system<span
                         class="text-danger">*</span></label>

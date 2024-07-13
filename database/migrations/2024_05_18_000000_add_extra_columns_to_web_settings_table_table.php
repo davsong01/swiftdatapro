@@ -36,25 +36,6 @@ return new class extends Migration
                 $table->longText('kyc_settings');
             });
         }
-
-
-        // if (!Schema::hasColumn('web_settings', 'favicon')) {
-        //     Schema::table('web_settings', function (Blueprint $table) {
-        //         $table->string('favicon');
-        //     });
-        // }
-
-        // if (!Schema::hasColumn('web_settings', 'enable_mode_selector')) {
-        //     Schema::table('web_settings', function (Blueprint $table) {
-        //         $table->string('enable_mode_selector');
-        //     });
-        // }
-
-        // if (!Schema::hasColumn('web_settings', 'enable_switcher')) {
-        //     Schema::table('web_settings', function (Blueprint $table) {
-        //         $table->string('enable_switcher');
-        //     });
-        // }
     }
 
     /**
@@ -64,6 +45,5 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users_verify');
     }
 };

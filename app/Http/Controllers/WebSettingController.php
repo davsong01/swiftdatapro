@@ -47,8 +47,9 @@ class WebSettingController extends Controller
         $contact = WebSetting::first();
 
         $kyc_settings = !empty($contact->kyc_settings) ? json_decode($contact->kyc_settings, true) : [];
-        
-        return view('admin.settings.contact_info', compact('contact', 'kyc_settings'));
+        $allowed_domains_for_registration = !empty($contact->allowed_domain_emails_for_registration) ? implode(',',json_decode($contact->allowed_domain_emails_for_registration, true)) : '';
+       
+        return view('admin.settings.contact_info', compact('contact', 'kyc_settings', 'allowed_domains_for_registration'));
         
     }
 
@@ -58,7 +59,7 @@ class WebSettingController extends Controller
     public function update(Request $request, WebSetting $webSetting)
     {
         $contact = WebSetting::first();
-        $data = $request->except(['_token', '1']);
+        $data = $request->except(['_token', '1', 'allowed_domain_emails_for_registration']);
 
         if (!empty($request->logo)) {
             $data['logo'] = $this->uploadFile($request->logo, 'site');
@@ -66,6 +67,10 @@ class WebSettingController extends Controller
 
         if (!empty($request->site_favicon)) {
             $data['site_favicon'] = $this->uploadFile($request->site_favicon, 'site');
+        }
+
+        if (!empty($request->allowed_domain_emails_for_registration)) {
+            $data['allowed_domain_emails_for_registration'] = json_encode(explode(',',$request->allowed_domain_emails_for_registration));
         }
        
         if (!empty($request->kyc_settings)) {

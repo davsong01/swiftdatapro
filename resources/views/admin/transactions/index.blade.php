@@ -71,7 +71,7 @@
                                     <input type="text" class="form-control" id="unique_element" name="unique_element" placeholder="Enter unique element" value="{{ \Request::get('unique_element') }}">
                                 </div>
                             </div> --}}
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <div class="form-group">
                                     <label for="status" class="form-label">Status</label>
                                     <select class="form-control" name="status" id="status">
@@ -88,10 +88,19 @@
                                     <input type="date" class="form-control" value="{{ \Request::get('from')}}" name="from">
                                 </div>
                             </div>
+                            
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label class="form-label" for="to">To</label>
                                     <input type="date" class="form-control" value="{{ \Request::get('to')}}" name="to">
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <label class="form-label" for="customCheck2">Download</label> <br>
+                                        <input type="checkbox" name="download" class="custom-control-input" id="customCheck2">
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-2">
