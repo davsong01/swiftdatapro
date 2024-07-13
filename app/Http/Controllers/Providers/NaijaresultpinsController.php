@@ -7,7 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
-class NaijaresultpinsController extends Controller
+class NaijaResultPinsController extends Controller
 {
     public function getPostData($request, $api)
     {

@@ -1276,10 +1276,11 @@ class TransactionsController extends Controller
         if ($request->type) {
             $transactions = $transactions->where('type', $request->type);
         }
-        
+
+        $count = 1;
         $transactions = $transactions->paginate(50)->withQueryString();;
 
-        return view('admin.transactions.index', compact('transactions','products'));
+        return view('admin.transactions.index', compact('transactions','products','count'));
     }
 
 

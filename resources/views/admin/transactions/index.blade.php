@@ -106,6 +106,7 @@
                     <table class="table text-nowrap">
                     <thead>
                         <tr>
+                            <th>S/N</th>
                             <th>Customer</th>
                             <th>Payment Details</th>
                             {{-- <th>Unique Element</th> --}}
@@ -117,6 +118,7 @@
                     <tbody>
                         @foreach($transactions as $transaction)
                         <tr>
+                            <td>{{$count++}}</td>
                             <td>
                                 <strong>
                                 @if(!empty($transaction->product_id))
