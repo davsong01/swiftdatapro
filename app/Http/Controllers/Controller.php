@@ -1061,12 +1061,6 @@ class Controller extends BaseController
     }
 
     public function sendEmail($email_to, $subject, $body){
-        // $headers = 'MIME-Version: 1.0' . "\r\n";
-        // $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-        // $headers .= 'From: ' . $email_from . "\r\n" .
-        //     'Reply-To: ' . $email_from . "\r\n" .
-        //     'X-Mailer: PHP/' . phpversion();
-        // mail($email_to, $subject, $body, $headers);
         $data = [
             'subject' => $subject,
             'body' => $body,

@@ -219,6 +219,8 @@ if (!function_exists("getVariationDiscount")) {
         $individualdiscount = Discount::where(['variation_id' => $variation->id, 'customer_level' => $level])->first();
         $discount = !empty($individualdiscount) ? $individualdiscount : ($discount ?? NULL);
 
+        // \Log::info(['id' => $variation->id, 'discount' => $discount, 'sy_price' => $individualdiscount]);
+
         if (!empty($discount)) {
             $type = $discount_type;
             if ($discount_type == 'flat') {
@@ -226,7 +228,6 @@ if (!function_exists("getVariationDiscount")) {
                 $discount_applied = abs($amount - $discount->price);
                 $display_amount = settings()->currency . number_format($new_amount);
             } else {
-                
                 $discount_applied = $discount->price;
                 $discount_applied = floor($discount_applied / 100 * $amount);
                 $n_amount = $amount - $discount_applied;

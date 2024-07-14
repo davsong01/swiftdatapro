@@ -531,7 +531,7 @@ class EasyAccessController extends Controller
     public function getOldVariations($product)
     {
         $category = $product->category;
-        $productLevel = CustomerLevel::pluck('id')->toArray();
+        $productLevel = CustomerLevel::where('id', '>', 1)->pluck('id')->toArray();
         $old_identifier = $product->old_identifier;
         
         // Data products
@@ -758,7 +758,6 @@ class EasyAccessController extends Controller
                             'price' => $value ?? 0,
                             'status' => 'active'
                         ]);
-   
                     }
                 }
             }

@@ -22,8 +22,8 @@ class ProductController extends Controller
     {
         $categories = Category::where('status', 'active')->where('slug', '!=', 'airtime-exchange')->get();
         $apis = Api::where('status', 'active')->get();
-        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>',1)->get();
-
+        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->get();
+        
         return view('admin.products.create', compact('categories', 'apis', 'customerlevel'));
     }
 
@@ -137,7 +137,7 @@ class ProductController extends Controller
         $categories = Category::where('status', 'active')->where('slug', '!=', 'airtime-exchange')->get();
         $variations = Variation::where('product_id', $product->id)->where('api_id', $product->api_id)->get();
         $apis = Api::where('status', 'active')->get();
-        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->where('id', '>', 1)->get();
+        $customerlevel = CustomerLevel::orderBy('order', 'ASC')->get();
         
         return view('admin.products.edit', compact('categories', 'apis', 'product', 'variations', 'customerlevel'));
     }

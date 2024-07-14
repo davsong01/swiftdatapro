@@ -544,6 +544,7 @@ class GongzoController extends Controller
     {
         $category = $product->category;
         $productLevel = CustomerLevel::pluck('id')->toArray();
+        
         $old_identifier = $product->old_identifier;
     
         // Data products
@@ -730,7 +731,7 @@ class GongzoController extends Controller
 
                 foreach ($productLevel as $level) {
                     $response = \DB::connection('old')->table('airtelcgdata_plan')->select('gongzo_data312', 'gongzo_data313', 'gongzo_data314', 'gongzo_data315', 'gongzo_data317', 'gongzo_data318', 'gongzo_data319')->where('id', $level)->first();
-
+                    
                     foreach ($response as $key => $value) {
                         $discount = Discount::updateOrCreate([
                             'customer_level' => $level,
@@ -875,6 +876,7 @@ class GongzoController extends Controller
 
         if (isset($product->slug) && $product->slug == 'glo-cg') {
             $response = \DB::connection('old')->table('glocgdata_plan')->select('gongzo_data321', 'gongzo_data322', 'gongzo_data323', 'gongzo_data324', 'gongzo_data325', 'gongzo_data326', 'gongzo_data327', 'gongzo_data337')->first();
+           
             $data = [
                 [
                     'name' => "GLO (CG) 1.0 GB - 30days",
@@ -958,12 +960,14 @@ class GongzoController extends Controller
 
                 foreach ($productLevel as $level) {
                     $response = \DB::connection('old')->table('glocgdata_plan')->select('gongzo_data321', 'gongzo_data322', 'gongzo_data323', 'gongzo_data324', 'gongzo_data325', 'gongzo_data326', 'gongzo_data327', 'gongzo_data337')->where('id', $level)->first();
-
+                    
                     foreach ($response as $key => $value) {
                         $discount = Discount::updateOrCreate([
                             'customer_level' => $level,
                             'product_id' => $product->id,
-                            'variation_id' => $variation->id
+                            'variation_id' => $variation->id,
+                            'price' => $value ?? 0,
+
                         ], [
                             'customer_level' => $level,
                             'product_id' => $product->id,
@@ -971,6 +975,8 @@ class GongzoController extends Controller
                             'price' => $value ?? 0,
                             'status' => 'active'
                         ]);
+
+                        \Log::info(['disc' => $discount]);
                     }
                 }
             }
