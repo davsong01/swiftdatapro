@@ -1528,6 +1528,8 @@ class EasyAccessController extends Controller
         } elseif ($slug == 'mtn-datacard') {
             $ntwk = '01';
             $url = $api->live_base_url . "datacard.php";
+        }else{
+            $url = $api->live_base_url . "data.php";
         }
 
         $postdata = [
