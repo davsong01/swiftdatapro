@@ -24,6 +24,7 @@ use App\Models\VtuappManualFunding;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Services\JsonResponseService;
+use App\Services\MobileResponseService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
@@ -826,7 +827,7 @@ class HomeController extends Controller
         return view('customer.reset_pin');
     }
 
-    public function processResetPin(Request $request, JsonResponseService $response){
+    public function processResetPin(Request $request, JsonResponseService $response = null){
         $web_settings = WebSetting::first();
     
         $validator = Validator::make($request->all(), [
@@ -834,6 +835,14 @@ class HomeController extends Controller
         ]);
 
         if ($validator->fails()) {
+
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: $validator->messages()->first(),
+                    status: 422
+                );
+            }
+
             $responseX = [
                 'status_code' => 100,
                 'status' => 'fail',
@@ -848,6 +857,14 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => '<div class="alert alert-danger text-left">Incorrect password !!!</div>',
             );
+
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: 'Incorrect password !!!',
+                    status: 403
+                );
+            }
+
             return json_encode($response);
         }
 
@@ -873,8 +890,14 @@ class HomeController extends Controller
             'message' => '<div class="alert alert-success text-left">Thank you for reaching to us. PIN reset link has been forwarded to your email!!!</div>',
         ];
 
-        // return json_encode($responseX);
-
+        if (\Request::is('mobile/*')) {
+            return MobileResponseService::json(
+                message: 'Thank you for reaching to us. PIN reset link has been forwarded to your email!!!',
+                data: ['reset_link' => $reset_link],
+                status: 200
+            );
+        }
+        
         $response->handler($responseX);
     }
 

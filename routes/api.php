@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExternalApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,23 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+Route::controller(ExternalApiController::class)->prefix('v1')->group(function () {
+    // Get all Categories
+    // Route::get('category', 'getCategories');
+    // // Get all products
+    // Route::get('/products/{category_slug}', 'getProductsByCategory');
+    // // Get variations
+    // Route::get('/variations/{product_slug}', 'getVariationsByProductSlug');
+    // // Verify
+
+    // Route::middleware('api-auth')->group(function () {
+    //     Route::post('/verify-biller', 'verifyBiller');
+    //     Route::get('/get-balance', 'getBalance');
+    //     Route::post('buy/{service?}', 'processBuy');
+
+    // });
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

@@ -18,8 +18,7 @@ Route::group(['prefix' => 'v1', 'before' => 'v1'], function () {
             Route::get('get-transactions/{type?}', 'transactions');
             Route::get('get-downlines', 'downlines');
             
-            // Route::get('change-pin', [HomeController::class, 'resetPin'])->name('pin.reset');
-            // Route::post('change-pin', [HomeController::class, 'processResetPin'])->name('pin.process.reset');
+            Route::post('change-pin', 'processResetPin');
             // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
             // Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
             // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);

@@ -68,15 +68,15 @@ class LoginController extends Controller
         if($user->status == 0 || $user->status == 'inactive'){
             return back()->with('error', 'This account has been deactivated');
         }
-
-        if (empty($request->password)) {
+        
+        if (empty($user->pass)) {
             if (md5($request->password) == $user->password) {
-                $user->update([
-                    'pass' => Hash::make($request->password),
-                ]);
+                $user->pass = Hash::make($request->password);
+                $user->save();
             } else {
                 return back()->with('error', 'Incorrect Username or Password');
             }
+
         }
         
         if (!$user || !Hash::check($request->password, $user->pass)) {

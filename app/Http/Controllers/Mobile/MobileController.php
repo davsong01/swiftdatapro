@@ -378,5 +378,33 @@ class MobileController extends Controller
             );
         }
     }
+
+    public function processResetPin(Request $request)
+    {
+        $validator = validator($request->all(), [
+            'old_pin' => ['required'],
+        ]);
+
+        if ($validator->fails())
+            return MobileResponseService::json(
+                message: 'Validation error',
+                error: $validator->errors()->all(),
+                status: 422
+            );
+
+        $request['network_module'] = $request->product_id;
+        $request['dataplanloader'] = $request->variation_id;
+
+        return $this->home->processResetPin($request);
+            dd($data);
+        if (!empty($data)) {
+            return MobileResponseService::json(
+                message: $data['message'] ?? 'Purchase error',
+                data: $data,
+                status: 200
+            );
+        }
+    }
+    
     
 }
