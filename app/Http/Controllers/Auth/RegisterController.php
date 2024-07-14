@@ -150,10 +150,10 @@ class RegisterController extends Controller
         // Send Admin Notification email
         $this->sendAdminNotificationEmail($user);
 
-        UserVerify::create([
-            'user_id' => $user->id,
-            'token' => $user->users_sid
-        ]);
+        // UserVerify::create([
+        //     'user_id' => $user->id,
+        //     'token' => $user->users_sid
+        // ]);
 
         return $user;
     }

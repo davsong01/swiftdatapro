@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Models\User;
 use App\Models\Transactions;
 use App\Models\CustomerLevel;
 use App\Models\AutomatedDeposit;
