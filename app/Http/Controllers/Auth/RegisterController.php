@@ -124,7 +124,7 @@ class RegisterController extends Controller
             'wallets' => 0,
             'cashback' => 0,
             // 'block' => 0,
-            // 'users_sid' => $users_sid,
+            'users_sid' => $users_sid,
             'referral' => '',
             'level' => 1,
             'last_login' => $time,
