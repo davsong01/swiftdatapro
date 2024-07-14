@@ -192,7 +192,7 @@
                                         <th style="color:black">Unit Cost</th>
                                         <th style="color:black">Quantity</th>
                                         <th style="color:black">Amount</th>
-                                        {{-- <th style="color:black">Biller</th> --}}
+                                        <th style="color:black">Biller</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -201,14 +201,16 @@
                                         @if(in_array($transaction->reason, ['LEVEL-UPGRADE','WALLET-FUNDING','ADMIN-DEBIT','ADMIN-CREDIT']))
                                             {{ ucfirst(str_replace("-"," ",$transaction->reason))}}
                                         @else
-                                        {{ !empty($transaction->product) ? $transaction->product->name : $transaction->buyer_service }}@if(!empty($transaction->variation->system_name)) <strong> | {{ !empty($transaction->variation) ? $transaction->variation->name : ''}} </strong> @endif
+                                        {{ !empty($transaction->product) ? $transaction->product->name : $transaction->buyer_service }}
+                                        @if(!empty($transaction->variation->system_name)) <strong> | {{ !empty($transaction->variation) ? $transaction->variation->system_name : ''}} </strong> 
+                                        @endif
                                         @endif
                                     </td>
                                     <td>
                                         {!! settings()->currency. number_format($transaction->buyer_amount, 2) !!}
                                     </td>
                                         <td>
-                                        {{ $transaction->buyer_quantity  }}
+                                        {{ $transaction->buyer_quantity }}
                                     </td>
 
                                     <td>
@@ -229,6 +231,10 @@
                                             }
                                         ?>
                                         
+                                    </td>
+                                    <td>
+                                        <span style="color:black"> {{ $transaction->billersCode }}
+
                                     </td>
                                 </tr>
                                 </tbody>

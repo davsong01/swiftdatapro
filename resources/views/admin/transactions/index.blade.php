@@ -152,6 +152,14 @@
                             </td>
                             <td>
                                 <small>
+                                    <span style="color:blue">
+                                    @if(!empty($transaction->provider_id))
+                                    <strong>Provider: </strong>{{ $transaction->api->name }} <br>
+                                    @endif
+                                    @if(!empty($transaction->wallet_funding_provider))
+                                    <strong>Provider: </strong>{{ $transaction->gateway->name }} <br>
+                                    @endif
+                                    </span>
                                     <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
                                     <strong>Unit Price: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
                                     <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
