@@ -259,7 +259,7 @@ class PaymentGatewayController extends Controller
                     if(!$user){
                         die();
                     }
-                   
+                    
                     if ($final_amount > 0 && $data['message'] == 'Success') {
                         // check if reference exists
                         $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('api_ref', $api_reference)->count();

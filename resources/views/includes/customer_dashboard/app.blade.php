@@ -101,6 +101,7 @@
                 {{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span></h5>
             <h6 class="">Level: {{ auth()->user()->customer_level->name }} <span
                     style="color: #940798;font-weight: bold;font-size: 18px;"></span></h6>
+
             <div class="sidebar_close_icon d-lg-none">
                 <i class="ti-close"></i>
             </div>
@@ -505,6 +506,7 @@
                 </span>
                 <br />
                 <span style="color: #940798;font-weight: bold;font-size: 25px;">{{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span>
+                <span style="float: right;"><button class="btn btn-dark" style="font-size:10px"><a style="color:white" href="{{route('automated.pay')}}">Fund Wallet</a></button></span>
 
             </div>
         </div>
