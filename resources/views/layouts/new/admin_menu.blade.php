@@ -139,6 +139,50 @@
             </ul>
         </li>
 
+        
+        @if (in_array('Finance', allowedPermissions()))
+        <li class="slide has-sub {{ Route::is('admin.credit.customer') ||  Route::is('admin.debit.customer') }}">
+            <a href="javascript:void(0);" class="side-menu__item">
+                <svg fill="#a3aed2" xmlns="http://www.w3.org/2000/svg"
+                            height="24" viewBox="0 -960 960 960" width="24">
+                            <path
+                                d="M80-200v-80h400v80H80Zm0-200v-80h200v80H80Zm0-200v-80h200v80H80Zm744 400L670-354q-24 17-52.5 25.5T560-320q-83 0-141.5-58.5T360-520q0-83 58.5-141.5T560-720q83 0 141.5 58.5T760-520q0 29-8.5 57.5T726-410l154 154-56 56ZM560-400q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z" />
+                        </svg>
+                <span class="side-menu__label">&nbsp;Finance</span>
+                <i class="fe fe-chevron-right side-menu__angle"></i>
+            </a>
+            <ul class="slide-menu child1">
+                @if (in_array('admin.transactions', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('admin.transactions') }}" class="side-menu__item {{Route::is('admin.debit.customer') ? 'active' : '' }}">Transactions</a>
+                </li>
+                @endif
+                @if (in_array('admin.credit.customer', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('admin.credit.customer') }}" class="side-menu__item {{Route::is('admin.credit.customer') ? 'active' : '' }}">Credit Customer</a>
+                </li>
+                @endif
+                @if (in_array('admin.debit.customer', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('admin.debit.customer') }}" class="side-menu__item {{Route::is('admin.debit.customer') ? 'active' : '' }}">Debit Customer</a>
+                </li>
+                @endif
+                @if (in_array('Deposit Transactions', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('admin.deposit.transactions') }}" class="side-menu__item {{Route::is('admin.deposit.transactions') ? 'active' : '' }}">Deposit Transactions</a>
+                </li>
+                @endif
+            </ul>
+        </li>
+        @endif
+        @if (in_array('Notifications', allowedPermissions()))
+        <li class="slide">
+            <a href="{{ route('notification.index') }}" class="side-menu__item {{Route::is('notification.index') ? 'active' : '' }}">
+                <i class="bx bx-medal side-menu__icon"></i>
+                <span class="side-menu__label">Notifications</span>
+            </a>
+        </li>
+        @endif
         @if (in_array('Settings', allowedPermissions()))
         <li class="slide has-sub">
             <a href="javascript:void(0);" class="side-menu__item">
@@ -175,45 +219,6 @@
                 @if (in_array('kyc.admin.settings', allowedPermissions()))
                 <li class="slide">
                     <a href="{{ route('kyc.admin.settings') }}" class="side-menu__item {{Route::is('kyc.admin.settings') ? 'active' : '' }}">Kyc Settings</a>
-                </li>
-                @endif
-            </ul>
-        </li>
-        @endif
-
-        @if (in_array('Notifications', allowedPermissions()))
-        <li class="slide">
-            <a href="{{ route('notification.index') }}" class="side-menu__item {{Route::is('notification.index') ? 'active' : '' }}">
-                <i class="bx bx-medal side-menu__icon"></i>
-                <span class="side-menu__label">Notifications</span>
-            </a>
-        </li>
-        @endif
-        @if (in_array('Finance', allowedPermissions()))
-        <li class="slide has-sub {{ Route::is('admin.credit.customer') ||  Route::is('admin.debit.customer') }}">
-            <a href="javascript:void(0);" class="side-menu__item">
-                <svg fill="#a3aed2" xmlns="http://www.w3.org/2000/svg"
-                            height="24" viewBox="0 -960 960 960" width="24">
-                            <path
-                                d="M80-200v-80h400v80H80Zm0-200v-80h200v80H80Zm0-200v-80h200v80H80Zm744 400L670-354q-24 17-52.5 25.5T560-320q-83 0-141.5-58.5T360-520q0-83 58.5-141.5T560-720q83 0 141.5 58.5T760-520q0 29-8.5 57.5T726-410l154 154-56 56ZM560-400q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Z" />
-                        </svg>
-                <span class="side-menu__label">&nbsp;Finance</span>
-                <i class="fe fe-chevron-right side-menu__angle"></i>
-            </a>
-            <ul class="slide-menu child1">
-                @if (in_array('admin.transactions', allowedPermissions()))
-                <li class="slide">
-                    <a href="{{ route('admin.transactions') }}" class="side-menu__item {{Route::is('admin.debit.customer') ? 'active' : '' }}">Transactions</a>
-                </li>
-                @endif
-                @if (in_array('admin.credit.customer', allowedPermissions()))
-                <li class="slide">
-                    <a href="{{ route('admin.credit.customer') }}" class="side-menu__item {{Route::is('admin.credit.customer') ? 'active' : '' }}">Credit Customer</a>
-                </li>
-                @endif
-                @if (in_array('admin.debit.customer', allowedPermissions()))
-                <li class="slide">
-                    <a href="{{ route('admin.debit.customer') }}" class="side-menu__item {{Route::is('admin.debit.customer') ? 'active' : '' }}">Debit Customer</a>
                 </li>
                 @endif
             </ul>

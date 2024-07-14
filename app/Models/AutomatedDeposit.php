@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\DepositTransaction;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class AutomatedDeposit extends Model
 {
@@ -18,5 +19,10 @@ class AutomatedDeposit extends Model
     public function gateway()
     {
         return $this->belongsTo(PaymentGateway::class, 'payment_gateway_id');
+    }
+
+    public function deposit_transactions()
+    {
+        return $this->hasMany(DepositTransaction::class, 'account_number', 'account_number');
     }
 }

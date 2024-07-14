@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Blacklist;
+use App\Models\DepositTransaction;
 use App\Models\Variation;
 use App\Models\WebSetting;
 use App\Models\Transactions;
@@ -1298,6 +1299,54 @@ class TransactionsController extends Controller
         return view('admin.transactions.index', compact('transactions','products','count'));
     }
 
+    public function adminDepositTransactions(Request $request)
+    {
+        $transactions = DepositTransaction::latest();
+        
+        if ($request->email) {
+            $user = User::where('email', $request->email)->first();
+            $transactions = $transactions->where('user_id', $user->id);
+
+            if (!empty($user)) {
+                $transactions = $transactions->where('user_id', $user->id);
+            }
+        }
+
+        if ($request->payment_gateway_id) {
+            $transactions = $transactions->where('payment_gateway_id', $request->payment_gateway_id);
+        }
+
+        if ($request->sys_reference) {
+            $transactions = $transactions->where('sys_ref', $request->sys_reference)->orwhere('api_ref', $request->sys_reference);
+        }
+
+        if ($request->reference) {
+            $transactions = $transactions->where('api_ref', $request->api_ref);
+        }
+
+        if ($request->account_number) {
+            $transactions = $transactions->where('account_number', $request->account_number);
+        }
+
+        if ($request->user_status) {
+            $transactions = $transactions->where('user_status', $request->user_status);
+        }
+
+        if ($request->user_service) {
+            $transactions = $transactions->where('user_service', $request->user_service);
+        }
+
+        if ($request->from && $request->to) {
+            $from = $request->from . ' 00:00:00';
+            $to = $request->to . ' 23:59:59';
+            $transactions = $transactions->whereBetween('created_at', [$from, $to]);
+        }
+
+        $count = 1;
+        $transactions = $transactions->paginate(50)->withQueryString();;
+
+        return view('admin.transactions.deposit_transactions', compact('transactions', 'count'));
+    }
 
     public function singleTransactionView(Transactions $transaction)
     {

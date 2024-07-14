@@ -22,10 +22,6 @@ class Transactions extends Model
 
     protected $guarded = [];
 
-    public function customer(){
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
     public function product()
     {
         return $this->belongsTo(Product::class);
@@ -49,6 +45,11 @@ class Transactions extends Model
     public function gateway()
     {
         return $this->belongsTo(PaymentGateway::class, 'wallet_funding_provider');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function upgrade_level()

@@ -47,7 +47,12 @@
                             </td>
                             <td>{{ $account->bank_name }}</td>
                             <td>{{ $account->account_name }}</td>
-                            <td>{{ $account->account_number }}</td>
+                            <td>
+                                {{ $account->account_number }} <br>
+                                @if (in_array('Deposit Transactions', allowedPermissions()) && $account->deposit_transactions->count() > 0)
+                                <a target="_blank" href="{{ route('admin.deposit.transactions', ['account_number' => $account->account_number]) }}" class="btn btn-info btn-sm">View Transactions</a>
+                                @endif
+                            </td>
                             <td style="color:{{ $account->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($account->status) }}</td>
                            
                             @if(hasAccess('accounts.edit') || hasAccess('accounts.destroy'))

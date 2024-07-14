@@ -41,6 +41,7 @@ class RoleSeeder extends Seeder
             'Transactions',
             'Credit Customer',
             'Debit Customer',
+            'Deposit Transactions'
         ];
 
         $permissions = [
@@ -184,7 +185,8 @@ class RoleSeeder extends Seeder
             'admin.process.credit.debit',
             'admin.transactions',
             'admin.single.transaction.view',
-            'transaction.receipt.download', 
+            'transaction.receipt.download',
+            'admin.deposit.transactions'
         ];
 
         // RolePermission::truncate();

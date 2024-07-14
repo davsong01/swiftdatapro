@@ -20,7 +20,6 @@ class RouteProtectionMiddleware
         $curRouteName = Route::currentRouteName();
         
         $allowed = allowedPermissions();
-        
         if (in_array($curRouteName, $allowed)) {
             return $next($request);
         } else {
