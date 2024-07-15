@@ -487,4 +487,100 @@ class PaymentGatewayController extends Controller
         
         return $charge;
     }
+
+    public function deleteMonnifyReservedAccount(string $account_reference)
+    {
+        $api = PaymentGateway::where('slug', 'monnify')->first();
+
+        $token = $this->login($api);
+    
+        if (empty($token)) {
+            return [
+                'status' => 'failed',
+                'status_code' => 0,
+            ];
+        } else {
+            $url = $api->base_url . 'v1/bank-transfer/reserved-accounts/reference/' . $account_reference;
+            $headers = [
+                "Content-Type: application/json",
+                "Authorization: Bearer " . $token . "",
+            ];
+
+            $response = $this->basicApiCall($url, [], $headers, 'DELETE');
+            dd($response, $url);
+            if (
+                $response && $response['responseCode'] == 0 &&
+                $response['responseMessage'] == 'success'
+            ) {
+                AutomatedDeposit::where('account_reference', $account_reference)->delete();
+                $data = [
+                    'status' => 'success',
+                    'data' => '',
+                ];
+            } else {
+                $data = [
+                    'status' => 'failed',
+                    'data' => $response['responseBody'] ?? $response['responseMessage'],
+                ];
+            }
+
+            return $data;
+        }
+    }
+
+    public function pullMonnifyReservedAccountByReference(string $account_reference)
+    {
+        $api = PaymentGateway::where('slug', 'monnify')->first();
+
+        $token = $this->login($api);
+
+        if (empty($token)) {
+            return [
+                'status' => 'failed',
+                'status_code' => 0,
+            ];
+        } else {
+            $url = $api->base_url . 'v1/bank-transfer/reserved-accounts/reference/' . $account_reference;
+            $headers = [
+                "Content-Type: application/json",
+                "Authorization: Bearer " . $token . "",
+            ];
+
+            $response = $this->basicApiCall($url, [], $headers, 'DELETE');
+            
+            if (
+                $response && $response['responseCode'] == 0 &&
+                $response['responseMessage'] == 'success'
+            ) {
+                AutomatedDeposit::where('account_reference', $account_reference)->delete();
+                $data = [
+                    'status' => 'success',
+                    'data' => '',
+                ];
+            } else {
+                $data = [
+                    'status' => 'failed',
+                    'data' => $response['responseBody'] ?? $response['responseMessage'],
+                ];
+            }
+
+            return $data;
+        }
+    }
+
+
+    public function login($api)
+    {        
+        $headers = [
+            "Authorization: Basic " . base64_encode($api->api_key . ':' . $api->secret_key)
+        ];
+
+        $url = 'https://api.monnify.com/api/v1/auth/login';
+        $response = $this->advancedApiCall($url, [], $headers, 'POST');
+        $response = json_decode($response, true);
+        
+        $accessToken = $response['responseBody']['accessToken'] ?? null;
+
+        return $accessToken;
+    }
 }

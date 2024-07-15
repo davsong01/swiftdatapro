@@ -19,15 +19,73 @@
                 @include('includes.alerts')
             </div>
             <div class="card-body">
-                <table id="datatable-basic" class="table table-bordered text-nowrap" style="width:100%">
+                <div class="col-md-12">
+                    <form action="{{ route('accounts.index') }}" method="GET">
+                        
+                        <div class="row gy-4">
+                            <div class="col-md-3">
+                                <div class="form-group" >
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="text" class="form-control" id="email" name="email" placeholder="Enter email" value="{{ \Request::get('email')}}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="gateway" class="form-label">Payment Gateway</label>
+                                    <select name="gateway" class="form-control" id="gateway">
+                                        <option value="">Select</option>
+                                        @foreach ($gateways as $gateway)
+                                        <option value="{{ $gateway->id }}">{{ ucfirst($gateway->name) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group" >
+                                    <label for="mobile" class="form-label">Account Reference</label>
+                                    <input type="text" class="form-control" id="reference" name="reference" value="{{ \Request::get('reference')}}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="bank" class="form-label">Bank</label>
+                                    <select name="bank" class="form-control" id="bank">
+                                        <option value="">Select</option>
+                                        @foreach ($banks as $bank)
+                                        <option value="{{ $bank->bank_code }}">{{ ucfirst($bank->bank_name) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="from">From</label>
+                                    <input type="date" class="form-control" value="{{ \Request::get('from')}}" name="from">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="to">To</label>
+                                    <input type="date" class="form-control" value="{{ \Request::get('to')}}" name="to">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <label for="" class="form-label"></label>
+                                <input type="submit" class="form-control btn btn-primary mt-2" value="Search">
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                </div>
+                <table class="table table-bordered responsive"  style="width:100%">
                     <thead>
                         <tr>
                             <th>Customer Details</th>
-                            <th>Details</th>
-                            <th>Bank Name</th>
-                            <th>Account Name</th>
-                            <th>Account No</th>
-                            <th>Status</th>
+                            <th>Gateway Details</th>
+                            <th>Other Details</th>
+                            <th>Bank Details</th>
                             @if(hasAccess('accounts.destroy') || hasAccess('accounts.destroy'))
                             <th>Actions</th>
                             @endif
@@ -37,31 +95,39 @@
                         @foreach($accounts as $account)
                         <tr>
                             <td>
-                                <strong>Name:</strong> {{ $account->customer->full_name }} <br>
-                                <strong>Email:</strong> {{ $account->customer->email }} <br>                  
-                            </td>
-                             <td>
-                                <strong>Created: </strong> {{ $account->created_at }} <br>
-                                <strong>By:</strong> SYSTEM<br>
-                               <strong>Provider: </strong>{{ $account->gateway->name }} <br>
-                            </td>
-                            <td>{{ $account->bank_name }}</td>
-                            <td>{{ $account->account_name }}</td>
-                            <td>
-                                {{ $account->account_number }} <br>
-                                @if (in_array('Deposit Transactions', allowedPermissions()) && $account->deposit_transactions->count() > 0)
-                                <a target="_blank" href="{{ route('admin.deposit.transactions', ['account_number' => $account->account_number]) }}" class="btn btn-info btn-sm">View Transactions</a>
+                                <strong>GATEWAY: </strong>{{ strtoupper($account->gateway->name) }} <br>
+                                <strong>Reference: </strong>{{ strtoupper($account->account_reference )}} <br>
+                                @if (in_array('view.sensitive.data', allowedPermissions()))
+                                <strong>BVN: </strong>{{ $account->bvn }} <br>
+                                <strong>NIN: </strong>{{ $account->nin }} 
                                 @endif
                             </td>
-                            <td style="color:{{ $account->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($account->status) }}</td>
-                           
-                            @if(hasAccess('accounts.edit') || hasAccess('accounts.destroy'))
+                            <td>
+                                <strong>Name:</strong> {{ $account->customer->full_name }} <br>
+                                <strong>Email:</strong><a target="_blank" style="color:blue" href="{{ route('customers.edit', $account->customer->id) }}">{{ $account->customer->email }}</a> <br>                  
+                            </td>
+                            <td>
+                                <strong>Created: </strong> {{ $account->created_at }} <br>
+                                <strong>By:</strong> SYSTEM<br>
+                                <strong>Purpose: </strong>{{$account->purpose}}
+                            </td>
+                            <td>
+                                <strong>Bank Code: </strong>{{ $account->bank_code }} <br>
+                                <strong>Bank Name: </strong>{{ $account->bank_name }} <br>
+                                <strong>Account Name: </strong>{{ $account->account_name }} <br>
+                                <strong>Account No: </strong>{{ $account->account_number }} 
+                                @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->gateway->id == 1 && $account->deposit_transactions->count() == 0)<br>
+                                <a target="_blank" href="{{ route('admin.deposit.transactions', ['account_number' => $account->account_number]) }}" class="btn btn-info btn-sm">View Transactions</a>
+                                @endif
+
+                            </td>
+                            @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->gateway->id == 1)
                             <td>
                                 <form action="{{ route('accounts.destroy', $account->id) }}" class="btn btn-custon-four btn-sm-cl-social" method="POST" onsubmit="return confirm('Are you sure you want to delete forever?');">
                                     {{ csrf_field() }}
                                     {{method_field('DELETE')}}
-                                    <button type="submit" class="btn btn-danger-light btn-wave btn-sm"
-                                        data-toggle="tooltip" title="Delete Account"><i class="bx bxs-trash"></i> </i><span class="align-middle ml-25">Delete Account</span>                                                                 </button>
+                                    <button type="submit" class="btn btn-danger-light btn-wave btn-md"
+                                        data-toggle="tooltip" title="Delete Account"><i class="bx bxs-trash"></i> </i><span class="align-middle ml-25"></span>                                                                 </button>
                                 </form>
                             </td>
                             @endif
@@ -69,6 +135,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                {!!$accounts->appends(Request::all())->render()!!}
             </div>
         </div>
     </div>

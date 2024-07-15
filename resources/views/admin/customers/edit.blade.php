@@ -63,14 +63,14 @@
                             <div class="col-md-6">
                                 <label class="form-label" for="bvn">BVN</label>
                                 <input type="text" class="form-control"
-                                    placeholder="BVN" value="{{ mask($customer->bvn) }}"
-                                    >
+                                    placeholder="BVN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->bvn : mask($customer->bvn) }}"
+                                    disabled>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="nin">NIN</label>
                                 <input type="text" class="form-control"
-                                    placeholder="NIN" value="{{ mask($customer->nin) }}"
-                                    >
+                                    placeholder="NIN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->nin : mask($customer->nin) }}"
+                                    disabled >
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label" for="ref_code">Ref Code</label>
@@ -164,15 +164,18 @@
                     </div>
                 </div>
                 <div class="tab-pane" id="accounts" role="tabpanel">
+                    <a style="margin-bottom:10px" class="btn btn-info btn-md" data-bs-toggle="modal" data-bs-target="#pull-accounts">Pull Accounts by reference</a>
                     <div class="table-responsive">
                         <table id="datatable-basic" class="table table-striped text-nowrap" style="width:100%">
                             <thead>
                                 <tr>
+                                    <th>Gateway</th>
                                     <th>Bank Name</th>
                                     <th>Account Name</th>
                                     <th>Account Number</th>
-                                    <th>Provider</th>
+                                    @if(hasAccess('accounts.edit') || hasAccess('accounts.destroy'))
                                     <th>Action</th>
+                                    @endif
                                 </tr>
                             </thead>
                             <?php 
@@ -182,27 +185,22 @@
                                 @if(!empty($accounts))
                                 @foreach ( $accounts as $account )
                                 <tr>
+                                    <td>{{ $account->gateway->name }}</td>
                                     <td>{{ $account->bank_name }}</td>
                                     <td>{{ $account->account_name }}</td>
                                     <td>{{ $account->account_number }}</td>
-                                    <td>{{ $account->gateway->name }}</td>
-                                    <td>
-                                    @if(hasAccess('accounts.destroy'))
-                                    @if(isset($account->transactions) && $account->transactions->count() < 1)
-                                    <form action="{{ route('accounts.destroy', $account->id) }}"
-                                        class="btn btn-custon-four btn-sm-cl-social" method="POST"
-                                        onsubmit="return confirm('Are you sure you want to delete forever?');">
-                                        {{ csrf_field() }}
-                                        {{method_field('DELETE')}}
-
-                                        <button type="submit" class="btn btn-danger-light btn-wave btn-sm"
-                                            data-toggle="tooltip" title="Delete Account"><i class="bx bxs-trash"></i> </i><span class="align-middle ml-25">Delete</span> Account</button>
-                                    </form>
-                                    @else
-                                      &nbsp;
-                                    @endif
-                                @endif
+                                    
                                     </td>
+                                    @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->gateway->id == 1 && $account->deposit_transactions->count() == 0)
+                                    <td>
+                                        <form action="{{ route('accounts.destroy', $account->id) }}" class="btn btn-custon-four btn-sm-cl-social" method="POST" onsubmit="return confirm('Are you sure you want to delete forever?');">
+                                            {{ csrf_field() }}
+                                            {{method_field('DELETE')}}
+                                            <button type="submit" class="btn btn-danger-light btn-wave btn-md"
+                                                data-toggle="tooltip" title="Delete Account"><i class="bx bxs-trash"></i> </i><span class="align-middle ml-25"></span>                                                                 </button>
+                                        </form>
+                                    </td>
+                                    @endif
                                 </tr>
                                 @endforeach
                                 @endif
@@ -260,6 +258,34 @@
         </div>
     </div>
 </div>
+</div>
+<div class="modal fade" id="pull-accounts" tabindex="-1"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLabel1">Pull Accounts by reference (Monnify Reference Only)</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body"> 
+                <form action="{{ route('pull.reserved.account.by.reference') }}" method="POST" onsubmit="return confirm('Are you sure you want to pull accounts for this customer?');">                   
+                @csrf
+                <div class="hstack gap-3">
+                    <input class="form-control me-auto" name="account_reference" required type="text" placeholder="Enter Account reference">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <div class="vr"></div>
+                </div>
+                <input type="hidden" name="customer_email" value="{{ $customer->email }}">
+                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger"
+                    data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="modal fade" id="changepassword" tabindex="-1"
     aria-labelledby="exampleModalLabel" aria-hidden="true">
