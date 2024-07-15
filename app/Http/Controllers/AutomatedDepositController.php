@@ -13,7 +13,7 @@ class AutomatedDepositController extends Controller
 
     public function index()
     {
-        $accounts = AutomatedDeposit::with('customer')->orderby('created_at', 'DESC')->get();
+        $accounts = AutomatedDeposit::with('customer')->orderby('created_at', 'DESC')->paginate(50);
         
         return view('admin.reserved_accounts.index', compact('accounts'));
     }
