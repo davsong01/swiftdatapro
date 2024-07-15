@@ -1546,7 +1546,7 @@ class EasyAccessController extends Controller
 
     public function query($postdata, $api){
         $headers = [
-            "Authorization: Token " . $api->api_key . "",
+            "AuthorizationToken: " . $api->api_key,
             'cache-control: no-cache'
         ];
         
