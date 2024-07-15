@@ -839,7 +839,7 @@ class VtpassController extends Controller
             'billersCode' => $request['billersCode'],
             'request_id' => $request['sys_ref'],
             'variation_code' => $resource->slug,
-            'amount' => $request['buyer_amount'],
+            'amount' => $request['unit_price'],
             'phone' => $request['mobile_number'],
             'subscription_type' => $subscription_type ?? null,
             'quantity' => $request['quantity'] ?? 1,
