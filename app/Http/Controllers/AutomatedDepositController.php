@@ -42,7 +42,7 @@ class AutomatedDepositController extends Controller
             $accounts = $accounts->whereBetween('created_at', [$from, $to]);
         }
         
-        $accounts = $accounts->paginate(50);
+        $accounts = $accounts->paginate(20);
         $gateways = PaymentGateway::all();
         $banks = AutomatedDeposit::select('bank_code', 'bank_name')->distinct()->get();
         

@@ -38,7 +38,7 @@ class CustomerController extends Controller
             $customers = $customers->whereBetween('created_at', [$from, $to]);
         }
 
-        $customers = $customers->paginate(50);
+        $customers = $customers->paginate(20);
 
         $title = 'All Customers';
         $customer_levels = CustomerLevel::all();
@@ -73,7 +73,7 @@ class CustomerController extends Controller
             $customers = $customers->whereBetween('created_at', [$from, $to]);
         }
 
-        $customers = $customers->paginate(100);
+        $customers = $customers->paginate(20);
         $customer_levels = CustomerLevel::all();
 
         return view('admin.customers.index', compact('customers','title','customer_levels'));
@@ -107,7 +107,7 @@ class CustomerController extends Controller
             $customers = $customers->whereBetween('created_at', [$from, $to]);
         }
 
-        $customers = $customers->paginate(100);
+        $customers = $customers->paginate(20);
 
         $customer_levels = CustomerLevel::all();
 
