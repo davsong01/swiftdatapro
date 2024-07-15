@@ -258,7 +258,7 @@
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
                                                             <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
-                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
                                                             </small>
                                                         </div>
@@ -315,7 +315,7 @@
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
                                                             <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
-                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
                                                             </small>
                                                         </div>
@@ -372,7 +372,7 @@
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
                                                             <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
-                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
                                                             </small>
                                                         </div>
@@ -429,7 +429,7 @@
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
                                                             <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
-                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
+                                                            <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
                                                             </small>
                                                         </div>

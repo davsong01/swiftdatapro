@@ -49,7 +49,7 @@ class ClubkonnectController extends Controller
         $postdata = [
             'url' => $url,
             'request_id' => $request['request_id'],
-            'amount' => $request['amount'] ?? $request['price'],
+            'amount' => $request['amount'] ?? $request['unit_price'],
             'phone' => $request['mobile_no'],
             'quantity' => $request['quantity'] ?? 1,
         ];
