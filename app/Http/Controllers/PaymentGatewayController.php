@@ -500,16 +500,19 @@ class PaymentGatewayController extends Controller
                 'status_code' => 0,
             ];
         } else {
-            $url = $api->base_url . 'v1/bank-transfer/reserved-accounts/reference/' . $account_reference;
+            $base_url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+            $url = $base_url . 'v1/bank-transfer/reserved-accounts/reference/' . $account_reference;
+
             $headers = [
                 "Content-Type: application/json",
                 "Authorization: Bearer " . $token . "",
             ];
-
+            
             $response = $this->basicApiCall($url, [], $headers, 'DELETE');
-            dd($response, $url);
+            $response = json_decode($response, true);
+            
             if (
-                $response && $response['responseCode'] == 0 &&
+                $response && $response['responseCode'] == "0" &&
                 $response['responseMessage'] == 'success'
             ) {
                 AutomatedDeposit::where('account_reference', $account_reference)->delete();
@@ -523,7 +526,7 @@ class PaymentGatewayController extends Controller
                     'data' => $response['responseBody'] ?? $response['responseMessage'],
                 ];
             }
-
+            
             return $data;
         }
     }
@@ -575,7 +578,9 @@ class PaymentGatewayController extends Controller
             "Authorization: Basic " . base64_encode($api->api_key . ':' . $api->secret_key)
         ];
 
-        $url = 'https://api.monnify.com/api/v1/auth/login';
+        $base_url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+        $url = $base_url . 'v1/auth/login';
+        
         $response = $this->advancedApiCall($url, [], $headers, 'POST');
         $response = json_decode($response, true);
         

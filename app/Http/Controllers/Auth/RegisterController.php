@@ -193,7 +193,7 @@ class RegisterController extends Controller
           Registration Date: ' . $user->created_at . '<br>
           Referral : ' . $user->refferal . '
           ';
-
+        
         if(!empty($settings)){
             $this->sendEmail($settings->admin_notification_email, $subject, $body);
         }

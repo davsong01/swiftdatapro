@@ -115,12 +115,11 @@ class AutomatedDepositController extends Controller
         }else{
             return back()->with('error', 'Not a Monnify account');
         }
-
+        
         if ($delete['status'] == 'success') {
             return back()->with('message', 'Reserved Account Deleted successfully');
         } else {
-            return back()->with('error', $delete['data']);
+            return back()->with('error', $delete['data'] ?? 'There was an error deallocating account');
         }
-        // dd($automatedDeposi);
     }
 }

@@ -1088,7 +1088,10 @@ class Controller extends BaseController
         } elseif ($method == "PUT") {
             curl_setopt($ch, CURLOPT_PUT, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
-        } elseif (!empty($timeout)) {
+        } elseif ($method == "DELETE") {
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        }elseif (!empty($timeout)) {
             curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -1102,7 +1105,7 @@ class Controller extends BaseController
         //     // \Log::error($err);
         //     return (object)['message' => $err->getMessage(), 'code' => $err->getCode()];
         // }
-      
+    
         return $response;
     
     }
