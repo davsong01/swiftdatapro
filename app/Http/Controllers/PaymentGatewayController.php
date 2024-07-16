@@ -638,6 +638,7 @@ class PaymentGatewayController extends Controller
                        'data' => 'Operation Successful',
                    ];
                }
+               
             } else {
                 $data = [
                     'status' => 'failed',
