@@ -98,7 +98,8 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $disable_registration = WebSetting::value('disable_registration');
+        $settings = WebSetting::select('disable_registration', 'admin_notification_email')->first();
+        $disable_registration = $settings->disable_registration;
         
         if ($disable_registration == 'yes') {
             return redirect(route('welcome'));
@@ -148,7 +149,7 @@ class RegisterController extends Controller
         // Send verification email
         $this->sendRegistrationEmail($user);
         // Send Admin Notification email
-        $this->sendAdminNotificationEmail($user);
+        $this->sendAdminNotificationEmail($user,$settings);
 
         // UserVerify::create([
         //     'user_id' => $user->id,
@@ -181,8 +182,9 @@ class RegisterController extends Controller
         $this->sendEmail($user->email, $subject, $body);
     }
 
-    public function sendAdminNotificationEmail($user)
+    public function sendAdminNotificationEmail($user,$settings=null)
     {
+
         $subject = "New Registration";
         $body = 'Hello Admin, <br>New registration on ' . config('app.name') . '. Please find details below: <br><br>
           Full Name: ' . $user->full_name . ' ' . $user->middle_name . '' . $user->last_name . ' <br>
@@ -192,6 +194,8 @@ class RegisterController extends Controller
           Referral : ' . $user->refferal . '
           ';
 
-        $this->sendEmail($user->email, $subject, $body);
+        if(!empty($settings)){
+            $this->sendEmail($settings->admin_notification_email, $subject, $body);
+        }
     }
 }

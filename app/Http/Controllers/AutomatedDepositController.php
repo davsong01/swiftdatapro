@@ -31,6 +31,10 @@ class AutomatedDepositController extends Controller
             $accounts = $accounts->where('account_reference', $request->reference);
         }
 
+        if (!empty($request->account_number)) {
+            $accounts = $accounts->where('account_number', $request->account_number);
+        }
+
         if (!empty($request->bank)) {
             $accounts = $accounts->where('bank_code', $request->bank);
         }

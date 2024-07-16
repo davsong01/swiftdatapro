@@ -42,8 +42,14 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group" >
-                                    <label for="mobile" class="form-label">Account Reference</label>
+                                    <label for="reference" class="form-label">Account Reference</label>
                                     <input type="text" class="form-control" id="reference" name="reference" value="{{ \Request::get('reference')}}">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group" >
+                                    <label for="account_number" class="form-label">Account Number</label>
+                                    <input type="text" class="form-control" id="account_number" name="account_number" value="{{ \Request::get('account_number')}}">
                                 </div>
                             </div>
                             <div class="col-md-3">
