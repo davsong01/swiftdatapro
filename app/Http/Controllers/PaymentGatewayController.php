@@ -498,6 +498,7 @@ class PaymentGatewayController extends Controller
             return [
                 'status' => 'failed',
                 'status_code' => 0,
+                'data' => 'Could not authenticate provider',
             ];
         } else {
             $base_url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
@@ -508,7 +509,7 @@ class PaymentGatewayController extends Controller
                 "Authorization: Bearer " . $token . "",
             ];
             
-            $response = $this->basicApiCall($url, [], $headers, 'DELETE');
+            $response = $this->basicApiCall($url, [], $headers, "DELETE");
             $response = json_decode($response, true);
             
             if (
@@ -531,35 +532,112 @@ class PaymentGatewayController extends Controller
         }
     }
 
-    public function pullMonnifyReservedAccountByReference(string $account_reference)
+    public function pullMonnifyReservedAccountByReference(string $account_reference, $customer)
     {
         $api = PaymentGateway::where('slug', 'monnify')->first();
 
         $token = $this->login($api);
-
+       
         if (empty($token)) {
             return [
                 'status' => 'failed',
                 'status_code' => 0,
+                'data' => 'Could not authenticate provider',
             ];
         } else {
-            $url = $api->base_url . 'v1/bank-transfer/reserved-accounts/reference/' . $account_reference;
+            $base_url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+            $url = $base_url . 'v1/bank-transfer/reserved-accounts/' . $account_reference;
+            
             $headers = [
                 "Content-Type: application/json",
                 "Authorization: Bearer " . $token . "",
             ];
 
-            $response = $this->basicApiCall($url, [], $headers, 'DELETE');
+            $response = $this->basicApiCall($url, [], $headers, 'GET');
+            $response = json_decode($response, true);
             
             if (
-                $response && $response['responseCode'] == 0 &&
+                $response && $response['responseCode'] == "0" &&
                 $response['responseMessage'] == 'success'
             ) {
-                AutomatedDeposit::where('account_reference', $account_reference)->delete();
-                $data = [
-                    'status' => 'success',
-                    'data' => '',
-                ];
+                if(!empty($response['responseBody'])){
+                    if($this->isArrayofArraysOrSingleArray($response['responseBody']) == true){
+                        foreach($response['responseBody'] as $account){
+                            if($account['customerEmail'] == $customer->email){
+                                AutomatedDeposit::updateOrCreate([
+                                    'account_reference' => $account['accountReference'],
+                                    'account_number' => $account['accountNumber'] ?? null,
+                                    'account_name' => $account['accountName'] ?? null,
+                                    'bank_name' => $account['bankName'] ?? null,
+                                    'bank_code' => $account['bankCode'] ?? null,
+                                    'payment_gateway_id' => $api->id,
+                                    'user_id' => $customer->id,
+                                ],[
+                                    'account_reference' => $account['accountReference'],
+                                    'account_number' => $account['accountNumber'] ?? null,
+                                    'account_name' => $account['accountName'] ?? null,
+                                    'bank_name' => $account['bankName'] ?? null,
+                                    'bank_code' => $account['bankCode'] ?? null,
+                                    'payment_gateway_id' => $api->id,
+                                    'status' => 'active',
+                                    'bvn' => $data['bvn'] ?? null,
+                                    'nin' => $data['nin'] ?? null,
+                                    'raw_response' => json_encode($account),
+                                    'user_id' => $customer->id,
+                                ]);
+
+                                $data = [
+                                    'status' => 'success',
+                                    'data' => 'Operation Successful',
+                                ];
+                            }else{
+                                $data = [
+                                    'status' => 'failed',
+                                    'data' => 'Customer Account does not match reference email: '. $account['customerEmail'],
+                                ];
+                            }
+                        }
+                    }else{
+                        $account = $response['responseBody'];
+                        if ($account['customerEmail'] == $customer->email) {
+                            $account = AutomatedDeposit::updateOrCreate([
+                                'account_reference' => $account['accountReference'],
+                                'account_number' => $account['accountNumber'] ?? null,
+                                'account_name' => $account['accountName'] ?? null,
+                                'bank_name' => $account['bankName'] ?? null,
+                                'bank_code' => $account['bankCode'] ?? null,
+                                'payment_gateway_id' => $api->id,
+                                'user_id' => $customer->id,
+                            ], [
+                                'account_reference' => $account['accountReference'],
+                                'account_number' => $account['accountNumber'] ?? null,
+                                'account_name' => $account['accountName'] ?? null,
+                                'bank_name' => $account['bankName'] ?? null,
+                                'bank_code' => $account['bankCode'] ?? null,
+                                'payment_gateway_id' => $api->id,
+                                'status' => 'active',
+                                'bvn' => $data['bvn'] ?? null,
+                                'nin' => $data['nin'] ?? null,
+                                'raw_response' => json_encode($account),
+                                'user_id' => $customer->id,
+                            ]);
+                            $data = [
+                                'status' => 'success',
+                                'data' => 'Operation Successful',
+                            ];
+                        }else{
+                            $data = [
+                                'status' => 'failed',
+                                'data' => 'Customer Account does not match reference email: ' . $account['customerEmail'],
+                            ];
+                        }
+                    }
+               }else{
+                   $data = [
+                       'status' => 'success',
+                       'data' => 'Operation Successful',
+                   ];
+               }
             } else {
                 $data = [
                     'status' => 'failed',
@@ -569,6 +647,21 @@ class PaymentGatewayController extends Controller
 
             return $data;
         }
+    }
+
+    public function isArrayofArraysOrSingleArray($arr)
+    {
+        if (!is_array($arr)) {
+            return false;
+        }
+
+        foreach ($arr as $element) {
+            if (!is_array($element)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 

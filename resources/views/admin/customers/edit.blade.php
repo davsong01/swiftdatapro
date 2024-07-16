@@ -273,7 +273,7 @@
                 @csrf
                 <div class="hstack gap-3">
                     <input class="form-control me-auto" name="account_reference" required type="text" placeholder="Enter Account reference">
-                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="submit" class="btn btn-primary">Pull</button>
                     <div class="vr"></div>
                 </div>
                 <input type="hidden" name="customer_email" value="{{ $customer->email }}">

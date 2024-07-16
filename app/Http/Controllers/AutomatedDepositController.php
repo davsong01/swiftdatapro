@@ -95,12 +95,12 @@ class AutomatedDepositController extends Controller
 
     public function pullMonnifyReservedAccountByReference(Request $request){
         $customer = User::where('id', $request->customer_id)->first();
-        $pull = app('App\Http\Controllers\PaymentGatewayController')->pullMonnifyReservedAccountByReference($request->account_reference);
-        dd($customer, $pull);
-        if ($delete['status'] == 'success') {
+        $pull = app('App\Http\Controllers\PaymentGatewayController')->pullMonnifyReservedAccountByReference($request->account_reference, $customer);
+        
+        if ($pull['status'] == 'success') {
             return back()->with('message', 'Reserved Accounts Spooled Successfully');
         } else {
-            return back()->with('error', $delete['data']);
+            return back()->with('error', $pull['data']);
         }
     }
     /**
