@@ -1,5 +1,23 @@
 @extends('includes.customer_dashboard.app')
 @section('header')
+
+@if(!empty(popupNotification()))
+<div id="popupNotificationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="h6 modal-title">Announcements!</h2>
+            </div>
+            <div class="modal-body" style="color:black !important"> {!! popupNotification()->content !!}</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 @if(!empty($notification1))
 <div class="col-xl-12">
     <div class="alert" style="background-color: #fff;display: block;">
@@ -18,21 +36,24 @@
     </div>
 </div>
 @endif
-@if(!empty($notification1))
+@if(!empty(generalNotifications()))
 <div class="col-xl-12">
-    <div class="alert"
-        style="background-color: #fff;display: block;color: blue;">
+    @foreach(generalNotifications() as $notify)
+    <div class="alert" style="background-color: #fff;display: block;">
         <div id="response" style="text-align: center;">
-            <h4>{!! $notification1->content !!}</h4>
+            <h4>{{strip_tags($notify->content)}}</h4>
         </div>
-
     </div>
+    @endforeach
 </div>
 @endif
-@if(!empty($notification_scroll))
+@if(isset(scrollNotification()['notifications']) && !empty(scrollNotification()['notifications']))
 <div class="col-xl-12">
     <span style="color:blue">
-        <marquee>{!! $notification_scroll !!}
+        <marquee> 
+        @foreach(scrollNotification() as $scrol)
+            {{ scrollNotification()['content'] }}
+        @endforeach
         </marquee>
     </span>
 </div>
@@ -199,29 +220,15 @@
 
 @endsection
 @section('scripts')
+
 <script>
-    function LiveChat() {
-        $.LoadingOverlay("show");
-        window.location.href = "live_chat";
-    }
+    $('#popupNotificationModal').modal('show');
 
-    function SalesAna() {
-        $.LoadingOverlay("show");
-        window.location.href = "sales_analysis";
-    }
 
-    function Transact() {
-        $.LoadingOverlay("show");
-        window.location.href = "transactions";
-    }
-
-    function Earnings() {
-        $.LoadingOverlay("show");
-        window.location.href = "cashback_earn";
-    }
+    $(document).ready(function() {
+        $('#popupNotificationModal').modal('show');
+    });
 </script>
-
-
 <script type="text/javascript">
     function copyFunction() {
         var copyText = document.getElementById("myCode");

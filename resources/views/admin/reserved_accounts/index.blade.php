@@ -125,9 +125,8 @@
                                 @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->gateway->id == 1 && $account->deposit_transactions->count() == 0)<br>
                                 <a target="_blank" href="{{ route('admin.deposit.transactions', ['account_number' => $account->account_number]) }}" class="btn btn-info btn-sm">View Transactions</a>
                                 @endif
-
                             </td>
-                            @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->gateway->id == 1)
+                            @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->deposit_transactions->count() == 0)
                             <td>
                                 <form action="{{ route('accounts.destroy', $account->id) }}" class="btn btn-custon-four btn-sm-cl-social" method="POST" onsubmit="return confirm('Are you sure you want to delete forever?');">
                                     {{ csrf_field() }}

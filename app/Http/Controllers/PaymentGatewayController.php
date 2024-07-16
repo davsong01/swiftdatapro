@@ -516,7 +516,6 @@ class PaymentGatewayController extends Controller
                 $response && $response['responseCode'] == "0" &&
                 $response['responseMessage'] == 'success'
             ) {
-                AutomatedDeposit::where('account_reference', $account_reference)->delete();
                 $data = [
                     'status' => 'success',
                     'data' => '',

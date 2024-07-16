@@ -94,6 +94,7 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::resource('blacklist', BlacklistController::class);
         Route::resource('accounts', AutomatedDepositController::class);
         Route::post('pull-reserved-account-by-reference', [AutomatedDepositController::class, 'pullMonnifyReservedAccountByReference'])->name('pull.reserved.account.by.reference');
+        Route::post('add-manual-reserved-account', [AutomatedDepositController::class, 'store'])->name('add.manual.reserved.account');
         
         Route::resource('customers', CustomerController::class);
         Route::resource('staff', StaffController::class);

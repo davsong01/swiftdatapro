@@ -84,6 +84,14 @@
             border-radius: .25rem 0 0 .25rem !important;
         }
 
+        .modal-body p {
+            color: black;
+        }
+
+        .alert p {
+            color: black;
+        }
+
         @media (min-width: 400px) {
             .trans{
                 width: 46%;
@@ -222,9 +230,6 @@
                 <ul>
                     <li><a href="{{route('customer.transactions') }}">All Transactions</a></li>
                     <li><a href="{{route('customer.cashback')}}">My Commissions</a></li>
-                    {{-- <li><a href="{{url('/').'/transactions/failed' }}">Failed Transactions</a></li>
-                    <li><a href="{{url('/').'/wallet_summary' }}">Wallet Summary</a></li>
-                    <li><a href="{{url('/').'/sales_analysis' }}">Sales Analysis</a></li> --}}
                 </ul>
             </li>
 
@@ -352,28 +357,7 @@
                 </div>
             </div>
         </div>
-        @if(!empty(notification()))
-        <div id="myModal3" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h2 class="h6 modal-title">Announcements!</h2>
-                        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"
-                            onclick="Closepopup()"></button>
-                    </div>
-                    <div class="modal-body"> {!! notification() !!}</div>
-
-                    <div class="modal-footer">
-
-                        <button type="button" class="btn btn-primary" data-dismiss="modal"
-                            onclick="Closepopup()">Close</button>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-        @endif
+        
         <div id="successModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" style="padding-top: 20px;">
@@ -456,16 +440,7 @@
             </div>
         </div>
 
-
-    <script>
-        function Closepopup() {
-            $("#myModal3").modal("hide");
-        }
-
-        function PopUp() {
-            $("#myModal3").modal("show");
-        }
-
+        <script>
         function openRate() {
             $("#rateModal").modal("show");
         }
@@ -486,19 +461,10 @@
             $("#errorModal").modal("hide");
         }
     </script>
-  
-    @if(!empty(notification1()) && notification1()->status == "active")
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#myModal3").modal("show");
-        })
-    </script>
-    @endif
     <div class="alert">
         @yield('header')
         <div class="col-xl-12">
-        <div class="alert"
-            style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;">
+        <div class="alert" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;">
 
             <div id="response" style="text-align: left;">
                 <span>Available Balance

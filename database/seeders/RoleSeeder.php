@@ -188,7 +188,8 @@ class RoleSeeder extends Seeder
             'transaction.receipt.download',
             'admin.deposit.transactions',
             'view.sensitive.data',
-            'pull.reserved.account.by.reference'
+            'pull.reserved.account.by.reference',
+            'add.manual.reserved.account'
         ];
 
         // RolePermission::truncate();

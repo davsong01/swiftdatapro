@@ -10,6 +10,7 @@ use App\Models\WebSetting;
 use App\Models\Notification;
 use App\Models\Transactions;
 use App\Models\RolePermission;
+use App\Models\AutomatedDeposit;
 use App\Models\EarnedTransactions;
 
 if (!function_exists("mask")) {
@@ -30,6 +31,13 @@ if (!function_exists("topProduct")) {
             // ->orderBy('id', 'DESC')
             ->first();
         return $transaction;
+    }
+}
+
+if (!function_exists("getBanks")) {
+    function getBanks()
+    {
+        return AutomatedDeposit::select('bank_code', 'bank_name')->distinct()->get();
     }
 }
 
@@ -323,43 +331,36 @@ if (!function_exists("getAndUpdateReferralCommission")) {
 }
 
 
-if (!function_exists("notification1")) {
-    function notification1()
+if (!function_exists("popupNotification")) {
+    function popupNotification()
     {
         $notification1 = Notification::where(['type' => 'popup', 'status' => 'active'])->first();
         return $notification1;
     }
 }
 
-if (!function_exists("notification2")) {
-    function notification2()
+if (!function_exists("scrollNotification")) {
+    function scrollNotification()
     {
-        $notification2 =  Notification::where(['type' => 'general', 'status' => 'active'])->first();
+        $notification2 = Notification::where(['type' => 'scroll', 'status' => 'active'])->get();
+        $content = '';
+
+        foreach($notification2 as $notify){
+            $content .= strip_tags($notify->content) . '. ';
+        }
+        
+        return [
+            'notifications' => $notification2,
+            'content' => $content,
+        ];
+    }
+}
+
+if (!function_exists("generalNotifications")) {
+    function generalNotifications()
+    {
+        $notification2 =  Notification::where(['type' => 'general', 'status' => 'active'])->get();
         return $notification2;
-    }
-}
-
-if (!function_exists("notification2")) {
-    function notification2()
-    {
-        $notification2 =  Notification::where(['type' => 'general', 'status' => 'active'])->first();
-        return $notification2;
-    }
-}
-
-if (!function_exists("notification")) {
-    function notification()
-    {
-        $notification = Notification::where(['type' => 'announcement', 'status' => 'active'])->first();
-        return $notification;
-    }
-}
-
-if (!function_exists("notification_scroll")) {
-    function notification_scroll()
-    {
-        $notification_scroll = Notification::where(['type' => 'scroll', 'status' => 'active'])->first();
-        return $notification_scroll;
     }
 }
 

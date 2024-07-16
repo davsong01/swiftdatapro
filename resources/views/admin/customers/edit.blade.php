@@ -165,6 +165,7 @@
                 </div>
                 <div class="tab-pane" id="accounts" role="tabpanel">
                     <a style="margin-bottom:10px" class="btn btn-info btn-md" data-bs-toggle="modal" data-bs-target="#pull-accounts">Pull Accounts by reference</a>
+                    <a style="margin-bottom:10px" class="btn btn-primary btn-md" data-bs-toggle="modal" data-bs-target="#add-local-accounts">Add Local Account</a>
                     <div class="table-responsive">
                         <table id="datatable-basic" class="table table-striped text-nowrap" style="width:100%">
                             <thead>
@@ -191,7 +192,7 @@
                                     <td>{{ $account->account_number }}</td>
                                     
                                     </td>
-                                    @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->gateway->id == 1 && $account->deposit_transactions->count() == 0)
+                                    @if((hasAccess('accounts.edit') || hasAccess('accounts.destroy')) && $account->deposit_transactions->count() == 0)
                                     <td>
                                         <form action="{{ route('accounts.destroy', $account->id) }}" class="btn btn-custon-four btn-sm-cl-social" method="POST" onsubmit="return confirm('Are you sure you want to delete forever?');">
                                             {{ csrf_field() }}
@@ -284,6 +285,67 @@
                 <button type="button" class="btn btn-danger"
                     data-bs-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="add-local-accounts" tabindex="-1"
+    aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title" id="exampleModalLabel1">Add Local Account, please ensure that this account exists on the provider</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body"> 
+                <form action="{{ route('add.manual.reserved.account') }}" method="POST" onsubmit="return confirm('Are you sure you want to add account for this customer?');">                   
+                @csrf
+                
+                <div class="row gy-4">
+                    <div class="col-md-6">
+                        <label class="form-label" for="account_reference">Account Reference</label>
+                        <input type="text" class="form-control" id="account_reference" name="account_reference" value="{{ old('account_reference') }}" placeholder="Enter account name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="account_name">Account Name</label>
+                        <input type="text" class="form-control" id="account_name" name="account_name" value="{{ old('account_name') }}" placeholder="Enter account name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="account_number">Account Number</label>
+                        <input type="text" class="form-control" id="account_number" name="account_number" value="{{ old('account_number') }}" placeholder="Enter account number" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="account_reference">Account Reference</label>
+                        <input type="text" class="form-control" id="account_reference" name="account_reference" value="{{ old('account_reference') }}" placeholder="Enter account reference" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="icon">Bank Name</label>
+                        <select name="bank_name" class="form-control" id="bank_name" required>
+                            <option value="">Select Bank</option>
+                            @foreach (getBanks() as $bank)
+                            <option value="{{ $bank->bank_name }}">{{ $bank->bank_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="icon">Provider</label>
+                        <select name="payment_gateway_id" class="form-control" id="payment_gateway_id" required>
+                            <option value="">Select Provider</option>
+                            <option value="1">Monnify</option>
+                            <option value="2">Pay Vessel</option>
+                        </select>
+                    </div>
+                </div>
+                <input type="hidden" name="customer_email" value="{{ $customer->email }}">
+                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+            </form>
         </div>
     </div>
 </div>
