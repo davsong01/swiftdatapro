@@ -172,7 +172,7 @@
                         
                         <div class="col-md-3">
                             @if(!empty($transaction->api_response))
-                            <strong class="heads">API Response</strong> <br>
+                            <strong class="heads">API Response/Reason</strong> <br>
                             <div>
                                 <code style="margin:10px 0">
                                     {!! $transaction->api_response!!}
@@ -217,6 +217,9 @@
                                         <span style="color:black">Convenience Fee:</span> {!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
                                         <span style="color:black">Discount: </span>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
                                         <span style="color:black">Provider Charge:</span>{!! settings()->currency. number_format($transaction->provider_charge, 2) !!} <br>
+                                        @if(in_array('view.sensitive.data', allowedPermissions()))
+                                        <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
+                                        @endif
                                         <span style="color:black">Total Amount:</span> {!! settings()->currency. number_format($transaction->total_amount, 2) !!}
                                     </td>
                                         <?php

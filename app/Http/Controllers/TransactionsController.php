@@ -1172,7 +1172,8 @@ class TransactionsController extends Controller
         $request->validate([
             'email' => 'required|email',
             'amount' => 'required|numeric',
-            'type' => 'required'
+            'type' => 'required',
+            'reason' => 'required'
         ]);
 
         // Start a database transaction
@@ -1224,6 +1225,7 @@ class TransactionsController extends Controller
             $data['profit'] = 0;
             $data['type'] = strtolower($request->type);
             $data['user_id'] = $user->id;
+            $data['api_response'] = $request->reason;
 
             $currency = settings()->currency;
 

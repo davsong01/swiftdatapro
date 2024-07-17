@@ -38,6 +38,11 @@
                             class="text-danger">*</span></label>
                             <input type="number" value="{{ old('amount') }}" class="form-control" name="amount" id="amount" placeholder="Amount" required>
                         </div>
+                        <div class="col-md-12">
+                            <label for="reason" class="form-label">Reason<span
+                            class="text-danger">*</span></label>
+                            <textarea class="form-control" name="reason" id="" cols="30" rows="10" required>{{ old('reason') }}</textarea>
+                        </div>
                     </div>
                     <input type="hidden" value="credit" class="form-control" name="type" id="type" required>
 

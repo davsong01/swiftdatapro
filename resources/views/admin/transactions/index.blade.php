@@ -160,12 +160,16 @@
                                     <strong>Provider: </strong>{{ $transaction->gateway->name }} <br>
                                     @endif
                                     </span>
+                                    
                                     <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
                                     <strong>Unit Price: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
                                     <strong>Discount Applied: </strong>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
                                     <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->total_amount, 2) !!} <br>
                                     <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
                                     <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
+                                    @if(in_array('view.sensitive.data', allowedPermissions()))
+                                    <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
+                                    @endif
                                 </small>
                             </td>
                             
