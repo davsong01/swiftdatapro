@@ -6,7 +6,9 @@ use App\Models\User;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
+use App\Services\ExcelService;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
@@ -14,7 +16,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $customers = User::orderby('id', 'DESC');
-
+        
         if (!empty($request->email)) {
             $customers = $customers->where('email', 'like', $request->email);
         }
@@ -36,6 +38,21 @@ class CustomerController extends Controller
             $to = $request->to . ' 23:59:59';
 
             $customers = $customers->whereBetween('created_at', [$from, $to]);
+        }
+
+        if(!empty($request->download) && $request->download == 'yes'){
+            $customers = $customers->select(
+                DB::raw("CONCAT(COALESCE(full_name, ''), ' ', COALESCE(middle_name, ''), ' ', COALESCE(last_name, '')) as name"),
+                'email',
+                'mobile',
+                'level',
+                'username',
+                'gender',
+                'created_at'
+            )->get()->toArray();
+                
+            $headings = ['Name', 'Email', 'Phone Number', 'Level', 'Username', 'Gender', 'Joined']; 
+            return ExcelService::download($customers, $headings);
         }
 
         $customers = $customers->paginate(20);

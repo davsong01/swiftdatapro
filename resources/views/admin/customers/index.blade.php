@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 @endsection
 @section('title', $title)
 @section('breadcrumb')
@@ -68,6 +69,11 @@
                             <div class="col-md-2">
                                 <label for="" class="form-label"></label>
                                 <input type="submit" class="form-control btn btn-primary mt-2" value="Search">
+                            </div>
+                          
+                            <div class="col-md-2">
+                                <label for="" class="form-label"></label>
+                                <a class="form-control btn btn-info mt-2" href="{{ url('/'). \Request::route()->getPrefix().'/customers?download=yes&' . http_build_query(request()->query()) }}"><i class="fa fa-download"></i> Download</a>
                             </div>
                         </div>
                     </form>
