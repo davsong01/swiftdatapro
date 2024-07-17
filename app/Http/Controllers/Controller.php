@@ -1046,29 +1046,38 @@ class Controller extends BaseController
         //         }
         //     }
         // }
-        $web_settings = DB::connection('old')->table('web_settings')->first();
-
-        $users = User::whereNull('created_at')->get();
-        if (!empty($users2)) {
-            foreach ($users2 as $user) {
-                $user->update([
-                    'created_at' => Carbon::createFromFormat('d-M-y h:i A', $user->reg_date)->toDateTimeString(),
-                ]);
-            }
+        $web_settings = WebSetting::first();
+        
+        if(empty($web_settings->download_android_app_link)){
+            $web_settings->download_android_app_link = 'https://drive.google.com/drive/folders/107QE4pPKM4F2ah3c-uUM4nnxjM4O4EeC';
         }
 
-        $levels = CustomerLevel::whereNull('group_link')->get();
-        foreach($levels as $level){
-            if($level->id == 1){
-                $level->update([
-                    'group_link' => $web_settings->group_link,
-                ]);
-            }else{
-                $level->update([
-                    'group_link' => $web_settings->group_link2,
-                ]);
-            }
+        if (empty($web_settings->download_ios_app_link)) {
+            $web_settings->download_ios_app_link = '';
         }
+
+        $web_settings->save();
+        // $users = User::whereNull('created_at')->get();
+        // if (!empty($users2)) {
+        //     foreach ($users2 as $user) {
+        //         $user->update([
+        //             'created_at' => Carbon::createFromFormat('d-M-y h:i A', $user->reg_date)->toDateTimeString(),
+        //         ]);
+        //     }
+        // }
+
+        // $levels = CustomerLevel::whereNull('group_link')->get();
+        // foreach($levels as $level){
+        //     if($level->id == 1){
+        //         $level->update([
+        //             'group_link' => $web_settings->group_link,
+        //         ]);
+        //     }else{
+        //         $level->update([
+        //             'group_link' => $web_settings->group_link2,
+        //         ]);
+        //     }
+        // }
 
         dd('done');
     }

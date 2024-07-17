@@ -479,16 +479,14 @@
                 <div class="footer_iner text-center">
                     <h4>Download our mobile Apps</h4>
                     <p>
-                    <!-- <a target="_blank" href="https://play.google.com/store/apps/details?id=swift.data.ng"> -->
-                    <a target="_blank" href="https://drive.google.com/drive/folders/107QE4pPKM4F2ah3c-uUM4nnxjM4O4EeC">
-                        
+                    <a target="_blank" href="{{ settings()->download_android_app_link }}">
                         <img src="../homepage/assets/img/play.png" style="width:120px; margin-right:10px">
                     </a>
-                    <a href="#">
+                    <a target="_blank" href="{{ settings()->download_ios_app_link }}">
                         <img src="../homepage/assets/img/ios.png" style="width:120px">
                     </a>
                     </p>
-                    <p><?php echo date("Y"); ?> © {{ config('app.name') }} </p>
+                    <p>{{date("Y")}} © {{ config('app.name') }} </p>
                 </div>
             </div>
         </div>

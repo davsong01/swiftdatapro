@@ -56,7 +56,17 @@
                         class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="admin_notification_email" name="admin_notification_email" value="{{ $contact->admin_notification_email ?? old('admin_notification_email') }}" placeholder="Admin Notification Email" required>
                     </div>
-                    
+
+                    <div class="col-md-6">
+                        <label for="download_android_app_link" class="form-label">Download Android App Link<span
+                        class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="download_android_app_link" name="download_android_app_link" value="{{ $contact->download_android_app_link ?? old('download_android_app_link') }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="download_ios_app_link" class="form-label">Download IOS App Link<span
+                        class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="download_ios_app_link" name="download_ios_app_link" value="{{ $contact->download_ios_app_link ?? old('download_ios_app_link') }}" required>
+                    </div>
                     <div class="col-md-6">
                         <label for="seo_title" class="form-label">SEO Title<span
                         class="text-danger">*</span></label>
