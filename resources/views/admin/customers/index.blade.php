@@ -106,8 +106,7 @@
                                 Wallet: {!! settings()->currency !!}{{ number_format(walletBalance($customer)) }} <br>
                                 Referral:  {!! settings()->currency !!}{{ number_format(referralBalance($customer)) }} <br>
                             </td>
-                            <td>{{ $customer->reg_date  }}</td>
-
+                            <td> {{ date("M jS, Y g:iA", strtotime($customer->created_at)) }}</td>
                             @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
                             <td>
                                 <a href="{{ route('customers.edit', $customer->id) }}"><button type="button" class="btn btn-info btn-sm mr-1 mb-1"><i class="fa fa-edit"></i><span class="align-middle ml-25">View</span></button>
