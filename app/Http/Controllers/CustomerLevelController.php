@@ -35,6 +35,7 @@ class CustomerLevelController extends Controller
             'order' => 'required|unique:customer_levels,order',
             'upgrade_amount' => 'required',
             'admin_inch' => 'nullable',
+            'group_link' => 'nullable',
         ]);
 
         CustomerLevel::updateOrCreate([
@@ -42,6 +43,7 @@ class CustomerLevelController extends Controller
             'order' => $request->order,
             'upgrade_amount' => $request->upgrade_amount,
             'admin_inch' => $request->admin_inch,
+            'group_link' => $request->group_link,
         ]);
 
         return redirect(route('customerlevel.index'))->with('message', 'Created successfully');
@@ -73,6 +75,7 @@ class CustomerLevelController extends Controller
             'order' => 'required|unique:customer_levels,order,' . $customerlevel->id,
             'upgrade_amount' => 'required',
             'admin_inch' => 'required',
+            'group_link' => 'nullable',
         ]);
 
         $customerlevel->update([
@@ -80,6 +83,7 @@ class CustomerLevelController extends Controller
             'order' => $request->order,
             'upgrade_amount' => $request->upgrade_amount,
             'admin_inch' => $request->admin_inch,
+            'group_link' => $request->group_link,
         ]);
 
         return redirect(route('customerlevel.index'))->with('message', 'Updated successfully');

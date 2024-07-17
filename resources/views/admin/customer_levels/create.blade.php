@@ -36,6 +36,10 @@
                             <input type="number" class="form-control" name="admin_inch" id="admin_inch" placeholder="Admin Inch">
                         </div>
                         <div class="col-md-6">
+                            <label for="group_link" class="form-label">Group Link</label>
+                            <input type="text" class="form-control" name="group_link" id="group_link" placeholder="Enter Group Link">
+                        </div>
+                        <div class="col-md-6">
                             <label for="order" class="form-label">Order of appearance on customer view</label>
                             <input type="number" class="form-control" name="order" id="order" placeholder="Order of appearance">
                         </div>

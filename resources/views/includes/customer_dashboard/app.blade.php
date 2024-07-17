@@ -304,34 +304,25 @@
                             <div class="header_notification_warp d-flex align-items-center">
                                 <li>
                                 </li>
-                                <?php
                                 
-                                    if (auth()->user()->level == 1){
-                                        $social_link = settings()->group_link;
-                                    }else {   
-                                        $social_link = settings()->group_link2;
-                                    }
-                                ?>
                                 <li>
-                                    <a class="" target="_blank" href="<?php echo $social_link; ?>"> <button class="btn btn-success"
-                                            style="font-size:10px">Join Group <i class="fa fa-whatsapp"></i></button>
-                                        <span>93</span>
+                                    <a class="" target="_blank" href="{{auth()->user()->customer_level->group_link}}"> <button class="btn btn-success" style="font-size:10px">Join Group <i class="fa fa-whatsapp"></i></button>
                                     </a>
                                 </li>
 
-                                <li>
+                                {{-- <li>
                                     <a class="bell_notification_clicker" href="#" onclick="PopUp()"> <img
                                             src="{{asset('backend/img/icon/bell.svg')}}" alt="">
                                         <span>1</span>
                                     </a>
-                                </li>
+                                </li> --}}
 
                                 <?php
-                                    if (auth()->user()->rating ==0){
-                                    echo '<li>
-                                    <a class="CHATBOX_open" onclick="openRate()" href="#"> <i class="fa fa-star" style="color: orange; font-size: 24px;border-color: black;"></i><span><i class="fa fa-star"></i></span> </a>
-                                    </li>';
-                                    }
+                                    // if (auth()->user()->rating ==0){
+                                    // echo '<li>
+                                    // <a class="CHATBOX_open" onclick="openRate()" href="#"> <i class="fa fa-star" style="color: orange; font-size: 24px;border-color: black;"></i><span><i class="fa fa-star"></i></span> </a>
+                                    // </li>';
+                                    // }
                                 ?>
                             </div>
                             <div class="profile_info">
@@ -342,8 +333,8 @@
                                         <h5>{{ auth()->user()->full_name}}</h5>
                                     </div>
                                     <div class="profile_info_details">
-                                        <a href="<?php echo $baseurl; ?>/profile">My Profile </a>
-                                        <a href="<?php echo $baseurl; ?>/change_password">Settings</a>
+                                        <a href="{{ route('customer.profile') }}">My Profile </a>
+                                        <a href="{{ route('password.change') }}">Settings</a>
                                         <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log Out </a>
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                                             @csrf
