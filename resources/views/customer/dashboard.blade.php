@@ -63,8 +63,8 @@
 
 <div class="col-xl-12">
     <div class="alert" style="background-color: transparent;">
-        <span class="btn" style="font-size:12px;background-color:#940798;color:#fff" onclick="Transact()">All Transactions</span>
-        <span class="btn" style="font-size:12px;background-color:blue;color:#fff" onclick="Earnings()">Commissions</span>
+        <a class="btn" target="_blank" style="font-size:12px;background-color:#940798;color:#fff" href="{{route('customer.transactions') }}">All Transactions</a>
+        <a class="btn" target="_blank" style="font-size:12px;background-color:blue;color:#fff" href="{{route('customer.cashback') }}">Commissions</a>
     </div>
 </div>
 
