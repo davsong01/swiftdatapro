@@ -168,6 +168,7 @@
                                     <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
                                     <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                     @if(in_array('view.sensitive.data', allowedPermissions()))
+                                    <span style="color:blue"><strong>Provider Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!}</span> <br>
                                     <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
                                     @endif
                                 </small>

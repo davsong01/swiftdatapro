@@ -260,6 +260,10 @@
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
                                                             <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
+                                                            @if(in_array('view.sensitive.data', allowedPermissions()))
+                                                            <span style="color:blue"><strong>Provider Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!}</span> <br>
+                                                            <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
+                                                            @endif
                                                             </small>
                                                         </div>
                                                     </td>
@@ -317,6 +321,10 @@
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
                                                             <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
+                                                            @if(in_array('view.sensitive.data', allowedPermissions()))
+                                                            <span style="color:blue"><strong>Provider Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!}</span> <br>
+                                                            <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
+                                                            @endif
                                                             </small>
                                                         </div>
                                                     </td>
@@ -360,7 +368,7 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
-                                                               <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
+                                                                <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
                                                                 <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> 
                                                             </div>
                                                         </div>
@@ -374,6 +382,10 @@
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
                                                             <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
+                                                            @if(in_array('view.sensitive.data', allowedPermissions()))
+                                                            <span style="color:blue"><strong>Provider Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!}</span> <br>
+                                                            <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
+                                                            @endif
                                                             </small>
                                                         </div>
                                                     </td>
@@ -431,6 +443,10 @@
                                                             <strong>Initial Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
                                                             <strong>Final Balance: </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!} <br>
                                                             <strong>Total Amount: </strong>{!! settings()->currency. number_format($transaction->buyer_amount, 2) !!} <br>
+                                                            @if(in_array('view.sensitive.data', allowedPermissions()))
+                                                            <span style="color:blue"><strong>Provider Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!}</span> <br>
+                                                            <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
+                                                            @endif
                                                             </small>
                                                         </div>
                                                     </td>

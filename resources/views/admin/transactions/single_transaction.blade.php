@@ -218,6 +218,7 @@
                                         <span style="color:black">Discount: </span>{!! settings()->currency. number_format($transaction->discount, 2) !!} <br>
                                         <span style="color:black">Provider Charge:</span>{!! settings()->currency. number_format($transaction->provider_charge, 2) !!} <br>
                                         @if(in_array('view.sensitive.data', allowedPermissions()))
+                                        <span style="color:blue"><strong>Provider Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!}</span> <br>
                                         <span style="color:green"><strong>Profit: </strong>{!! settings()->currency. number_format($transaction->profit, 2) !!}</span> <br>
                                         @endif
                                         <span style="color:black">Total Amount:</span> {!! settings()->currency. number_format($transaction->total_amount, 2) !!}
