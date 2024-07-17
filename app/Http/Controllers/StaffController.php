@@ -47,7 +47,7 @@ class StaffController extends Controller
             "username" => $data['username'],
             "email" => $data['email'],
             "status" => $data['status'],
-            "pass" => $data['pass'],
+            "password" => $data['password'],
             "rolepermissions" => $data['rolepermissions'],
         ]);
 
@@ -78,7 +78,9 @@ class StaffController extends Controller
         $permissions = implode(",", $request->rolepermissions);
 
         if (!empty($request->password)) {
-            $data['pass'] = Hash::make($request->password);
+            $data['password'] = Hash::make($request->password);
+        }else{
+            $data['password'] = $staff->password;
         }
 
         if (!empty($request->rolepermissions)) {
@@ -90,7 +92,7 @@ class StaffController extends Controller
             "username" => $data['username'],
             "email" => $data['email'],
             "status" => $data['status'],
-            "pass" => $data['pass'] ?? $staff->pass,
+            "password" => $data['password'],
             "rolepermissions" => $data['rolepermissions'],
         ]);
 
