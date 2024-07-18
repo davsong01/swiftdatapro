@@ -208,7 +208,7 @@ class TransactionsController extends Controller
                 'provider' => $api->name,
                 'billersCode' => $request['billersCode'] ?? null,
                 'category_id' => $resource->category->id,
-                'profit' => ($src_price > 0) ? $src_price - $request['total_amount'] : $src_price,
+                'profit' => ($src_price > 0) ? $request['total_amount'] - $src_price : $src_price,
             ];
 
             $transaction = $this->logTransaction($data);
