@@ -855,7 +855,7 @@ class Controller extends BaseController
 
     //         AutomatedDeposit::truncate();
     //         // Create user reserved accounts and product access
-    //         $productaccess = Product::pluck('id')->toArray();
+    //         $productBlacklist = Product::pluck('id')->toArray();
     //         $users = User::all();
     //         foreach($users as $user){
     //             if(!empty($user->reserved_account)){
@@ -902,7 +902,7 @@ class Controller extends BaseController
     //             }
 
     //             $user->update([
-    //                 'product_access' => $productaccess,
+    //                 'product_blacklist' => $productBlacklist,
     //             ]);
     //         }
 

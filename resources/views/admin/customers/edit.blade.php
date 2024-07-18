@@ -33,7 +33,7 @@
                         <a class="nav-link" data-bs-toggle="tab" data-bs-target="#accounts" href="#accounts" aria-selected="false" tabindex="-1" role="tab">Reserved Accounts</a>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#products" href="#products" aria-selected="false" tabindex="-1" role="tab">Product Access</a>
+                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#products" href="#products" aria-selected="false" tabindex="-1" role="tab">Product Blacklisting</a>
                     </li>
                     <li class="nav-item" role="presentation">
                         <a class="nav-link" data-bs-toggle="tab" data-bs-target="#others" href="#others" aria-selected="false" tabindex="-1" role="tab">Other Actions</a>
@@ -212,28 +212,29 @@
                 </div>
                 <div class="tab-pane" id="products" role="tabpanel">
                     <?php 
-                        $product_access = productAccess($customer);
+                        $product_blacklist = productBlacklist($customer);
                     ?>
                     <form action="{{ route('products.update', $customer->id) }}" method="POST">
                         @csrf
+                        <p><strong>Products checked here (and their variations) will not be available for this customer</strong></p>
                         <div class="row">
                             <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input ms-2" type="checkbox" name="product_access_all" id="product_access_all" value="all">
-                                    <label for="product_access_all"> &nbsp;<strong>Select all</strong></label>
+                                    <input class="form-check-input ms-2" type="checkbox" name="masterCheckbox" id="masterCheckbox" value="all">
+                                    <label for="masterCheckbox"> &nbsp;<strong>Toggle all</strong></label>
                                 </div>
                             </div>
                             @foreach ($products as $value)
                             <div class="col-md-3">
                                 <div class="form-check">
-                                    <input class="form-check-input ms-2" type="checkbox" name="product_access[]" id="product_access-{{$value->id}}" value="{{$value->id}}" {{in_array($value->id, $product_access) ? 'checked' : ''}}>
-                                    <label for="product_access-{{$value->id}}"> &nbsp;{{$value->name}}</label>
+                                    <input class="form-check-input ms-2 childCheckbox" type="checkbox" name="product_blacklist[]" id="product_blacklist-{{$value->id}}" value="{{$value->id}}" {{in_array($value->id, $product_blacklist) ? 'checked' : ''}}>
+                                    <label for="product_blacklist-{{$value->id}}"> &nbsp;{{$value->name}}</label>
                                 </div>
                             </div>
                             @endforeach
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn-success">
-                                    Update Product Access
+                                    Update Product Blacklist
                                 </button>
                             </div>
                         </div>
@@ -453,5 +454,16 @@
 
 <!-- Internal Datatables JS -->
 <script src="{{asset('new/assets/js/datatables.js')}}"></script>
+<script>
+    $(document).ready(function() {
+        $('#masterCheckbox').on('change', function() {
+            $('.childCheckbox').prop('checked', this.checked);
+        });
+
+        $('.childCheckbox').on('change', function() {
+            $('#masterCheckbox').prop('checked', $('.childCheckbox:checked').length === $('.childCheckbox').length);
+        });
+    });
+</script>
 @endsection
 

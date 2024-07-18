@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('users', 'product_access')) {
+        if (!Schema::hasColumn('users', 'product_blacklist')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->json('product_access')->nullable();
+                $table->json('product_blacklist')->nullable();
             });
         }
     }

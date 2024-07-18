@@ -39,7 +39,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'product_access' => 'array',
+        'product_blacklist' => 'array',
     ];
 
     public function customer_level(){

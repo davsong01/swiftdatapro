@@ -26,11 +26,11 @@ class TransactionsController extends Controller
     }
 
     public function initialize($service){
-        $productAccess = productAccess(auth()->user());
+        $productBlacklist = productBlacklist(auth()->user());
         
         $category = Category::with([
-            'products' => function ($query) use ($productAccess)  {
-                return $query->where('status', 'active')->whereIn('id', $productAccess)->get();
+            'products' => function ($query) use ($productBlacklist)  {
+                return $query->where('status', 'active')->whereNotIn('id', $productBlacklist)->get();
             }
         ])->where('status', 'active')->where('slug', $service)->first();
 
@@ -1412,13 +1412,13 @@ class TransactionsController extends Controller
         }
 
         // Product access 
-        $productAccess = productAccess(auth()->user());
+        $productBlacklist = productBlacklist(auth()->user());
         
-        if(!in_array($product->id, $productAccess)){
+        if(in_array($product->id, $productBlacklist)){
             $response = [
                 'status' => 'fail',
                 'status_code' => '100',
-                'message' => 'Product not enable for customer, please contact support',
+                'message' => 'Product not enabled for customer, please contact support',
             ];
         }
         

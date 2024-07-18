@@ -50,16 +50,12 @@ if (!function_exists("getDownlines")) {
     }
 }
 
-if (!function_exists("productAccess")) {
-    function productAccess($user)
+if (!function_exists("productBlacklist")) {
+    function productBlacklist($user)
     {
-        return !empty($user->product_access) ? $user->product_access : [];
+        return !empty($user->product_blacklist) ? $user->product_blacklist : [];
     }
 }
- // $downlines = ReferralEarning::where('customer_id', $customer)
-        //     ->latest()
-        //     ->groupBy('referred_customer_id')
-        //     ->get(['*', DB::raw('sum(amount) as total')]);
 
 if (!function_exists("specialVerifiableVariations")) {
     function specialVerifiableVariations()

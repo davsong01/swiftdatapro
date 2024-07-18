@@ -166,15 +166,15 @@ class CustomerController extends Controller
     public function updateCustomerProducts(Request $request, $user){
         $user = User::where('id', $user)->first();
         
-        if(!empty($request->product_access_all)){
-            $request['product_access'] = Product::pluck('id')->toArray();
+        if(!empty($request->product_blacklist_all)){
+            $request['product_blacklist'] = Product::pluck('id')->toArray();
         }
         
         $user->update([
-            'product_access' => $request->product_access,
+            'product_blacklist' => $request->product_blacklist,
         ]);
-
-        return back()->with('message', 'Update succesful');
+        
+        return back()->with('message', 'Blacklisted Product Update succesful');
     }
 
     public function updateCustomerOtherActions(Request $request){

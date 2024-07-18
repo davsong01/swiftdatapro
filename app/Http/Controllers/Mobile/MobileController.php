@@ -126,7 +126,7 @@ class MobileController extends Controller
                 'mobile',
                 'status',
                 'ref_code',
-                'product_access'
+                'product_blacklist'
             ]),
         ];
 
