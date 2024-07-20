@@ -1091,6 +1091,7 @@ class Controller extends BaseController
         try {
             Mail::to($email_to)->send(new EmailMessages($data));
         } catch (\Exception $e) {
+            \Log::info(['Email Sending Error' => $data]);
             // dd($e->getMessage());
         }
     }
