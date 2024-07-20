@@ -1087,10 +1087,9 @@ class Controller extends BaseController
             'subject' => $subject,
             'body' => $body,
         ];
-
+        
         try {
-            Mail::to($email_to,)->send(new EmailMessages($data));
-            \Log::info(['Email: '=>$data]);
+            Mail::to($email_to)->send(new EmailMessages($data));
         } catch (\Exception $e) {
             // dd($e->getMessage());
         }

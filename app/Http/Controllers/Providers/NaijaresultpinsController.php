@@ -15,28 +15,28 @@ class NaijaResultPinsController extends Controller
         $resource = $request['resource'];
 
         if ($slug == "waec-result" || $slug == "waec-verification-pin") {
-            $service_url = "https://www.naijaresultpins.com/api/v1/exam-card";
+            $service_url = $api->live_base_url. "exam-card/buy";
             $card_type_id = 1;
         }
 
         if ($slug == "neco" || $slug == "neco-result") {
             $card_type_id = 2;
-            $service_url = "https://www.naijaresultpins.com/api/v1/exam-card";
+            $service_url = $api->live_base_url. "exam-card/buy";
         }
 
         if ($slug == "nabteb" || $slug == "nabteb-result") {
-            $service_url = "https://www.naijaresultpins.com/api/v1/exam-card";
+            $service_url = $api->live_base_url. "exam-card/buy";
             $card_type_id = 3;
         }
         
         if ($slug == "nbais") {
             $card_type_id = 5;
-            $service_url = "https://www.naijaresultpins.com/api/v1/exam-card";
+            $service_url = $api->live_base_url. "exam-card/buy";
         }
 
         if ($slug == "waec-registration") {
             $card_type_id = 6;
-            $service_url = "https://www.naijaresultpins.com/api/v1/exam-card";
+            $service_url = $api->live_base_url. "exam-card/buy";
         }
         $postdata = [
             'card_type_id' => $card_type_id,

@@ -623,7 +623,7 @@ class VtpassController extends Controller
     public function verify($request, $api){
         $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
         $url = $url . 'merchant-verify';
-
+        
         $headers = [
             'api-key: ' . $api->api_key,
             'public-key: ' . $api->public_key,
