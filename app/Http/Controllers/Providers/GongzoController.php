@@ -1139,7 +1139,7 @@ class GongzoController extends Controller
         $slug = $request['product']->slug ?? null;
         $resource = $request['resource'] ?? null;
 
-        if ($slug  == 'mtn-cg' || $slug == 'gifting' || $slug == 'mtn-sme') {
+        if ($slug  == 'mtn-gifting' || $slug  == 'mtn-cg' || $slug == 'gifting' || $slug == 'mtn-sme') {
             $ntwk = 1;
             $url = $api->live_base_url . "data/";
         } elseif ($slug == 'airtel-cg') {
@@ -1157,8 +1157,10 @@ class GongzoController extends Controller
         } else if ($slug == 'mtn' || $slug == 'mtn-sme') {
             $ntwk = 1;
             $url = $api->live_base_url . "data/";
+        }else{
+            $url = $api->live_base_url . "data/";
         }
-       
+        
         $postdata = [
             'url' => $url ?? $api->live_base_url . "data/",
             'network' => $ntwk,
