@@ -76,8 +76,7 @@ class HomeController extends Controller
             'status' => 'success',
             'message' => 'Thank you for your review. We always happy to hear from you !!!',
         ];
-        $response->handler($responseX);
-
+        return json_encode($responseX);
     }
 
     public function upgradeLevel(Request $request, JsonResponseService $response){
@@ -91,7 +90,7 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => $validator->messages()->first(),
             ];
-            $response->handler($responseX);
+            return json_encode($responseX);
         }
 
         $level = CustomerLevel::where('id', $request->level)->first();
@@ -193,7 +192,7 @@ class HomeController extends Controller
                         'status' => 'success',
                         'message' => $descr1,
                     ];
-                    $response->handler($responseX);
+                    return json_encode($responseX);
         
                 }
             } else {
@@ -252,7 +251,9 @@ class HomeController extends Controller
                     'status' => 'success',
                     'message' => $descr1,
                 ];
-                $response->handler($responseX);
+
+                return json_encode($responseX);
+
             }
 
             auth()->user()->level = $level->id;
@@ -264,7 +265,7 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => 'You do not have enough balance to upgrade !!!',
             ];
-            $response->handler($responseX);
+            return json_encode($responseX);
         }
     }
 
@@ -279,8 +280,7 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => 'You do not have commission to withdraw',
             ];
-
-            $response->handler($responseX);
+            return json_encode($responseX);
         }
 
         $amount = $referral_balance;
@@ -289,6 +289,7 @@ class HomeController extends Controller
         // Debit Earned transactions
         try {
             \DB::beginTransaction();
+            $wallet_balance = walletBalance($user);
 
             EarnedTransactions::create([
                 'user_id' =>  $user->id,
@@ -339,7 +340,7 @@ class HomeController extends Controller
                 'message' => $descr,
             ];
 
-            $response->handler($responseX);
+            return json_encode($responseX);
             //code...
         } catch (\Throwable $th) {
             \DB::rollback();
@@ -350,7 +351,7 @@ class HomeController extends Controller
                 'message' => 'An error occured while processing withdrawal, please try again',
             ];
 
-            $response->handler($responseX);
+            return json_encode($responseX);
         }
     }
 
@@ -774,7 +775,7 @@ class HomeController extends Controller
                 'message' => $validator->messages()->first(),
             ];
 
-            $response->handler($responseX);
+            return json_encode($responseX);
         }
 
         $request['email'] = auth()->user()->email;
@@ -801,7 +802,6 @@ class HomeController extends Controller
             DB::table('password_reset_tokens')->insert([
                 'email' => $user->email,
                 'token' => $tk,
-                'app_version' => '2',
                 'created_at' => Carbon::now()
             ]); //Get the token just created above
         }
@@ -820,7 +820,7 @@ class HomeController extends Controller
             'message' => 'Please check your email for a password reset link!!!',
         ];
 
-        $response->handler($responseX);
+        return json_encode($responseX);
     }
 
     public function resetPin(){
@@ -849,7 +849,8 @@ class HomeController extends Controller
                 'message' => $validator->messages()->first(),
             ];
 
-            $response->handler($responseX);
+            return json_encode($responseX);
+
         }
         
         if (!Hash::check($request->old_pin, auth()->user()->pass)) {
@@ -897,8 +898,8 @@ class HomeController extends Controller
                 status: 200
             );
         }
-        
-        $response->handler($responseX);
+    
+        return json_encode($responseX);
     }
 
     public function resetPin2(Request $request){
@@ -946,7 +947,7 @@ class HomeController extends Controller
             'message' => '<div class="alert alert-success text-left">Security PIN changed successfully</div>',
         ];
 
-        $response->handler($responseX);
+        return json_encode($responseX);
     }
 
     public function generateApi(){
