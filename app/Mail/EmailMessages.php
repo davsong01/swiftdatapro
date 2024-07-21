@@ -44,7 +44,6 @@ class EmailMessages extends Mailable
      */
     public function content(): Content
     {
-       
         return new Content(
             markdown: 'emails.empty_template',
             with: [

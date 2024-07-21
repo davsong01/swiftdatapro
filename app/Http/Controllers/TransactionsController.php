@@ -345,7 +345,7 @@ class TransactionsController extends Controller
                 'old_balance' => $transaction->buyer_prebal, 
                 'new_balance' => $transaction->buyer_postbal, 
                 'amountPaid' => $transaction->buyer_amount,
-                'message' => 'An error occured, please try again later',
+                'message' => 'A File Transaction error occured, please try again later',
             );
 
             \Log::error('Transaction failed: ' . $e->getMessage().' File: '. $e->getFile() .' Line: ' . $e->getLine());
