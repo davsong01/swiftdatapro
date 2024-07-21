@@ -28,6 +28,28 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, ValidatesRequests;
 
+    public function apiResponseMatchCheck($needle){
+        // $needle = 'Data Card Purchase was UnSuccessful. Reason: You are sending to the';
+        $allowed = ['YOU ARE NOT SENDING TO VALID'];
+        $needle = strtoupper($needle);
+        $response_words = explode(' ', $needle);
+        $match_found = false;
+
+        foreach ($allowed as $phrase) {
+            $phrase = strtoupper($phrase);
+            $allowed_words = explode(' ', $phrase);
+
+            foreach ($response_words as $word) {
+                if (in_array($word, $allowed_words)) {
+                    $match_found = true;
+                    break 2; // Break both loops
+                }
+            }
+        }
+
+
+        return $match_found;
+    }
     // public function populateData(){
     //     try {
     //         // Update user id in final transaction table

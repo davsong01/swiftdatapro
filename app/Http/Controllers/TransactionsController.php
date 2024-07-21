@@ -631,7 +631,7 @@ class TransactionsController extends Controller
 
     public function formatOderReport($resource, $request, $transaction,$api_response){
         if ($api_response['status'] == 'success') {
-            $order_report = strtoupper('Purchase Successful on ' . $request['billersCode'] ?? $resource->display_) .'. '. $api_response['response'];
+            $order_report = strtoupper('Purchase Successful on ' . $request['billersCode']) .'. '. $api_response['response'];
             $extra = $api_response['extra'] ?? '';
             
             if ($resource->slug == 'smile-data') {
@@ -660,16 +660,17 @@ class TransactionsController extends Controller
                 'message' => $order_report,
             ];
         }else{
+            
             if(!empty($api_response['response'])){
-                $order_report = strtoupper('Purchase failed on ' .$request['billersCode'] ?? $resource->name . ' Error: ' . $api_response['response']);
+                $order_report = strtoupper('Purchase failed on ' .$request['billersCode'] . ' Error: ' . $api_response['response']);
             }else{
                 $order_report = strtoupper('Purchase failed on ' . $request['billersCode'] ?? $resource->name);
             }
 
             if ($resource->slug == 'smile-data') {
-                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' Purchase failed on ' . $request['billersCode']);
+                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' Purchase failed on ' . $request['billersCode']) . '. ' . $api_response['response'] ?? '';
             } elseif ($resource->slug == 'spectranet-data') {
-                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' E-pin Purchase failed on ' . $request['billersCode']);
+                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' E-pin Purchase failed on ' . $request['billersCode']) . '. ' . $api_response['response'] ?? '';
             }
 
             $final_response = array(
@@ -681,7 +682,7 @@ class TransactionsController extends Controller
                 'message' => $order_report
             );
         }
-       
+    
         return [
             'order_report' => $order_report,
             'final_response' => $final_response

@@ -1555,12 +1555,16 @@ class EasyAccessController extends Controller
 
         if(env('ENT') == 'local'){
             $resX = '{"success": "true","message": "Data Card Purchase was Successful","network": "MTN","pin": "408335193S","pin2": "184305851S","dataplan": "1.5GB","amount": 574,"balance_before": "27833","balance_after": 27259,"transaction_date": "07-04-2023 07:57:47 pm","reference_no": "ID5345892220","client_reference": "client_ref84218868382855","status": "Successful","auto_refund_status": "success"}';
+
+            // Failure message
+            // $resX = '{"success":"false","message":"Data Purchase was Unsuccessful","network":"MTN","mobileno":"08164383771", "dataplan":"1GB","amount":"260","balance_before":"334xx","balance_after":"358xx","true_response":"You are not sending to valid MTN number.","transaction_date":"13-01-2021 03:26:17 am","reference_no":"ID2852090335","client_reference":"tranx6896598952","status":"Failed","auto_refund_status":"failed"}'; 
         }else{
             $resX = $this->advancedApiCall($pstfields['url'], $pstfields, $headers);
         }
         
         try {
             $format = $this->processApiResponse($resX);
+            
             $format['api_response'] = $resX;      
             $format['postfields'] = $pstfields;      
         } catch (\Throwable $th) {
@@ -1574,7 +1578,6 @@ class EasyAccessController extends Controller
             
             return $format;
         }
-       
         return $format;
     }
 
@@ -1591,7 +1594,6 @@ class EasyAccessController extends Controller
             try {
                 // Process APi call
                 $result = json_decode($res);
-                
                 $pinsx = [];
 
                 if (isset($result) && !empty($result)) {
@@ -1604,6 +1606,9 @@ class EasyAccessController extends Controller
 
                 $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
                 $true_response = $result->true_response ?? ($result->message ?? '');
+                $true_response = isset($result->true_response) ? str_replace("'", "", $result->true_response) : ($result->true_response ?? '');
+
+                $true_response = $this->apiResponseMatchCheck($true_response) == true ? $true_response : '';
                 
                 $status = isset($result->status) ? strtolower($result->status) : 'failed';
                 $auto_refund_status = isset($result->auto_refund_status) ? strtolower($result->auto_refund_status) : 'nil';
@@ -1613,9 +1618,8 @@ class EasyAccessController extends Controller
                     $true_response = $true_response;
                     $extra = $pins;
                 } else {
-                    $true_response = isset($result->true_response) ? str_replace("'", "", $result->true_response) : ($result->true_response ?? '');
+                    $true_response ?? '';
                     $status = 'failed';
-                    $true_response = $result->message ?? $true_response ?? '';
                 }
                 
                 ////

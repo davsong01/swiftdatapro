@@ -1179,15 +1179,15 @@ class GongzoController extends Controller
         
         $pstfields = $this->getPostData($data, $api);
        
-        // if (env('ENT') == 'local') {
-        //     $resX = '{"id":19263669,"ident":"Data22d134b73-a60","payment_medium":"MAIN WALLET","network":1,"apiresponse":"Dear Customer, You have gifted 3072MB, please dial *323*2*5# to check your balance. Thankyou.","api_response":"Dear Customer, You have gifted 3072MB, please dial *323*2*5# to check your balance. Thankyou.","balance_before":"62185.88000000008","balance_after":"61411.88000000008","mobile_number":"09135759113","plan":283,"Status":"SUCCESSFUL","plan_network":"MTN","plan_name":"3.0GB","plan_amount":"774.0","create_date":"2024-05-31T18:51:00.642075","Ported_number":true}';
-        // } else {
-        $resX = $this->advancedApiCall($pstfields['url'], json_encode($pstfields), $headers);
-        // }
+        if (env('ENT') == 'local') {
+            $resX = '{"id":19263669,"ident":"Data22d134b73-a60","payment_medium":"MAIN WALLET","network":1,"apiresponse":"Dear Customer, You have gifted 3072MB, please dial *323*2*5# to check your balance. Thankyou.","api_response":"Dear Customer, You have gifted 3072MB, please dial *323*2*5# to check your balance. Thankyou.","balance_before":"62185.88000000008","balance_after":"61411.88000000008","mobile_number":"09135759113","plan":283,"Status":"SUCCESSFUL","plan_network":"MTN","plan_name":"3.0GB","plan_amount":"774.0","create_date":"2024-05-31T18:51:00.642075","Ported_number":true}';
+        } else {
+            $resX = $this->advancedApiCall($pstfields['url'], json_encode($pstfields), $headers);
+        }
         // dd($resX, $postdata)
-        // $resX = '{"id":8796051,"ident":"Data3c8b22038-740","network":1,"apiresponse":"something went wrong please check back later","api_response":"something went wrong please check back later","balance_before":"3938.0","balance_after":"3711.0","mobile_number":"08149292337","plan":281,"Status":"success","plan_network":"MTN","plan_name":"1.0GB","plan_amount":"227.0","create_date":"2023-08-21T20:56:25.563155","Ported_number":true}';
+        // $resX = '{"id":8796051,"ident":"Data3c8b22038-740","network":1,"apiresponse":"something went wrong please check back later","api_response":"something went wrong please check back later","balance_before":"3938.0","balance_after":"3711.0","mobile_number":"08149292337","plan":281,"Status":"failed","plan_network":"MTN","plan_name":"1.0GB","plan_amount":"227.0","create_date":"2023-08-21T20:56:25.563155","Ported_number":true}';
 
-        // '{"id":19292559,"ident":"Data102a1dfaca-cbe","payment_medium":"MAIN WALLET","network":1,"apiresponse":"You are not sending to valid MTN number.","api_response":"You are not sending to valid MTN number.","balance_before":"2779.9800000000832","balance_after":"2649.4800000000832","mobile_number":"08180010243","plan":289,"Status":"failed","plan_network":"MTN","plan_name":"500.0MB","plan_amount":"130.5","create_date":"2024-06-01T18:43:51.781740","Ported_number":true}'
+        // $resX = '{"id":19292559,"ident":"Data102a1dfaca-cbe","payment_medium":"MAIN WALLET","network":1,"apiresponse":"You are not sending to valid MTN number.","api_response":"You are not sending to valid MTN number.","balance_before":"2779.9800000000832","balance_after":"2649.4800000000832","mobile_number":"08180010243","plan":289,"Status":"failed","plan_network":"MTN","plan_name":"500.0MB","plan_amount":"130.5","create_date":"2024-06-01T18:43:51.781740","Ported_number":true}';
 
         try {
             $format = $this->processApiResponse($resX, $data);
@@ -1226,6 +1226,10 @@ class GongzoController extends Controller
                 // Process APi call
                 $result = json_decode($res, true);
                 
+                $check = !empty($result['api_response']) ? $this->apiResponseMatchCheck($result['api_response']) : '';
+
+                $result['api_response'] = $check == true ? $result['api_response'] : '';
+                
                 if($request['product']->slug == 'mtn' && $request['category']->slug == 'data'){
                     $result['Status'] = isset($result['Status']) ? strtoupper($result['Status']) : null;
 
@@ -1237,7 +1241,7 @@ class GongzoController extends Controller
                         $true_response = 'You have successfully shared data to ' . $request['mobile_number'] . '. ' . $result['api_response'];
                     } else {
                         $status = 'failed';
-                        $true_response = 'Something went wrong. ' . $result['api_response'];
+                        $true_response = 'ERROR: ' . $result['api_response'];
                     }
                 }else{
                     try {
