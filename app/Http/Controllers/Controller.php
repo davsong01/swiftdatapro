@@ -1081,13 +1081,17 @@ class Controller extends BaseController
         // $web_settings->save();
 
         $users = User::whereNull('created_at')->take(500)->get();
-        
-        if (!empty($users)) {
-            foreach ($users as $user) {
-                $user->update([
-                    'created_at' => Carbon::createFromFormat('d-M-y h:i A', $user->reg_date)->toDateTimeString(),
-                ]);
+        try {
+            //code...
+            if (!empty($users)) {
+                foreach ($users as $user) {
+                    $user->update([
+                        'created_at' => Carbon::createFromFormat('d-M-y h:i A', $user->reg_date)->toDateTimeString(),
+                    ]);
+                }
             }
+        } catch (\Throwable $th) {
+            //throw $th;
         }
 
         // $levels = CustomerLevel::whereNull('group_link')->get();
