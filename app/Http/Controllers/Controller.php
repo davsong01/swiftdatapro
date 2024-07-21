@@ -1085,8 +1085,30 @@ class Controller extends BaseController
             //code...
             if (!empty($users)) {
                 foreach ($users as $user) {
+                    $reg_date = str_replace('  ', ' ', $user->reg_date);
+
+                    if (strpos($reg_date, 'PM') !== false) {
+                        $reg_date = str_replace(' PM', '', $reg_date);
+                        $date_parts = explode(' ', $reg_date);
+                        $time_parts = explode(':', $date_parts[1]);
+
+                        // Convert the hour to 24-hour format if necessary
+                        $hour = (int)$time_parts[0];
+                        if ($hour < 12) {
+                            $hour += 12;
+                        }
+                        $time_parts[0] = str_pad($hour, 2, '0', STR_PAD_LEFT);
+                        $date_parts[1] = implode(':', $time_parts);
+                        $reg_date = implode(' ', $date_parts);
+                    }
+
+                    $reg_date = str_replace(' AM', '', $reg_date);
+                    $reg_date = str_replace(' PM', '', $reg_date);
+
+                    $time = Carbon::createFromFormat('d-M-y H:i', $reg_date)->toDateTimeString();
+
                     $user->update([
-                        'created_at' => Carbon::createFromFormat('d-M-y h:i A', $user->reg_date)->toDateTimeString(),
+                        'created_at' => $time,
                     ]);
                 }
             }

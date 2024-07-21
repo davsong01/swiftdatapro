@@ -44,8 +44,26 @@ class HomeController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
     public function kycForm(){
-        return view('customer.dashboard', compact('customer_levels'));
+        $customer_levels = CustomerLevel::where('id', '>', auth()->user()->level)->get();
+        $kyc_status = auth()->user()->kyc_status;
+        // return view('customer.kyc_form', compact('customer_levels'));
+        return view('customer.kyc_form', compact('kyc_status'));
+    }
 
+    public function kycUpdate(Request $request){
+
+        auth()->user()->update([
+            'nin' => $request->nin,
+            'bvn' => $request->bvn,
+        ]);
+
+        if(!empty($request->bvn) || !empty($request->nin)){
+            auth()->user()->update([
+                'kyc_status' => 1,
+            ]);
+        }
+
+        return redirect(route('dashboard'))->with('message', 'Operation successful');
     }
 
     public function dashboard()
@@ -356,6 +374,7 @@ class HomeController extends Controller
     }
 
     public function createReservedAccount($user){
+        
         if($user->kyc_status != 1){
             return;
         }
@@ -379,36 +398,53 @@ class HomeController extends Controller
         if (!empty($user->nin)) {
             $data['nin'] =  $user->nin;
         }
-
+        
         if ($payvesel->status == 'active' && $user->filter_accounts($payvesel->id)->count() < 1) {
             $account = new PaymentGatewayController();
             $accounts = $account->createPayVesselReservedAccount($payvesel, $data);
+
+            if (!empty($accounts) && $accounts['status'] == 'success') {
+                foreach ($accounts['accounts'] as $account) {
+                    AutomatedDeposit::create([
+                        'account_reference' => $account['trackingReference'] ?? $accounts['response']['responseBody']['accountReference'] ?? null,
+                        'account_number' => $account['accountNumber'] ?? null,
+                        'account_name' => $account['accountName'] ?? null,
+                        'bank_name' => $account['bankName'] ?? null,
+                        'bank_code' => $account['bankCode'] ?? null,
+                        'payment_gateway_id' => $accounts['payment_gateway_id'] ?? null,
+                        'status' => 'active',
+                        'bvn' => $data['bvn'] ?? null,
+                        'nin' => $data['nin'] ?? null,
+                        'raw_response' => json_encode($accounts['response']),
+                        'user_id' => $user->id,
+                    ]);
+                }
+                return 'success';
+            }
         }
 
         if ($monnify->status == 'active' && $user->filter_accounts($monnify->id)->count() < 1) {
             $account = new PaymentGatewayController();
             $accounts = $account->createMonnifyReservedAccount($monnify, $data);
-        }
-
-        if(!empty($accounts) && $accounts['status'] == 'success'){
-            foreach($accounts['accounts'] as $account){
-                AutomatedDeposit::create([
-                    'account_reference' => $account['trackingReference'] ?? $accounts['response']['responseBody']['accountReference'] ?? null,
-                    'account_number' => $account['accountNumber'] ?? null,
-                    'account_name' => $account['accountName'] ?? null,
-                    'bank_name' => $account['bankName'] ?? null,
-                    'bank_code' => $account['bankCode'] ?? null,
-                    'payment_gateway_id' => $accounts['payment_gateway_id'] ?? null,
-                    'status' => 'active',
-                    'bvn' => $data['bvn'] ?? null,
-                    'nin' => $data['nin'] ?? null,
-                    'raw_response' => json_encode($accounts['response']),
-                    'user_id' => $user->id,
-                ]);
+            
+            if (!empty($accounts) && $accounts['status'] == 'success') {
+                foreach ($accounts['accounts'] as $account) {
+                    AutomatedDeposit::create([
+                        'account_reference' => $account['trackingReference'] ?? $accounts['response']['responseBody']['accountReference'] ?? null,
+                        'account_number' => $account['accountNumber'] ?? null,
+                        'account_name' => $account['accountName'] ?? null,
+                        'bank_name' => $account['bankName'] ?? null,
+                        'bank_code' => $account['bankCode'] ?? null,
+                        'payment_gateway_id' => $accounts['payment_gateway_id'] ?? null,
+                        'status' => 'active',
+                        'bvn' => $data['bvn'] ?? null,
+                        'nin' => $data['nin'] ?? null,
+                        'raw_response' => json_encode($accounts['response']),
+                        'user_id' => $user->id,
+                    ]);
+                }
+                return 'success';
             }
-            return 'success';
-        }else{
-            return 'fail';
         }
     }
 

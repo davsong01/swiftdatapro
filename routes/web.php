@@ -131,44 +131,48 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
 Auth::routes();
 
 Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
-    Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
-    Route::post('customer/review', [HomeController::class, 'customerReview'])->name('customer.review');
-    Route::post('customer/level', [HomeController::class, 'upgradeLevel'])->name('customer.level');
-    Route::get('/automated_pay', [HomeController::class, 'automatedTransfer'])->name('automated.pay');
-    Route::get('/deposit_payment', [HomeController::class, 'depositPayment']);
-    Route::get('transactions/{type?}', [HomeController::class, 'transactions'])->name('customer.transactions');
-    Route::get('cashback_earn', [HomeController::class, 'cashbackEarned'])->name('customer.cashback');
-    Route::get('withdraw-cashback', [HomeController::class, 'withdrawCashbackEarned'])->name('customer.withdraw.cashback');
-    Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
-    Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
-    Route::get('ref_downlines', [HomeController::class, 'downlines']);
+    Route::get('kyc-update', [HomeController::class, 'kycForm'])->name('kyc.form');
+    Route::post('kyc-update', [HomeController::class, 'kycUpdate'])->name('kyc.update');
     Route::get('profile', [HomeController::class, 'profile'])->name('customer.profile');
     Route::post('profile', [HomeController::class, 'updateProfile'])->name('customer.profile.update');
-    Route::get('generate-api', [HomeController::class, 'generateApi'])->name('generate_api');
-    Route::get('kyc-update', [HomeController::class, 'kycForm'])->name('kyc.form');
-    Route::post('kyc-update', [HomeController::class, 'generateApi'])->name('kyc.update');
-
-    Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
-    Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
-
-    Route::get('change-pin', [HomeController::class, 'resetPin'])->name('pin.reset');
-    Route::post('change-pin', [HomeController::class, 'processResetPin'])->name('pin.process.reset');
-    Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
-    Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
     
-    Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
+    Route::middleware(['auth', 'verify_email', 'ipcheck', 'kyc'])->group(function () {
+        Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
+        Route::post('customer/review', [HomeController::class, 'customerReview'])->name('customer.review');
+        Route::post('customer/level', [HomeController::class, 'upgradeLevel'])->name('customer.level');
+        Route::get('/automated_pay', [HomeController::class, 'automatedTransfer'])->name('automated.pay');
+        Route::get('/deposit_payment', [HomeController::class, 'depositPayment']);
+        Route::get('transactions/{type?}', [HomeController::class, 'transactions'])->name('customer.transactions');
+        Route::get('cashback_earn', [HomeController::class, 'cashbackEarned'])->name('customer.cashback');
+        Route::get('withdraw-cashback', [HomeController::class, 'withdrawCashbackEarned'])->name('customer.withdraw.cashback');
+        Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
+        Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
+        Route::get('ref_downlines', [HomeController::class, 'downlines']);
+       
+        Route::get('generate-api', [HomeController::class, 'generateApi'])->name('generate_api');
     
-    // Transactions
-    Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
-    Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
-    Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
-    Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
-    Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
-    Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
-    Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
-    Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
-    Route::post('customer-get-charges', [TransactionsController::class, 'getCustomerCharges'])->name('get.customer.charges');
-    Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
-    Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
+        Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
+        Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
+    
+        Route::get('change-pin', [HomeController::class, 'resetPin'])->name('pin.reset');
+        Route::post('change-pin', [HomeController::class, 'processResetPin'])->name('pin.process.reset');
+        Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
+        Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
+        
+        Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
+        
+        // Transactions
+        Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
+        Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
+        Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
+        Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
+        Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
+        Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
+        Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
+        Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
+        Route::post('customer-get-charges', [TransactionsController::class, 'getCustomerCharges'])->name('get.customer.charges');
+        Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
+        Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
+    });
 
 });
