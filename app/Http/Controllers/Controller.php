@@ -1078,15 +1078,17 @@ class Controller extends BaseController
             $web_settings->download_ios_app_link = '';
         }
 
-        $web_settings->save();
-        // $users = User::whereNull('created_at')->get();
-        // if (!empty($users2)) {
-        //     foreach ($users2 as $user) {
-        //         $user->update([
-        //             'created_at' => Carbon::createFromFormat('d-M-y h:i A', $user->reg_date)->toDateTimeString(),
-        //         ]);
-        //     }
-        // }
+        // $web_settings->save();
+
+        $users = User::whereNull('created_at')->take(500)->get();
+        
+        if (!empty($users)) {
+            foreach ($users as $user) {
+                $user->update([
+                    'created_at' => Carbon::createFromFormat('d-M-y h:i A', $user->reg_date)->toDateTimeString(),
+                ]);
+            }
+        }
 
         // $levels = CustomerLevel::whereNull('group_link')->get();
         // foreach($levels as $level){
