@@ -1239,7 +1239,7 @@ class Controller extends BaseController
 
     public function advancedApiCall($url, $payload=[], $headers, $method = 'POST', $status_code=null)
     {
-        \Log::info(['Begin connection...', $url, $payload, $headers]);
+        // \Log::info(['Begin connection...', $url, $payload, $headers]);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -1262,6 +1262,7 @@ class Controller extends BaseController
         
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $response = curl_exec($ch);
+        
         \Log::info(['End connection', $url, $payload, $headers, $response]);
         
         if(isset($status_code)){
