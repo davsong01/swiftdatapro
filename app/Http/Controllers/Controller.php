@@ -1125,7 +1125,7 @@ class Controller extends BaseController
                 $user->kyc_status = 1;
             }
         }
-       
+        
         // $levels = CustomerLevel::whereNull('group_link')->get();
         // foreach($levels as $level){
         //     if($level->id == 1){

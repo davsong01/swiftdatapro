@@ -175,7 +175,28 @@ class PaymentGatewayController extends Controller
         $response1 = $this->advancedApiCall($url, [], $headers);
         
         $result = json_decode($response1, true);
-        
+
+        try {
+            if(empty($result) || !isset($result['responseBody']['accessToken']) || empty($result['responseBody']['accessToken'])){
+                \Log::info([
+                    'Reserved account token generation error' => [
+                        'response' => $result,
+                        'payment_gateway_id' => $gateway->id
+                    ]
+                ]);
+
+                return [
+                    'status' => 'failed',
+                    'response' => $result,
+                    'payment_gateway_id' => $gateway->id
+                ];
+            }
+            //code...
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+        // \Log::info(['monnify token response' => $response1, 'url' =>  $url]);
+
         $accessToken = $result['responseBody']['accessToken'];
         $data['contractCode'] = $gateway->contract_id;
         
