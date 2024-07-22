@@ -175,7 +175,7 @@ class PaymentGatewayController extends Controller
         $response1 = $this->advancedApiCall($url, [], $headers);
         
         $result = json_decode($response1, true);
-
+        
         $accessToken = $result['responseBody']['accessToken'];
         $data['contractCode'] = $gateway->contract_id;
         
