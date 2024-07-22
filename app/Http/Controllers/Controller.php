@@ -1117,10 +1117,10 @@ class Controller extends BaseController
         }
 
         // Update kyc status
-        $users = User::whereNotNull('bvn')->whereNotNull('nin')->where('kyc_status', 0)->take(500)->get();
+        $users = User::whereNotNull('bvn')->whereNotNull('nin')->where('kyc_status', 0)->take(1500)->get();
         
         foreach($users as $user){
-            if(!empty($user->nin) || !empty($user->bvn) && $user->kyc_status == 0){
+            if((!empty($user->nin) || !empty($user->bvn)) && $user->kyc_status == 0){
                 // dump($user);
                 $user->kyc_status = 1;
             }
