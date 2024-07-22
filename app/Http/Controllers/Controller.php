@@ -1116,6 +1116,16 @@ class Controller extends BaseController
             //throw $th;
         }
 
+        // Update kyc status
+        $users = User::whereNotNull('bvn')->whereNotNull('nin')->where('kyc_status', 0)->take(1500)->get();
+        
+        foreach($users as $user){
+            if(!empty($user->nin) && !empty($user->bvn) && $user->kyc_status == 0){
+                // dump($user);
+                $user->kyc_status = 1;
+            }
+        }
+       
         // $levels = CustomerLevel::whereNull('group_link')->get();
         // foreach($levels as $level){
         //     if($level->id == 1){
