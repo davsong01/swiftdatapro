@@ -33,6 +33,14 @@ class CustomerController extends Controller
             $customers = $customers->where('level', $request->level);
         }
 
+        if (isset($request->kyc_status)) {
+            $customers = $customers->where('kyc_status', $request->kyc_status);
+        }
+
+        if (isset($request->status)) {
+            $customers = $customers->where('status', $request->status);
+        }
+
         if (!empty($request->from) && !empty($request->to)) {
             $from = $request->from . ' 00:00:00';
             $to = $request->to . ' 23:59:59';

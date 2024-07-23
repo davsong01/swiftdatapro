@@ -53,13 +53,33 @@
                                     </select>
                                 </div>
                             </div>
-                            
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="kyc">Status</label>
+                                    <select class="form-control" name="kyc" id="">
+                                        <option value="">Select...</option>
+                                        <option value="active" {{ \Request::get('kyc') == 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ \Request::get('kyc') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="kyc_status">KYC Status</label>
+                                    <select class="form-control" name="kyc_status" id="">
+                                        <option value="">Select...</option>
+                                        <option value="1" {{ \Request::get('kyc_status') == 1 ? 'selected' : '' }}>Active</option>
+                                        <option value="0" {{ \Request::get('kyc_status') == 0 ? 'selected' : '' }}>Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label class="form-label" for="from">Joined From</label>
                                     <input type="date" class="form-control" value="{{ \Request::get('from')}}" name="from">
                                 </div>
                             </div>
+                            
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label class="form-label" for="to">To</label>
@@ -83,7 +103,6 @@
                     <thead>
                         <tr>
                             <th>Details</th>
-                            
                             <th>Status</th>
                             <th>Level</th>
                             <th>Balances</th>
@@ -99,13 +118,12 @@
                             <td>
                                 <p>
                                     <strong>Name: </strong><a target="_blank" href="{{ route('customers.edit', $customer->id) }}">
-                                        {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
+                                    {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
                                     <strong>Username: </strong> {{ $customer->username }} <br>
                                     <strong>Email: </strong> {{ $customer->email }} <br>
                                     <strong>Phone: </strong> {{ $customer->mobile }}
                                 </p>                            
                             </td>
-                           
                             <td>
                                 <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
                                 <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>

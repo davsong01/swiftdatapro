@@ -47,7 +47,6 @@
                 @endif
 
                 @if(empty(auth()->user()->bvn) || empty(auth()->user()->nin))
-
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="i-agree" checked required>
                         <label class="form-check-label" for="flexCheckChecked">
