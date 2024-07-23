@@ -99,54 +99,56 @@
                     </form>
                     <hr>
                 </div>
-                <table class="table table-bordered responsive"  style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>Details</th>
-                            <th>Status</th>
-                            <th>Level</th>
-                            <th>Balances</th>
-                            <th>Joined</th>
-                            @if(hasAccess('customers.edit'))
-                            <th>Action</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($customers as $customer)
-                        <tr>
-                            <td>
-                                <p>
-                                    <strong>Name: </strong><a target="_blank" href="{{ route('customers.edit', $customer->id) }}">
-                                    {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
-                                    <strong>Username: </strong> {{ $customer->username }} <br>
-                                    <strong>Email: </strong> {{ $customer->email }} <br>
-                                    <strong>Phone: </strong> {{ $customer->mobile }}
-                                </p>                            
-                            </td>
-                            <td>
-                                <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
-                                <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
-                            </td>
-                            <td>{{ $customer->customer_level->name ?? 'N/A' }}</td>
-                            <td>
-                                Wallet: {!! settings()->currency !!}{{ number_format(walletBalance($customer)) }} <br>
-                                Referral:  {!! settings()->currency !!}{{ number_format(referralBalance($customer)) }} <br>
-                            </td>
-                            <td> 
-                                <strong>Joined: </strong>{{ date("M jS, Y g:iA", strtotime($customer->created_at)) }} <br>
-                                <strong>Last Login: </strong>{{ date("M jS, Y g:iA", strtotime($customer->last_login)) }} <br>
-                            </td>
-                            @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
-                            <td>
-                                <a href="{{ route('customers.edit', $customer->id) }}"><button type="button" class="btn btn-info btn-sm mr-1 mb-1"><i class="fa fa-edit"></i><span class="align-middle ml-25">View</span></button>
-                                </a>
-                            </td>
-                            @endif
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div class="table-responsive">
+                    <table class="table text-nowrap"  style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Details</th>
+                                <th>Status</th>
+                                <th>Level</th>
+                                <th>Balances</th>
+                                <th>Joined</th>
+                                @if(hasAccess('customers.edit'))
+                                <th>Action</th>
+                                @endif
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($customers as $customer)
+                            <tr>
+                                <td>
+                                    <p>
+                                        <strong>Name: </strong><a target="_blank" href="{{ route('customers.edit', $customer->id) }}">
+                                        {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
+                                        <strong>Username: </strong> {{ $customer->username }} <br>
+                                        <strong>Email: </strong> {{ $customer->email }} <br>
+                                        <strong>Phone: </strong> {{ $customer->mobile }}
+                                    </p>                            
+                                </td>
+                                <td>
+                                    <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
+                                    <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
+                                </td>
+                                <td>{{ $customer->customer_level->name ?? 'N/A' }}</td>
+                                <td>
+                                    Wallet: {!! settings()->currency !!}{{ number_format(walletBalance($customer)) }} <br>
+                                    Referral:  {!! settings()->currency !!}{{ number_format(referralBalance($customer)) }} <br>
+                                </td>
+                                <td> 
+                                    <strong>Joined: </strong>{{ date("M jS, Y g:iA", strtotime($customer->created_at)) }} <br>
+                                    <strong>Last Login: </strong>{{ date("M jS, Y g:iA", strtotime($customer->last_login)) }} <br>
+                                </td>
+                                @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
+                                <td>
+                                    <a href="{{ route('customers.edit', $customer->id) }}"><button type="button" class="btn btn-info btn-sm mr-1 mb-1"><i class="fa fa-edit"></i><span class="align-middle ml-25">View</span></button>
+                                    </a>
+                                </td>
+                                @endif
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
             {!! $customers->appends($_GET)->links() !!}
         </div>

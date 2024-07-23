@@ -1297,7 +1297,7 @@ class Controller extends BaseController
                 }
             }
         }
-
+        
         $imageFile->save($folder . '/' . $name);
 
         return $folder . '/' . $name;
