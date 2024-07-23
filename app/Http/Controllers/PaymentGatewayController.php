@@ -161,7 +161,7 @@ class PaymentGatewayController extends Controller
             ];
         }
     }
-
+    
     public function createMonnifyReservedAccount($gateway, $data){
         $monnify_hashkeys = $gateway->public_key . ':' . $gateway->secret_key;
         $stringk = base64_encode($monnify_hashkeys);
@@ -514,7 +514,7 @@ class PaymentGatewayController extends Controller
         $api = PaymentGateway::where('slug', 'monnify')->first();
 
         $token = $this->login($api);
-    
+
         if (empty($token)) {
             return [
                 'status' => 'failed',

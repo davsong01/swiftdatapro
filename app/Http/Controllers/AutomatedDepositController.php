@@ -154,6 +154,7 @@ class AutomatedDepositController extends Controller
             $delete = app('App\Http\Controllers\PaymentGatewayController')->deleteMonnifyReservedAccount($account->account_reference);
 
             if ($delete['status'] == 'success') {
+                $account->delete();
                 return back()->with('message', 'Reserved Account Deleted successfully');
             } else {
                 return back()->with('error', $delete['data'] ?? 'There was an error deallocating account');

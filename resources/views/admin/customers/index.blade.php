@@ -83,8 +83,7 @@
                     <thead>
                         <tr>
                             <th>Details</th>
-                            <th>Email</th>
-                            <th>Phone</th>
+                            
                             <th>Status</th>
                             <th>Level</th>
                             <th>Balances</th>
@@ -99,20 +98,27 @@
                         <tr>
                             <td>
                                 <p>
-                                    Name:<a target="_blank" href="{{ route('customers.edit', $customer->id) }}">
+                                    <strong>Name: </strong><a target="_blank" href="{{ route('customers.edit', $customer->id) }}">
                                         {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
-                                    Username:  {{ $customer->username }}
+                                    <strong>Username: </strong> {{ $customer->username }} <br>
+                                    <strong>Email: </strong> {{ $customer->email }} <br>
+                                    <strong>Phone: </strong> {{ $customer->mobile }}
                                 </p>                            
                             </td>
-                            <td>{{ $customer->email }}</td>
-                            <td>{{ $customer->mobile }}</td>
-                            <td> <small><strong>{{ ucfirst($customer->status) }}</strong></small></td>
+                           
+                            <td>
+                                <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
+                                <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
+                            </td>
                             <td>{{ $customer->customer_level->name ?? 'N/A' }}</td>
                             <td>
                                 Wallet: {!! settings()->currency !!}{{ number_format(walletBalance($customer)) }} <br>
                                 Referral:  {!! settings()->currency !!}{{ number_format(referralBalance($customer)) }} <br>
                             </td>
-                            <td> {{ date("M jS, Y g:iA", strtotime($customer->created_at)) }}</td>
+                            <td> 
+                                <strong>Joined: </strong>{{ date("M jS, Y g:iA", strtotime($customer->created_at)) }} <br>
+                                <strong>Last Login: </strong>{{ date("M jS, Y g:iA", strtotime($customer->last_login)) }} <br>
+                            </td>
                             @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
                             <td>
                                 <a href="{{ route('customers.edit', $customer->id) }}"><button type="button" class="btn btn-info btn-sm mr-1 mb-1"><i class="fa fa-edit"></i><span class="align-middle ml-25">View</span></button>
