@@ -252,29 +252,46 @@ if (!function_exists("getVariationDiscount")) {
     }
 }
 
-if (!function_exists("providerPrice")) {
-    function providerPrice($product, $variation, $request){
+if (!function_exists("getSourcePriceAndCalculateProfit")) {
+    function getSourcePriceAndCalculateProfit($product, $variation, $request){
         $provider_percentage_discount = $product->provider_percentage_discount;
+        
+        if ($product->has_variations == 'yes' && !empty($variation) && $variation->fixed_price == 'yes') {
+            // If product has variation and variation fixed price == yes, use variation->api_price
+            $src_price = $variation->api_price;
+            $profit = $request['total_amount'] - $src_price;
 
-        if ($product->has_variations == 'yes' && !empty($variation)) {
-            if (!empty($provider_percentage_discount)) {
-                $discount_off = $provider_percentage_discount / 100 * $variation->api_price;
-                $src_price = ($variation->api_price - $discount_off);
-                $src_price =  $src_price * $request['quantity'];
-            } else {
-                $src_price = 0;
+            if(empty($src_price)){
+                if (!empty($provider_percentage_discount)) {
+                    $discount_off = $provider_percentage_discount / 100 * $request['unit_price'];
+                    $src_price = ($request['unit_price'] - $discount_off);
+                    $src_price =  $src_price;
+
+                    // Profit is amount charged - provider charge 
+                    $profit = $request['total_amount'] - $src_price;
+                } else {
+                    $src_price = 0;
+                }
             }
         } else {
             if(!empty($provider_percentage_discount)){
                 $discount_off = $provider_percentage_discount / 100 * $request['unit_price'];
-                $src_price = ($request['unit_price'] -  $discount_off );
-                $src_price =  $src_price * $request['quantity'];
+                $src_price = ($request['unit_price'] - $discount_off );
+                $src_price =  $src_price;
+                
+                // Profit is amount charged - provider charge 
+                $profit = $request['total_amount'] - $src_price;
             }else{
-                $src_price = 0;
+                $profit = 0;
             }
         }
 
-        return $src_price;
+        $profit = $profit * $request['quantity'];
+        
+        return [
+            'source_price' => $src_price,
+            'profit' => $profit
+        ];
     }
 }
 

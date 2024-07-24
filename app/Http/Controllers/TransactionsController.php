@@ -155,8 +155,8 @@ class TransactionsController extends Controller
         $request['total_amount'] = $discountedAmount;
         $request['discount'] = $disCountApplied;
 
-        $src_price = providerPrice($product, $variation, $request);
-
+        $sourcePriceAndProfit = getSourcePriceAndCalculateProfit($product, $variation, $request);
+        
         $balance = walletBalance($user);
 
         if ($balance < $request['total_amount']) {
@@ -177,7 +177,7 @@ class TransactionsController extends Controller
         $request['serviceId'] = $resource->slug ?? null;
         $request['variation_code'] = $variation->variation_code ?? null;
         $request['quantity'] = $quantity;
-
+        
         // Log transaction
         $data = [
             'mobile_number' => $request->mobile_no,
@@ -199,14 +199,14 @@ class TransactionsController extends Controller
             'variation_id' => $variation->id ?? null,
             'product_id' => $product->id ?? null,
             'discount' => $disCountApplied,
-            'src_price' => $src_price,
+            'src_price' => $sourcePriceAndProfit['source_price'] ?? 0,
             'channel' => 'website',
             'provider' => $api->name,
             'billersCode' => $request['billersCode'] ?? null,
             'category_id' => $resource->category->id,
-            'profit' => ($src_price > 0) ? $request['total_amount'] - $src_price : $src_price,
+            'profit' => $sourcePriceAndProfit['profit'] ?? 0,
         ];
-
+        
         $transaction = $this->logTransaction($data);
 
         $data['resource'] = $resource;
