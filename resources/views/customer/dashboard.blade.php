@@ -169,17 +169,17 @@
                         </a>
                     </div>
                 </div>
-                {{-- <div class="col pb-15"
+                <div class="col pb-15"
                     style="box-shadow: rgba(0, 0, 0, 0.16) 0px 10px 36px 0px, rgba(0, 0, 0, 0.06) 0px 0px 0px 1px;height: 70px;border-radius: 20px;margin: 5px;">
                     <div class="option-card">
-                        <a href="{{ url('/') }}/get_flyer">
+                        <a href="{{ route('buy', 'graphic') }}">
                             <div class="option-card-icon">
                                 <i class="fa fa-paper-plane" style="font-size: 25px;color: #940798;margin: 5px;"></i>
                             </div>
                             <p style="font-weight:bold;font-size:10px;">Get Graphic</p>
                         </a>
                     </div>
-                </div> --}}
+                </div>
             </div>
 
 

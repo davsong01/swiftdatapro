@@ -39,6 +39,10 @@ class VariationController extends Controller
             app("App\Http\Controllers\Providers\GongzoController")->getOldVariations($product);
         }
         
+        if ($api->slug == 'graphic') {
+            app("App\Http\Controllers\Providers\GraphicController")->getOldVariations($product);
+        }
+        
         return back()->with('message', 'Old Variations pulled successfully');
     }
 

@@ -37,7 +37,7 @@ class TransactionsController extends Controller
         if (\Request::is('mobile/*')) {
             return $category->products;
         }
-
+        
         if(!$category){
             return redirect(route('dashboard'));
         }
@@ -133,7 +133,7 @@ class TransactionsController extends Controller
         } else {
             $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
         }
-
+        
         $checks = $this->runChecks($request, $product, $api);
 
         if (!empty($checks) && $checks['status'] == 'fail') {
@@ -213,7 +213,11 @@ class TransactionsController extends Controller
         $data['product'] = $product;
         $data['billersCode'] = $request['billersCode'] ?? null;
         $data['request_type'] = $request->request_type;
-
+        $data['business_line'] = $request->mobile_no;
+        $data['business_email'] = $request->business_email;
+        $data['business_content'] = $request->business_content;
+        $data['business_name'] = $request->business_name;
+        
         DB::beginTransaction();
 
         try {
@@ -232,8 +236,9 @@ class TransactionsController extends Controller
 
                 return $this->jsonresponseservice->build($response);
             }
-
+            
             $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
+            
             if ($api_response['status'] == 'success') {
                 $report = $this->formatOderReport($resource, $request, $transaction, $api_response);
                 $commission = getAndUpdateReferralCommission(auth()->user(), $product, $variation, $transaction);
@@ -1230,14 +1235,15 @@ class TransactionsController extends Controller
             ];
         }
         
-        if (strlen($request->mobile_no) !== 11 || !is_numeric($request->mobile_no)) {
-            $response = [
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => 'Please use a valid mobile no !!!',
-            ];
-
-        } 
+        if($product->category->slug != 'graphic'){
+            if (strlen($request->mobile_no) !== 11 || !is_numeric($request->mobile_no)) {
+                $response = [
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => 'Please use a valid mobile no !!!',
+                ];
+            }
+        }
         
         if (!empty($checkBlacklist)) {
             $response = array(

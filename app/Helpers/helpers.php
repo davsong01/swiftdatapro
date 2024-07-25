@@ -13,6 +13,26 @@ use App\Models\RolePermission;
 use App\Models\AutomatedDeposit;
 use App\Models\EarnedTransactions;
 
+if (!function_exists('sendNativeMail')) {
+    function sendNativeMail($to, $subject, $body)
+    {
+        $settings = WebSetting::first();
+        
+        $from = $settings->admin_notification_email;
+        
+        $headers  = 'MIME-Version: 1.0' . "\r\n";
+        $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
+        $headers .= 'From: ' . $from . "\r\n" .
+            'Reply-To: ' . $from . "\r\n" .
+            'X-Mailer: PHP/' . phpversion();
+
+        $mail = mail($to, $subject, $body, $headers);
+        $mail = mail($to, $subject, $body, $headers);
+
+        return $mail;
+    }
+}
+
 if (!function_exists("mask")) {
     function mask($word, $a = 2, $b = 9, $c = 9, $d = 10)
     {
