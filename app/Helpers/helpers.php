@@ -29,7 +29,11 @@ if (!function_exists('sendNativeMail')) {
         $mail = mail($to, $subject, $body, $headers);
         $mail = mail($to, $subject, $body, $headers);
 
-        return $mail;
+        try {
+            return mail($to, $subject, $body, $headers);
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
     }
 }
 
