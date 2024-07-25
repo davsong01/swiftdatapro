@@ -370,7 +370,7 @@ class Controller extends BaseController
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         $response = curl_exec($ch);
         
-        \Log::info(['End connection', $url, $payload, $headers, $response]);
+        // \Log::info(['End connection', $url, $payload, $headers, $response]);
         
         if(isset($status_code)){
             return [
