@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Providers;
 
-use App\Models\Product;
 use App\Models\Discount;
 use App\Models\Variation;
 use App\Models\WebSetting;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerLevel;
-use App\Models\Graphic;
 
 class GraphicController extends Controller
 {
