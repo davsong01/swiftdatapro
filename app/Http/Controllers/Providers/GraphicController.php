@@ -101,9 +101,9 @@ class GraphicController extends Controller
         $body .= '<p><strong>Business Email: </strong>'. $request['business_email'].'!</p>';
         $body .= '<p><strong>Business Lines: </strong>'. $request['business_line'].'!</p>';
         $body .= '<p><strong>Business Content:</strong> '. $request['business_content'].'!</p>';
-        
-        $resX= sendNativeMail($settings->admin_notification_email, $subject, $body);
-        
+
+        $this->sendEmail($settings->admin_notification_email, $subject, $body);
+            
         try {
             $format = [
                 'status' => 'success',
