@@ -231,6 +231,13 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
+                                                                <strong>
+                                                                @if(!empty($transaction->product_id))
+                                                                    {{$transaction->product->display_name ?? ''}} @if(!empty($transaction->variation->system_name)) ({{$transaction->variation->system_name}})@endif
+                                                                @else
+                                                                    {{ $transaction->buyer_service }}
+                                                                @endif
+                                                                </strong> <br>
                                                                 <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->customer->email }} </a><br>
                                                                 <strong>{{ $transaction->customer->full_name }}</strong><br>
                                                                 {{ $transaction->mobile_number }} <br>
@@ -292,6 +299,13 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
+                                                                <strong>
+                                                                @if(!empty($transaction->product_id))
+                                                                    {{$transaction->product->display_name ?? ''}} @if(!empty($transaction->variation->system_name)) ({{$transaction->variation->system_name}})@endif
+                                                                @else
+                                                                    {{ $transaction->buyer_service }}
+                                                                @endif
+                                                                </strong> <br>
                                                                 <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->customer->email }} </a><br>
                                                                 <strong>{{ $transaction->customer->full_name }}</strong> <br>
                                                                 {{ $transaction->mobile_number }} <br>
@@ -353,6 +367,13 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
+                                                                <strong>
+                                                                @if(!empty($transaction->product_id))
+                                                                    {{$transaction->product->display_name ?? ''}} @if(!empty($transaction->variation->system_name)) ({{$transaction->variation->system_name}})@endif
+                                                                @else
+                                                                    {{ $transaction->buyer_service }}
+                                                                @endif
+                                                                </strong> <br>
                                                                 <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->customer->email }} </a><br>
                                                                 <strong>{{ $transaction->customer->full_name }}</strong> <br>
                                                                 {{ $transaction->mobile_number }} <br>
@@ -414,6 +435,13 @@
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="d-flex align-items-center">
                                                             <div class="align-items-center">
+                                                                <strong>
+                                                                @if(!empty($transaction->product_id))
+                                                                    {{$transaction->product->display_name ?? ''}} @if(!empty($transaction->variation->system_name)) ({{$transaction->variation->system_name}})@endif
+                                                                @else
+                                                                    {{ $transaction->buyer_service }}
+                                                                @endif
+                                                                </strong> <br>
                                                                 <a target="_blank" href="{{ route('customers.edit', $transaction->user_id)}}">{{ $transaction->customer->email }} </a><br>
                                                                 <strong>{{ $transaction->customer->full_name }}</strong> <br>
                                                                 {{ $transaction->mobile_number }} <br>
