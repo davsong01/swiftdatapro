@@ -178,7 +178,7 @@
                                 </span>
                             </div>
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
-                                <div class="mb-2">Today's Top Seller: <strong> <br>{{ $transaction->product->display_name.' ('. $transaction->variation->system_name.')' }}</strong></div>
+                                <div class="mb-2">Today's Top Seller: <strong> <br>{{ $transaction->product->display_name.' ('. $transaction->variation?->system_name.')' }}</strong></div>
                                 
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
