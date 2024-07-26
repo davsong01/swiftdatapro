@@ -31,8 +31,7 @@ class AdminDashboardController extends Controller
         $t_success = $transactions2->whereIn('buyer_status', ['DELIVERED', 'SUCCESSFUL']);
         $t_failed = $transactions3->whereIn('buyer_status', ['FAILED']);
         $t_profit = $transactions4->whereIn('buyer_status',['DELIVERED', 'SUCCESSFUL'])->sum('profit');
-        $t_profit = $transactions4->sum('profit');
-
+        
         $pending = $clone1->whereIn('buyer_status', ['ATTENTION-REQUIRED', 'PENDING'])->get();
         $failed = $clone2->whereIn('buyer_status', ['FAILED'])->get();
         $success = $clone3->whereIn('buyer_status',['DELIVERED', 'SUCCESSFUL'])->get();
