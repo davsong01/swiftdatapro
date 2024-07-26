@@ -260,6 +260,14 @@
                                                     </td>
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="align-items-center">
+                                                            <span style="color:blue">
+                                                            @if(!empty($transaction->provider_id))
+                                                            <strong>Provider: </strong>{{ $transaction->api->name }} <br>
+                                                            @endif
+                                                            @if(!empty($transaction->wallet_funding_provider))
+                                                            <strong>Provider: </strong>{{ $transaction->gateway->name }} <br>
+                                                            @endif
+                                                            </span>
                                                             <small>
                                                             <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
@@ -328,6 +336,14 @@
                                                     </td>
                                                     <td class="col-md-4" style="width: 30%;">
                                                         <div class="align-items-center">
+                                                            <span style="color:blue">
+                                                            @if(!empty($transaction->provider_id))
+                                                            <strong>Provider: </strong>{{ $transaction->api->name }} <br>
+                                                            @endif
+                                                            @if(!empty($transaction->wallet_funding_provider))
+                                                            <strong>Provider: </strong>{{ $transaction->gateway->name }} <br>
+                                                            @endif
+                                                            </span>
                                                             <small>
                                                             <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
@@ -394,8 +410,16 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="col-md-4" style="width: 30%;>
+                                                    <td class="col-md-4" style="width: 30%;">
                                                         <div class="align-items-center">
+                                                            <span style="color:blue">
+                                                            @if(!empty($transaction->provider_id))
+                                                            <strong>Provider: </strong>{{ $transaction->api->name }} <br>
+                                                            @endif
+                                                            @if(!empty($transaction->wallet_funding_provider))
+                                                            <strong>Provider: </strong>{{ $transaction->gateway->name }} <br>
+                                                            @endif
+                                                            </span>
                                                             <small>
                                                             <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>
@@ -462,8 +486,16 @@
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td class="col-md-4" style="width: 30%;>
+                                                    <td class="col-md-4" style="width: 30%;">
                                                         <div class="align-items-center">
+                                                            <span style="color:blue">
+                                                            @if(!empty($transaction->provider_id))
+                                                            <strong>Provider: </strong>{{ $transaction->api->name }} <br>
+                                                            @endif
+                                                            @if(!empty($transaction->wallet_funding_provider))
+                                                            <strong>Provider: </strong>{{ $transaction->gateway->name }} <br>
+                                                            @endif
+                                                            </span>
                                                             <small>
                                                             <strong>Charge: </strong>{!! settings()->currency. number_format($transaction->charges, 2) !!} <br>
                                                             <strong>Source Price: </strong>{!! settings()->currency. number_format($transaction->src_price, 2) !!} <br>

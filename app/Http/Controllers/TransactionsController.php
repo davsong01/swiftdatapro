@@ -177,7 +177,7 @@ class TransactionsController extends Controller
         $request['serviceId'] = $resource->slug ?? null;
         $request['variation_code'] = $variation->variation_code ?? null;
         $request['quantity'] = $quantity;
-        
+
         // Log transaction
         $data = [
             'mobile_number' => $request->mobile_no,
@@ -204,7 +204,7 @@ class TransactionsController extends Controller
             'provider' => $api->name,
             'billersCode' => $request['billersCode'] ?? null,
             'category_id' => $resource->category->id,
-            'profit' => $sourcePriceAndProfit['profit'] ?? 0,
+            'profit' => $sourcePriceAndProfit['profit'] = $sourcePriceAndProfit['source_price'] > 0 ? $sourcePriceAndProfit['source_price'] : 0,
         ];
         
         $transaction = $this->logTransaction($data);
