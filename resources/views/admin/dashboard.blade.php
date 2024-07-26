@@ -186,7 +186,7 @@
                                     
                                     </span>
                                     <br>
-                                    <small><strong>Provider: </strong><i>{{ $transaction->api->name }}</i></small> |
+                                    <small><strong>Provider: </strong><i>{{ $transaction->api?->name }}</i></small> |
                                     <small><strong>Profit: </strong><i>{{ settings()->currency.number_format($transaction->total_profit) }}</i></small>
                                 </div>
                             </div>

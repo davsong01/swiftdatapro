@@ -50,7 +50,7 @@ if (!function_exists("topProduct")) {
         $transaction = Transactions::with('product')
         ->whereNotNull('product_id')
         ->whereIn('buyer_status', ['COMPLETED', 'SUCCESSFUL'])
-            // ->whereBetween('created_at', [Carbon::today(), Carbon::now()])
+            ->whereBetween('created_at', [Carbon::today(), Carbon::now()])
             ->select(DB::raw('product_id, provider_id, variation_id, SUM(buyer_amount) as total_buyer_amount, SUM(profit) as total_profit, COUNT(id) as count'))
             ->groupBy('product_id', 'provider_id', 'variation_id')
             ->orderBy('total_buyer_amount', 'DESC')
