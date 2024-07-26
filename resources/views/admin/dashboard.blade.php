@@ -22,6 +22,7 @@
                                         {{ settings()->currency.number_format($wallet_balance)}}
                                     </span>
                                 </div>
+                                 <br> <br>
                             </div>
                         </div>
                     </div>
@@ -44,6 +45,7 @@
                                         {{ settings()->currency.number_format($earnings_balance)}}
                                     </span>
                                 </div>
+                                 <br> <br>
                             </div>
                         </div>
                     </div>
@@ -66,7 +68,7 @@
                                         {{ settings()->currency.number_format($t_success->sum('buyer_amount'))}} <small>({{$t_success->count()}})</small>
                                     </span>
                                 </div>
-                                
+                                 <br> <br>
                             </div>
                         </div>
                     </div>
@@ -89,7 +91,7 @@
                                         {{ settings()->currency.number_format($t_pending->sum('buyer_amount'))}} <small>({{$t_pending->count()}})</small>
                                     </span>
                                 </div>
-                                
+                                 <br> <br>
                             </div>
                         </div>
                     </div>
@@ -112,7 +114,7 @@
                                         {{ settings()->currency.number_format($t_failed->sum('buyer_amount'))}} <small>({{$t_failed->count()}})</small>
                                     </span>
                                 </div>
-                                
+                                 <br> <br>
                             </div>
                         </div>
                     </div>
@@ -135,7 +137,7 @@
                                         {{settings()->currency.number_format($t_profit)}}
                                     </span>
                                 </div>
-                               
+                                <br> <br>
                             </div>
                         </div>
                     </div>
@@ -155,16 +157,17 @@
                                 <div class="mb-2">Total Customers</div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
-                                        {{ number_format($customers) }}
+                                        {{ number_format($customers) }} 
                                     </span>
                                 </div>
-                                
+                                <br> <br>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
+            <?php $transaction = topProduct(); ?>
+            @if(!empty($transaction))
             <div class="col-md-4">
                 <div class="card custom-card">
                     <div class="card-body">
@@ -174,22 +177,25 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="svg-white success" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.37-.66-.11-1.48-.87-1.48H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
                                 </span>
                             </div>
-                            <?php $transaction = topProduct(); ?>
-                            @if(!empty($transaction))
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
-                                <div class="mb-2">Top Product: <strong>{{ $transaction->product->display_name }}</strong></div>
+                                <div class="mb-2">Today's Top Seller: <strong> <br>{{ $transaction->product->display_name.' ('. $transaction->variation->system_name.')' }}</strong></div>
+                                
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
-                                        <small> {{ settings()->currency.number_format($transaction->buyer_amount) }} ({{number_format($transaction->count)}})</small>
+                                        <small> {{ settings()->currency.number_format($transaction->total_buyer_amount) }} ({{number_format($transaction->count)}})</small> 
+                                    
                                     </span>
+                                    <br>
+                                    <small><strong>Provider: </strong><i>{{ $transaction->api->name }}</i></small> |
+                                    <small><strong>Profit: </strong><i>{{ settings()->currency.number_format($transaction->total_profit) }}</i></small>
                                 </div>
                             </div>
-                            @endif
                         </div>
                     </div>
                 </div>
             </div>
-        
+            @endif
+            
             <div class="col-xl-12">
                 <div class="card custom-card">
                     <div class="card-header justify-content-between d-sm-flex d-block">

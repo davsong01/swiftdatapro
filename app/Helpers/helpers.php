@@ -47,13 +47,15 @@ if (!function_exists("mask")) {
 if (!function_exists("topProduct")) {
     function topProduct()
     {
-        $transaction = Transactions::with('product')->whereNotNull('product_id')
+        $transaction = Transactions::with('product')
+        ->whereNotNull('product_id')
         ->whereIn('buyer_status', ['COMPLETED', 'SUCCESSFUL'])
-        ->addSelect(DB::raw('SUM(buyer_amount) as buyer_amount, COUNT(id) as count,product_id'))
-        ->groupBy('product_id')
-        // ->whereBetween('created_at', [$firstdayofmonth, Carbon::now()])
-            // ->orderBy('id', 'DESC')
+            // ->whereBetween('created_at', [Carbon::today(), Carbon::now()])
+            ->select(DB::raw('product_id, provider_id, variation_id, SUM(buyer_amount) as total_buyer_amount, SUM(profit) as total_profit, COUNT(id) as count'))
+            ->groupBy('product_id', 'provider_id', 'variation_id')
+            ->orderBy('total_buyer_amount', 'DESC')
             ->first();
+
         return $transaction;
     }
 }
