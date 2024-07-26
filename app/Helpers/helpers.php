@@ -55,7 +55,7 @@ if (!function_exists("topProduct")) {
             ->groupBy('product_id', 'provider_id', 'variation_id')
             ->orderBy('total_buyer_amount', 'DESC')
             ->first();
-
+        
         return $transaction;
     }
 }
