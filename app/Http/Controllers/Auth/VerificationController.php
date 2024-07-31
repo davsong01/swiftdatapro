@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\UserVerify;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -45,22 +46,21 @@ class VerificationController extends Controller
 
     public function verifyAccount($token)
     {
-        $verifyUser = UserVerify::where('token', $token)->first();
+        $user = User::where('users_sid', $token)->first();
         $message = 'Sorry your email cannot be identified.';
         
-        if (!empty($verifyUser)) {
-            Auth::login($verifyUser->user);
-            $user = $verifyUser->user;
+        if (!empty($user)) {
+            Auth::login($user);
             
             if (empty($user->email_verified_at)) {
-                $verifyUser->user->email_verified_at = Carbon::now();
-                $verifyUser->user->status = 'active';
-                $verifyUser->user->save();
+                $user->email_verified_at = Carbon::now();
+                $user->status = 'active';
+                $user->save();
                 $message = "Welcome, Your e-mail is verified.";
             } else {
                 $message = "Welcome, Your e-mail is already verified.";
             }
-            $verifyUser->delete();
+
             return redirect()->route('dashboard')->with('message', $message);
         }else{
             return back()->with('error', 'Email could not be vrified, Please try again');
