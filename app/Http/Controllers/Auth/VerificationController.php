@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Carbon\Carbon;
 use App\Models\UserVerify;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\VerifiesEmails;
 
@@ -37,7 +38,7 @@ class VerificationController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('verifyAccount');
         $this->middleware('signed')->only('verify');
         $this->middleware('throttle:6,1')->only('verify', 'resend');
     }
@@ -45,23 +46,25 @@ class VerificationController extends Controller
     public function verifyAccount($token)
     {
         $verifyUser = UserVerify::where('token', $token)->first();
-
         $message = 'Sorry your email cannot be identified.';
-       
-        if (!is_null($verifyUser)) {
+        
+        if (!empty($verifyUser)) {
+            Auth::login($verifyUser->user);
             $user = $verifyUser->user;
-
-            if (!$user->email_verified_at) {
-                
+            
+            if (empty($user->email_verified_at)) {
                 $verifyUser->user->email_verified_at = Carbon::now();
-                $verifyUser->user->status = 1;
+                $verifyUser->user->status = 'active';
                 $verifyUser->user->save();
                 $message = "Welcome, Your e-mail is verified.";
             } else {
                 $message = "Welcome, Your e-mail is already verified.";
             }
+
+            return redirect()->route('dashboard')->with('message', $message);
+        }else{
+            return back()->with('error', 'Email could not be vrified, Please try again');
         }
 
-        return redirect()->route('dashboard')->with('message', $message);
     }
 }

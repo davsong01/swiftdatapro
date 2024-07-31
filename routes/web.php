@@ -51,7 +51,7 @@ Route::post('webhook_payment/{type?}', [PaymentGatewayController::class, 'analyz
 Route::get('/', [FrontendController::class, 'index'])->name('welcome');
 Route::get('/tac', [FrontendController::class, 'tac'])->name('tac');
 
-Route::get('email/verify/{token}', [VerificationController::class, 'verifyAccount'])->name('user.verify')->middleware(['auth']);
+Route::get('email/verify/{token}', [VerificationController::class, 'verifyAccount'])->name('user.verify');
 Route::get('/resendverification/{email}', [RegisterController::class, 'resendEmailVerificationLink'])->name('resend.verification.link');
 // Route::get('reset-password', function(){
 //     return view('reset-password-view');
