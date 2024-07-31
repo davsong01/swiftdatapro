@@ -381,6 +381,7 @@ class HomeController extends Controller
 
         $payvesel = PaymentGateway::where('slug', 'payvessel')->first();
         $monnify = PaymentGateway::where('slug', 'monnify')->first();
+        
         $data = [
             'accountName' => $user->full_name,
             'accountReference' => 'SWIFT-' . uniqid() . rand(1000, 9000) . time(),
@@ -428,6 +429,7 @@ class HomeController extends Controller
             $accounts = $account->createMonnifyReservedAccount($monnify, $data);
             
             if (!empty($accounts) && $accounts['status'] == 'success') {
+                
                 foreach ($accounts['accounts'] as $account) {
                     AutomatedDeposit::create([
                         'account_reference' => $account['trackingReference'] ?? $accounts['response']['responseBody']['accountReference'] ?? null,
@@ -435,7 +437,7 @@ class HomeController extends Controller
                         'account_name' => $account['accountName'] ?? null,
                         'bank_name' => $account['bankName'] ?? null,
                         'bank_code' => $account['bankCode'] ?? null,
-                        'payment_gateway_id' => $accounts['payment_gateway_id'] ?? null,
+                        'payment_gateway_id' => $monnify->id,
                         'status' => 'active',
                         'bvn' => $data['bvn'] ?? null,
                         'nin' => $data['nin'] ?? null,
