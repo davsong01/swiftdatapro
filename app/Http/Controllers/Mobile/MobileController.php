@@ -2,48 +2,79 @@
 
 namespace App\Http\Controllers\Mobile;
 
-use LDAP\Result;
 use App\Models\User;
 use App\Models\Product;
+use App\Models\WebSetting;
 use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
-use App\Services\ResponseService;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
 use App\Services\MobileResponseService;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VariationController;
-use Illuminate\Validation\ValidationException;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TransactionsController;
+use App\Http\Controllers\Auth\RegisterController;
 
 class MobileController extends Controller
 {
     private $home;
     private $variation;
     private $transaction;
+    private $register;
 
     public function __construct()
     {
         $this->home = new HomeController();
         $this->variation = new VariationController();
         $this->transaction = new TransactionsController();
+        $this->register = new RegisterController();
+        $this->login = new LoginController();
     }
     public function register(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+        $settings = WebSetting::first();
+        $allowedDomains = $settings->allowed_domain_emails_for_registration;
+        $allowedDomains = !empty($allowedDomains) ? json_decode($allowedDomains, true) : [];
+
+        $allowedDomainsString = implode('|', $allowedDomains);
+
+        $validator = validator($request->all(), [
+            'full_name' => ['required', 'string', 'max:15'],
+            'referral' => ['sometimes', 'string', 'exists:users,ref_code', 'max:50'],
+            'middle_name' => ['nullable', 'string', 'max:15'],
+            'last_name' => ['required', 'string', 'max:15'],
+            'mobile' => ['required', 'string', 'max:11', 'min:11', 'unique:users'],
+            'username' => ['required', 'string', 'max:30', 'unique:users'],
+            'gender' => ['required', 'string', 'in:Male,Female', 'max:10'],
+            'email' => ['required', 'string', 'email', 'max:50', 'unique:users', 'regex:/^[A-Za-z0-9._%+-]+@(' . $allowedDomainsString . ')$/i'],
+            'password' => ['required', 'string', 'min:5'],
         ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+        if ($validator->fails())
+            return MobileResponseService::json(
+                message: 'Validation error',
+                error: $validator->errors()->all(),
+                status: 422
+            );
 
-        return response()->json(['user' => $user], 201);
+        $create = $this->register->create($validator->valid());
+        
+        if(isset($create['status']) && $create['status'] == 'failed'){
+            return MobileResponseService::json(
+                message: $create['message'],
+                error: $validator->errors()->all(),
+                status: 422
+            );
+        }
+
+        return MobileResponseService::json(
+            message: 'Operation Successful',
+            error: null,
+            status: 200
+        );
+
     }
 
     public function login(Request $request)
@@ -61,55 +92,36 @@ class MobileController extends Controller
                 status: 422
             );
 
-        $user = User::where('email', $request->email)->orWhere('username', $request->email)->first();
-        
-        if (!$user) {
+        if ($request->channel != 'mobile')
             return MobileResponseService::json(
-                message: 'Incorrect Username or Password',
-                error: $validator->errors()->all(),
-                status: 401
-            );
-        }
-        
-        if ($user->status == 0 || $user->status == 'inactive') {
-            return MobileResponseService::json(message: 'This account has been deactivated', status: 401);
-        }
-        
-        if(empty($request->password)){
-            if (md5($request->password) == $user->password) {
-                $user->update([
-                    'pass' => Hash::make($request->password),
-                ]);
-            } else {
-                return MobileResponseService::json(message: 'Incorrect Username or Password', status: 401);
-            }
-        }
-        
-        if (!$user || !Hash::check($request->password, $user->pass)) {
-            return MobileResponseService::json(message: 'Incorrect Username or Password', status: 401);
-        } else {
-            if ($request->channel != 'mobile')
-                return MobileResponseService::json(
-                    message: 'Invalid channel',
-                    error: null,
-                    status: 403
-                );
-
-            $token = $user->createToken($request->channel)->plainTextToken;
-            $user->update([
-                'last_login' => now(),
-            ]);
-
-            $homeController = new HomeController();
-            $homeController->createReservedAccount($user);
-
-            return MobileResponseService::json(
-                message: 'Operation Successful',
-                data: $token,
+                message: 'Invalid channel',
                 error: null,
-                status: 200
+                status: 403
+            );
+        
+        
+        $create = $this->login->login($request);
+    
+        if (isset($create['status']) && $create['status'] == 'failed') {
+            return MobileResponseService::json(
+                message: $create['message'],
+                error: $validator->errors()->all(),
+                status: 422
             );
         }
+
+        $user = Auth::user();
+        $token = $user->createToken($request->channel)->plainTextToken;
+        
+        $homeController = new HomeController();
+        $homeController->createReservedAccount($user);
+        
+        return MobileResponseService::json(
+            message: 'Operation Successful',
+            data: $token,
+            error: null,
+            status: 200
+        );
     }
 
     public function userDetails(){

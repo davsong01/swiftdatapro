@@ -378,7 +378,7 @@ class HomeController extends Controller
         if($user->kyc_status != 1){
             return;
         }
-
+        
         $payvesel = PaymentGateway::where('slug', 'payvessel')->first();
         $monnify = PaymentGateway::where('slug', 'monnify')->first();
         

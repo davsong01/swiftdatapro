@@ -62,10 +62,23 @@ class LoginController extends Controller
         $user = User::where('email', $request->email)->orWhere('username', $request->email)->first();
         
         if(!$user){
+            if (\Request::is('mobile/*')) {
+                return [
+                    'status' => 'failed',
+                    'message' => 'Incorrect Username or Password',
+                ];
+            }
+
             return back()->with('error', 'Incorrect Username or Password');
         }
         
         if($user->status == 0 || $user->status == 'inactive'){
+            if (\Request::is('mobile/*')) {
+                return [
+                    'status' => 'failed',
+                    'message' => 'This account has been deactivated',
+                ];
+            }
             return back()->with('error', 'This account has been deactivated');
         }
         
@@ -74,12 +87,24 @@ class LoginController extends Controller
                 $user->pass = Hash::make($request->password);
                 $user->save();
             } else {
+                if (\Request::is('mobile/*')) {
+                    return [
+                        'status' => 'failed',
+                        'message' => 'Incorrect Username or Password',
+                    ];
+                }
                 return back()->with('error', 'Incorrect Username or Password');
             }
 
         }
         
         if (!$user || !Hash::check($request->password, $user->pass)) {
+            if (\Request::is('mobile/*')) {
+                return [
+                    'status' => 'failed',
+                    'message' => 'Incorrect Username or Password',
+                ];
+            }
             return back()->with('error', 'Incorrect Username or Password');
         }else{
             Auth::login($user);
@@ -89,7 +114,14 @@ class LoginController extends Controller
                     'last_login' => now(),
                 ]);
             }
-            
+
+            if (\Request::is('mobile/*')) {
+                return [
+                    'status' => 'successful',
+                    'message' => 'login successful',
+                ];
+            }
+
             return redirect()->intended('dashboard');
         }
     }

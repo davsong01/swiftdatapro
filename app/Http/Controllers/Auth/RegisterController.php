@@ -96,12 +96,18 @@ class RegisterController extends Controller
      * @param  array  $data
      * @return \App\Models\User
      */
-    protected function create(array $data)
+    public function create(array $data)
     {
         $settings = WebSetting::select('disable_registration', 'admin_notification_email')->first();
         $disable_registration = $settings->disable_registration;
         
         if ($disable_registration == 'yes') {
+            if (\Request::is('mobile/*')) {
+                return [
+                    'status' => 'failed',
+                    'message' => 'Registration is currently disabled on '. config('app.url')
+                ];
+            }
             return redirect(route('welcome'));
         }
 
@@ -124,23 +130,18 @@ class RegisterController extends Controller
             'password' => ' ',
             'wallets' => 0,
             'cashback' => 0,
-            // 'block' => 0,
             'users_sid' => $users_sid,
             'referral' => '',
             'level' => 1,
             'last_login' => $time,
             'email' => $data['email'],
-            // 'sk_token' => $sk_token,
             'security_pin' => '',
-            // 'fidelity' => '',
-            // 'reg_date' => $time,
             'status' => 'active',
             'webhook' => '',
             'rating' => '0',
             'middle_name' => $data['middle_name'],
             'last_name' => $data['last_name'],
             'gender' => $data['gender'],
-            // 'app_version' => '2',
         ]);
 
         // Update referral
@@ -191,7 +192,7 @@ class RegisterController extends Controller
           Email: ' . $user->email . '<br>
           Phone Number: ' . $user->mobile . '<br>
           Registration Date: ' . $user->created_at . '<br>
-          Referral : ' . $user->refferal . '
+          Referral : ' . $user->ref_by . '
           ';
         
         if(!empty($settings)){
