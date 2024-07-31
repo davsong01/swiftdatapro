@@ -344,7 +344,7 @@ class Controller extends BaseController
         
     }
 
-    public function advancedApiCall($url, $payload=[], $headers, $method = 'POST', $status_code=null)
+    public function advancedApiCall($url, $payload=[], $headers=[], $method = 'POST', $status_code=null)
     {
         // \Log::info(['Begin connection...', $url, $payload, $headers]);
         $ch = curl_init();
