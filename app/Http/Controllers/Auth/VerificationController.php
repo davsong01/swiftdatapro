@@ -60,7 +60,7 @@ class VerificationController extends Controller
             } else {
                 $message = "Welcome, Your e-mail is already verified.";
             }
-
+            $verifyUser->delete();
             return redirect()->route('dashboard')->with('message', $message);
         }else{
             return back()->with('error', 'Email could not be vrified, Please try again');
