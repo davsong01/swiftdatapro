@@ -137,6 +137,7 @@
                                 <td> 
                                     <strong>Joined: </strong>{{ date("M jS, Y g:iA", strtotime($customer->created_at)) }} <br>
                                     <strong>Last Login: </strong>{{ date("M jS, Y g:iA", strtotime($customer->last_login)) }} <br>
+                                    <strong>Email Verification: </strong><span style="color:{{ !empty($customer->email_verified_at) ? 'green' : 'red' }}">{{ !empty($customer->email_verified_at) ? 'Verified' : 'Unverified' }}</span> <br>
                                 </td>
                                 @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
                                 <td>

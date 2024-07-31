@@ -98,7 +98,7 @@ class SmePlugController extends Controller
                 // Process APi call
                 $result = json_decode($res, true);
                 $status = strtolower($result['status']);
-               
+                
                 if (isset($status) && in_array($status, ["true", "success"])) {
                     $true_response = strtoupper($result['message'] . '. Recharge Successful.');
 

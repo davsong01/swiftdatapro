@@ -58,7 +58,7 @@ class LoginController extends Controller
             'email' => 'required',
             'password' => 'required',
         ]);
-
+        
         $user = User::where('email', $request->email)->orWhere('username', $request->email)->first();
         
         if(!$user){
@@ -84,9 +84,11 @@ class LoginController extends Controller
         }else{
             Auth::login($user);
 
-            $user->update([
-                'last_login' => now(),
-            ]);
+            if(!empty($user->email_verified_at)){
+                $user->update([
+                    'last_login' => now(),
+                ]);
+            }
             
             return redirect()->intended('dashboard');
         }
