@@ -20,7 +20,6 @@ class CustomerController extends Controller
         if (!empty($request->email)) {
             $customers = $customers->where('email', 'like', $request->email);
         }
-
         if (!empty($request->username)) {
             $customers = $customers->where('username', 'like', $request->username);
         }

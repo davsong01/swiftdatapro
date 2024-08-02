@@ -142,7 +142,7 @@
           }
       });
       $.ajax({
-        url: '{{ config('app.url')}}/buy/data',
+        url: '{{ config('app.url')}}/buy/exam-epins',
         method: 'POST',
         dataType: 'json',
         data: formData,
