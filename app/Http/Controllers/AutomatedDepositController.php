@@ -151,18 +151,22 @@ class AutomatedDepositController extends Controller
         $account = AutomatedDeposit::with('deposit_transactions')->where('id', $id)->first();
         
         if ($account->payment_gateway_id == 1) {
-            $delete = app('App\Http\Controllers\PaymentGatewayController')->deleteMonnifyReservedAccount($account->account_reference);
+            if (!empty($account->account_reference)) {
+                $delete = app('App\Http\Controllers\PaymentGatewayController')->deleteMonnifyReservedAccount($account->account_reference);
 
-            if ($delete['status'] == 'success') {
+                if ($delete['status'] == 'success') {
+                    $account->delete();
+                    return back()->with('message', 'Reserved Account Deleted successfully');
+                } else {
+                    return back()->with('error', $delete['data'] ?? 'There was an error deallocating account');
+                }
+            } else {
                 $account->delete();
                 return back()->with('message', 'Reserved Account Deleted successfully');
-            } else {
-                return back()->with('error', $delete['data'] ?? 'There was an error deallocating account');
             }
-        }else{
+        } else {
             $account->delete();
             return back()->with('message', 'Reserved Account Deleted successfully');
         }
-
     }
 }

@@ -163,41 +163,24 @@ class PaymentGatewayController extends Controller
     }
     
     public function createMonnifyReservedAccount($gateway, $data){
-        $monnify_hashkeys = $gateway->public_key . ':' . $gateway->secret_key;
-        $stringk = base64_encode($monnify_hashkeys);
         $base_url = env('ENT') == 'local' ? $gateway->sandbox_base_url : $gateway->live_base_url;
+        $accessToken = $this->login($gateway);
         
-        $url = $base_url.'v1/auth/login';
-        $headers = [
-            "Authorization: Basic " . $stringk . "",
-        ];
-        
-        $response1 = $this->advancedApiCall($url, [], $headers);
-        
-        $result = json_decode($response1, true);
+        if(!isset($accessToken ) || empty($accessToken )){
+            \Log::info([
+                'Reserved account token generation error' => [
+                    'response' => $accessToken,
+                    'payment_gateway_id' => $gateway->id,
+                ]
+            ]);
 
-        try {
-            if(empty($result) || !isset($result['responseBody']['accessToken']) || empty($result['responseBody']['accessToken'])){
-                \Log::info([
-                    'Reserved account token generation error' => [
-                        'response' => $result,
-                        'payment_gateway_id' => $gateway->id
-                    ]
-                ]);
-
-                return [
-                    'status' => 'failed',
-                    'response' => $result,
-                    'payment_gateway_id' => $gateway->id
-                ];
-            }
-            //code...
-        } catch (\Throwable $th) {
-            //throw $th;
+            return [
+                'status' => 'failed',
+                'response' => $accessToken,
+                'payment_gateway_id' => $gateway->id
+            ];
         }
-        // \Log::info(['monnify token response' => $response1, 'url' =>  $url]);
 
-        $accessToken = $result['responseBody']['accessToken'];
         $data['contractCode'] = $gateway->contract_id;
         
         $headers2 = [
@@ -207,7 +190,7 @@ class PaymentGatewayController extends Controller
 
         $url2 = $base_url.'v2/bank-transfer/reserved-accounts';
 
-        $response2 = $this->advancedApiCall($url2, json_encode($data), $headers2);
+        $response2 = $this->basicApiCall($url2,$data, $headers2);
         
         $res = json_decode($response2, true);
 
