@@ -1527,17 +1527,26 @@ class EasyAccessController extends Controller
         } elseif ($slug == 'mtn-datacard') {
             $ntwk = '01';
             $url = $api->live_base_url . "datacard.php";
-        }else{
+        } elseif ($slug == 'waec-registration' || $slug == 'waec-result') {
+            $url = "https://easyaccess.com.ng/api/waec_v2.php";
+        } elseif ($slug == 'neco-registration' || $slug == 'neco-result' || $slug == 'neco') {
+            $url = "https://easyaccess.com.ng/api/neco_v2.php";
+        } elseif ($slug == 'nabteb-result' || $slug == 'nabteb') {
+            $url = "https://easyaccess.com.ng/api/nabteb_v2.php";
+        } elseif ($slug == 'nbais') {
+            $url = "https://easyaccess.com.ng/api/nbais_v2.php";
+        } else{
             $url = $api->live_base_url . "data.php";
         }
 
         $postdata = [
             'url' => $url,
-            'network' => $ntwk,
+            'network' => $ntwk ?? 'N/A',
             'mobileno' =>  $request['mobile_number'] ?? '',
             'dataplan' =>  $resource->slug,
             'client_reference' => $request['sys_ref'],
             'quantity' => $request['buyer_quantity'] ?? '',
+            'no_of_pins' => $request['buyer_quantity'] ?? ($request['no_of_pins'] ?? null)
         ];
         
         return $postdata;
