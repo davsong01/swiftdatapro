@@ -281,7 +281,6 @@ if (!function_exists("getVariationDiscount")) {
 if (!function_exists("getSourcePriceAndCalculateProfit")) {
     function getSourcePriceAndCalculateProfit($product, $variation, $request){
         $provider_percentage_discount = $product->provider_percentage_discount;
-        
         if ($product->has_variations == 'yes' && !empty($variation) && $variation->fixed_price == 'yes') {
             // If product has variation and variation fixed price == yes, use variation->api_price
             $src_price = $variation->api_price;
@@ -300,6 +299,7 @@ if (!function_exists("getSourcePriceAndCalculateProfit")) {
                 }
             }
         } else {
+
             if(!empty($provider_percentage_discount)){
                 $discount_off = $provider_percentage_discount / 100 * $request['unit_price'];
                 $src_price = ($request['unit_price'] - $discount_off );
@@ -308,7 +308,8 @@ if (!function_exists("getSourcePriceAndCalculateProfit")) {
                 // Profit is amount charged - provider charge 
                 $profit = $request['total_amount'] - $src_price;
             }else{
-                $profit = 0;
+                $src_price = $product->system_price;
+                $profit = $request['total_amount'] - $src_price;
             }
         }
 
