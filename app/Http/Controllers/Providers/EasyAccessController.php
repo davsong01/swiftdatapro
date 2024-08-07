@@ -1515,13 +1515,13 @@ class EasyAccessController extends Controller
         if ($slug == 'mtn-cg' || $slug == 'mtn' || $slug == 'mtn-sme') {
             $ntwk = '01';
             $url = $api->live_base_url."data.php";
-        } elseif ($slug == 'airtel-cg' || $slug == 'airtel') {
+        } elseif ($slug == 'airtel-cg' || $slug == 'airtel' || $slug == 'airtel-gifting') {
             $ntwk = '03';
             $url = $api->live_base_url . "data.php";
-        } elseif ($slug == 'glo-cg' || $slug == 'glo' || $slug == 'glo-data') {;
+        } elseif ($slug == 'glo-cg' || $slug == 'glo' || $slug == 'glo-data' || $slug == 'glo-gifting') {;
             $ntwk = '02';
             $url = $api->live_base_url . "data.php";
-        } elseif ($slug == '9mobile-sme' || $slug == 'apimobile-sme') {
+        } elseif ($slug == '9mobile-sme' || $slug == 'apimobile-sme' || $slug = '9mobile') {
             $ntwk = '04';
             $url = $api->live_base_url . "data.php";
         } elseif ($slug == 'mtn-datacard') {

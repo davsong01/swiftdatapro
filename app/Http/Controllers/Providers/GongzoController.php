@@ -1157,13 +1157,16 @@ class GongzoController extends Controller
         } else if ($slug == 'mtn' || $slug == 'mtn-sme') {
             $ntwk = 1;
             $url = $api->live_base_url . "data/";
+        } else if ($slug == '9mobile-cg' || $slug == '9mobile') {
+            $ntwk = 3;
+            $url = $api->live_base_url . "data/";
         }else{
             $url = $api->live_base_url . "data/";
         }
         
         $postdata = [
             'url' => $url ?? $api->live_base_url . "data/",
-            'network' => $ntwk,
+            'network' => $ntwk ?? null,
             'plan' => $resource->slug ?? $request['buyer_service'],
             'mobile_number' => $request['mobile_number'],
             'Ported_number' => true,

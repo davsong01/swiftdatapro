@@ -135,7 +135,7 @@
         security_pin: $("#security_pin").val(),
       };
       
-      // $.LoadingOverlay("show");
+      $.LoadingOverlay("show");
       $.ajaxSetup({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
