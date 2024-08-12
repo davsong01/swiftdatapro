@@ -40,7 +40,8 @@ class NaijaResultPinsController extends Controller
         }
         $postdata = [
             'card_type_id' => $card_type_id,
-            'service_url' => $service_url
+            'service_url' => $service_url,
+            "quantity" => $request['buyer_quantity']
         ];
 
         return $postdata;
@@ -58,9 +59,11 @@ class NaijaResultPinsController extends Controller
         if(env('ENT') == 'local'){
             $resX = '{"status": "success","message": "2 WAEC Scratch Card generated","reference": "qXFPHaTZM3rSkfY","amount": 6700,"quantity": "3","old_balance": 259800,"new_balance": 253100,"transaction_date": "2023-10-02 02:45:13","cards":[{"pin": "941264752596","serial_no": "WRN193474585"},{"pin": "941264877068","serial_no": "WRN193474586"}]}';
         }else{
-            $resX = $this->advancedApiCall($pstfields['service_url'], $pstfields, $headers);
+            $resX = $this->advancedApiCall($pstfields['service_url'], json_encode($pstfields), $headers);
         }
+        
         \Log::info(['Naija response: '=> $resX]);
+
         try {
             $format = $this->processApiResponse($resX);
             $format['api_response'] = $resX;
