@@ -284,8 +284,8 @@ class MobileController extends Controller
     public function verify(Request $request)
     {
 
-        $data = $this->transaction->verify($request);
-        dd($data);
+        $data = $this->transaction->verify($request, true);
+        
         return MobileResponseService::json(
             message: 'Operation Successful',
             data: $data,

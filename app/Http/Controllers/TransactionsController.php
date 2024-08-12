@@ -65,7 +65,7 @@ class TransactionsController extends Controller
         return view('customer.transaction_status', compact('transaction'));
     }
 
-    public function verify(Request $request){   
+    public function verify(Request $request, $mobile=false){   
         $request['product'] = Product::where('id', $request->product_id)->first();
         $request['variation'] = Variation::where('id', $request->variation_id)->where('product_id', $request->product_id)->first();
         $api = $request['variation']->api;
@@ -96,6 +96,9 @@ class TransactionsController extends Controller
 
         }
 
+        if($mobile){
+            return $response;
+        }
         return response()->json($response);
 
     }
