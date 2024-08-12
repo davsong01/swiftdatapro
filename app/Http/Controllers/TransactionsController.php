@@ -69,7 +69,7 @@ class TransactionsController extends Controller
         $request['product'] = Product::where('id', $request->product_id)->first();
         $request['variation'] = Variation::where('id', $request->variation_id)->where('product_id', $request->product_id)->first();
         $api = $request['variation']->api;
-       
+    
         $verify = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->verify($request, $api);
         
         if ($request['variation']->category->slug == 'electricity') {
@@ -97,7 +97,7 @@ class TransactionsController extends Controller
         }
 
         if($mobile){
-            return $response;
+            return $verify ;
         }
         return response()->json($response);
 
