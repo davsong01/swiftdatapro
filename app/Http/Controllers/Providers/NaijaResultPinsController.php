@@ -57,11 +57,11 @@ class NaijaResultPinsController extends Controller
         $pstfields = $this->getPostData($postdata, $api);
         
         if(env('ENT') == 'local'){
-            $resX = '{"status": "success","message": "2 WAEC Scratch Card generated","reference": "qXFPHaTZM3rSkfY","amount": 6700,"quantity": "3","old_balance": 259800,"new_balance": 253100,"transaction_date": "2023-10-02 02:45:13","cards":[{"pin": "941264752596","serial_no": "WRN193474585"},{"pin": "941264877068","serial_no": "WRN193474586"}]}';
+            $resX = '{"status":true,"code":"000","message":"1 WAEC Scratch Card generated","reference":"wY6duU4zsAYyJwn","quantity":"1","amount":"3340.00","old_balance":"28035.00","new_balance":"24695.00","transaction_date":"2024-08-12 21:45:10","cards":[{"pin":"231390375872","serial_no":"WRN202652128"}]}';
         }else{
             $resX = $this->advancedApiCall($pstfields['service_url'], json_encode($pstfields), $headers);
         }
-        
+
         \Log::info(['Naija response: '=> $resX]);
 
         try {
@@ -110,12 +110,12 @@ class NaijaResultPinsController extends Controller
                         }
                     }
                 }
-            
-                if (isset($status) && $status == "success") {
+                
+                if (isset($status) && $status == "success" || $status == true) {
                     $true_response = strtoupper($result['message'] . '. E-Pin Purchase Successful. ' . $epins);
 
                     $formatted = [
-                        'status' => $status,
+                        'status' => "success",
                         'response' => $true_response,
                         'extra' => $epins ?? null,
                         'error' => null,
