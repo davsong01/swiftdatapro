@@ -1504,41 +1504,42 @@ class EasyAccessController extends Controller
     }
 
     public function getPostData($request, $api){
-        // $slug = strtolower($request['resource']->slug);
-        if($request['resource']->product->has_variations == 'yes'){
+        // $slug = strtolower($request['resource']->slug);        
+        if(empty($request['resource']->has_variations) && $request['resource']->product->has_variations == 'yes'){
             $slug = strtolower($request['resource']->product->slug);
         }else{
             $slug = strtolower($request['resource']->slug);
         }
         
         $resource = $request['resource'];
+
         if ($slug == 'mtn-cg' || $slug == 'mtn' || $slug == 'mtn-sme') {
             $ntwk = '01';
             $url = $api->live_base_url."data.php";
         } elseif ($slug == 'airtel-cg' || $slug == 'airtel' || $slug == 'airtel-gifting') {
             $ntwk = '03';
             $url = $api->live_base_url . "data.php";
-        } elseif ($slug == 'glo-cg' || $slug == 'glo' || $slug == 'glo-data' || $slug == 'glo-gifting') {;
+        } elseif ($slug == 'glo-cg' || $slug == 'glo' || $slug == 'glo-data' || $slug == 'glo-gifting') {
             $ntwk = '02';
             $url = $api->live_base_url . "data.php";
-        } elseif ($slug == '9mobile-sme' || $slug == 'apimobile-sme' || $slug = '9mobile') {
+        } elseif ($slug == '9mobile-sme' || $slug == 'apimobile-sme' || $slug == '9mobile') {
             $ntwk = '04';
             $url = $api->live_base_url . "data.php";
         } elseif ($slug == 'mtn-datacard') {
             $ntwk = '01';
             $url = $api->live_base_url . "datacard.php";
         } elseif ($slug == 'waec-registration' || $slug == 'waec-result') {
-            $url = "https://easyaccess.com.ng/api/waec_v2.php";
+            $url =  $api->live_base_url . "waec_v2.php";
         } elseif ($slug == 'neco-registration' || $slug == 'neco-result' || $slug == 'neco') {
-            $url = "https://easyaccess.com.ng/api/neco_v2.php";
+            $url =  $api->live_base_url . "neco_v2.php";
         } elseif ($slug == 'nabteb-result' || $slug == 'nabteb') {
-            $url = "https://easyaccess.com.ng/api/nabteb_v2.php";
+            $url =  $api->live_base_url . "nabteb_v2.php";
         } elseif ($slug == 'nbais') {
-            $url = "https://easyaccess.com.ng/api/nbais_v2.php";
+            $url =  $api->live_base_url . "nbais_v2.php";
         } else{
             $url = $api->live_base_url . "data.php";
         }
-
+        
         $postdata = [
             'url' => $url,
             'network' => $ntwk ?? 'N/A',

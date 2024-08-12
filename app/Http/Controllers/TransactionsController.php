@@ -119,7 +119,7 @@ class TransactionsController extends Controller
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $request['unit_price'] = $request['amount'];
         $api = $variation->api ?? $product->api;
-
+        
         if ($product->has_variations == 'yes') {
             $resource = $variation;
             $discount = getVariationDiscount($request['amount'], $variation->id, $request['quantity'] ?? 1);
@@ -127,7 +127,7 @@ class TransactionsController extends Controller
             $resource = $product;
             $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
         }
-
+        
         if (in_array($resource->category->slug, ['electricity', 'cable'])) {
             $request['billersCode'] = $request->billersCode;
         } else {
