@@ -281,6 +281,19 @@ class MobileController extends Controller
         );
     }
 
+    public function verify(Request $request)
+    {
+
+        $data = $this->transaction->verify($request);
+        dd($data);
+        return MobileResponseService::json(
+            message: 'Operation Successful',
+            data: $data,
+            error: null,
+            status: 200
+        );
+    }
+
     public function initialize($service){
         $data = $this->transaction->initialize($service);
 

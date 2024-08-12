@@ -39,7 +39,7 @@ Route::group(['prefix' => 'v1', 'before' => 'v1'], function () {
             Route::get('get-products/{service?}', 'initialize');
             Route::post('buy/{service?}', 'processBuy');
             // Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
-            // Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
+            Route::post('verify/{service?}', 'verify')->name('verify');
             Route::get('get-variations/{product}',  'getCustomerVariations');
             Route::post('get-discount', 'getCustomerDiscount');
             Route::post('get-charges', 'getCustomerCharges');

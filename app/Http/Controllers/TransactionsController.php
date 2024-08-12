@@ -69,7 +69,7 @@ class TransactionsController extends Controller
         $request['product'] = Product::where('id', $request->product_id)->first();
         $request['variation'] = Variation::where('id', $request->variation_id)->where('product_id', $request->product_id)->first();
         $api = $request['variation']->api;
-
+        \Log::info($request->all());
         $verify = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->verify($request, $api);
         
         if ($request['variation']->category->slug == 'electricity') {
@@ -105,17 +105,18 @@ class TransactionsController extends Controller
         $user = auth()->user();
         $product_id = $request->product_id ?? $request->network_module;
         $product = Product::where('id', $product_id)->first();
-
+        $request->variation = $request->variation ?? $request->variation_id;
         $var = $request->variation ?? $request->dataplanloader;
-        $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
 
+        $variation = Variation::where('id', $var)->where('product_id', $product->id)->first();
+    
         $quantity = $request->quantity ?? 1;
         $request['security_pin'] = $this->updateTransactionPinToNewFormat($request);
 
         $api_reference = $this->generateRequestId();
         $request_id = $api_reference;
         $request['request_id'] = $request_id;
-
+        
         $request['amount'] = $this->getAmount($product, $variation, $request);
         $request['unit_price'] = $request['amount'];
         $api = $variation->api ?? $product->api;
@@ -1198,7 +1199,7 @@ class TransactionsController extends Controller
                 $request['amount'] = $this->removeCharsInAmount($request->amount);
             }
         }
-
+        
         return $request['amount'];
     }
 
