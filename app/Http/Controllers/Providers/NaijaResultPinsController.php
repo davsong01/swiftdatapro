@@ -49,7 +49,7 @@ class NaijaResultPinsController extends Controller
     public function query($postdata, $api)
     {
         $headers = [
-            "Authorization: Bearer " . $api->api_key . "r",
+            "Authorization: Bearer " . $api->api_key,
             'Content-Type: application/json'
         ];
 
@@ -60,7 +60,7 @@ class NaijaResultPinsController extends Controller
         }else{
             $resX = $this->advancedApiCall($pstfields['service_url'], $pstfields, $headers);
         }
-        
+        \Log::info(['Naija response: '=> $resX]);
         try {
             $format = $this->processApiResponse($resX);
             $format['api_response'] = $resX;
@@ -139,5 +139,54 @@ class NaijaResultPinsController extends Controller
         }
         
         return $formatted;
+    }
+
+    public function balance($api, $no_format = null)
+    {
+        try {
+            $url = $api->live_base_url."account";
+
+            $headers = [
+                "Authorization: Bearer " . $api->api_key,
+                "Content-Type: application/json"
+
+            ];
+
+            $response = $this->advancedApiCall($url, [], $headers, 'GET');
+            $response = !empty($response) ? json_decode($response, true) : [];
+            
+            if (empty($response)) {
+                $status = 'failed';
+                $status_code = 0;
+                $balance = null;
+            } else {
+                $result = $response[0];
+                $balance = '#' . number_format($result['wallet_balance'], 2);
+                $status = 'success';
+                $status_code = 1;
+            }
+
+            $format = [
+                'status' => $status,
+                'balance' => $balance,
+                'status_code' => $status_code,
+            ];
+        } catch (\Throwable $th) {
+            $format = [
+                'status' => 'failed',
+                'status_code' => 0,
+                'balance' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
+            ];
+        }
+
+        if (isset($no_format)) {
+            $format = [
+                'status' => $status,
+                'balance' => $balance,
+                'status_code' => $status_code,
+            ];
+        }
+
+        return $format;
     }
 }

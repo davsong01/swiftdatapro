@@ -1655,4 +1655,52 @@ class EasyAccessController extends Controller
     public function requery($transaction){
 
     }
+
+    public function balance($api, $no_format = null)
+    {
+        try {
+            $url = "https://easyaccess.com.ng/api/wallet_balance.php";
+
+            $headers = [
+                "AuthorizationToken: " . $api->api_key,
+                'cache-control: no-cache'
+            ];
+
+            $response = $this->advancedApiCall($url, [], $headers, 'GET');
+            $response = !empty($response) ? json_decode($response, true) : [];
+            
+            if (empty($response)) {
+                $status = 'failed';
+                $status_code = 0;
+                $balance = null;
+            } else {
+                $result = $response;
+                $balance = '#' . number_format($result['balance'], 2);
+                $status = 'success';
+                $status_code = 1;
+            }
+
+            $format = [
+                'status' => $status,
+                'balance' => $balance,
+                'status_code' => $status_code,
+            ];
+        } catch (\Throwable $th) {
+            $format = [
+                'status' => 'failed',
+                'status_code' => 0,
+                'balance' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
+            ];
+        }
+
+        if (isset($no_format)) {
+            $format = [
+                'status' => $status,
+                'balance' => $balance,
+                'status_code' => $status_code,
+            ];
+        }
+
+        return $format;
+    }
 }

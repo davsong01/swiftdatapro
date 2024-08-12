@@ -87,7 +87,7 @@ class ApiController extends Controller
 
     public function getBalance(Api $api)
     {
-        $file_name = $api->file_name;
+        $file_name = $this->getApiFilename($api);
         $res = app("App\Http\Controllers\Providers\\" . $file_name)->balance($api);
 
         return response()->json($res);

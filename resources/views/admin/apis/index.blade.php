@@ -39,7 +39,10 @@
                     <tbody>
                         @foreach($apis as $api)
                         <tr>
-                            <td>{{ $api->name }}</td>
+                            <td>{{ $api->name }} <br>
+                                <a id="api-{{$api->id}}" onclick="getBalance('{{$api->id}}')" style="color:white" class="btn btn-info btn-sm mr-1 mb-1"><span id="icon-{{ $api->id }}"><i class="fa fa-refresh"></i></span><span class="align-middle ml-25">Check balance</span></a>
+                                <span id="balance-{{$api->id}}" style="font-weight: bold;color: black;"></span>
+                            </td>
                             <td>{{ $api->products_count }}</td>
                             <td>{{ $api->file_name }}</td>
                             <td style="color:{{ $api->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($api->status) }}</td>
@@ -62,6 +65,34 @@
 </div>
 @endsection
 @section('extra-js')
+<script>
+    function getBalance(id){
+        var url = "{{ url('swt5609/api-balance') }}/"+id;
+        $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'json',
+            
+            beforeSend: function () {
+                $("#icon-"+id).html("<i class='fa fa-spinner fa-spin'></i>");
+            },
+            success: function (data) {
+                if(data.status == 'success'){
+                    $("#api-"+id).hide(); 
+                    $("#balance-"+id).html('<span>'+data.balance+'</span>'); 
+                }else{
+                    $("#api-"+id).show(); 
+                    console.log(data.balanc);
+                    $("#balance-"+id).html('<span>N/A</span>'); 
+                }
+            },
+            error: function (data) {
+                $("#api-"+id).hide(); 
+                $("#balance-"+id).html('<span>An error occured</>'); 
+            }
+        });
+    }
+</script>
 <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
 
 <!-- Datatables Cdn -->

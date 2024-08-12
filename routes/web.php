@@ -75,6 +75,7 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
     Route::get('/', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
     Route::post('/admin-login', [AdminAuthController::class, 'login'])->name('admin.login.process');
     Route::post('/admin-logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+    Route::get('api-balance/{api}', [ApiController::class, 'getBalance'])->name('api.balance');
     
     Route::middleware(['auth.admin', 'adminRoute'])->group(function () {
         Route::get('/admin-dashboard', [AdminDashboardController::class, 'dashboard'])->name('admin.dashboard');
