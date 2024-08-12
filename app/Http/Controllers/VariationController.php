@@ -49,7 +49,7 @@ class VariationController extends Controller
     public function getCustomerVariations(Product $product)
     {
         $variations = Variation::where('product_id', $product->id)->where('status', 'active')->where('api_id', $product->api_id)->orderBy('system_price', 'ASC')->get();
-
+        
         foreach ($variations as $key => $variation) {
             $discount = getVariationDiscount(amount: $variation->system_price, variation_id: $variation->id);
 
@@ -69,6 +69,7 @@ class VariationController extends Controller
             } else {
                 $variation->unique_element = $variation->category->unique_element;
             }
+
         }
         
         $data = [];
@@ -78,17 +79,18 @@ class VariationController extends Controller
             foreach ($variations as $variation) {
                 $price = $variation->fixed_price == 'yes' ? ' -' . $variation->discount : '';
                 $data[] = [
+                    'variation_id' => $variation->id,
                     'product_id' => $variation->product_id,
                     'max' => $variation->max,
                     'min' => $variation->min,
                     'slug' => $variation->slug,
                     'fixed_price' => $variation->fixed_price,
                     'verifiable' => $variation->verifiable,
-                    'variation_id' => $variation->variation_id,
                     'system_name' => $variation->system_name . $price,
                     'system_price' => $variation->system_price,
                     'discount' => $variation->discount
                 ];
+
             }
 
             return $data;
