@@ -195,7 +195,7 @@
             {{ config('app.name') }}</label>
         <p>Get 50% bonus immediately a user you referred upgrades level.</p>
         <p class="text-dark" style="font-weight: bold;">Referral Link
-            <span>{{ url('/') }}/regsiter?referral={{ auth()->user()->ref_code }}</span> <i
+            <span>{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}</span> <i
                 class="fa fa-copy" style="font-size: 13px;cursor: pointer;" onclick="copyFunction()">Copy</i> <span
                 id="refres"></span>
         </p>
