@@ -63,6 +63,14 @@ class HomeController extends Controller
             ]);
         }
 
+        if (\Request::is('mobile/*')) {
+            return MobileResponseService::json(
+                message: 'Operation successful',
+                data: [],
+                status: 200
+            );
+        }
+
         return redirect(route('dashboard'))->with('message', 'Operation successful');
     }
 
@@ -99,7 +107,15 @@ class HomeController extends Controller
 
     public function upgradeLevel(Request $request, JsonResponseService $response){
         $validator = Validator::make($request->all(), [
-            'level' => 'required',
+            'level' => [
+                'required',
+                'exists:customer_levels,id',
+                function ($attribute, $value, $fail) {
+                    if ($value <= auth()->user()->level) {
+                        $fail('The ' . $attribute . ' must be greater than current level.');
+                    }
+                },
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -108,6 +124,14 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => $validator->messages()->first(),
             ];
+
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: $validator->messages()->first(),
+                    status: 422
+                );
+            }
+            
             return json_encode($responseX);
         }
 
@@ -205,11 +229,21 @@ class HomeController extends Controller
                     $transaction = $this->logTransaction($data);
                     auth()->user()->wallets = $transaction->buyer_postbal;
                     auth()->user()->save();
+
                     $responseX = [
                         'status_code' => 200,
                         'status' => 'success',
                         'message' => $descr1,
                     ];
+
+                    if (\Request::is('mobile/*')) {
+                        return MobileResponseService::json(
+                            message: $descr1,
+                            data: $responseX,
+                            status: 200
+                        );
+                    }
+
                     return json_encode($responseX);
         
                 }
@@ -270,6 +304,14 @@ class HomeController extends Controller
                     'message' => $descr1,
                 ];
 
+                if (\Request::is('mobile/*')) {
+                    return MobileResponseService::json(
+                        message: $descr1,
+                        data: $responseX,
+                        status: 200
+                    );
+                }
+
                 return json_encode($responseX);
 
             }
@@ -281,8 +323,16 @@ class HomeController extends Controller
             $responseX = [
                 'status_code' => 100,
                 'status' => 'fail',
-                'message' => 'You do not have enough balance to upgrade !!!',
+                'message' => 'You do not have enough balance to upgrade!!!',
             ];
+
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: 'You do not have enough balance to upgrade!!!',
+                    status: 422
+                );
+            }
+
             return json_encode($responseX);
         }
     }
@@ -298,6 +348,14 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => 'You do not have commission to withdraw',
             ];
+
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: 'You do not have commission to withdraw',
+                    status: 422
+                );
+            }
+
             return json_encode($responseX);
         }
 
@@ -358,6 +416,14 @@ class HomeController extends Controller
                 'message' => $descr,
             ];
 
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    message: $descr,
+                    data: $responseX,
+                    status: 200
+                );
+            }
+
             return json_encode($responseX);
             //code...
         } catch (\Throwable $th) {
@@ -368,6 +434,13 @@ class HomeController extends Controller
                 'status' => 'failed',
                 'message' => 'An error occured while processing withdrawal, please try again',
             ];
+
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: 'An error occured while processing withdrawal, please try again',
+                    status: 503
+                );
+            }
 
             return json_encode($responseX);
         }
@@ -529,9 +602,12 @@ class HomeController extends Controller
             $transactions = $transactions->whereBetween('created_at', [$from, $to]);
         }
 
-        $transactions = $transactions->orderBy('created_at', 'DESC');
+        $transactions = $transactions->orderBy('created_at', 'DESC')->paginate(50);
 
-        $transactions = $transactions->paginate(50);
+        if (\Request::is('mobile/*')) {
+            return $transactions;
+        }
+
         return view('customer.cashback', compact('transactions'));
     }
 
@@ -566,7 +642,7 @@ class HomeController extends Controller
 
             }
         }
-      
+    
         return view('customer.wallets', compact('transaction'));
     }
 
@@ -792,6 +868,15 @@ class HomeController extends Controller
             'last_name' => $request->last_name,
             'gender' => $request->gender,
         ]);
+
+        if (\Request::is('mobile/*')) {
+            return MobileResponseService::json(
+                message: 'Update successful',
+                data: [],
+                status: 200
+            );
+        }
+
         return back()->with('message', 'Update successful');
     }
 
@@ -813,6 +898,13 @@ class HomeController extends Controller
                 'message' => $validator->messages()->first(),
             ];
 
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: $validator->messages()->first(),
+                    status: 422
+                );
+            }
+            
             return json_encode($responseX);
         }
 
@@ -826,8 +918,15 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => '<div class="alert alert-danger text-left">Incorrect password !!!</div>',
             );
-            return json_encode($response);
 
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: 'Incorrect password !!!',
+                    status: 422
+                );
+            }
+            
+            return json_encode($response);
         }
 
         $check = DB::table('password_reset_tokens')->where('email', $user->email)->first();
@@ -846,7 +945,13 @@ class HomeController extends Controller
 
         $subject = "Your Password Recovery Link Has Arrived";
         $body = '<p>Hello! ' . auth()->user()->full_name . '</p>';
-        $reset_link =  url('/') . "/reset-password?token=". $tk;
+
+        if (\Request::is('mobile/*')) {
+            $reset_link =  url('/') . "/reset-password?token=" . $tk;
+        }else{
+            $reset_link =  url('/') . "/reset-password?token=" . $tk;
+        }
+
         $body .= '<p style="line-height: 2.0;">Please click the button below to reset your password <a class="btn btn-info" target="_blank" href="'. $reset_link. '" style="position: relative;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PASSWORD</a><br/>If you did not request for Password Recovery, kindly notify us via whatsapp on ' . $web_settings->whatsapp_no . ' Immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
 
         $this->sendEmail($user->email, $subject, $body);
@@ -857,6 +962,12 @@ class HomeController extends Controller
             'status' => 'success',
             'message' => 'Please check your email for a password reset link!!!',
         ];
+
+        return MobileResponseService::json(
+            message: 'Please check your email for a password reset link!!!',
+            data: $responseX,
+            status: 200
+        );
 
         return json_encode($responseX);
     }
@@ -917,10 +1028,17 @@ class HomeController extends Controller
 
         $subject = "You requested a PIN Reset Token";
         $body = '<p>Hello! ' . auth()->user()->full_name . '</p>';
-        $reset_link =  url('/') . "/confirm_reset_pin?token=" . $hashedToken;
-        $body .= '<p style="line-height: 2.0;">Please <strong>login</strong> to your account on ' . config('app.name') . ' and click the button below to reset your security pin. <br> <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: margin:5px; relative;margin-bottom:50px;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PIN</a><br/><br><strong>Please note that this link expires after ' .$expiry->format('jS F, Y, h:iA').'.</strong><br><br>If you did not request for a PIN change, Kindly notify us via WhatsApp us via whatsapp( ' . $web_settings->whatsapp_no . ') immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
 
+        if (\Request::is('mobile/*')) {
+            $reset_link =  url('/') . "/confirm_reset_pin?token=" . $hashedToken;
+        }else{
+            $reset_link =  url('/') . "/confirm_reset_pin?token=" . $hashedToken;
+        }
+        
         $this->sendEmail(auth()->user()->email, $subject, $body);
+
+        $body .= '<p style="line-height: 2.0;">Please <strong>login</strong> to your account on ' . config('app.name') . ' and click the button below to reset your transaction pin. <br> <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: margin:5px; relative;margin-bottom:50px;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PIN</a><br/><br><strong>Please note that this link expires after ' .$expiry->format('jS F, Y, h:iA').'.</strong><br><br>If you did not request for a PIN change, Kindly notify us via WhatsApp us via whatsapp( ' . $web_settings->whatsapp_no . ') immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
+
         // \Log::info($body);
         $responseX = [
             'title' => 'COMPLETED',
@@ -945,16 +1063,37 @@ class HomeController extends Controller
         $userdecode = base64_decode(base64_decode(auth()->user()->pin_reset_token));
         
         if(auth()->user()->pin_exp_date < Carbon::now()){
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: 'PIN reset link has expired, please try to reset PIN again!!!',
+                    status: 503
+                );
+            }
+
             return redirect(route('pin.reset'))->with('error', 'PIN reset link has expired, please try to reset PIN again!!!');
         }
-       
+        
         if($decode !== $userdecode){
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: 'Invalid token entered, please check your email and click the PIN reset email we sent you!!!',
+                    status: 503
+                );
+            }
             return redirect(route('pin.reset'))->with('error', 'Invalid token entered, please check your email and click the PIN reset email we sent you!!!');
 
         }
 
+        if (\Request::is('mobile/*')) {
+            return MobileResponseService::json(
+                message: 'Please Enter your new Transaction PIN',
+                data: [
+                    'submission_link' => route('mobile.final.pin.reset')
+                ],
+                status: 200
+            );
+        }
         return view('customer.reset-pin-view');
-
     }
 
     public function finalProcessPin(Request $request,JsonResponseService $response){
@@ -968,23 +1107,38 @@ class HomeController extends Controller
                 'status' => 'fail',
                 'message' => '<div class="alert alert-danger text-left">'. $validator->messages()->first() .'</div>',
             );
+
+            if (\Request::is('mobile/*')) {
+                return MobileResponseService::json(
+                    error: $validator->messages()->first(),
+                    status: 422
+                );
+            }
+
             return json_encode($response);
             
         }
-      
+        
         $new_pin = base64_encode(base64_encode(base64_encode($request->new_pin)));
         auth()->user()->transaction_pin = $new_pin;
         auth()->user()->security_pin = $request->new_pin;
         auth()->user()->save();
 
-        // return redirect(route('dashboard'))->with('message', 'Security PIN changed successfully');
+        // return redirect(route('dashboard'))->with('message', 'Transaction Transaction PIN changed successfully');
         $responseX = [
             'title' => 'COMPLETED',
             'icon' => 'success',
             'status' => 'success',
-            'message' => '<div class="alert alert-success text-left">Security PIN changed successfully</div>',
+            'message' => '<div class="alert alert-success text-left">Transaction PIN changed successfully</div>',
         ];
 
+        if (\Request::is('mobile/*')) {
+            return MobileResponseService::json(
+                message: 'Transaction PIN changed successfully',
+                data: $responseX,
+                status: 200
+            );
+        }
         return json_encode($responseX);
     }
 

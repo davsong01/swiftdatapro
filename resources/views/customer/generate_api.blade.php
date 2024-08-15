@@ -22,7 +22,7 @@
 				<div class="white_card card_height_100 mb_30 social_media_card">
 					<div class="white_card_header">
 						<div class="main-title">
-							<h3 class="m-0">Hey <?php echo auth()->user()->username; ?></h3>
+							<h3 class="m-0">Hey {{ auth()->user()->username }}</h3>
 							<span class="text-danger"></span>
 						</div>
 					</div>
@@ -37,7 +37,7 @@
 						<div>
 							<p>
 								API-TOKEN<br />
-								<span style="font-weight:bold"><?php echo auth()->user()->sk_token; ?></span>
+								<span style="font-weight:bold">{{ auth()->user()->sk_token }}</span>
 							</p>
 
 							<hr>

@@ -2,14 +2,11 @@
 @section('header')
 <div class="col-xl-12">
     <div class="alert" style="background-color: #fff;color: blue;">
-
       <div id="response" style="text-align: center;">
-        <h4>Enter a new Security PIN</h4>
+        <h4>Enter a new Transaction PIN</h4>
       </div>
-
     </div>
   </div>
-
 @endsection
 @section('body')
 <div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">

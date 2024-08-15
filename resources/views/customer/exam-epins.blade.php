@@ -60,7 +60,7 @@
     <div class="input-group mb-3">
         <span class="input-group-text" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-weight: bold"></i></span>
       
-        <input type="password" class="form-control" placeholder="Security PIN" id="security_pin" required>
+        <input type="password" class="form-control" placeholder="Transaction PIN" id="security_pin" required>
     </div>
     <div class="input-group mb-3">
       <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">Purchase Now</button>

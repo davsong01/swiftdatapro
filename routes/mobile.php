@@ -12,28 +12,22 @@ Route::group(['prefix' => 'v1', 'before' => 'v1'], function () {
             Route::get('get-user-details', 'userDetails');
             Route::get('get-menus', 'getMenu');
             Route::get('get-customer-levels', 'getCustomerLevels');
+            Route::get('app-settings', 'getAppSettings');
 
             // Route::post('customer/review', [HomeController::class, 'customerReview']);
-            Route::get('get-automated-pay', 'automatedTransfer')->name('automated.pay');
-            Route::get('get-transactions/{type?}', 'transactions');
             Route::get('get-downlines', 'downlines');
+            Route::get('get-account-numbers', 'getAccountnumbers');
             
             Route::post('change-pin', 'processResetPin');
-            // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
-            // Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
-            // Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
-            // Route::get('/deposit_payment', [HomeController::class, 'depositPayment']);
-            // Route::post('profile', [HomeController::class, 'updateProfile'])->name('customer.profile.update');
+            Route::post('reset_pin_final', 'finalProcessPin')->name('mobile.final.pin.reset');
+            Route::get('confirm_reset_pin', 'resetPin2');
+            Route::post('profile', 'updateProfile')->name('mobile.customer.profile.update');
+            Route::post('upgrade-level', 'upgradeLevel')->name('mobile.customer.level');
+            Route::get('customer-levels', 'customerLevels');
 
-            // Route::get('cashback_earn', [HomeController::class, 'cashbackEarned'])->name('customer.cashback');
-            // Route::get('withdraw-cashback', [HomeController::class, 'withdrawCashbackEarned'])->name('customer.withdraw.cashback');
-            // Route::get('generate-api-keys', [HomeController::class, 'generateApi'])->name('generate_api');
-            // Route::get('kyc-update', [HomeController::class, 'kycForm'])->name('kyc.form');
-            // Route::post('kyc-update', [HomeController::class, 'generateApi'])->name('kyc.update');
-
-            // Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
-            // Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
-
+            Route::get('withdraw-cashback', 'withdrawCashbackEarned')->name('mobile.customer.withdraw.cashback');
+            Route::post('kyc-update', 'kycUpdate')->name('mobile.kyc.update');
+            Route::post('change-password', 'processPasswordChange')->name('mobile.process.password.change');
 
             // // Transactions
             Route::get('get-products/{service?}', 'initialize');
@@ -44,6 +38,8 @@ Route::group(['prefix' => 'v1', 'before' => 'v1'], function () {
             Route::post('get-discount', 'getCustomerDiscount');
             Route::post('get-charges', 'getCustomerCharges');
             Route::get('get-transaction-status/{transaction_id}', 'transactionStatus');
+            Route::get('get-transactions/{type?}', 'transactions');
+            Route::get('commissions', 'cashbackEarned');
         });
     });
 

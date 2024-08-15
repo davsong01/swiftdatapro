@@ -81,7 +81,7 @@
     <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
     <div class="input-group mb-3">
       <span class="input-group-text"><i style="font-weight: bold" class="fa fa-unlock-alt"></i></span>
-      <input type="password" class="form-control"  placeholder="Security PIN" id="security_pin" required>
+      <input type="password" class="form-control"  placeholder="Transaction PIN" id="security_pin" required>
     </div>
     <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">BUY NOW</button>
     <br>

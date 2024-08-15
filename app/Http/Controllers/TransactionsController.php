@@ -1235,7 +1235,7 @@ class TransactionsController extends Controller
             $response = [
                 'status' => 'fail',
                 'status_code' => '100',
-                'message' => 'Incorrect security pin !!!',
+                'message' => 'Incorrect transaction pin !!!',
             ];
         }
         

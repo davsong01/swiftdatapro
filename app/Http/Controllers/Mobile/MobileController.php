@@ -10,6 +10,7 @@ use App\Models\CustomerLevel;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Services\JsonResponseService;
 use App\Services\MobileResponseService;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VariationController;
@@ -125,22 +126,27 @@ class MobileController extends Controller
     }
 
     public function userDetails(){
-        $data = [
-            request()->user()->only([
-                'full_name',
-                'middle_name',
-                'last_name',
-                'gender',
-                'username',
-                'email',
-                'wallets',
-                'cashback',
-                'mobile',
-                'status',
-                'ref_code',
-                'product_blacklist'
-            ]),
-        ];
+        $data = request()->user()->only([
+            'full_name',
+            'middle_name',
+            'last_name',
+            'gender',
+            'username',
+            'email',
+            'wallets',
+            'cashback',
+            'mobile',
+            'status',
+            'ref_code',
+            'level',
+            'product_blacklist',
+        ]);
+        
+        $data['api_keys'] = request()->user()->sk_token;
+        $data['referral_link'] = url('/').'/register?referral='. $data['ref_code'];
+        $data['kyc_status'] = request()->user()->kyc_status;
+        $data['bvn'] = mask(request()->user()->bvn, 3);
+        $data['nin'] = mask(request()->user()->nin, 3);
 
         return MobileResponseService::json(
             message: 'Operation Successful',
@@ -421,15 +427,103 @@ class MobileController extends Controller
         $request['dataplanloader'] = $request->variation_id;
 
         return $this->home->processResetPin($request);
-            dd($data);
-        if (!empty($data)) {
+        
+    }
+
+    public function resetPin2(Request $request){
+        return $this->home->resetPin2($request);
+    }
+
+    public function finalProcessPin(Request $request, JsonResponseService $response)
+    {
+        return $this->home->finalProcessPin($request, $response);
+    }
+
+    public function updateProfile(Request $request){
+        return $this->home->updateProfile($request);
+    }
+
+    public function upgradeLevel(Request $request, JsonResponseService $response){
+        return $this->home->upgradeLevel($request, $response);
+    }
+
+    public function withdrawCashbackEarned(Request $request, JsonResponseService $response)
+    {
+        return $this->home->withdrawCashbackEarned($response);
+    }
+
+    public function kycUpdate(Request $request)
+    {
+        return $this->home->kycUpdate($request);
+    }
+    
+
+    public function customerLevels(){
+        $levels = CustomerLevel::where('id', '>', auth()->user()->level)->get();
+
+        if (!empty($levels)) {
             return MobileResponseService::json(
-                message: $data['message'] ?? 'Purchase error',
-                data: $data,
+                message: 'Level retrieved successfully',
+                data: $levels,
+                status: 200
+            );
+        }else{
+            return MobileResponseService::json(
+                message: 'No level found for this account',
+                data: $levels,
                 status: 200
             );
         }
     }
-    
-    
+
+    public function getAppSettings(){
+        $settings = settings();
+        $data = [
+            "admin_email" => $settings->admin_email,
+            "sitename" => $settings->sitename,
+            "domain" => $settings->domain,
+            "address" => $settings->address,
+            "contact_no" => $settings->contact_no,
+            "whatsapp_no" => $settings->whatsapp_no,
+            "seo_title" => $settings->seo_title,
+            "seo_description" => $settings->seo_description,
+            "logo" => asset($settings->logo),
+            "site_favicon" => asset($settings->site_favicon),
+            "kyc_settings" => $settings->kyc_settings,
+            "allow_transaction_refferal_system" => $settings->allow_transaction_refferal_system,
+            "enable_mode_selector" => $settings->enable_mode_selector,
+            "enable_switcher" => $settings->enable_switcher,
+            "disable_registration" => $settings->disable_registration,
+            "allowed_domain_emails_for_registration" => $settings->allowed_domain_emails_for_registration,
+            "download_android_app_link" => $settings->download_android_app_link,
+            "download_ios_app_link" => $settings->download_ios_app_link
+        ];
+
+        return MobileResponseService::json(
+            message: 'Settings retrieved successfully',
+            data: $data,
+            status: 200
+        );
+    }
+
+    public function getAccountnumbers(){
+        $accounts = request()->user()->automated_accounts->select('id','account_number', 'account_name','bank_name',
+            'bank_code');
+        
+        return MobileResponseService::json(
+            message: 'Accounts retrieved successfully',
+            data: $accounts ,
+            status: 200
+        );
+    }
+
+    public function cashbackEarned(Request $request)
+    {
+        return $this->home->cashbackEarned($request);
+    }
+
+    public function processPasswordChange(Request $request, JsonResponseService $response){
+        return $this->home->processPasswordChange($request, $response);
+    }
+
 }

@@ -142,6 +142,7 @@ class RegisterController extends Controller
             'middle_name' => $data['middle_name'],
             'last_name' => $data['last_name'],
             'gender' => $data['gender'],
+            'sk_token' => $sk_token
         ]);
 
         // Update referral

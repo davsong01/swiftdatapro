@@ -150,7 +150,7 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
         Route::get('wallet_summary', [HomeController::class, 'walletSummary']);
         Route::get('sales_analysis', [HomeController::class, 'salesAnalysis']);
         Route::get('ref_downlines', [HomeController::class, 'downlines']);
-       
+    
         Route::get('generate-api', [HomeController::class, 'generateApi'])->name('generate_api');
     
         Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
