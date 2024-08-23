@@ -148,8 +148,8 @@ class TransactionsController extends Controller
             $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
         }
         
-        $checks = $this->runChecks($request, $product, $api);
-
+        $checks = $this->runChecks($request, $product, $api, $resource);
+        
         if (!empty($checks) && $checks['status'] == 'fail') {
             DB::rollBack();
             if (\Request::is('mobile/*')) {
@@ -1272,7 +1272,7 @@ class TransactionsController extends Controller
         return $request['amount'];
     }
 
-    public function runChecks($request, $product, $api){
+    public function runChecks($request, $product, $api, $resource){
         $checkBlacklist = Blacklist::where('biller', $request->billersCode)->first();
         
         $user = auth()->user();
@@ -1286,6 +1286,26 @@ class TransactionsController extends Controller
             );
         }
 
+        // Check min/max of resource
+        if(!empty($resource) && $resource->fixed_price == 'no' && !empty($resource->min) && !empty($resource->max)){
+            if($request->unit_price < $resource->min  ){
+                $response = array(
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => 'You cannot purchase below '. settings()->currency.number_format($resource->min). ' for this service',
+                );
+            }
+
+            if ($request->unit_price > $resource->max) {
+                $response = array(
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => 'You cannot purchase above ' . settings()->currency . number_format($resource->min) . ' for this service',
+                );
+            }
+        
+        
+        }
         // Product access 
         $productBlacklist = productBlacklist(auth()->user());
         

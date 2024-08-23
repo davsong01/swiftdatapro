@@ -30,22 +30,6 @@
   <div id="extra"
     style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">
   </div>
-
-  {{-- <div id="how_to_load" style="display:none;background: #d5f4d5;padding: 10px;margin-bottom: 10px;">
-        <div class="col-lg-12 me">
-            <div class="form-group">
-                <label class="small mb-1" for="amount" style="color: #000000">To Load MTN Data Card</label>
-                <ol style="margin-left: 15px;">
-                    <li style=" list-style: decimal;">Dial: *460*6*1#</li>
-                    <li style="list-style: decimal;">Insert the pin you generated from your swiftdatang account (make
-                        sure you include the letter S that ends the number)</li>
-                    <li style="list-style: decimal;">Recharge successful</li>
-                </ol>
-                To Check Data coupon balance: Dial *323*4#
-            </div>
-        </div>
-    </div> --}}
-
   <form id="form-data">
     @csrf
     <div class="input-group mb-3">
@@ -54,12 +38,13 @@
       <select class="form-control" id="network_module" required>
         <option value="">--Choose--</option>
         @foreach($category->products as $product)
-        @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
-          <option data-fixed_price="{{ $product->fixed_price }}"
-            data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
-            data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
-            value="{{ $product->id }}">{{ $product->display_name }}</option>
-        @endif
+          @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
+            <option data-fixed_price="{{ $product->fixed_price }}"
+              data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
+              data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
+              value="{{ $product->id }}">{{ $product->display_name }}
+            </option>
+          @endif
         @endforeach
       </select>
     </div>
@@ -109,6 +94,16 @@
 @endsection
 @section('scripts')
 <script type="text/javascript">
+  $('#network_module').change(function() {
+      var max = $(this).find(':selected').data('max');
+      var min = $(this).find(':selected').data('min');
+
+      $('#amount').attr({
+          'min': min,
+          'max': max
+      });
+  });
+  
   function calDiscount() {
     var has_variation = $('#network_module').find(':selected').data('has_variations');
     var product_id = $('#network_module').val();
