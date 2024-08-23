@@ -11,6 +11,7 @@ use App\Models\Variation;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
+use App\Services\ExcelService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\DepositTransaction;
 use Illuminate\Support\Facades\DB;
@@ -1067,9 +1068,9 @@ class TransactionsController extends Controller
     }
 
     public function adminTransactions(Request $request){
-        $transactions = Transactions::latest();
+        $transactions = Transactions::with('customer:id,full_name,middle_name,last_name,email,username,level,mobile', 'product:id,display_name', 'variation:id,system_name')->latest();
         $products = Product::all();
-       
+        
         if ($request->email) {
             $user = User::where('email', $request->email)->first();
             
@@ -1108,13 +1109,47 @@ class TransactionsController extends Controller
             $transactions = $transactions->whereBetween('created_at', [$from, $to]);
         }
 
+        if ($request->channel) {
+            $transactions = $transactions->where('channel', $request->channel);
+        }
+
         if ($request->type) {
             $transactions = $transactions->where('type', $request->type);
         }
-
+        
         if ($request->download && $request->download == 'on') {
+            $transactions = $transactions->get();
+            $data = [];
             
-            $transactions = $transactions->where('type', $request->type);
+            foreach($transactions as $transaction){
+                if(!empty($transaction->customer)){
+                    $data[] = [
+                        'Full Name' => $transaction->customer->full_name . ' ' . $transaction->customer->middle_name . ' ' . $transaction->customer->last_name,
+                        'Email' => $transaction->customer->email,
+                        'Mobile' => $transaction->mobile_number,
+                        'Username' => $transaction->customer->username,
+                        'Biller' => $transaction->customer->billersCode,
+                        'Level' => $transaction->customer->level,
+                        'Status' => $transaction->buyer_status,
+                        'Sys Ref' => $transaction->sys_ref,
+                        'Type' => $transaction->type,
+                        'Service' => $transaction->product?->display_name,
+                        'Variation' => $transaction->variation?->system_name,
+                        'Quantity' => $transaction->buyer_quantity,
+                        'Unit Price' => $transaction->unit_price,
+                        'Discount' => $transaction->discount,
+                        'Total Amount' => $transaction->total_amount,
+                        'Buyer Prebal' => $transaction->buyer_prebal,
+                        'Buyer Postbal' => $transaction->buyer_postbal,
+                        'Buyer Descr' => $transaction->buyer_descr,
+                        'Charge From' => $transaction->charge_from,
+                        'Date' =>  date("M jS, Y g:iA", strtotime($transaction->created_at)),
+                    ];
+                }
+            }
+            
+            $headings = ['Name', 'Email', 'Phone Number', 'Username', 'Biller Code','Level','Status','Sys Ref','Type','Service ','Variation','Quantity','Unit Price','Discount','Total Amount', 'Pre Balance','Post Balance'];
+            return ExcelService::download($data, $headings);
         }
 
         $count = 1;
@@ -1291,7 +1326,15 @@ class TransactionsController extends Controller
                 'status_code' => '100',
                 'message' => $product->name . ' purchase is not permitted for this account !!!',
             );
+        }
 
+        if ($product->has_variations == 'yes') {
+            // dd($request->all());
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => $product->name . ' purchase is not permitted for this account !!!',
+            );
         }
 
         if (!$api || $api->status == 'inactive') {

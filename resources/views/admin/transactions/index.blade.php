@@ -138,9 +138,13 @@
                                 </strong>
                                 <br>
                                 <span style="color:rgb(27, 20, 220)"><strong>System Reference ID: </strong> <br>{{ $transaction->sys_ref }}</span> <br>
-                                <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> <br>
-                                <strong><a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->full_name  }}</a> <br>
-                                <a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->email  }}</a> <br>
+                                <span style="color:crimson"><strong>API Reference: </strong> <br>{{ $transaction->api_ref }}</span> 
+                                @if(!empty($transaction->customer))
+                                    <br>
+                                    <strong><a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->full_name  }}</a> <br>
+                                    <a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->email  }}</a> <br>
+                                @endif
+                                
                                 </strong>
                                 {{ $transaction->mobile_number }} <br>
                                 {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>
