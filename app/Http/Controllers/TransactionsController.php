@@ -221,8 +221,12 @@ class TransactionsController extends Controller
             'profit' => $sourcePriceAndProfit['profit'] ?? 0,
         ];
         
-        $transaction = $this->logTransaction($data);
+        if (\Request::is('mobile/*')) {
+            $data['channel'] = 'mobile';
+        }
 
+        $transaction = $this->logTransaction($data);
+        
         $data['resource'] = $resource;
         $data['product'] = $product;
         $data['billersCode'] = $request['billersCode'] ?? null;
@@ -1329,12 +1333,22 @@ class TransactionsController extends Controller
         }
 
         if ($product->has_variations == 'yes') {
-            // dd($request->all());
-            $response = array(
-                'status' => 'fail',
-                'status_code' => '100',
-                'message' => $product->name . ' purchase is not permitted for this account !!!',
-            );
+            $variation = Variation::where('id', $request->variation_id)->where('product_id', $product->id)->first();
+            if(empty($variation)){
+                $response = array(
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => $product->name . 'Invalid Variation Selected!!!',
+                );
+            }
+
+            if ($variation->status == 'inactive') {
+                $response = array(
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => $variation->system_name . ' is currently inactive!!!',
+                );
+            }
         }
 
         if (!$api || $api->status == 'inactive') {
