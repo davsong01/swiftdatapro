@@ -13,7 +13,6 @@ use App\Models\CustomerLevel;
 
 class EasyAccessController extends Controller
 {
-
     public function getVariations($product)
     {
         $variations = $this->esayAccessProductVariations($product->slug);

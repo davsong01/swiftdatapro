@@ -9,14 +9,13 @@ use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use App\Services\JsonResponseService;
 use App\Services\MobileResponseService;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\VariationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TransactionsController;
 use App\Http\Controllers\Auth\RegisterController;
+use PDO;
 
 class MobileController extends Controller
 {
@@ -57,7 +56,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: 'Validation error',
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
 
         $create = $this->register->create($validator->valid());
@@ -66,7 +65,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: $create['message'],
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
         }
 
@@ -90,7 +89,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: 'Validation error',
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
 
         if ($request->channel != 'mobile')
@@ -107,7 +106,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: $create['message'],
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
         }
 
@@ -323,7 +322,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: 'Validation error',
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
 
         $data = getProductDiscount($request->amount, $request->product_id, $request->quantity ?? 1);
@@ -348,7 +347,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: 'Validation error',
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
 
         $data = getProductCharges($request->amount, $request->product_id, $request->quantity ?? 1);
@@ -367,7 +366,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: 'Validation error',
                 error: ['The transaction id field is required'],
-                status: 422
+                status: 412
             );
 
         $data = $this->transaction->transactionStatus($request->transaction_id);
@@ -393,19 +392,31 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: 'Validation error',
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
 
         $request['network_module'] = $request->product_id;
         $request['dataplanloader'] = $request->variation_id;
 
         $data = $this->transaction->processBuy($request);
-            
+        
         if (!empty($data)) {
+            if(!empty($data['status']) && in_array($data['status'], ['fail'])){
+                $status_code = 422;
+            }else{
+                $status_code = 200;
+            }
+
             return MobileResponseService::json(
                 message: $data['message'] ?? 'Purchase error',
                 data: $data,
-                status: 200
+                status: $status_code
+            );
+        }else{
+            return MobileResponseService::json(
+                message: 'Purchase error',
+                data: null,
+                status: 500
             );
         }
     }
@@ -420,7 +431,7 @@ class MobileController extends Controller
             return MobileResponseService::json(
                 message: 'Validation error',
                 error: $validator->errors()->all(),
-                status: 422
+                status: 412
             );
 
         $request['network_module'] = $request->product_id;

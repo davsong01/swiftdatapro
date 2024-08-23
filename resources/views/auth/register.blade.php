@@ -131,8 +131,8 @@ Register
                                     <input required   name="mobile" value="{{ old('mobile') }}" type="mobile" class="form-control" id="mobile" placeholder="Enter your mobile number" autofocus />
                                 </div>
                                 <div class="col-md-6 mb-3">
-                                    <label for="username" class="form-label">Username</label>
-                                    <input required  name="username" value="{{ old('username') }}" type="text" class="form-control" id="username" placeholder="Enter your username" autofocus />
+                                    <label for="username" class="form-label">Username (Optional)</label>
+                                    <input name="username" value="{{ old('username') }}" type="text" class="form-control" id="username" placeholder="Enter your username" autofocus />
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="gender" class="form-label required">Gender</label>

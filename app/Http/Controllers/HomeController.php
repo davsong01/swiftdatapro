@@ -972,13 +972,13 @@ class HomeController extends Controller
         return json_encode($responseX);
     }
 
-    public function resetPin(){
-        return view('customer.reset_pin');
+    public function resetPin($type=null){
+        return view('customer.reset_pin', compact('type'));
     }
 
     public function processResetPin(Request $request, JsonResponseService $response = null){
         $web_settings = WebSetting::first();
-    
+        
         $validator = Validator::make($request->all(), [
             'old_pin' => 'required',
         ]);
@@ -1026,7 +1026,7 @@ class HomeController extends Controller
         auth()->user()->pin_exp_date = $expiry;
         auth()->user()->save();
 
-        $subject = "You requested a PIN Reset Token";
+        $subject = !empty($request->type) ? "You requested to set your Transaction PIN": "You requested to reset your Transaction PIN";
         $body = '<p>Hello! ' . auth()->user()->full_name . '</p>';
 
         if (\Request::is('mobile/*')) {
@@ -1035,21 +1035,21 @@ class HomeController extends Controller
             $reset_link =  url('/') . "/confirm_reset_pin?token=" . $hashedToken;
         }
         
+        $body .= '<p style="line-height: 2.0;">Please <strong>login</strong> to your account on ' . config('app.name') . ' and click the button below to set your transaction pin. <br> <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: margin:5px; relative;margin-bottom:50px;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">SET PIN</a><br/><br><strong>Please note that this link expires after ' .$expiry->format('jS F, Y, h:iA').'.</strong><br><br>If you did not request for a PIN set/reset, Kindly notify us via WhatsApp us via whatsapp( ' . $web_settings->whatsapp_no . ') immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
+        
         $this->sendEmail(auth()->user()->email, $subject, $body);
-
-        $body .= '<p style="line-height: 2.0;">Please <strong>login</strong> to your account on ' . config('app.name') . ' and click the button below to reset your transaction pin. <br> <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: margin:5px; relative;margin-bottom:50px;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PIN</a><br/><br><strong>Please note that this link expires after ' .$expiry->format('jS F, Y, h:iA').'.</strong><br><br>If you did not request for a PIN change, Kindly notify us via WhatsApp us via whatsapp( ' . $web_settings->whatsapp_no . ') immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
 
         // \Log::info($body);
         $responseX = [
             'title' => 'COMPLETED',
             'icon' => 'success',
             'status' => 'success',
-            'message' => '<div class="alert alert-success text-left">Thank you for reaching to us. PIN reset link has been forwarded to your email!!!</div>',
+            'message' => '<div class="alert alert-success text-left">Thank you for reaching to us. Transaction PIN link has been sent to your email!!!</div>',
         ];
 
         if (\Request::is('mobile/*')) {
             return MobileResponseService::json(
-                message: 'Thank you for reaching to us. PIN reset link has been forwarded to your email!!!',
+                message: 'Thank you for reaching to us. Transaction PIN link has been sent to your email!!!',
                 data: ['reset_link' => $reset_link],
                 status: 200
             );

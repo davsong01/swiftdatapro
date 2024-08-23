@@ -156,25 +156,27 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
         Route::get('change-password', [HomeController::class, 'passwordChange'])->name('password.change');
         Route::post('change-password', [HomeController::class, 'processPasswordChange'])->name('process.password.change');
     
-        Route::get('change-pin', [HomeController::class, 'resetPin'])->name('pin.reset');
+        Route::get('change-pin/{type?}', [HomeController::class, 'resetPin'])->name('pin.reset');
         Route::post('change-pin', [HomeController::class, 'processResetPin'])->name('pin.process.reset');
         Route::get('confirm_reset_pin', [HomeController::class, 'resetPin'])->name('confirm.pin.reset');
         Route::post('reset_pin_final', [HomeController::class, 'finalProcessPin'])->name('final.pin.reset');
         
         Route::get('confirm_reset_pin', [HomeController::class, 'resetPin2']);
-        
+
+        Route::middleware(['transaction-pin'])->group(function () {
         // Transactions
-        Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
-        Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
-        Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
-        Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
-        Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
-        Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
-        Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
-        Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
-        Route::post('customer-get-charges', [TransactionsController::class, 'getCustomerCharges'])->name('get.customer.charges');
-        Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
-        Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
+            Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
+            Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
+            Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
+            Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
+            Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');
+            Route::post('verify/{service?}', [TransactionsController::class, 'verify'])->name('verify');
+            Route::get('customer-get-variations/{product}', [VariationController::class, 'getCustomerVariations'])->name('get.customer.variations');
+            Route::post('customer-get-discount', [TransactionsController::class, 'getCustomerDiscount'])->name('get.customer.discount');
+            Route::post('customer-get-charges', [TransactionsController::class, 'getCustomerCharges'])->name('get.customer.charges');
+            Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
+            Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
+        });
     });
 
 });

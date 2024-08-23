@@ -7,6 +7,7 @@ use DateTimeZone;
 use App\Models\User;
 use App\Models\UserVerify;
 use App\Models\WebSetting;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -75,14 +76,14 @@ class RegisterController extends Controller
         $allowedDomains = !empty($allowedDomains) ? json_decode($allowedDomains, true) : [];
         
         $allowedDomainsString = implode('|', $allowedDomains);
-
+        
         return Validator::make($data, [
             'full_name' => ['required', 'string', 'max:15'],
             'referral' => ['required', 'string', 'exists:users,ref_code', 'max:50'],
             'middle_name' => ['nullable', 'string', 'max:15'],
             'last_name' => ['required', 'string', 'max:15'],
             'mobile' => ['required', 'string', 'max:11', 'min:11', 'unique:users'],
-            'username' => ['required', 'string', 'max:30', 'unique:users'],
+            'username' => ['sometimes', 'nullable', 'string', 'max:30', 'unique:users'],
             'gender' => ['required', 'string', 'in:Male,Female', 'max:10'],
             'email' => ['required', 'string', 'email', 'max:50', 'unique:users', 'regex:/^[A-Za-z0-9._%+-]+@(' . $allowedDomainsString . ')$/i'],
             'password' => ['required', 'string', 'min:5'],
@@ -119,13 +120,14 @@ class RegisterController extends Controller
         $users_sid = base64_encode(uniqid() . time() . mt_rand(10000000, 90000000));
         $sk_token = base64_encode($data['email']) . uniqid();
 
+        $username = $data['username'] ?? Str::slug($data['full_name']);
         // Create user
         $user = User::create([
             'full_name' => $data['full_name'],
-            'ref_code' => $data['username'],
+            'ref_code' => $username,
             'ref_by' => $myrefferal->username,
             'mobile' => $data['mobile'],
-            'username' => $data['username'],
+            'username' =>  $username,
             'pass' => Hash::make($data['password']),
             'password' => ' ',
             'wallets' => 0,

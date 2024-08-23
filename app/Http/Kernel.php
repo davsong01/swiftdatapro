@@ -70,6 +70,8 @@ class Kernel extends HttpKernel
         'adminRoute' => \App\Http\Middleware\RouteProtectionMiddleware::class,
         'mobile' => \App\Http\Middleware\MobileMiddleware::class,
         'kyc' => \App\Http\Middleware\KycMiddleware::class,
+        'transaction-pin' => \App\Http\Middleware\TransactionPinMiddleware::class,
+        
         // 'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
 }

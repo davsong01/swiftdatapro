@@ -104,7 +104,6 @@ class ClubkonnectController extends Controller
     public function query($postdata, $request, $type){
         $curl = curl_init();
         
-
         $resX = $this->advancedApiCall($postdata['url'], [], [], 'GET','status_code');
         
         try {
@@ -122,12 +121,12 @@ class ClubkonnectController extends Controller
             return $format;
 
         }
-       
+    
         return $format;
     }
 
     public function processApiResponse($res, $request, $type){
-       
+    
         if(empty($res)){
             $formatted = [
                 'status' => 'failed',

@@ -256,7 +256,14 @@ class Controller extends BaseController
         ];
         
         try {
-            Mail::to($email_to)->send(new EmailMessages($data));
+            if(env('ENT') == 'local'){
+                \Log::info([
+                    'subject' => $subject,
+                    'body' => $body,
+                ]);
+            }else{
+                Mail::to($email_to)->send(new EmailMessages($data));
+            }
         } catch (\Exception $e) {
             \Log::info([
                 'Email Sending Error' => $data,

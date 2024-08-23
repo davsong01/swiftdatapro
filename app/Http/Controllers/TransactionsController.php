@@ -7,14 +7,15 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Blacklist;
-use App\Models\DepositTransaction;
 use App\Models\Variation;
 use App\Models\WebSetting;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\DepositTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Services\JsonResponseService;
+use App\Services\MobileResponseService;
 
 
 class TransactionsController extends Controller
@@ -125,6 +126,14 @@ class TransactionsController extends Controller
         $api = $variation->api ?? $product->api;
         
         if ($product->has_variations == 'yes') {
+            if(empty($variation)){
+                return [
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => 'Please select a valid variation',
+                ];
+            }
+
             $resource = $variation;
             $discount = getVariationDiscount($request['amount'], $variation->id, $request['quantity'] ?? 1);
         } else {
@@ -171,7 +180,7 @@ class TransactionsController extends Controller
             );
 
             if (\Request::is('mobile/*')) {
-                return 'Insufficient Wallet Balance, Please fund wallet and retry again';
+                return $response;
             }
 
             return $this->jsonresponseservice->build($response);
@@ -235,7 +244,7 @@ class TransactionsController extends Controller
                 );
 
                 if (\Request::is('mobile/*')) {
-                    return 'Insufficient Wallet Balance, Please fund wallet and retry again';
+                    return $response;
                 }
 
                 return $this->jsonresponseservice->build($response);
@@ -359,6 +368,10 @@ class TransactionsController extends Controller
 
             \Log::error('Transaction failed: ' . $e->getMessage().' File: '. $e->getFile() .' Line: ' . $e->getLine());
 
+            if (\Request::is('mobile/*')) {
+                return $final_response;
+            }
+            
             return response()->json($final_response);
         }
     }
@@ -1175,6 +1188,21 @@ class TransactionsController extends Controller
 
     public function getAmount($product, $variation, $request){
         if ($product->has_variations == 'yes') {
+            if(empty($variation)){
+                if (\Request::is('mobile/*')) {
+                    return MobileResponseService::json(
+                        message: "Please select a valid variation",
+                        error: "Please select a valid variation",
+                        status: 412
+                    );
+                }
+            
+                return $response = [
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => 'Please select a valid variation',
+                ];
+            }
             if ($variation->fixed_price == 'yes') {
                 $request['amount'] = $variation->system_price;
             } elseif ($product->allow_subscription_type == 'yes' && $variation->category->unique_element == 'iuc_number') {
