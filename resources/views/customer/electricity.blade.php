@@ -233,8 +233,7 @@
     });
 
   };
-
-
+  
   function closeModal() {
     $("#myModal2").modal("hide");
   }
