@@ -1333,22 +1333,22 @@ class TransactionsController extends Controller
         }
 
         if ($product->has_variations == 'yes') {
-            $variation = Variation::where('id', $request->variation_id)->where('product_id', $product->id)->first();
-            if(empty($variation)){
-                $response = array(
-                    'status' => 'fail',
-                    'status_code' => '100',
-                    'message' => $product->name . 'Invalid Variation Selected!!!',
-                );
-            }
-
-            if ($variation->status == 'inactive') {
-                $response = array(
-                    'status' => 'fail',
-                    'status_code' => '100',
-                    'message' => $variation->system_name . ' is currently inactive!!!',
-                );
-            }
+            // $variation = Variation::where('id', $request->variation_id)->where('product_id', $product->id)->first();
+            // if(empty($variation)){
+            //     $response = array(
+            //         'status' => 'fail',
+            //         'status_code' => '100',
+            //         'message' => $product->name . 'Invalid Variation Selected!!!',
+            //     );
+            // }
+            // dd($variation, $request->all(), $product->id);
+            // if ($variation->status == 'inactive') {
+            //     $response = array(
+            //         'status' => 'fail',
+            //         'status_code' => '100',
+            //         'message' => $variation->system_name . ' is currently inactive!!!',
+            //     );
+            // }
         }
 
         if (!$api || $api->status == 'inactive') {

@@ -325,7 +325,7 @@ class Controller extends BaseController
 
     public function logTransaction($request){
         $data = $request;
-       
+        
         $data['app_version'] = Session::get('app_version');
         $data['domain_name'] = request()->getHost();
         $data['ip_address'] = request()->header('cf-connecting-ip') ?? request()->ip();
