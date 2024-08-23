@@ -139,7 +139,6 @@ class HomeController extends Controller
         $reference = $this->generateRequestId('SWFTUPGRD');
 
         $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
-        $time = $dateTime->format("d-M-y  h:i A");
         $timestring = time();
 
         $refb = $level->upgrade_amount - $level->admin_inch;
@@ -199,21 +198,18 @@ class HomeController extends Controller
                         'description' => $descr3,
                         'created_at' => Carbon::now(),
                     ]);
-
+                    
                     $data = [
                         'mobile_number' => auth()->user()->mobile,
                         'buyer_email' => auth()->user()->email,
                         'user_id' => auth()->user()->id,
-                        'buyer_username' => auth()->user()->username,
                         'buyer_service' => 'UPGRADE',
                         'buyer_amount' => $amount,
                         'buyer_prebal' => $balanceBefore,
                         'buyer_postbal' => $newbal,
                         'buyer_descr' => $descr1,
                         'buyer_status' => 'SUCCESSFUL',
-                        'buyer_date' => $time,
                         'type' => 'debit',
-                        'timestring' => $timestring,
                         'charge_from' => 'WALLET',
                         'user_type' => $package,
                         'sys_ref' => $reference,
@@ -225,6 +221,10 @@ class HomeController extends Controller
                         'billersCode' => auth()->user()->ussername,
                         'unit_price' => $amount,
                     ];
+
+                    if (\Request::is('mobile/*')) {
+                        $data['channel'] = 'mobile';
+                    }
 
                     $transaction = $this->logTransaction($data);
                     auth()->user()->wallets = $transaction->buyer_postbal;
@@ -273,7 +273,6 @@ class HomeController extends Controller
                 $data = [
                     'mobile_number' => auth()->user()->mobile, 
                     'buyer_email' => auth()->user()->email,
-                    'buyer_username' => auth()->user()->username,
                     'user_id' => auth()->user()->id, 
                     'buyer_service' => 'UPGRADE', 
                     'buyer_amount' => $amount, 
@@ -281,8 +280,6 @@ class HomeController extends Controller
                     'buyer_postbal' => $newbal, 
                     'buyer_descr' => $descr1, 
                     'buyer_status' => 'SUCCESSFUL', 
-                    'buyer_date' => $time, 
-                    'timestring' => $timestring, 
                     'charge_from' => 'WALLET', 
                     'user_type' => $package, 
                     'sys_ref' => $reference, 
@@ -379,7 +376,6 @@ class HomeController extends Controller
             // Log transaction
             $data['mobile_number'] = $user->mobile;
             $data['buyer_email'] = $user->email;
-            $data['buyer_username'] = $user->username;
             $data['unit_price'] = $amount;
             $data['buyer_amount'] = $amount;
             $data['buyer_prebal'] = $wallet_balance;
@@ -543,7 +539,7 @@ class HomeController extends Controller
     }
 
     public function transactions(Request $request){
-        $transactions = Transactions::select(['id','product_id','variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_username', 'buyer_service', 'type','buyer_amount', 'unit_price', 'charges', 'discount','buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra', 'created_at'])->with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
+        $transactions = Transactions::select(['id','product_id','variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_service', 'type','buyer_amount', 'unit_price', 'charges', 'discount','buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra', 'created_at'])->with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
         
         if (!empty($request->service)) {
             $transactions = $transactions->where('product_id', $request->service);

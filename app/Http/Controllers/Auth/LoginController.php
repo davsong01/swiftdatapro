@@ -159,7 +159,6 @@ class LoginController extends Controller
             DB::table('password_reset_tokens')->insert([
                 'email' => $user->email,
                 'token' => $tk,
-                'app_version' => '2',
                 'created_at' => Carbon::now()
             ]); //Get the token just created above
         }

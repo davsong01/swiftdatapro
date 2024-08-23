@@ -428,7 +428,6 @@ class PaymentGatewayController extends Controller
                             $data = [
                                 'mobile_number' => $user->mobile,
                                 'buyer_email' => $user->email,
-                                'buyer_username' => $user->username,
                                 'unit_price' => $final_amount,
                                 'buyer_amount' => $final_amount,
                                 'buyer_prebal' => $walletBal,

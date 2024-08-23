@@ -20,11 +20,7 @@ return new class extends Migration
             // foreach ($tables as $t) {
             //     $qur = 'Tables_in_' . $db_name;
                 
-            //     if (!Schema::hasColumn($t->$qur, 'app_version') && Schema::hasTable($t->$qur)) {
-            //         Schema::table($t->$qur, function (Blueprint $table) {
-            //             $table->string('app_version', 20)->nullable()->after('id');
-            //         });
-            //     }
+            
 
             //     if (!Schema::hasColumn($t->$qur, 'created_at') && Schema::hasTable($t->$qur)) {
             //         Schema::table($t->$qur, function (Blueprint $table) {

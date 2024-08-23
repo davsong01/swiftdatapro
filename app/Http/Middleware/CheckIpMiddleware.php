@@ -43,7 +43,6 @@ class CheckIpMiddleware
         }
         
         Session::put('domain_name', $domain);
-        Session::put('app_version', '2');
         
         return $next($request);
     }

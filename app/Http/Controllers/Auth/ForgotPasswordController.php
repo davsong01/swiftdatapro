@@ -48,7 +48,6 @@ class ForgotPasswordController extends Controller
             DB::table('password_reset_tokens')->insert([
                 'email' => $request->email,
                 'token' => $tk,
-                // 'app_version' => '2',
                 'created_at' => Carbon::now()
             ]); //Get the token just created above
         }

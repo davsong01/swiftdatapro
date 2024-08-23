@@ -58,7 +58,7 @@ class TransactionsController extends Controller
 
     public function transactionStatus($transaction_id)
     {
-        $transaction = Transactions::select(['product_id', 'variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_username', 'buyer_service', 'type', 'buyer_amount', 'unit_price', 'charges', 'discount', 'buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra','created_at'])->where('id', $transaction_id)->first();
+        $transaction = Transactions::select(['product_id', 'variation_id', 'category_id', 'user_id', 'buyer_status','buyer_service', 'type', 'buyer_amount', 'unit_price', 'charges', 'discount', 'buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra','created_at'])->where('id', $transaction_id)->first();
 
         if (\Request::is('mobile/*')) {
             return $transaction;
@@ -282,7 +282,7 @@ class TransactionsController extends Controller
                 Current Balance : ₦' . number_format($transaction->buyer_postbal) . '<br>
                 Description : ' . $order_report . '<br>
                 Transaction Reference : ' . $transaction->sys_ref . '<br>
-                Transaction Date : ' . $transaction->buyer_date . '<br>
+                Transaction Date : ' . $transaction->created_at . '<br>
                 Transaction Status : Success<br>';
 
                 if (isset($api_response['extra']) && !empty($api_response['extra'])) {
@@ -313,8 +313,8 @@ class TransactionsController extends Controller
                 Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
                 Description : ' . $transaction->$order_report . '<br>
                 Transaction Reference : ' . $transaction->sys_ref . '<br>
-                Transaction Date : ' . $transaction->buyer_date . '<br>
-                Extra Information : ' . $transaction->buyer_date . '<br><br><br>Warm Regards<br>' . config('app.name') . '
+                Transaction Date : ' . $transaction->created_at . '<br>
+                Extra Information : ' . $transaction->created_at . '<br><br><br>Warm Regards<br>' . config('app.name') . '
                 Transaction Status : Pending<br>';
                 $subject = "Transaction Notification";
             } else if ($api_response['status'] == 'failed') {
@@ -340,7 +340,7 @@ class TransactionsController extends Controller
                 Current Balance : ' . number_format($transaction->buyer_postbal) . '<br>
                 Description : ' . $transaction->$order_report . '<br>
                 Transaction Reference : ' . $transaction->sys_ref . '<br>
-                Transaction Date : ' . $transaction->buyer_date . '<br>
+                Transaction Date : ' . $transaction->created_at . '<br>
                 Transaction Status : Failed<br>';
                 $subject = "Transaction Notification";
             }
@@ -1031,7 +1031,6 @@ class TransactionsController extends Controller
 
             $data['mobile_number'] = $user->mobile;
             $data['buyer_email'] = $user->email;
-            $data['buyer_username'] = $user->username;
             $data['unit_price'] = $amount;
             $data['buyer_amount'] = $amount;
             $data['buyer_prebal'] = $currAmount;
