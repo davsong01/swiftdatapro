@@ -28,8 +28,7 @@ class TransactionsController extends Controller
     }
 
     public function initialize($service){
-        $productBlacklist = productBlacklist(auth()->user());
-        
+        $productBlacklist = productBlacklist(auth()->user()); 
         $category = Category::with([
             'products' => function ($query) use ($productBlacklist)  {
                 return $query->where('status', 'active')->whereNotIn('id', $productBlacklist)->get();
@@ -347,8 +346,11 @@ class TransactionsController extends Controller
 
             $user->wallets = $transaction->buyer_postbal;
             $user->save();
-            $this->sendEmail(auth()->user()->email, $subject, $body);
 
+            if (in_array('transaction-email', settings()->allowed_email_notifications)) {
+                $this->sendEmail(auth()->user()->email, $subject, $body);
+            }
+            
             DB::commit();
 
             $final_response['id'] = $transaction->id;

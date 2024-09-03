@@ -37,6 +37,21 @@ if (!function_exists('sendNativeMail')) {
     }
 }
 
+if (!function_exists("emailNotificationOptions")) {
+    function emailNotificationOptions()
+    {
+        return [
+            'Essential Emails (Verification link, password reset, pin reset)' => 'essential-email', // verification link, password reset, pin reset, welcome email
+            'Login Notification Emails' => 'login-email',
+            'Transaction Notification Emails' => 'transaction-email',
+            'Admin Notification on registration' => 'admin-registration-notification-email',
+            'Graphics Transaction Notification Email' => 'graphics-registration-notification-email',
+            'Airtime to Cash Admin Notification Email' => 'airtime-to-cash-notification',
+            'Customer Review Email' => 'customer-review-email',
+        ];
+    }
+}
+
 if (!function_exists("mask")) {
     function mask($word, $a = 2, $b = 9, $c = 9, $d = 10)
     {

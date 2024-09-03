@@ -143,6 +143,23 @@
                         </textarea>
                     </div>
                 </div>
+            </div>
+
+            <div class="card-header">
+                <h5>Email Notification Settings</h5> <br>
+            </div>
+            {{-- {{dd($contact->allowed_email_notifications)}} --}}
+            <div class="card-body">
+                <div class="row gy-4">
+                    @foreach (emailNotificationOptions() as $key=>$value)
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <input class="form-check-input ms-2" type="checkbox" name="allowed_email_notifications[]" id="email_notifications-{{$value}}" value="{{$value}}" {{!empty($contact->allowed_email_notifications) && in_array($value, $contact->allowed_email_notifications) ? 'checked' : ''}}>
+                            <label for="email_notifications-{{$value}}"> &nbsp;Allow {{$key}}</label>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
                 <div class="row mt-2">
                     <button class="btn btn-primary">Update</button>
                 </div>

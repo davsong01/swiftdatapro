@@ -43,14 +43,14 @@
                                         <label class="form-label" for="slug">Slug</label>
                                         <input type="text" class="form-control" name="slug" placeholder="Enter slug" id="slug" value="{{ old('slug')}}" required>
                                     </div>
-                                    <div class="col-md-6">
+                                    {{-- <div class="col-md-6">
                                         <label class="form-label" for="old_identifier">Old Identifier</label>
                                         <input type="text" class="form-control" name="old_identifier" placeholder="Enter old_identifier" id="old_identifier" value="{{ old('old_identifier')}}">
-                                    </div>
-                                    {{-- <div class="col-md-6">
-                                        <label for="formFile" class="form-label">Display Image</label>
-                                        <input name="image" class="form-control" type="file" id="image" accept="image/*">
                                     </div> --}}
+                                    <div class="col-md-6">
+                                        <label for="formFile" class="form-label">Product Image</label>
+                                        <input name="image" class="form-control" type="file" id="image" accept="image/*">
+                                    </div>
                                     <div class="col-md-6">
                                         <label class="form-label" for="category">Category</label>
                                         <select class="form-control" name="category" id="category" required>

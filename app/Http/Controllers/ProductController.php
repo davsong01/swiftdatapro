@@ -94,7 +94,6 @@ class ProductController extends Controller
                 "allow_subscription_type" => $request->allow_subscription_type ?? 'no',
                 'referral_commission' => $request->referral_commission,
                 'provider_percentage_discount' => $request->provider_percentage_discount,
-                
             ]
         );
 
@@ -167,7 +166,8 @@ class ProductController extends Controller
             "max" => 'nullable',
             "allow_subscription_type" => "nullable",
             'referral_commission' => 'nullable',
-            'provider_percentage_discount'
+            'provider_percentage_discount',
+            "image" => "sometimes|mimes:jpeg,png|max:1024",
         ]);
 
         if (!empty($request->image)) {
@@ -205,6 +205,7 @@ class ProductController extends Controller
         
         $product->update([
             "name" => $request->name,
+            "image" => $image ?? $product->image,
             "display_name" => $request->display_name,
             "category_id" => $request->category,
             "description" => $request->description,

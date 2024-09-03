@@ -19,7 +19,7 @@
             <div class="card-header">
                 @include('includes.alerts')
                 <h5>Edit {{$product->name}}</h5>
-                {{-- <img src="{{asset($product->image)}}" alt="" style="width: 70px;"> --}}
+                <img src="{{ $product->image }}" alt="" style="width: 70px;">
             </div>
             <div class="card-body">
                 <!-- Nav tabs -->
@@ -51,9 +51,13 @@
                                     <label class="form-label" for="slug">Slug</label>
                                     <input type="text" class="form-control" name="slug" placeholder="Enter slug" id="slug" value="{{  $product->slug ?? old('slug')}}" required>
                                 </div>
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <label class="form-label" for="old_identifier">Old Identifier</label>
                                     <input type="text" class="form-control" name="old_identifier" placeholder="Enter old_identifier" id="old_identifier" value="{{  $product->old_identifier ?? old('old_identifier')}}">
+                                </div> --}}
+                                <div class="col-md-6">
+                                    <label for="formFile" class="form-label">{{ !empty($product->image) ? 'Replace Product Image' : 'Product Image'}}</label>
+                                    <input name="image" class="form-control" type="file" id="image" accept="image/*">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label" for="category">Category</label>

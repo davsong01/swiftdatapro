@@ -91,12 +91,14 @@ class HomeController extends Controller
             'date' => Carbon::now(),
         ]);
 
-        $body = auth()->user()->email . " Sent You A Review (" . $request->rate_comment . ')<br/><br/>';
-        $body .= '<p>Kindly attend to this review.' . '<br/></p>';
-        $subject = "New Review Has Arrived";
+        if (in_array('customer-review-email', $setting->allowed_email_notifications)) {
+            $body = auth()->user()->email . " Sent You A Review (" . $request->rate_comment . ')<br/><br/>';
+            $body .= '<p>Kindly attend to this review.' . '<br/></p>';
+            $subject = "New Review Has Arrived";
 
-        $this->sendEmail($setting->admin_email, $subject,$body);
-
+            $this->sendEmail($setting->admin_email, $subject,$body);
+        }
+        
         $responseX = [
             'status_code' => 200,
             'status' => 'success',
@@ -948,10 +950,11 @@ class HomeController extends Controller
             $reset_link =  url('/') . "/reset-password?token=" . $tk;
         }
 
-        $body .= '<p style="line-height: 2.0;">Please click the button below to reset your password <a class="btn btn-info" target="_blank" href="'. $reset_link. '" style="position: relative;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PASSWORD</a><br/>If you did not request for Password Recovery, kindly notify us via whatsapp on ' . $web_settings->whatsapp_no . ' Immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
+        if (in_array('essential-email', $web_settings->allowed_email_notifications)) {
+            $body .= '<p style="line-height: 2.0;">Please click the button below to reset your password <a class="btn btn-info" target="_blank" href="'. $reset_link. '" style="position: relative;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">RESET PASSWORD</a><br/>If you did not request for Password Recovery, kindly notify us via whatsapp on ' . $web_settings->whatsapp_no . ' Immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
 
-        $this->sendEmail($user->email, $subject, $body);
-
+            $this->sendEmail($user->email, $subject, $body);
+        }
         $responseX = [
             'title' => 'COMPLETED',
             'icon' => 'success',
@@ -1030,10 +1033,11 @@ class HomeController extends Controller
         }else{
             $reset_link =  url('/') . "/confirm_reset_pin?token=" . $hashedToken;
         }
+        if(in_array('essential-email', $web_settings->allowed_email_notifications)){
+            $body .= '<p style="line-height: 2.0;">Please <strong>login</strong> to your account on ' . config('app.name') . ' and click the button below to set your transaction pin. <br> <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: margin:5px; relative;margin-bottom:50px;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">SET PIN</a><br/><br><strong>Please note that this link expires after ' .$expiry->format('jS F, Y, h:iA').'.</strong><br><br>If you did not request for a PIN set/reset, Kindly notify us via WhatsApp us via whatsapp( ' . $web_settings->whatsapp_no . ') immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
+            $this->sendEmail(auth()->user()->email, $subject, $body);
+        }
         
-        $body .= '<p style="line-height: 2.0;">Please <strong>login</strong> to your account on ' . config('app.name') . ' and click the button below to set your transaction pin. <br> <a class="btn btn-info" target="_blank" href="' . $reset_link . '" style="position: margin:5px; relative;margin-bottom:50px;color: #fff;font-weight: 500;padding: 8px 20px;font-size: 13px;line-height: 24px;letter-spacing: 0.01em;border-radius: 4px;border: 1px solid;transition: all .4s ease;background:#950eb3;text-align: center;white-space: nowrap;vertical-align: middle;text-decoration:none">SET PIN</a><br/><br><strong>Please note that this link expires after ' .$expiry->format('jS F, Y, h:iA').'.</strong><br><br>If you did not request for a PIN set/reset, Kindly notify us via WhatsApp us via whatsapp( ' . $web_settings->whatsapp_no . ') immediately.<b><hr/><br>Warm Regards. (' . config('app.name') . ')<br/></p>';
-        
-        $this->sendEmail(auth()->user()->email, $subject, $body);
 
         // \Log::info($body);
         $responseX = [

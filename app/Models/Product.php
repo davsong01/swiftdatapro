@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Discount;
 use App\Models\Variation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Product extends Model
@@ -39,6 +40,13 @@ class Product extends Model
     public function user_discount()
     {
         return $this->hasOne(Discount::class)->where('product_id', $this->id)->where('customer_level', auth()->user()->level);
+    }
+
+    protected function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => !empty($value) ? asset($value) : '',
+        );
     }
     
 }

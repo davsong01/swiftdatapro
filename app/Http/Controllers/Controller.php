@@ -236,18 +236,15 @@ class Controller extends BaseController
         }
 
         if (env('ENT') == 'local') {
-            $path = "/Applications/MAMP/htdocs/kingsvtu/public";
+            $path = "/Applications/MAMP/htdocs/swiftdata2/public";
         } else {
-            $path = '/home/swifvmvz/beta.swiftdatang.com';
+            $path = '/home/swifvmvz/public_html';
         }
-
-        // $path = public_path();
-        // 
         
         if (!is_dir($path . '/' . $location)) {
             mkdir($path . '/' . $location, 0777, true);
         }
-
+        
         return $location;
     }
 
@@ -270,13 +267,5 @@ class Controller extends BaseController
         }
 
         return $controller;
-    }
-
-    public function sendLoginEmail($user){
-        $body = 'Dear ' . $user->full_name . '<br>Your login to ' . config('app.php') . ' at ' . Carbon::now() . ' was successful<br>';
-        $body .= '<br><br>Warm Regards<br>' . config('app.name');
-        $subject = "Welcome Back!";
-
-        // $this->sendEmail($user->email, $subject, $body);
     }
 }

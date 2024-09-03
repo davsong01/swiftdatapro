@@ -102,8 +102,10 @@ class GraphicController extends Controller
         $body .= '<p><strong>Business Lines: </strong>'. $request['business_line'].'!</p>';
         $body .= '<p><strong>Business Content:</strong> '. $request['business_content'].'!</p>';
 
-        $this->sendEmail($settings->admin_notification_email, $subject, $body);
-            
+        if (in_array('graphics-registration-notification-email', $settings->allowed_email_notifications)) {
+            $this->sendEmail($settings->admin_notification_email, $subject, $body);
+        }
+        
         try {
             $format = [
                 'status' => 'success',

@@ -14,5 +14,6 @@ class WebSetting extends Model
 
     protected $casts = [
         'allowed_domain_emails_for_registration' => 'array',
+        'allowed_email_notifications' => 'array',
     ];
 }

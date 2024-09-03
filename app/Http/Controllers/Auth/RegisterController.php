@@ -99,7 +99,7 @@ class RegisterController extends Controller
      */
     public function create(array $data)
     {
-        $settings = WebSetting::select('disable_registration', 'admin_notification_email')->first();
+        $settings = WebSetting::select('disable_registration', 'admin_notification_email', 'allowed_email_notifications')->first();
         $disable_registration = $settings->disable_registration;
         
         if ($disable_registration == 'yes') {
@@ -152,9 +152,9 @@ class RegisterController extends Controller
 
         // Send verification email
         $this->sendRegistrationEmail($user);
+
         // Send Admin Notification email
         $this->sendAdminNotificationEmail($user,$settings);
-
         // UserVerify::create([
         //     'user_id' => $user->id,
         //     'token' => $user->users_sid
@@ -183,12 +183,13 @@ class RegisterController extends Controller
         $body = '<p>Hello! ' . $user->full_name . '</p>';
         $body .= '<p>Ready to take your business to the next level ?<br/> You can unlock special perks by just purchasing Data Bundles, AirtimeVTU, Cable Subscription, Billspayment e.t.c. on ' . config('app.name') . ' <br/><b>To have you fully on our platform, click the link below to activate your account</b><br/>' . $verify_link . '<br/><br/>You Are Welcome,<br/>Your Customer Support at ' . config('app.name') . '.</p>';
 
-        $this->sendEmail($user->email, $subject, $body);
+        if (in_array('essential-email', settings()->allowed_email_notifications)) {
+            $this->sendEmail($user->email, $subject, $body);
+        }
     }
 
     public function sendAdminNotificationEmail($user,$settings=null)
     {
-
         $subject = "New Registration";
         $body = 'Hello Admin, <br>New registration on ' . config('app.name') . '. Please find details below: <br><br>
           Full Name: ' . $user->full_name . ' ' . $user->middle_name . '' . $user->last_name . ' <br>
@@ -198,8 +199,10 @@ class RegisterController extends Controller
           Referral : ' . $user->ref_by . '
           ';
         
-        if(!empty($settings)){
-            $this->sendEmail($settings->admin_notification_email, $subject, $body);
+        if(in_array('admin-registration-notification-email', settings()->allowed_email_notifications)){
+            if(!empty($settings)){
+                $this->sendEmail($settings->admin_notification_email, $subject, $body);
+            }
         }
     }
 }

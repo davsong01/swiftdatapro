@@ -60,7 +60,6 @@ Route::get('/resendverification/{email}', [RegisterController::class, 'resendEma
 // For version one users
 Route::get('get-new-password/{user_id}', [LoginController::class, 'resetNewPassword'])->name('password.reset.new');
 Route::post('get-new-password', [LoginController::class, 'processResetNewPassword'])->name('process.password.reset.new');
-
 Route::get('reset-password', [LoginController::class, 'changePassword'])->name('password.reset.change');
 Route::post('reset-password', [LoginController::class, 'processChangePassword'])->name('password.reset.change.process'); // Throttle this link to once in 2 minutes
 // end version one users
