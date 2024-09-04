@@ -65,6 +65,7 @@ class Airtime2CashController extends Controller
                 "seo_description" => $request->seo_description,
                 "min" => $request->min,
                 "max" => $request->max,
+                "image" => $image ?? null,
                 "type" => 'airtime2cash',
             ]
         );
@@ -125,9 +126,9 @@ class Airtime2CashController extends Controller
                 "api_id" => $request->api,
                 "status" => $request->status,
                 "seo_description" => $request->seo_description,
-                "image" => $image ?? null,
                 "min" => $request->min,
                 "max" => $request->max,
+                "image" => $image,
             ]
         );
 

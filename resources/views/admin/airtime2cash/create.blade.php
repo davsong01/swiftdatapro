@@ -53,6 +53,10 @@
                                         </select>
                                     </div>
                                     <div class="col-md-6">
+                                        <label for="formFile" class="form-label">Product Image</label>
+                                        <input name="image" class="form-control" type="file" id="image" accept="image/*">
+                                    </div>
+                                    <div class="col-md-6">
                                         <label class="form-label" class="form-label" for="category_id">Category</label>
                                         <select class="form-control" name="category_id" id="category_id" required>
                                             <option value="{{ $category->id }}">{{ $category->display_name}}</option>

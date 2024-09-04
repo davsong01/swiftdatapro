@@ -48,6 +48,4 @@ class Product extends Model
             get: fn(?string $value) => !empty($value) ? asset($value) : ''
         );
     }
-
-    
 }

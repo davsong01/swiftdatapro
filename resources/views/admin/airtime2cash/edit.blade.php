@@ -13,7 +13,8 @@
     <div class="col-xl-12">
         <div class="card custom-card">
             <div class="card-header">
-                <h5>Edit {{$product->name}}</h5> <br>
+                <h5>Edit {{$product->name}}</h5>
+                <img src="{{ $product->image }}" alt="" style="width: 70px;">
                 @include('includes.alerts')
             </div>
             <div class="card-body">
@@ -52,6 +53,10 @@
                                             <option value="active" {{ $product->status == 'active' ? 'selected' : ''}}>Active</option>
                                             <option value="inactive" {{ $product->status == 'inactive' ? 'selected' : ''}}>InActive</option>
                                         </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="formFile" class="form-label">{{ !empty($product->image) ? 'Replace Product Image' : 'Product Image'}}</label>
+                                        <input name="image" class="form-control" type="file" id="image" accept="image/*">
                                     </div>
                                     <div class="col-md-6">
                                         <label class="form-label" class="form-label" for="category_id">Category</label>
