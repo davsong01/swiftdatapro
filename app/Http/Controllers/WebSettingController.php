@@ -48,8 +48,8 @@ class WebSettingController extends Controller
 
         $kyc_settings = !empty($contact->kyc_settings) ? json_decode($contact->kyc_settings, true) : [];
         $allowed_domains_for_registration = !empty($contact->allowed_domain_emails_for_registration) ? implode(',',json_decode($contact->allowed_domain_emails_for_registration, true)) : '';
-    
-        return view('admin.settings.contact_info', compact('contact', 'kyc_settings', 'allowed_domains_for_registration'));
+        $extra_settings = $contact->extra_settings;
+        return view('admin.settings.contact_info', compact('extra_settings','contact', 'kyc_settings', 'allowed_domains_for_registration'));
         
     }
 
@@ -59,12 +59,24 @@ class WebSettingController extends Controller
     public function update(Request $request, WebSetting $webSetting)
     {
         $contact = WebSetting::first();
+        $old_extra_settings = $contact->extra_settings['extra_settings'] ?? [];
+        $extra_settings = [];
+    
+        foreach ($request->extra_settings as $key => $value) {
+            $extra_settings[$key] = $request->extra_settings[$key] ? $request->extra_settings[$key] : $old_extra_settings[$key];
+        }
+
+        // foreach ($request->only('extra_settings')['extra_settings'] as $key => $value) {
+        //     if (!array_key_exists($key, $old_extra_settings)) {
+        //         $extra_settings[$key] = $value[$key]; 
+        //     }
+        // }
+
         $data = $request->except(['_token', '1', 'allowed_domain_emails_for_registration']);
         
         if (!empty($request->logo)) {
             $data['logo'] = $this->uploadFile($request->logo, 'site');
         }
-
         if (!empty($request->site_favicon)) {
             $data['site_favicon'] = $this->uploadFile($request->site_favicon, 'site');
         }
@@ -77,6 +89,7 @@ class WebSettingController extends Controller
             $data['kyc_settings'] = json_encode($request->kyc_settings);
         }
 
+        $data['extra_settings'] = $extra_settings;
         $data['allowed_email_notifications'] = !empty($data['allowed_email_notifications']) ? $data['allowed_email_notifications'] : [];
 
         $contact->update($data);

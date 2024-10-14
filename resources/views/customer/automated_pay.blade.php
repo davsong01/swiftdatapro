@@ -16,11 +16,11 @@
     <div class="row">
         <div class="col-md-12">
             <p style="color:black; margin-bottom:20px">Deposit/Transfer Money using any of the automated transfer payment options below.</p>
-            <p style="color:red;margin-bottom:10px"><i class="fa fa-info-circle"></i> #30 charges is incurred on transfer made to this/these bank/banks. We advise you to make use of this payment option if you are funding any amount above #3,000</p>
+            <p style="color:red;margin-bottom:10px"><i class="fa fa-info-circle"></i>{!! $extra_settings['charges_message'] ?? '' !!}</p>
         </div>
         @foreach ($accounts as $account) 
         <div class="col-md-12 alert alert-primary" style="background-color: #94079803;color:black;font-size: 15px;border-color: #940798;">           
-            <p style="color:#940798;font-weight: 500;"><strong>Ban Name: </strong>{{ $account->bank_name }}<br><strong>Account Number: </strong>{{$account['account_number']}} <br><strong>Account Name: </strong> {{$account->account_name}} 
+            <p style="color:#940798;font-weight: 500;"><strong>Bank Name: </strong>{{ $account->bank_name }}<br><strong>Account Number: </strong>{{$account['account_number']}} <br><strong>Account Name: </strong> {{$account->account_name}} 
             </p>
         </div>
         @endforeach

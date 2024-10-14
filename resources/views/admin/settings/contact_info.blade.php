@@ -160,6 +160,20 @@
                     </div>
                     @endforeach
                 </div>
+            </div>
+            <div class="card-header">
+                <h5>Extra Settings</h5> <br>
+            </div>
+            <div class="card-body">
+                <div class="row gy-4">
+                    <div class="col-md-12">
+                        <div class="form-check">
+                            <label for="charges_message"> &nbsp;Automated Payment Charges message</label>
+                            <textarea name="extra_settings[charges_message]" class="form-control" id="charges_message" cols="30" rows="3">{{ $extra_settings['charges_message'] ?? old('charges_message') }}</textarea>
+                        </div>
+                    </div>
+
+                </div>
                 <div class="row mt-2">
                     <button class="btn btn-primary">Update</button>
                 </div>

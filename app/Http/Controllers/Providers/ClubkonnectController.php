@@ -37,7 +37,7 @@ class ClubkonnectController extends Controller
         
         return $response;
     }
-
+    
     public function prepareParams(Request $request){
         $clubkonnect = WebSetting::first();
 

@@ -524,7 +524,9 @@ class HomeController extends Controller
     public function automatedTransfer(){
         $activeGateways = PaymentGateway::where('status', 'active')->pluck('id');
         $accounts = AutomatedDeposit::where(['user_id' => auth()->user()->id, 'status' => 'active'])->whereIn('payment_gateway_id', $activeGateways)->get();
-        
+        $settings = settings();
+        $extra_settings = $settings->extra_settings;
+
         if(\Request::is('mobile/*')){
             return [
                 'active_gateways' => $activeGateways,
@@ -532,7 +534,7 @@ class HomeController extends Controller
             ];
         }
 
-        return view('customer.automated_pay', compact('accounts'));
+        return view('customer.automated_pay', compact('accounts', 'extra_settings'));
     }
 
     public function depositPayment(){
