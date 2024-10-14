@@ -201,15 +201,15 @@ class MobileController extends Controller
                 'Manual Deposit/Transfer' => 'Manual Deposit/Transfer'
             ],
             'Buy Data Bundle' => [
-                'name' => 'Buy Data Bundle',
+                'name' => 'Data Bundle',
                 'slug' => 'data',
             ],
             'Buy Airtime VTU' => [
-                'name' => 'Buy Airtime VTU',
+                'name' => 'Airtime VTU',
                 'slug' => 'airtime'
             ],
             'Buy Airtime SnS' => [
-                'name' => 'Buy Airtime SnS',
+                'name' => 'Airtime SnS',
                 'slug' => 'airtime-sns'
             ],
 
@@ -225,12 +225,12 @@ class MobileController extends Controller
             ],
 
             'Buy Electricity Bills' => [
-                'name' => 'Buy Electricity Bills',
+                'name' => 'Electricity Bills',
                 'slug' => 'electricity'
             ],
 
             'Buy Result E-pins' => [
-                'name' => 'Buy Result E-pins',
+                'name' => 'Result E-pins',
                 'slug' => 'exam-epins'
             ],
 
