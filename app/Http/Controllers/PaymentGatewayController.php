@@ -476,7 +476,6 @@ class PaymentGatewayController extends Controller
         return $computedHash;
     }
 
-
     private function calculateGatewayCharge($amount, $gateway){
         $reserved_account_payment_charge_type = $gateway->reserved_account_payment_charge_type;
         $reserved_account_payment_charge = $gateway->reserved_account_payment_charge;
