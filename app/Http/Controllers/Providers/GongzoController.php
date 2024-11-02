@@ -1208,7 +1208,7 @@ class GongzoController extends Controller
                 'response' => '',
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
-           
+            dd($format);
             return $format;
 
         }

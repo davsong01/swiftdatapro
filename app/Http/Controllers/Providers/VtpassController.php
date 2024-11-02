@@ -637,9 +637,8 @@ class VtpassController extends Controller
         ];
 
         $response = $this->advancedApiCall($url, $postdata, $headers, 'POST');
-
-        $result = json_decode($response);
         
+        $result = json_decode($response);
         if (isset($result->code) && $result->code == 000 && !empty($result->content) && !empty($result->content->Customer_Name)) {
 
             if ($request['variation']->category->slug == 'electricity') {
@@ -718,8 +717,9 @@ class VtpassController extends Controller
                 );
             }
         } else {
-            $fail_response =  $fail_response = 'Validation Error: ' . $result->content->error ?? 'Unable to verify at the moment, please try again';
-
+            $error = $result->content->error ?? $result->message;
+            $fail_response =  $fail_response = 'Validation Error: ' . $error ?? 'Unable to verify at the moment, please try again';
+            
             $response = [
                 'status' => 'failed',
                 'status_code' => '100',
@@ -746,7 +746,7 @@ class VtpassController extends Controller
             'secret-key' => $secret_key,
             'public-key' => $public_key,
         ];
-       
+        
         // Save post fields
         if ($environment == 'local') {
             $url = "https://sandbox.vtpass.com/api/pay";
@@ -833,7 +833,7 @@ class VtpassController extends Controller
         }
 
         $resource = $request['resource'];
-        
+        // $d = $t+1;
         $postdata = [
             'serviceID' => $request['product']->slug,
             'billersCode' => $request['billersCode'],
@@ -845,8 +845,8 @@ class VtpassController extends Controller
             'quantity' => $request['quantity'] ?? 1,
         ];
 
-        
         $resX = $this->advancedApiCall($url, $postdata, $headers);
+        
         // dd($postdata['url'], $postdata['payload'], $headers, $resX);
         try {
             $format = $this->processApiResponse($resX);
@@ -863,10 +863,11 @@ class VtpassController extends Controller
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
             
-            $format['api_response'] = $resX;  
-            
+            $format['api_response'] = $resX;
+            return $format;
+
         }
-       
+    
         return $format;
     }
 

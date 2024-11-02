@@ -274,19 +274,21 @@ class PaymentGatewayController extends Controller
                         }
                         
                         if ($cx_trx < 1) {
-                            $cbal = walletBalance($user);
-                            $walletBal = $cbal;
-
-                            $NewBal = $walletBal + $final_amount;
-                            $order_descr = 'Wallet funding of N' . $final_amount . ' was successful';
-
-                            // Update user balance
-                            $user->wallets = $NewBal;
-                            $user->save();
+                            $user->lockForUpdate();
 
                             try {
 
                                 \DB::beginTransaction();
+
+                                $cbal = walletBalance($user);
+                                $walletBal = $cbal;
+
+                                $NewBal = $walletBal + $final_amount;
+                                $order_descr = 'Wallet funding of N' . $final_amount . ' was successful';
+
+                                // Update user balance
+                                $user->wallets = $NewBal;
+                                $user->save();
 
                                 $deposit = DepositTransaction::create([
                                     'user_id' => $user->id,
@@ -397,19 +399,21 @@ class PaymentGatewayController extends Controller
                 $cx_trx = DepositTransaction::where('user_amount', $final_amount)->where('api_ref', $api_reference)->count();
                 
                 if ($cx_trx < 1) {
-                    $cbal = walletBalance($user);
-                    $walletBal = $cbal;
-
-                    $NewBal = $walletBal + $final_amount;
-                    $order_descr = 'Wallet funding of N' . $final_amount . ' was successful';
-                    
-                    // Update user balance
-                    $user->wallets = $NewBal;
-                    $user->save();
+                    $user->lockForUpdate();
 
                     try {
 
                         \DB::beginTransaction();
+                        $cbal = walletBalance($user);
+                        $walletBal = $cbal;
+
+                        $NewBal = $walletBal + $final_amount;
+                        $order_descr = 'Wallet funding of N' . $final_amount . ' was successful';
+
+                        // Update user balance
+                        $user->wallets = $NewBal;
+                        $user->save();
+                        
                         $deposit = DepositTransaction::create([
                             'user_id' => $user->id, 
                             'user_service' => 'DEPOSIT', 

@@ -153,6 +153,8 @@ class Controller extends BaseController
         return $user;
     }
 
+   
+
     public function getDomainDetails(){
         
     }
