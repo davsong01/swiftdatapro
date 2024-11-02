@@ -111,6 +111,7 @@ class ProcessBuyTest extends TestCase
 
         // Validate the responses
         foreach ($responses as $response) {
+            dump($response);
             // Assuming each response should indicate success
             $this->assertEquals('success', $response['status']);
         }

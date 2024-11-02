@@ -165,7 +165,7 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
         Route::middleware(['transaction-pin'])->group(function () {
         // Transactions
             Route::get('buy/{service?}', [TransactionsController::class, 'initialize'])->name('buy');
-            Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy');
+            Route::post('buy/{service?}', [TransactionsController::class, 'processBuy'])->name('process.buy')->middleware('transaction.throttle');
             Route::post('customer-initialize-airtime2cash-transaction', [TransactionsController::class, 'initializeAirtime2CashTransaction'])->name('initialize.airtime2cashtransaction');
             Route::get('variations/{service?}', [TransactionsController::class, 'variations'])->name('variations');
             Route::get('discounts/{service?}', [TransactionsController::class, 'discounts'])->name('discounts');

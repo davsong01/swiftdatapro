@@ -161,6 +161,12 @@
                             <input type="time" name="transaction_restriction_settings[restrict_transactions_till]" class="form-control" id="restrict_transactions_till" value="{{ isset($contact->transaction_restriction_settings['restrict_transactions_till']) ? $contact->transaction_restriction_settings['restrict_transactions_till'] : ''}}">
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <label for="trottle_transactions_time">Transaction Throttle Interval (seconds)</label>
+                            <input type="number" name="transaction_restriction_settings[trottle_transactions_time]" class="form-control" id="trottle_transactions_time" value="{{ isset($contact->transaction_restriction_settings['trottle_transactions_time']) ? $contact->transaction_restriction_settings['trottle_transactions_time'] : ''}}">
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="card-header">

@@ -71,7 +71,7 @@ class Kernel extends HttpKernel
         'mobile' => \App\Http\Middleware\MobileMiddleware::class,
         'kyc' => \App\Http\Middleware\KycMiddleware::class,
         'transaction-pin' => \App\Http\Middleware\TransactionPinMiddleware::class,
-        
+        'transaction.throttle' => \App\Http\Middleware\ThrottleTransaction::class,
         // 'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
     ];
 }
