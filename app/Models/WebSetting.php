@@ -17,5 +17,6 @@ class WebSetting extends Model
         'allowed_domain_emails_for_registration' => 'array',
         'allowed_email_notifications' => 'array',
         'extra_settings' => 'array',
+        'transaction_restriction_settings' => 'array'
     ];
 }

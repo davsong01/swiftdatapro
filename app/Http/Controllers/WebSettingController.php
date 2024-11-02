@@ -49,8 +49,8 @@ class WebSettingController extends Controller
         $kyc_settings = !empty($contact->kyc_settings) ? json_decode($contact->kyc_settings, true) : [];
         $allowed_domains_for_registration = !empty($contact->allowed_domain_emails_for_registration) ? implode(',',json_decode($contact->allowed_domain_emails_for_registration, true)) : '';
         $extra_settings = $contact->extra_settings;
+
         return view('admin.settings.contact_info', compact('extra_settings','contact', 'kyc_settings', 'allowed_domains_for_registration'));
-        
     }
 
     /**
@@ -65,7 +65,7 @@ class WebSettingController extends Controller
         foreach ($request->extra_settings as $key => $value) {
             $extra_settings[$key] = $request->extra_settings[$key] ? $request->extra_settings[$key] : $old_extra_settings[$key];
         }
-
+        
         // foreach ($request->only('extra_settings')['extra_settings'] as $key => $value) {
         //     if (!array_key_exists($key, $old_extra_settings)) {
         //         $extra_settings[$key] = $value[$key]; 
@@ -88,8 +88,9 @@ class WebSettingController extends Controller
         if (!empty($request->kyc_settings)) {
             $data['kyc_settings'] = json_encode($request->kyc_settings);
         }
-
+        
         $data['extra_settings'] = $extra_settings;
+        $data['transaction_restriction_settings'] = $request->transaction_restriction_settings;
         $data['allowed_email_notifications'] = !empty($data['allowed_email_notifications']) ? $data['allowed_email_notifications'] : [];
 
         $contact->update($data);

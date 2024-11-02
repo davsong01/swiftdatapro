@@ -144,7 +144,25 @@
                     </div>
                 </div>
             </div>
-
+            <div class="card-header">
+                <h5>Transaction Settings</h5> <br>
+            </div>
+            <div class="card-body">
+                <div class="row gy-4">
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <label for="restrict_transactions_from"> &nbsp;Restrict Transactions From</label>
+                            <input type="time" name="transaction_restriction_settings[restrict_transactions_from]" class="form-control" id="restrict_transactions_from" value="{{isset($contact->transaction_restriction_settings['restrict_transactions_from']) ? $contact->transaction_restriction_settings['restrict_transactions_from'] : ''}}">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check">
+                            <label for="restrict_transactions_till"> &nbsp;Restrict Transactions Till</label>
+                            <input type="time" name="transaction_restriction_settings[restrict_transactions_till]" class="form-control" id="restrict_transactions_till" value="{{ isset($contact->transaction_restriction_settings['restrict_transactions_till']) ? $contact->transaction_restriction_settings['restrict_transactions_till'] : ''}}">
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="card-header">
                 <h5>Email Notification Settings</h5> <br>
             </div>

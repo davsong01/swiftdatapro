@@ -392,7 +392,7 @@ class TransactionsController extends Controller
 
             // Lock user record for updates
             $user->lockForUpdate();
-
+            
             // Initialize product and variation information
             $product_id = $request->product_id ?? $request->network_module;
             $product = Product::where('id', $product_id)->first();
@@ -1567,10 +1567,29 @@ class TransactionsController extends Controller
     }
 
     public function runChecks($request, $product, $api, $resource){
+        $response = null;
+
+        $transaction_restriction_settings = settings()->transaction_restriction_settings;
+
+        if (isset($transaction_restriction_settings['restrict_transactions_from']) && isset($transaction_restriction_settings['restrict_transactions_till'])) {
+            $restrictFrom = $transaction_restriction_settings['restrict_transactions_from'];
+            $restrictTill = $transaction_restriction_settings['restrict_transactions_till'];
+            $currentTime = date('H:i'); 
+
+            // Check if the current time falls within the restricted range
+            if ($currentTime >= $restrictFrom && $currentTime <= $restrictTill) {
+                $response = array(
+                    'status' => 'fail',
+                    'status_code' => '100',
+                    'message' => 'Transaction cannot be carried out at the moment, please try again later',
+                );
+
+            }
+        }
+
         $checkBlacklist = Blacklist::where('biller', $request->billersCode)->first();
         
         $user = auth()->user();
-        $response = null;
         
         if (!$user) {
             $response = array(
@@ -1672,7 +1691,7 @@ class TransactionsController extends Controller
             );
 
         }
-
+        
         return $response;
     }
 }
