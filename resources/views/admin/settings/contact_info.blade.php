@@ -92,6 +92,15 @@
                         </select>
                     </div>
                     <div class="col-md-6">
+                        <label for="kyc_settings" class="form-label">KYC Mode<span
+                        class="text-danger">*</span></label>
+                        <select class="form-control" name="kyc_verification_mode" id="kyc_verification_mode" required>
+                            <option value="" selected>Select</option>
+                            <option value="manual" {{ $contact->kyc_verification_mode  == 'manual' ? 'selected' : '' }}>Manual</option>
+                            <option value="auto" {{ $contact->kyc_verification_mode == 'auto' ? 'selected' : '' }}>Automated</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
                         <label for="disable_registration" class="form-label">Disable New Registration<span
                         class="text-danger">*</span></label>
                         

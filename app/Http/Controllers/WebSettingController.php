@@ -88,7 +88,7 @@ class WebSettingController extends Controller
         if (!empty($request->kyc_settings)) {
             $data['kyc_settings'] = json_encode($request->kyc_settings);
         }
-        
+
         $data['extra_settings'] = $extra_settings;
         $data['transaction_restriction_settings'] = $request->transaction_restriction_settings;
         $data['allowed_email_notifications'] = !empty($data['allowed_email_notifications']) ? $data['allowed_email_notifications'] : [];

@@ -126,7 +126,6 @@ class AirtimesnsSmsController extends Controller
         $airtel_n = $webSetting->airtel_n;
         $mobile_n = $webSetting->mobile_n;
 
-
         if ($request['network_module'] == "MTN-SNS" || $request['network_module'] == "MTN") {
             $service_code = "net01";
             $service_no = $mtn_n;

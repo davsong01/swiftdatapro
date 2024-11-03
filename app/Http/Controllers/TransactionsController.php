@@ -1117,12 +1117,6 @@ class TransactionsController extends Controller
             $service_comm = $webSetting->gdata_comm;
         }
 
-        // 'mdata_comm' => $webSetting->mdata_comm,
-        // 'mcdata_comm' => $webSetting->mcdata_comm,
-        // 'adata_comm' => $webSetting->adata_comm,
-        // 'acdata_comm' => $webSetting->acdata_comm,
-        // 'gdata_comm' => $webSetting->gdata_comm,
-        // 'modata_comm' => $webSetting->modata_comm,
         // AIRTIME COMMISSION
         if ($type == 'airtime' && ($product == "MTN-VTU" || $product == "MTN")) {
             $service_comm = $webSetting->mair_comm;
@@ -1140,25 +1134,6 @@ class TransactionsController extends Controller
             $service_comm = $webSetting->moair_comm;
         }
 
-        // //CABLE COMMISSION
-        // 'gotv_comm' => $webSetting->gotv_comm,
-        // 'dstv_comm' => $webSetting->dstv_comm,
-        // 'star_comm' => $webSetting->star_comm,
-
-        // ///E-PINS COMMSSION
-        // 'waec_comm' => $webSetting->waec_comm,
-        // 'neco_comm' => $webSetting->neco_comm,
-        // 'nabteb_comm' => $webSetting->nabteb_comm,
-
-        // //BILLS COMMSSION
-        // 'bills_comm' => $webSetting->bills_comm,
-
-        // //SMS COMMSSION
-        // 'sms_comm' => $webSetting->sms_comm,
-        // 'smile_vtu_discount' => $webSetting->smile_vtu_discount,
-        // 'smile_lock' => $webSetting->smile_lock,
-        // 'smile_vtu_lock'  =>  $webSetting->smile_vtu_lock,
-        // 'nbais_lock' =>  $webSetting->nbais_lock,
         return $service_comm;
     }
 
@@ -1691,7 +1666,7 @@ class TransactionsController extends Controller
             );
 
         }
-        
+
         return $response;
     }
 }
