@@ -46,21 +46,40 @@ class HomeController extends Controller
     public function kycForm(){
         $customer_levels = CustomerLevel::where('id', '>', auth()->user()->level)->get();
         $kyc_status = auth()->user()->kyc_status;
+        $kyc_data = auth()->user()->kyc_data;
+        
         // return view('customer.kyc_form', compact('customer_levels'));
-        return view('customer.kyc_form', compact('kyc_status'));
+        return view('customer.kyc_form', compact('kyc_status', 'kyc_data'));
     }
 
     public function kycUpdate(Request $request){
+        $settings = settings();
+        $kyc_mode = $settings->kyc_verification_mode;
+        $user = auth()->user();
 
-        auth()->user()->update([
-            'nin' => $request->nin,
-            'bvn' => $request->bvn,
+        $old_kyc_data = $user->kyc_data ?? []; // Default to empty array if $kyc_data is null
+        $new_kyc_data = [];
+
+        foreach ($request->kyc_data as $key => $value) {
+            if ($key == 'means_of_identification_document') {
+                // If value is empty, retain the old document, otherwise upload new document
+                $new_kyc_data[$key] = empty($value) ? ($old_kyc_data[$key] ?? null) : $this->uploadFile($value, 'kyc');
+            } else {
+                // If the new value is empty, retain the old value
+                $new_kyc_data[$key] = $value ?? ($old_kyc_data[$key] ?? null);
+            }
+        }
+        
+        $user->update([
+            'kyc_data' => $new_kyc_data,
         ]);
 
-        if(!empty($request->bvn) || !empty($request->nin)){
-            auth()->user()->update([
-                'kyc_status' => 1,
-            ]);
+        if(isset($kyc_mode) && $kyc_mode == 'auto'){
+            if (!empty($request->bvn) || !empty($request->nin)) {
+                $user->update([
+                    'kyc_status' => 1,
+                ]);
+            }
         }
 
         if (\Request::is('mobile/*')) {

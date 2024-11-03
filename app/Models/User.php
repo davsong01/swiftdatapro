@@ -40,6 +40,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'product_blacklist' => 'array',
+        'kyc_data' => 'array',
     ];
 
     public function customer_level(){

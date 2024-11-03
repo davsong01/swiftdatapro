@@ -15,7 +15,7 @@
 @endsection
 @section('body')
 <div class="col-xl-12">
-    <h3>Update Kyc Info</h3>
+    <h3>Kyc Info</h3>
 </div>
 <div class="col-xl-12">
     <div class="white_card card_height_100 mb_30 sales_card_wrapper">
@@ -29,37 +29,71 @@
                     anyway have access to Your Information. Thanks for choosing SwiftDataNg
                 </p>
             </div>
-            <form action="{{ route('kyc.update') }}" method="POST">
-                @if(empty(auth()->user()->bvn))
-                    <label class="label-title">Bvn</label>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="bvn"
-                            value="{{ auth()->user()->bvn ?? old('bvn') }}">
-                    </div>
-                @endif
+            <form action="{{ route('kyc.update') }}" method="POST" enctype="multipart/form-data">
+                <label class="label-title">BVN</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" 
+                        name="kyc_data[bvn]" 
+                        value="{{ (auth()->user()->kyc_status == 0 || !isset($kyc_data['bvn'])) ? old('kyc_data.bvn') : mask($kyc_data['bvn']) }}">
+                    <input type="hidden" class="form-control" 
+                        name="kyc_data[bvn]" 
+                        value="{{ isset($kyc_data['bvn']) ? $kyc_data['bvn'] : old('kyc_data.bvn') }}">
+                </div>
 
-                @if(empty(auth()->user()->nin))
-                    <label class="label-title">Nin</label>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="nin"
-                            value="{{ auth()->user()->nin ?? old('nin') }}">
-                    </div>
-                @endif
+                <label class="label-title">NIN</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" 
+                        value="{{ isset($kyc_data['nin']) && (auth()->user()->kyc_status == 0) ? old('kyc_data.nin') : mask($kyc_data['nin']) }}">
+                    <input type="hidden" class="form-control" name="kyc_data[nin]" 
+                        value="{{ isset($kyc_data['nin']) && (auth()->user()->kyc_status == 0) ? old('kyc_data.nin') : mask($kyc_data['nin']) }}">
+                </div>
 
-                @if(empty(auth()->user()->bvn) || empty(auth()->user()->nin))
+                <label class="label-title">Means of Identification Document</label>
+                <div class="input-group mb-3">
+                    <input type="file" class="form-control" name="kyc_data[means_of_identification_document]">
+                </div>
+
+
+
+                <label class="label-title">Means of Identification</label>
+                <div class="input-group mb-3" required>
+                    <select class="form-control" name="kyc_data[means_of_identification]" id="kyc_data" required>
+                        <option value="">Select</option>
+                        <option value="international_passport" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'international_passport' ? 'selected' : '' }}>International Passport</option>
+                        <option value="drivers_license" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'drivers_license' ? 'selected' : '' }}>Driver's License</option>
+                        <option value="electricity_bill" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'electricity_bill' ? 'selected' : '' }}>Electricity Bill</option>
+                        <option value="nin_slip" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'nin_slip' ? 'selected' : '' }}>NIN Slip</option>
+                        <option value="voters_card" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'voters_card' ? 'selected' : '' }}>Voter's Card</option>
+                    </select>
+                </div>
+                <label class="label-title">Means of Identification Document</label>
+                <div class="input-group mb-3">
+                    <!-- Display the current file name if there is an existing document -->
+                    @if(isset($kyc_data['means_of_identification_document']))
+                        <input type="text" class="form-control" value="{{ basename($kyc_data['means_of_identification_document']) }}" readonly>
+                    @endif
+                    <!-- Allow users to upload a new document if needed -->
+                    <input type="file" class="form-control" name="kyc_data[means_of_identification_document]">
+                    <!-- Store the existing document path in a hidden input to retain it if not updated -->
+                    @if(isset($kyc_data['means_of_identification_document']))
+                        <input type="hidden" name="kyc_data[existing_means_of_identification_document]" value="{{ $kyc_data['means_of_identification_document'] }}">
+                    @endif
+                </div>
+
+                @if(auth()->user()->kyc_status != 1)
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" value="" id="i-agree" checked required>
                         <label class="form-check-label" for="flexCheckChecked">
                             I certify that the data supplied above is correct and I consent to give this data out.
                         </label>
                     </div>
-                    <button class="btn btn-primary" style="width: 100%">UPDATE PROFILE</button>
+                    <button class="btn btn-primary" style="width: 100%">Submit</button>
 
                     <br>
                     <br>
                 @else
                     <p style="margin:top:10px;color:green"><strong><i class="fa fa-check" aria-hidden="true"></i>
-                            Account update complete</strong></p>
+                            KYC Verified!</strong></p>
                 @endif
                 @csrf
                 
@@ -73,7 +107,7 @@
         </div>
         @else   
         <div class="alert" style="background-color: #fff;">
-            <p>You have successfully updated account info, no other action is required from you.</p>
+            <p>You have successfully updated KYC info, no other action is required from you.</p>
         </div>
         @endif
     </div>
