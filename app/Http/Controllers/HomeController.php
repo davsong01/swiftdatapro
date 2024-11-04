@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\PaymentGatewayController;
+use App\Models\KycData;
 
 class HomeController extends Controller
 {
@@ -46,10 +47,8 @@ class HomeController extends Controller
     public function kycForm(){
         $customer_levels = CustomerLevel::where('id', '>', auth()->user()->level)->get();
         $kyc_status = auth()->user()->kyc_status;
-        $kyc_data = auth()->user()->kyc_data;
         
-        // return view('customer.kyc_form', compact('customer_levels'));
-        return view('customer.kyc_form', compact('kyc_status', 'kyc_data'));
+        return view('customer.kyc_form', compact('kyc_status'));
     }
 
     public function kycUpdate(Request $request){
@@ -57,21 +56,22 @@ class HomeController extends Controller
         $kyc_mode = $settings->kyc_verification_mode;
         $user = auth()->user();
 
-        $old_kyc_data = $user->kyc_data ?? []; // Default to empty array if $kyc_data is null
-        $new_kyc_data = [];
+        $kyc_data = KycData::where('user_id', auth()->user()->id)->first();
 
-        foreach ($request->kyc_data as $key => $value) {
-            if ($key == 'means_of_identification_document') {
-                // If value is empty, retain the old document, otherwise upload new document
-                $new_kyc_data[$key] = empty($value) ? ($old_kyc_data[$key] ?? null) : $this->uploadFile($value, 'kyc');
-            } else {
-                // If the new value is empty, retain the old value
-                $new_kyc_data[$key] = $value ?? ($old_kyc_data[$key] ?? null);
-            }
+        if(!empty($request->means_of_identification_document)){
+            $document = $this->uploadFile($request->means_of_identification_document, 'ukycs');
+        }else{
+            $document = auth()->user()->kycData->means_of_identification_document ?? null;
         }
-        
-        $user->update([
-            'kyc_data' => $new_kyc_data,
+
+        KycData::updateOrCreate([
+            'user_id' => auth()->user()->id,
+        ], [
+            'user_id' => auth()->user()->id,
+            'bvn' => $request->bvn ?? $kyc_data->bvn,
+            'nin' => $request->nin ?? $kyc_data->nin,
+            'means_of_identification_document' => $document,
+            'means_of_identification_type' => $request->means_of_identification_type ?? $kyc_data->means_of_identification_type
         ]);
 
         if(isset($kyc_mode) && $kyc_mode == 'auto'){
@@ -90,7 +90,7 @@ class HomeController extends Controller
             );
         }
 
-        return redirect(route('dashboard'))->with('message', 'Operation successful');
+        return back()->with('message', 'Operation successful');
     }
 
     public function dashboard()

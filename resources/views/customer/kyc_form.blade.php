@@ -29,78 +29,43 @@
                     anyway have access to Your Information. Thanks for choosing SwiftDataNg
                 </p>
             </div>
+
             <form action="{{ route('kyc.update') }}" method="POST" enctype="multipart/form-data">
                 <label class="label-title">BVN</label>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" 
-                        name="kyc_data[bvn]" 
-                        value="{{ (auth()->user()->kyc_status == 0 || !isset($kyc_data['bvn'])) ? old('kyc_data.bvn') : mask($kyc_data['bvn']) }}">
-                    <input type="hidden" class="form-control" 
-                        name="kyc_data[bvn]" 
-                        value="{{ isset($kyc_data['bvn']) ? $kyc_data['bvn'] : old('kyc_data.bvn') }}">
+                    <input type="text" class="form-control {{ isset(auth()->user()->kycData->bvn) ? 'disabled-input' : ''}}" placeholder="{{auth()->user()->kyc_status == 0 && isset(auth()->user()->kycData->bvn) ? mask(auth()->user()->kycData->bvn) : 'Enter bvn'}}" id="contract" name="bvn" value="{{ old('bvn')}}">
                 </div>
 
                 <label class="label-title">NIN</label>
                 <div class="input-group mb-3">
-                    <input type="text" id="masked-nin" readonly class="form-control pr-4" value="{{ auth()->user()->kyc_status == 0 && !empty(auth()->user()->kycData->nin) ? masked(auth()->user()->kycData->nin) : '' }}">       
-                    <input type="hidden" id="nin" value="{{ auth()->user()->kycData->nin ?? '' }}">
+                    <input type="text" class="form-control {{ isset(auth()->user()->kycData->nin) ? 'disabled-input' : ''}}" placeholder="{{auth()->user()->kyc_status == 0 && isset(auth()->user()->kycData->nin) ? mask(auth()->user()->kycData->nin) : 'Enter nin'}}" id="contract" name="nin" value="{{ old('nin')}}">
                 </div>
-
-                <div class="col-md-12">
-                    <div class="form-group">
-                        <label class="col-form-label">NIN</label>
-                        <div class="col-md-12">
-                            <div class="position-relative">
-                                <input type="text" id="masked-paystack-hashkey" readonly class="form-control pr-4" value="{{ !empty($setting->provider_payment_settings['paystack']['hash_key']) ? masked($setting->provider_payment_settings['paystack']['hash_key']) : '' }}">
-                                
-                                <input type="hidden" id="paystack-hashkey" value="{{ $setting->provider_payment_settings['paystack']['hash_key'] ?? '' }}">
-                                
-                                <span class="position-absolute copy-btn" data-target="#paystack-hashkey" style="right: 10px; top: 50%; transform: translateY(-50%); cursor:pointer">
-                                    <i class="fa fas fa-solid fa-copy"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-{{-- 
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" 
-                        value="{{ isset($kyc_data['nin']) && (auth()->user()->kyc_status == 0) ? old('kyc_data.nin') : mask($kyc_data['nin']) }}">
-                    <input type="hidden" class="form-control" name="kyc_data[nin]" 
-                        value="{{ isset($kyc_data['nin']) && (auth()->user()->kyc_status == 0) ? old('kyc_data.nin') : mask($kyc_data['nin']) }}">
-                </div> --}}
-
-                <label class="label-title">Means of Identification Document</label>
-                <div class="input-group mb-3">
-                    <input type="file" class="form-control" name="kyc_data[means_of_identification_document]">
-                </div>
-
-
 
                 <label class="label-title">Means of Identification</label>
                 <div class="input-group mb-3" required>
-                    <select class="form-control" name="kyc_data[means_of_identification]" id="kyc_data" required>
+                    <select class="form-control" name="means_of_identification_type" id="kyc_data" required>
                         <option value="">Select</option>
-                        <option value="international_passport" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'international_passport' ? 'selected' : '' }}>International Passport</option>
-                        <option value="drivers_license" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'drivers_license' ? 'selected' : '' }}>Driver's License</option>
-                        <option value="electricity_bill" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'electricity_bill' ? 'selected' : '' }}>Electricity Bill</option>
-                        <option value="nin_slip" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'nin_slip' ? 'selected' : '' }}>NIN Slip</option>
-                        <option value="voters_card" {{ isset($kyc_data['means_of_identification']) && $kyc_data['means_of_identification'] == 'voters_card' ? 'selected' : '' }}>Voter's Card</option>
+                        <option value="international_passport" {{ isset(auth()->user()->kycData->means_of_identification_type) && auth()->user()->kycData->means_of_identification_type == 'international_passport' ? 'selected' : '' }}>International Passport</option>
+                        <option value="drivers_license" {{ isset(auth()->user()->kycData->means_of_identification_type) && auth()->user()->kycData->means_of_identification_type == 'drivers_license' ? 'selected' : '' }}>Driver's License</option>
+                        <option value="electricity_bill" {{ isset(auth()->user()->kycData->means_of_identification_type) && auth()->user()->kycData->means_of_identification_type == 'electricity_bill' ? 'selected' : '' }}>Electricity Bill</option>
+                        <option value="nin_slip" {{ isset(auth()->user()->kycData->means_of_identification_type) && auth()->user()->kycData->means_of_identification_type == 'nin_slip' ? 'selected' : '' }}>NIN Slip</option>
+                        <option value="voters_card" {{ isset(auth()->user()->kycData->means_of_identification_type) && auth()->user()->kycData->means_of_identification_type == 'voters_card' ? 'selected' : '' }}>Voter's Card</option>
                     </select>
                 </div>
-                <label class="label-title">Means of Identification Document</label>
+                <label class="label-title">Means of Identification Document (JPEG, JPG Only, 1mb max)</label>
                 <div class="input-group mb-3">
-                    <!-- Display the current file name if there is an existing document -->
-                    @if(isset($kyc_data['means_of_identification_document']))
-                        <input type="text" class="form-control" value="{{ basename($kyc_data['means_of_identification_document']) }}" readonly>
-                    @endif
-                    <!-- Allow users to upload a new document if needed -->
-                    <input type="file" class="form-control" name="kyc_data[means_of_identification_document]">
-                    <!-- Store the existing document path in a hidden input to retain it if not updated -->
-                    @if(isset($kyc_data['means_of_identification_document']))
-                        <input type="hidden" name="kyc_data[existing_means_of_identification_document]" value="{{ $kyc_data['means_of_identification_document'] }}">
-                    @endif
+                    <input type="file" class="form-control" name="means_of_identification_document" accept=".jpeg, .jpg, image/jpeg" id="means_of_identification_document">
                 </div>
+
+                <script>
+                    document.getElementById('means_of_identification_document').addEventListener('change', function() {
+                        const file = this.files[0];
+                        if (file && file.size > 1024 * 1024) { 
+                            alert("File size must be less than or equal to 1 MB.");
+                            this.value = ''; 
+                        }
+                    });
+                </script>
 
                 @if(auth()->user()->kyc_status != 1)
                     <div class="form-check">
