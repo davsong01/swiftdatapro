@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\KycData;
 use App\Models\Transactions;
 use App\Models\CustomerLevel;
 use App\Models\AutomatedDeposit;
@@ -40,7 +41,6 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'product_blacklist' => 'array',
-        'kyc_data' => 'array',
     ];
 
     public function customer_level(){
@@ -68,5 +68,8 @@ class User extends Authenticatable
     //     // dd($this);
     //     return $this->hasMany(User::class)->where('ref_by', $this->username)->orWhere('ref_by', $this->ref_code);
     // } 
-    
+    public function kycData()
+    {
+        return $this->hasOne(KycData::class, 'user_id', 'id');
+    }
 }

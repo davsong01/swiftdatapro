@@ -42,11 +42,33 @@
 
                 <label class="label-title">NIN</label>
                 <div class="input-group mb-3">
+                    <input type="text" id="masked-nin" readonly class="form-control pr-4" value="{{ auth()->user()->kyc_status == 0 && !empty(auth()->user()->kycData->nin) ? masked(auth()->user()->kycData->nin) : '' }}">       
+                    <input type="hidden" id="nin" value="{{ auth()->user()->kycData->nin ?? '' }}">
+                </div>
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label class="col-form-label">NIN</label>
+                        <div class="col-md-12">
+                            <div class="position-relative">
+                                <input type="text" id="masked-paystack-hashkey" readonly class="form-control pr-4" value="{{ !empty($setting->provider_payment_settings['paystack']['hash_key']) ? masked($setting->provider_payment_settings['paystack']['hash_key']) : '' }}">
+                                
+                                <input type="hidden" id="paystack-hashkey" value="{{ $setting->provider_payment_settings['paystack']['hash_key'] ?? '' }}">
+                                
+                                <span class="position-absolute copy-btn" data-target="#paystack-hashkey" style="right: 10px; top: 50%; transform: translateY(-50%); cursor:pointer">
+                                    <i class="fa fas fa-solid fa-copy"></i>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+{{-- 
+                <div class="input-group mb-3">
                     <input type="text" class="form-control" 
                         value="{{ isset($kyc_data['nin']) && (auth()->user()->kyc_status == 0) ? old('kyc_data.nin') : mask($kyc_data['nin']) }}">
                     <input type="hidden" class="form-control" name="kyc_data[nin]" 
                         value="{{ isset($kyc_data['nin']) && (auth()->user()->kyc_status == 0) ? old('kyc_data.nin') : mask($kyc_data['nin']) }}">
-                </div>
+                </div> --}}
 
                 <label class="label-title">Means of Identification Document</label>
                 <div class="input-group mb-3">
