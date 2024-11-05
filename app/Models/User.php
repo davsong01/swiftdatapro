@@ -21,6 +21,8 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $guarded = [];
+    protected $appends = ['name'];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -72,4 +74,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(KycData::class, 'user_id', 'id');
     }
+
+    public function getNameAttribute()
+    {
+        return $this->full_name . ' ' . $this->middle_name . ' ' . $this->last_name;
+    }
+
 }

@@ -106,7 +106,13 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         
         Route::get('active-customers', [CustomerController::class, 'activeCustomers'])->name('customers.active');
         Route::get('inactive-customers', [CustomerController::class, 'inactiveCustomers'])->name('customers.inactive');
+        Route::get('pending-kyc', [CustomerController::class, 'pendingKYC'])->name('pending.kyc');
+        Route::get('view-single-pending-kyc/{id}', [CustomerController::class, 'viewPendingKYC'])->name('kyc.view');
 
+        Route::post('update-single-pending-kyc/{id}', [CustomerController::class, 'updatePendingKYC'])->name('pending.kyc.update');
+
+        Route::any('approve-kyc/{id?}', [CustomerController::class, 'approvePendingKYC'])->name('approve.kyc');
+        
         Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 
         Route::get('pull-old-variations/{product}', [VariationController::class, 'pullOldVariations'])->name('variations.old.pull');

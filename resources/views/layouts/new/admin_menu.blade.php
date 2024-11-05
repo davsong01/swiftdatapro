@@ -136,6 +136,13 @@
                     </a>
                 </li>
                 @endif
+                @if (in_array('Reserved Accounts', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('pending.kyc') }}" class="side-menu__item {{Route::is('pending.kyc') ? 'active' : '' }}">
+                        <span class="side-menu__label">Pending KYC</span>
+                    </a>
+                </li>
+                @endif
             </ul>
         </li>
 

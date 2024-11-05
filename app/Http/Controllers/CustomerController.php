@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
+use App\Models\KycData;
 use App\Services\ExcelService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -136,6 +137,70 @@ class CustomerController extends Controller
         $customer_levels = CustomerLevel::all();
 
         return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
+    }
+
+    public function pendingKYC(Request $request)
+    {
+        $title = 'Pending KYC';
+        $customers = User::whereHas('kycData')->orderby('id', 'DESC')->where('kyc_status', 0);
+        
+        if (!empty($request->email)) {
+            $customers = $customers->where('email', 'like', $request->email);
+        }
+
+        if (!empty($request->username)) {
+            $customers = $customers->where('username', 'like', $request->username);
+        }
+
+        if (!empty($request->mobile)) {
+            $customers = $customers->where('mobile', 'like', $request->mobile);
+        }
+
+        if (!empty($request->level)) {
+            $customers = $customers->where('level', $request->level);
+        }
+
+        if (!empty($request->from) && !empty($request->to)) {
+            $from = $request->from . ' 00:00:00';
+            $to = $request->to . ' 23:59:59';
+
+            $customers = $customers->whereBetween('created_at', [$from, $to]);
+        }
+        
+        $customers = $customers->paginate(20);
+        
+        return view('admin.customers.pending-kyc', compact('customers', 'title'));
+    }
+
+    public function viewPendingKYC($id){
+        $customer = User::with('kycData')->where('id', $id)->first();
+        return view('admin.customers.view-single-pending-kyc', compact('customer'));
+    }
+
+    public function updatePendingKYC(Request $request, $id){
+        $kyc = KycData::where('id', $id)->first();
+        
+        if(!empty($request->means_of_identification_document)){
+            $means_of_identification_document  = $this->uploadFile($request->means_of_identification_document, 'ukycs');
+        }else{
+            $means_of_identification_document = $kyc->means_of_identification_document;
+        }
+
+        KycData::updateOrCreate([
+            'user_id' => $kyc->user_id,
+        ], [
+            'user_id' => $kyc->user_id,
+            'bvn' => $request->bvn ?? $kyc->bvn,
+            'nin' => $request->nin ?? $kyc->nin,
+            'means_of_identification_document' => $means_of_identification_document,
+            'means_of_identification_type' => $request->means_of_identification_type ?? $kyc->means_of_identification_type
+        ]);
+    
+        return back()->with('message','Update successful');
+    }
+
+    public function approvePendingKYC(Request $request, $id=null){
+
     }
 
     public function edit($id)

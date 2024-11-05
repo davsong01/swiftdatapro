@@ -189,7 +189,12 @@ class RoleSeeder extends Seeder
             'admin.deposit.transactions',
             'view.sensitive.data',
             'pull.reserved.account.by.reference',
-            'add.manual.reserved.account'
+            'add.manual.reserved.account',
+            'pending.kyc',
+            'kyc.approve',
+            'kyc.view',
+            'approve.kyc',
+            'pending.kyc.update'
         ];
 
         // RolePermission::truncate();
