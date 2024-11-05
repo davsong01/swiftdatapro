@@ -260,12 +260,7 @@
                     <li><a href="{{ route('customer.profile') }}">My Profile</a></li>
                     <li><a href="{{ route('password.change') }}">Change Password</a></li>
                     <li><a href="{{ route('generate_api') }}">Generate API-KEY</a></li>
-                    <?php 
-                        $kyc_settings = !empty(settings()->kyc_settings) ? json_decode(settings()->kyc_settings, true) : [];  
-                    ?>
-                    @if(!empty($kyc_settings['status']) && $kyc_settings['status'] == 'yes')
                     <li><a href="{{ route('kyc.form') }}">KYC Registration</a></li>
-                    @endif
                 </ul>
             </li>
 

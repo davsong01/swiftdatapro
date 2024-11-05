@@ -192,8 +192,6 @@ class MobileController extends Controller
     }
 
     public function getMenu(){
-        $kyc_settings = !empty(settings()->kyc_settings) ? json_decode(settings()->kyc_settings, true) : [];  
-
         $menus = [
             'Dashboard' => 'Dashboard',
             'Deposit Money' => [
@@ -248,14 +246,11 @@ class MobileController extends Controller
                 'My Profile' => 'My Profile',
                 'Change Password' => 'Change Password',
                 'Generate API-KEY' => 'Generate API-KEY',
+                'KYC Registration' => 'KYC Registration',
             ],
             'Logout' => 'Logout',
         ];
-
-        if(!empty($kyc_settings['status']) && $kyc_settings['status'] == 'yes'){
-            array_push($menus['Update Settings'], 'KYC Registration');
-        }
-
+        
         return MobileResponseService::json(
             message: 'Operation Successful',
             data: $menus,
@@ -500,7 +495,7 @@ class MobileController extends Controller
             "seo_description" => $settings->seo_description,
             "logo" => asset($settings->logo),
             "site_favicon" => asset($settings->site_favicon),
-            "kyc_settings" => $settings->kyc_settings,
+            "kyc_verification_mode" => $settings->kyc_verification_mode,
             "allow_transaction_refferal_system" => $settings->allow_transaction_refferal_system,
             "enable_mode_selector" => $settings->enable_mode_selector,
             "enable_switcher" => $settings->enable_switcher,

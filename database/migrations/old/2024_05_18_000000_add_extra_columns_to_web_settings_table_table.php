@@ -30,12 +30,6 @@ return new class extends Migration
                 $table->string('logo');
             });
         }
-
-        if (!Schema::hasColumn('web_settings', 'kyc_settings')) {
-            Schema::table('web_settings', function (Blueprint $table) {
-                $table->longText('kyc_settings');
-            });
-        }
     }
 
     /**

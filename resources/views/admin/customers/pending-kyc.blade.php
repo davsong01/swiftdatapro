@@ -21,7 +21,7 @@
             </div>
             <div class="card-body">
                 <div class="col-md-12">
-                    <form action="{{ route('customers.index') }}" method="GET">
+                    <form action="{{ route('pending.kyc') }}" method="GET">
                         {{-- @csrf --}}
                         <div class="row gy-4">
                             <div class="col-md-3">

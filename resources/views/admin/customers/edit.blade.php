@@ -36,6 +36,9 @@
                         <a class="nav-link" data-bs-toggle="tab" data-bs-target="#products" href="#products" aria-selected="false" tabindex="-1" role="tab">Product Blacklisting</a>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#kyc-data" href="#kyc-data" aria-selected="false" tabindex="-1" role="tab">KYC Data</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <a class="nav-link" data-bs-toggle="tab" data-bs-target="#others" href="#others" aria-selected="false" tabindex="-1" role="tab">Other Actions</a>
                     </li>
                 </ul>
@@ -60,18 +63,7 @@
                                 <input type="text" class="form-control" name="last_name"
                                     placeholder="Last name" value="{{ $customer->last_name }}">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="bvn">BVN</label>
-                                <input type="text" class="form-control"
-                                    placeholder="BVN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->bvn : mask($customer->bvn) }}"
-                                    disabled>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label" for="nin">NIN</label>
-                                <input type="text" class="form-control"
-                                    placeholder="NIN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->nin : mask($customer->nin) }}"
-                                    disabled >
-                            </div>
+                            
                             <div class="col-md-6">
                                 <label class="form-label" for="ref_code">Ref Code</label>
                                 <input type="text" class="form-control" name="ref_code"
@@ -95,7 +87,15 @@
                                     </option>
                                 </select>
                             </div>
-                    
+                            <div class="col-md-6">
+                                <label class="form-label" for="kyc_status">KYC Status</label>
+                                <select name="kyc_status" class="form-control" id="kyc_status" required>
+                                    <option value="">Select Status</option>
+                                    <option value="0" @selected($customer->kyc_status == '0')>Inactive</option>
+                                    <option value="1" @selected($customer->kyc_status == '1')>Active
+                                    </option>
+                                </select>
+                            </div>
                             <div class="col-md-6">
                                 <label for="customerlevel">Customer Level</label>
                                 <select name="customerlevel" class="form-control" id="customerlevel" required>
@@ -254,6 +254,12 @@
                         </form>
 
                         <button type="button" data-bs-toggle="modal" data-bs-target="#kycstatus" class="btn btn-danger btn-wave">Update Kyc Status</button>
+                    </div>
+                </div>
+                
+                <div class="tab-content">
+                    <div class="tab-pane" id="kyc-data" role="tabpanel">
+                        @include('admin.customers.single-pending-kyc-form')
                     </div>
                 </div>
             </div>

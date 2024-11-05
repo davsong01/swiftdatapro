@@ -147,7 +147,8 @@ return new class extends Migration
                 'glo_guest',
                 'airtel_guest',
                 'mobile_guest',
-                'mtn_data_card_lock'
+                'mtn_data_card_lock',
+                'kyc_settings'
             ];
 
             // Remove columns if they exist

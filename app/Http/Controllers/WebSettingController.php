@@ -45,12 +45,10 @@ class WebSettingController extends Controller
     public function edit(WebSetting $webSetting)
     {
         $contact = WebSetting::first();
-
-        $kyc_settings = !empty($contact->kyc_settings) ? json_decode($contact->kyc_settings, true) : [];
         $allowed_domains_for_registration = !empty($contact->allowed_domain_emails_for_registration) ? implode(',',json_decode($contact->allowed_domain_emails_for_registration, true)) : '';
         $extra_settings = $contact->extra_settings;
 
-        return view('admin.settings.contact_info', compact('extra_settings','contact', 'kyc_settings', 'allowed_domains_for_registration'));
+        return view('admin.settings.contact_info', compact('extra_settings','contact', 'allowed_domains_for_registration'));
     }
 
     /**
@@ -85,10 +83,6 @@ class WebSettingController extends Controller
             $data['allowed_domain_emails_for_registration'] = json_encode(explode(',',$request->allowed_domain_emails_for_registration));
         }
         
-        if (!empty($request->kyc_settings)) {
-            $data['kyc_settings'] = json_encode($request->kyc_settings);
-        }
-
         $data['extra_settings'] = $extra_settings;
         $data['transaction_restriction_settings'] = $request->transaction_restriction_settings;
         $data['allowed_email_notifications'] = !empty($data['allowed_email_notifications']) ? $data['allowed_email_notifications'] : [];

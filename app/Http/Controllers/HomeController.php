@@ -80,17 +80,21 @@ class HomeController extends Controller
                     'kyc_status' => 1,
                 ]);
             }
+
+            $message = 'Operation Successful';
+        }else{
+            $message = 'Operation Successful, please be patient while an admin approves your submission';
         }
 
         if (\Request::is('mobile/*')) {
             return MobileResponseService::json(
-                message: 'Operation successful',
+                message: $message,
                 data: [],
                 status: 200
             );
         }
 
-        return back()->with('message', 'Operation successful');
+        return back()->with('message', $message);
     }
 
     public function dashboard()
@@ -482,18 +486,18 @@ class HomeController extends Controller
             "preferredBanks" => ["035", "232", "50515", "058"]
         ];
 
-        if(!empty($user->bvn)){
-            $data['bvn'] =  $user->bvn;
+        if(!empty($user->kycData->bvn)){
+            $data['bvn'] =  $user->kycData->bvn;
         }
 
-        if (!empty($user->nin)) {
-            $data['nin'] =  $user->nin;
+        if (!empty($user->kycData->nin)) {
+            $data['nin'] =  $user->kycData->nin;
         }
-        
+
         if ($payvesel->status == 'active' && $user->filter_accounts($payvesel->id)->count() < 1) {
             $account = new PaymentGatewayController();
             $accounts = $account->createPayVesselReservedAccount($payvesel, $data);
-
+            
             if (!empty($accounts) && $accounts['status'] == 'success') {
                 foreach ($accounts['accounts'] as $account) {
                     AutomatedDeposit::create([

@@ -21,9 +21,10 @@
     <div class="white_card card_height_100 mb_30 sales_card_wrapper">
         @if($kyc_status == 0)
         <div class="alert" style="background-color: #fff;">
-            <div class="row p-5">
+                @include('includes.alerts')
+            <div class="row p-3">
                 <p>
-                    Due to recent circular from the CBN, you are now required to enter your BVN or NIN in order to
+                    Due to circular from the CBN, you are now required to enter your BVN or NIN in order to
                     facilitate free flow of the virtual account process. <br>
                     Please note that this is required for you to be able to use or generate Virtual Accounts and we don't in
                     anyway have access to Your Information. Thanks for choosing SwiftDataNg

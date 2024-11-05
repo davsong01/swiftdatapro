@@ -200,7 +200,14 @@ class CustomerController extends Controller
     }
 
     public function approvePendingKYC(Request $request, $id=null){
+        $kyc = KycData::where('id', $id)->first();
+        $user = User::where('id', $kyc->user_id)->first();
+        
+        $user->update([
+            'kyc_status' => 1,
+        ]);
 
+        return redirect(route('pending.kyc'))->with('message', 'Operation Successful');
     }
 
     public function edit($id)
@@ -223,8 +230,7 @@ class CustomerController extends Controller
             "full_name" => $request->full_name,
             "middle_name" => $request->middle_name,
             "last_name" => $request->last_name,
-            // "bvn" => $request->bvn,
-            // "nin" => $request->nin,
+            "kyc_status" => $request->kyc_status,
             "ref_code" => $request->ref_code,
             "gender" => $request->gender,
             "status" => $request->status,
