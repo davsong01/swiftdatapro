@@ -10,4 +10,8 @@ class KycData extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function kyclogs(){
+        return $this->hasMany(KycLog::class, 'kyc_data_id');
+    }
 }

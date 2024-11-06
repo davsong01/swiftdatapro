@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class KycLog extends Model
 {
     use HasFactory;
+
+    protected $guarded = [];
 }

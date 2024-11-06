@@ -194,7 +194,8 @@ class RoleSeeder extends Seeder
             'kyc.approve',
             'kyc.view',
             'approve.kyc',
-            'pending.kyc.update'
+            'pending.kyc.update',
+            'decline.kyc'
         ];
 
         // RolePermission::truncate();

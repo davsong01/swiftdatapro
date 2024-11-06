@@ -204,10 +204,22 @@ class CustomerController extends Controller
     public function approvePendingKYC(Request $request, $id=null){
         $kyc = KycData::where('id', $id)->first();
         $user = User::where('id', $kyc->user_id)->first();
-        
+
+        $data = [
+            'kyc_data_id' => $kyc->id,
+            'reason' => $request->reason,
+            'kyc_status' => 1,
+            'email' => $user->email,
+            'name' => $user->name,
+        ];
+
+        $this->logKycAction($data);
+
         $user->update([
             'kyc_status' => 1,
         ]);
+
+        $this->sendkycMail($data);
 
         return redirect(route('pending.kyc'))->with('message', 'Operation Successful');
     }
@@ -224,12 +236,13 @@ class CustomerController extends Controller
             'email' => $user->email,
             'name' => $user->name,
         ];
-        dd($data);
+        
+        $this->logKycAction($data);
+
         $user->update([
             'kyc_status' => 2,
         ]);
 
-        $this->logKycAction($data);
         $this->sendkycMail($data);
 
         return redirect(route('pending.kyc'))->with('message', 'Operation Successful');
@@ -241,11 +254,46 @@ class CustomerController extends Controller
     }
     
     public function sendkycMail($data){
-        $body = "Hello {$data['name']}Sent You A Review (" . $request->rate_comment . ')<br/><br/>';
-        $body .= '<p>Kindly attend to this review.' . '<br/></p>';
-        $subject = "New Review Has Arrived";
+        $settings = settings();
+        
+        if($data['kyc_status'] == 1){
+            $subject = "Your KYC Submission Has Been Approved – Welcome to Unrestricted Access!";
+            $message = "Dear {$data['name']}, <br><br>
+                We're pleased to inform you that your KYC (Know Your Customer) submission has been successfully approved! You can now log in to your account and begin transactions without any restrictions. <br><br>
 
-        $this->sendEmail($setting->admin_email, $subject, $body);
+                We understand the importance of your security and privacy and are committed to safeguarding your information. By completing your KYC, you have added an additional layer of protection, allowing us to serve you better and ensuring a safe and seamless experience. <br><br>
+
+                Thank you for choosing {$settings->sitename} as your trusted partner. If you have any questions, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>
+
+                Best regards,<br><br>
+                {$settings->sitename}
+            ";
+        }
+
+        if ($data['kyc_status'] == 2) {
+            $subject = "KYC Submission Update – Action Required";
+            $message = "Dear {$data['name']}, <br><br>
+                Thank you for your recent KYC submission. After careful review, we regret to inform you that your submission has not been approved.";
+
+                if (!empty($data['reason'])) {
+                    $message .= "<br><br>The reason for this decision is as follows:<br><br>
+                    <strong>{$data['reason']}</strong>";
+                }
+
+            $message .= "<br><br>
+                To continue using our services, we kindly ask you to review and update your information as needed. Once updated, please resubmit your KYC documents for further review. <br><br>
+
+                We value your security and privacy and are here to support you through this process. If you have any questions or need assistance with resubmission, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>
+
+                Thank you for choosing {$settings->sitename} as your trusted partner. <br><br>
+                Best regards,<br><br>
+                {$settings->sitename}
+            ";
+        }
+        
+        $this->sendEmail($data['email'], $subject, $message);
+        
+        return;
     }
 
     public function edit($id)
@@ -285,7 +333,7 @@ class CustomerController extends Controller
             "level" => $request->customerlevel,
             "mobile" => $request->mobile,
         ]);
-
+        
         return back()->with('message', 'Update succesful');
     }
 
