@@ -20,7 +20,7 @@
                 color: '#8c9097'
             },
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         xaxis: {
             categories: ['January', 'February', 'March', 'April', 'May', 'June']
         }
@@ -59,7 +59,7 @@
                 color: '#8c9097'
             },
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         stroke: {
             width: 2
         },

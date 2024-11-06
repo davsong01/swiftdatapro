@@ -52,7 +52,7 @@ for (const [theme, config] of nanoThemes) {
         nanoPickr = new Pickr(Object.assign({
             el,
             theme,
-            default: '#845adf'
+            default: '#a814cadb'
         }, config));
 
         /* Set events */

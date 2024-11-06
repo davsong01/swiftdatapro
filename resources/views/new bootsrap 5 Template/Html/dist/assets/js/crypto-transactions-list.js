@@ -39,7 +39,7 @@
     dataLabels: {
       enabled: false,
     },
-    colors: ["#845adf", "#28d193", "#ffbe14", "#23b7e5"],
+    colors: ["#a814cadb", "#28d193", "#ffbe14", "#23b7e5"],
     stroke: {
       show: true,
       colors: ["transparent"],

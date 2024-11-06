@@ -8,7 +8,7 @@
             height: 300,
             type: 'pie',
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
         labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
         legend: {
             position: "bottom"
@@ -32,7 +32,7 @@
         legend: {
             position: 'bottom'
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
         dataLabels: {
             dropShadow: {
                 enabled: false
@@ -52,7 +52,7 @@
         dataLabels: {
             enabled: false
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"],
         legend: {
             position: 'bottom',
         }
@@ -101,7 +101,7 @@
         theme: {
             monochrome: {
                 enabled: true,
-                color: "#845adf",
+                color: "#a814cadb",
             }
         },
         plotOptions: {
@@ -160,7 +160,7 @@
                 return val + " - " + opts.w.globals.series[opts.seriesIndex]
             }
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
         title: {
             text: 'Gradient Donut with custom Start-angle',
             align: 'left',
@@ -208,7 +208,7 @@
                 }
             }
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"],
         labels: ["Comedy", "Action", "SciFi", "Drama", "Horror"],
         dataLabels: {
             enabled: true,

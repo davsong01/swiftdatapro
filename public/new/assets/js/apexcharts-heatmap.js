@@ -89,7 +89,7 @@
         dataLabels: {
             enabled: false
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -252,7 +252,7 @@
         }
     ]
     data.reverse()
-    var colors = ["#845adf", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794', '#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29']
+    var colors = ["#a814cadb", "#F27036", "#663F59", "#6A6E94", "#4E88B4", "#00A7C6", "#18D8D8", '#A9D794', '#46AF78', '#A93F55', '#8C5E58', '#2176FF', '#33A1FD', '#7A918D', '#BAFF29']
     colors.reverse()
     var options = {
         series: data,
@@ -404,7 +404,7 @@
                         from: -30,
                         to: 5,
                         name: 'low',
-                        color: '#845adf'
+                        color: '#a814cadb'
                     },
                     {
                         from: 6,
@@ -553,7 +553,7 @@
                     ranges: [{
                         from: 0,
                         to: 50,
-                        color: '#845adf'
+                        color: '#a814cadb'
                     },
                     {
                         from: 51,

@@ -37,7 +37,7 @@
                 color: '#8c9097'
             },
         },
-        colors: ['#845adf'],
+        colors: ['#a814cadb'],
         xaxis: {
             type: 'datetime',
             labels: {
@@ -82,7 +82,7 @@
             height: 320,
             type: 'area'
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         dataLabels: {
             enabled: false
         },
@@ -354,7 +354,7 @@
                 show: false
             }
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         fill: {
             opacity: 0.5
         },
@@ -415,7 +415,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ['#845adf'],
+        colors: ['#a814cadb'],
         stroke: {
             width: 0,
             curve: 'smooth'
@@ -563,7 +563,7 @@
                 }
             },
         },
-        colors: ['#845adf', '#23b7e5', '#e6eaeb'],
+        colors: ['#a814cadb', '#23b7e5', '#e6eaeb'],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -639,7 +639,7 @@
         markers: {
             size: 0,
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         fill: {
             type: 'gradient',
             gradient: {
@@ -850,7 +850,7 @@
                 color: '#8c9097'
             },
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -1182,7 +1182,7 @@
                 autoScaleYaxis: true
             }
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         annotations: {
             yaxis: [{
                 y: 30,

@@ -41,7 +41,8 @@ class RoleSeeder extends Seeder
             'Transactions',
             'Credit Customer',
             'Debit Customer',
-            'Deposit Transactions'
+            'Deposit Transactions',
+            
         ];
 
         $permissions = [
@@ -195,7 +196,8 @@ class RoleSeeder extends Seeder
             'kyc.view',
             'approve.kyc',
             'pending.kyc.update',
-            'decline.kyc'
+            'decline.kyc',
+            're-query-transaction'
         ];
 
         // RolePermission::truncate();

@@ -15,7 +15,7 @@ var options = {
       top: 3,
       right: 6,
       blur: 3,
-      color: '#845adf',
+      color: '#a814cadb',
       opacity: 0.3
     },
     type: 'line',
@@ -37,7 +37,7 @@ var options = {
       show: false
     }
   },
-  colors: ['#845adf'],
+  colors: ['#a814cadb'],
   stroke: {
     width: [1.5],
     curve: ['smooth'],
@@ -398,7 +398,7 @@ var options = {
       format: 'dd MMM yyyy'
     }
   },
-  colors: ["#845adf"],
+  colors: ["#a814cadb"],
   stroke: {
     width: [1.5],
   },

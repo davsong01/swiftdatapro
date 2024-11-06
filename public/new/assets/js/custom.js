@@ -91,7 +91,7 @@
           {
             el,
             theme,
-            default: "#845adf",
+            default: "#a814cadb",
           },
           config
         )
@@ -173,7 +173,7 @@
           {
             el,
             theme,
-            default: "#845adf",
+            default: "#a814cadb",
           },
           config
         )

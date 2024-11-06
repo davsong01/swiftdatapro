@@ -8,7 +8,7 @@
             height: 300,
             type: 'radialBar',
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         plotOptions: {
             radialBar: {
                 hollow: {
@@ -48,7 +48,7 @@
                 }
             }
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#e6533c"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c"],
         labels: ['Apples', 'Oranges', 'Bananas', 'Berries'],
     };
     var chart = new ApexCharts(document.querySelector("#radialbar-multiple"), options);
@@ -82,7 +82,7 @@
                 }
             }
         },
-        colors: ['#845adf', '#23b7e5', '#f5b849', '#e6533c'],
+        colors: ['#a814cadb', '#23b7e5', '#f5b849', '#e6533c'],
         labels: ['Vimeo', 'Messenger', 'Facebook', 'LinkedIn'],
         legend: {
             show: true,
@@ -205,7 +205,7 @@
             type: 'radialBar',
             offsetY: -10
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         plotOptions: {
             radialBar: {
                 startAngle: -135,
@@ -329,7 +329,7 @@
                 }
             }
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         grid: {
             padding: {
                 top: -10

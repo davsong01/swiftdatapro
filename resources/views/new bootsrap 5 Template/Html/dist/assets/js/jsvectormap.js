@@ -203,7 +203,7 @@
             initial: {
                 stroke: "#e9e9e9",
                 strokeWidth: .15,
-                fill: "#845adf",
+                fill: "#a814cadb",
                 fillOpacity: 1
             }
         },

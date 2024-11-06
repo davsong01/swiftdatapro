@@ -1677,4 +1677,27 @@ class TransactionsController extends Controller
 
         return $response;
     }
+
+
+    public function requery(Transactions $transaction)
+    {
+        if (!$transaction) return ['status' => 'failed', 'message' => 'Transaction not found!'];
+
+        if ($transaction->charge_from == 'DEPOSIT') {
+            if ($transaction->wallet_funding_provider == 1) {
+                $monnify = new MonnifyController($transaction->provider);
+                return $monnify->verifyTransaction($transaction->transaction_reference);
+            }
+
+            if ($transaction->wallet_funding_provider == 2) {
+                $squad = new SquadController($transaction->provider);
+                return $squad->verifyTransaction($transaction->transaction_reference);
+            }
+        } else {
+            $api = $transaction->api;
+        }
+
+        $query = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->requery($transaction);
+        return response()->json($query);
+    }
 }

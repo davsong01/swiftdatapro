@@ -49,7 +49,7 @@
                 horizontal: true
             }
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         xaxis: {
             type: 'datetime',
             labels: {
@@ -88,7 +88,7 @@
                             new Date('2019-02-27').getTime(),
                             new Date('2019-03-04').getTime()
                         ],
-                        fillColor: '#845adf'
+                        fillColor: '#a814cadb'
                     },
                     {
                         x: 'Design',
@@ -247,7 +247,7 @@
                 return diff + (diff > 1 ? ' days' : ' day')
             }
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -435,7 +435,7 @@
                 barHeight: '80%'
             }
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         xaxis: {
             type: 'datetime',
             labels: {
@@ -670,7 +670,7 @@
             }
         },
         colors: [
-            "#845adf", "#23b7e5", "#f5b849", "#e6533c", "#5b67c7",
+            "#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#5b67c7",
             "#3F51B5", "#546E7A", "#D4526E", "#8D5B4C", "#F86624",
             "#D7263D", "#1B998B", "#2E294E", "#F46036", "#E2C044"
         ],

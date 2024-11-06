@@ -17,7 +17,7 @@
         legend: {
             position: 'bottom'
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c", "#26bf94", "#a65e76", "#49b6f5", "#5b67c7"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c", "#26bf94", "#a65e76", "#49b6f5", "#5b67c7"],
         responsive: [{
             breakpoint: 480,
             options: {
@@ -69,7 +69,7 @@
                 enabled: true,
                 shadeTo: 'light',
                 shadeIntensity: 0.6,
-                color: "#845adf",
+                color: "#a814cadb",
             }
         }
     };

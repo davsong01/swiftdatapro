@@ -68,7 +68,7 @@
         title: {
             text: 'New York Temperature (all year round)'
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         markers: {
             hover: {
                 sizeOffset: 5
@@ -270,7 +270,7 @@
                 speed: 500
             }
         },
-        colors: ['#845adf', '#23b7e5', '#845adf', '#23b7e5'],
+        colors: ['#a814cadb', '#23b7e5', '#a814cadb', '#23b7e5'],
         dataLabels: {
             enabled: false
         },

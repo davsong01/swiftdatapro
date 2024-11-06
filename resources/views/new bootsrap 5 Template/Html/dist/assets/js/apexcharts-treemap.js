@@ -68,7 +68,7 @@
             height: 350,
             type: 'treemap'
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         title: {
             text: 'Basic Treemap',
             align: 'left',
@@ -132,7 +132,7 @@
                 ]
             }
         ],
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         legend: {
             show: false
         },
@@ -230,7 +230,7 @@
             },
         },
         colors: [
-            '#845adf',
+            '#a814cadb',
             '#a65e76',
             '#f5b849',
             '#a66a5e',
@@ -349,7 +349,7 @@
                         {
                             from: -6,
                             to: 0,
-                            color: '#845adf'
+                            color: '#a814cadb'
                         },
                         {
                             from: 0.001,

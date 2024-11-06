@@ -35,7 +35,7 @@
             enabled: true,
             enabledOnSeries: [1]
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         labels: ['01 Jan 2001', '02 Jan 2001', '03 Jan 2001', '04 Jan 2001', '05 Jan 2001', '06 Jan 2001', '07 Jan 2001', '08 Jan 2001', '09 Jan 2001', '10 Jan 2001', '11 Jan 2001', '12 Jan 2001'],
         xaxis: {
             type: 'datetime',
@@ -117,7 +117,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         xaxis: {
             categories: [2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016],
             labels: {
@@ -137,17 +137,17 @@
                 },
                 axisBorder: {
                     show: true,
-                    color: '#845adf'
+                    color: '#a814cadb'
                 },
                 labels: {
                     style: {
-                        colors: '#845adf',
+                        colors: '#a814cadb',
                     }
                 },
                 title: {
                     text: "Income (thousand crores)",
                     style: {
-                        color: '#845adf',
+                        color: '#a814cadb',
                     }
                 },
                 tooltip: {
@@ -233,7 +233,7 @@
         stroke: {
             curve: 'smooth'
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -338,7 +338,7 @@
                 columnWidth: '50%'
             }
         },
-        colors: ["#845adf","#23b7e5","#f5b849"],
+        colors: ["#a814cadb","#23b7e5","#f5b849"],
         grid: {
             borderColor: '#f2f5f7',
         },

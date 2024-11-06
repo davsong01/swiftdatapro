@@ -16,7 +16,7 @@
                 horizontal: true,
             }
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -74,7 +74,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         dataLabels: {
             enabled: true,
             offsetX: -6,
@@ -151,7 +151,7 @@
             width: 1,
             colors: ['#fff']
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -243,7 +243,7 @@
             width: 1,
             colors: ['#fff']
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"],
         grid: {
             borderColor: '#f2f5f7',
         },
@@ -332,7 +332,7 @@
             width: 1,
             colors: ["#fff"]
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         grid: {
             xaxis: {
                 lines: {
@@ -591,7 +591,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         plotOptions: {
             bar: {
                 horizontal: true,
@@ -657,7 +657,7 @@
                 },
             }
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5", "#a65e76", "#5b67c7", "#a65e9a",
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5", "#a65e76", "#5b67c7", "#a65e9a",
             "#26bf94", "#23b7e5"
         ],
         grid: {
@@ -768,7 +768,7 @@
         stroke: {
             width: 2,
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5"],
         title: {
             text: 'Compare Sales Strategy',
             style: {

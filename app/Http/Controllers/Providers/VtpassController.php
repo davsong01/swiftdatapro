@@ -926,4 +926,97 @@ class VtpassController extends Controller
         
         return $formatted;
     }
+
+    public function requery($transaction)
+    {
+        $api = $transaction->api;
+        $request_id = $transaction->sys_ref;
+        
+        try {
+            $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+            $url = $url . "requery";
+
+            $headers = [
+                'api-key: ' . $api->api_key,
+                'public-key: ' . $api->public_key,
+                'secret-key: ' . $api->secret_key,
+            ];
+
+            $payload = [
+                'request_id' => $request_id,
+                'url' => $url
+            ];
+
+            $response = $this->advancedApiCall($url, $payload, $headers);
+            
+            $format = $this->processApiResponse($response);
+            $format['api_response'] = $response;
+            
+            return $format;
+
+        }catch (\Throwable $th) {
+            $format = [
+                'api_response' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
+                'status' => 'attention-required',
+                'response' => '',
+                'error' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
+            ];
+
+            $format['api_response'] = $response;
+            return $format;
+        }
+    }
+
+    public function balance($api, $no_format = null)
+    {
+        try {
+            $url = env('ENV') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+            $url = $url . "balance";
+
+            $headers = [
+                'api-key: ' . $api->api_key,
+                'public-key: ' . $api->public_key,
+                'secret-key: ' . $api->secret_key,
+            ];
+
+            $response = $this->basicApiCall($url, [], $headers, 'GET');
+
+            if (isset($response['code']) && $response['code'] == 1 && !empty($response['contents'])) {
+                $result = $response;
+                $balance = '#' . number_format($response['contents']['balance'], 2);
+                $status = 'success';
+                $status_code = 1;
+
+                $api->update([
+                    'balance' => $response['contents']['balance'],
+                ]);
+            } else {
+                $status = 'failed';
+                $status_code = 0;
+                $balance = null;
+            }
+
+            $format = [
+                'status' => $status,
+                'balance' => $balance,
+                'status_code' => $status_code,
+            ];
+        } catch (\Throwable $th) {
+            $format = [
+                'status' => 'failed',
+                'status_code' => 0,
+                'balance' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
+            ];
+        }
+
+        if (isset($no_format)) {
+            $format = [
+                'status' => $status,
+                'balance' => $response['contents']['balance'] ?? null,
+                'status_code' => $status_code,
+            ];
+        }
+
+        return $format;
+    }
 }

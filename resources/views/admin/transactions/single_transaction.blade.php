@@ -37,6 +37,7 @@
         border-radius: 4px;
         box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
         margin-top: 10px;
+        display: none;
     }
 </style>
 @endsection
@@ -112,7 +113,6 @@
                     <div class="row">
                         <div class="col-md-3">
                             <strong class="heads">Wallet Trail:</strong> <br>
-
                             <span style="color:red"><strong>WALLET BEFORE :</strong>{!! settings()->currency. number_format($transaction->buyer_prebal, 2) !!} <br>
                             </span>
                             <span style="color:green"><strong>WALLET AFTER : </strong>{!! settings()->currency. number_format($transaction->buyer_postbal, 2) !!}
@@ -246,6 +246,23 @@
                         </div>
                     </div>
                     <hr>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="well">
+                                <address>
+                                    <img src="{{url('/')}}/site/loading.gif" height="70" style="display:none; margin-left: auto; margin-right:auto;height:initial;" id="img_loading">
+                                    <div><span id="qw_status"></span></div>
+                                    <div id="q_res" style="max-height:300px;overflow:scroll;word-wrap: break-word">
+                                    </div>
+                                </address>
+                            </div>
+                            {{-- <button id="qw_credit" class="btn btn-success btn-sm" style="color:#fff;"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q32 0 62-6t58-17l60 61q-41 20-86 31t-94 11Zm280-80v-120H640v-80h120v-120h80v120h120v80H840v120h-80ZM424-296 254-466l56-56 114 114 400-401 56 56-456 457Z"/></svg> Query Credit</button> --}}
+
+                            {{-- <button id="qw_debit" class="btn btn-danger btn-sm" style="color:#fff;"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-440v-80h560v80H200Z"/></svg> Query Debit</button> --}}
+                            
+                            <a id="qw-transaction" onclick="queryStatus()" class="btn btn-dark btn-sm" style="color:#fff;">Re Query Transaction</a>
+                            <a id="reverse-to-wallet" onclick="return confirm('Are you sure you want to delete forever?');reverseToWallets('{{$transaction->id}}')" data-id="{{$transaction->id}}" class="btn btn-info btn-sm" style="color:#fff;">Reverse To Wallet</a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -273,5 +290,29 @@
         var html = myEditor.children[0].innerHTML;
         $('#content').val(html);
     });
+</script>
+<script>
+    function queryStatus(e){
+        url = "{{ route('re-query-transaction', $transaction->id) }}";
+		$.ajax({
+			url : url,
+			type : 'GET',
+			beforeSend: function (){
+				$('#q_res').hide();
+				$('#img_loading').show();
+                $('.well').show();
+				$('#img_loading2').show();
+				$('#qw_status').html('Processing....');
+			},
+			success:function (data) {
+                $('#qw_status').html('<strong style="color:' + (data.status === 'success' ? 'green' : 'red') + ';">' + data.response + '</strong>');
+				$('#img_loading').hide();
+				
+				$('#q_res').show();
+				$('#q_res').html('<strong>Provider Response</strong><br>'+data.api_response);
+
+			}
+		});
+	}
 </script>
 @endsection

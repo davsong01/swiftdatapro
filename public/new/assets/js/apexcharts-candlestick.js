@@ -262,7 +262,7 @@
         plotOptions: {
             candlestick: {
                 colors: {
-                    upward: '#845adf',
+                    upward: '#a814cadb',
                     downward: '#23b7e5'
                 }
             }
@@ -323,7 +323,7 @@
         plotOptions: {
             candlestick: {
                 colors: {
-                    upward: '#845adf',
+                    upward: '#a814cadb',
                     downward: '#23b7e5'
                 }
             }
@@ -726,7 +726,7 @@
         plotOptions: {
             candlestick: {
                 colors: {
-                    upward: '#845adf',
+                    upward: '#a814cadb',
                     downward: '#23b7e5'
                 }
             }
@@ -1066,7 +1066,7 @@
         plotOptions: {
             candlestick: {
                 colors: {
-                    upward: '#845adf',
+                    upward: '#a814cadb',
                     downward: '#23b7e5'
                 }
             }

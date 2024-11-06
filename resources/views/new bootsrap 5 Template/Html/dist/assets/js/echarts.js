@@ -51,7 +51,7 @@
                 type: 'line'
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -103,7 +103,7 @@
                 smooth: true
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -156,7 +156,7 @@
                 areaStyle: {}
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -248,7 +248,7 @@
                 data: [820, 932, 901, 934, 1290, 1330, 1320]
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -374,7 +374,7 @@
                 data: [820, 932, 901, 934, 1290, 1330, 1320]
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -453,7 +453,7 @@
                 data: [450, 432, 401, 454, 590, 530, 510]
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#49b6f5", "#e6533c"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -504,7 +504,7 @@
                 type: 'bar'
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -559,7 +559,7 @@
                 }
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -623,7 +623,7 @@
                 type: 'bar'
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -707,7 +707,7 @@
                 data: [2900, 1200, 300, 200, 900, 300]
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -801,7 +801,7 @@
                 ]
             }
         ],
-        color: "#845adf"
+        color: "#a814cadb"
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1006,7 +1006,7 @@
                 data: [98, 77, 101, 99, 40]
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#e6533c"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1075,7 +1075,7 @@
                 data: [19325, 23438, 31000, 121594, 134141, 681807]
             }
         ],
-        color: ["#845adf", "#23b7e5"]
+        color: ["#a814cadb", "#23b7e5"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1195,7 +1195,7 @@
                 data: [820, 832, 901, 934, 1290, 1330, 1320]
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1242,7 +1242,7 @@
                 }
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1297,7 +1297,7 @@
                 ]
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1370,7 +1370,7 @@
                 type: 'scatter'
             }
         ],
-        color: ["#845adf"]
+        color: ["#a814cadb"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1597,9 +1597,9 @@
                 ],
                 itemStyle: {
                     normal: {
-                        color: "#845adf",
+                        color: "#a814cadb",
                         color0: "#23b7e5",
-                        borderColor: "#845adf",
+                        borderColor: "#a814cadb",
                         borderColor0: "#23b7e5",
                     }
                 }
@@ -1654,7 +1654,7 @@
                 ]
             }
         ],
-        color: ["#845adf", "#23b7e5"]
+        color: ["#a814cadb", "#23b7e5"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1766,7 +1766,7 @@
                 ]
             }
         ],
-        color: ["#845adf", "#23b7e5"]
+        color: ["#a814cadb", "#23b7e5"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1842,7 +1842,7 @@
                 ]
             }
         ],
-        color: ["#845adf", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
+        color: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c", "#49b6f5"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1880,7 +1880,7 @@
                 ]
             }
         ],
-        color: ["#845adf"]
+        color: ["#a814cadb"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -1982,7 +1982,7 @@
                 }
             }
         ],
-        color:["#845adf"]
+        color:["#a814cadb"]
     };
     if (option && typeof option === 'object') {
         myChart.setOption(option);
@@ -2132,7 +2132,7 @@
                     ]
                 }
             ],
-            color: ["#845adf", "#23b7e5"]
+            color: ["#a814cadb", "#23b7e5"]
         };
     }
     const options = [

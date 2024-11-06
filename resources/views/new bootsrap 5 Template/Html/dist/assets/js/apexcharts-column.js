@@ -30,7 +30,7 @@
         dataLabels: {
             enabled: false
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         stroke: {
             show: true,
             width: 2,
@@ -111,7 +111,7 @@
                 colors: ["#8c9097"]
             }
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         xaxis: {
             categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             position: 'top',
@@ -203,7 +203,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849", "#e6533c"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849", "#e6533c"],
         responsive: [{
             breakpoint: 480,
             options: {
@@ -287,7 +287,7 @@
                 }
             }
         }],
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         xaxis: {
             categories: ['2011 Q1', '2011 Q2', '2011 Q3', '2011 Q4', '2012 Q1', '2012 Q2',
                 '2012 Q3', '2012 Q4'
@@ -517,7 +517,7 @@
         dataLabels: {
             enabled: false
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         stroke: {
             width: 2
         },
@@ -605,7 +605,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         dataLabels: {
             enabled: false,
         },
@@ -693,7 +693,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ["#845adf", "#23b7e5"],
+        colors: ["#a814cadb", "#23b7e5"],
         plotOptions: {
             bar: {
                 horizontal: false
@@ -742,7 +742,7 @@
             show: false
         }
     }
-    var colors = ['#845adf', '#23b7e5', '#f5b849', '#49b6f5', '#e6533c', '#26bf94', '#5b67c7'];
+    var colors = ['#a814cadb', '#23b7e5', '#f5b849', '#49b6f5', '#e6533c', '#26bf94', '#5b67c7'];
     function shuffleArray(array) {
         for (var i = array.length - 1; i > 0; i--) {
             var j = Math.floor(Math.random() * (i + 1));
@@ -1151,7 +1151,7 @@
                 }
             }
         },
-        colors: ['#845adf', '#23b7e5', '#f5b849', '#49b6f5', '#e6533c', '#26bf94', '#5b67c7', '#a65e76'],
+        colors: ['#a814cadb', '#23b7e5', '#f5b849', '#49b6f5', '#e6533c', '#26bf94', '#5b67c7', '#a65e76'],
         plotOptions: {
             bar: {
                 columnWidth: '45%',

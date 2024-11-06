@@ -14,7 +14,7 @@
                 enabled: false
             }
         },
-        colors: ['#845adf'],
+        colors: ['#a814cadb'],
         dataLabels: {
             enabled: false
         },
@@ -88,7 +88,7 @@
                 show: false
             }
         },
-        colors: ['#845adf', '#23b7e5'],
+        colors: ['#a814cadb', '#23b7e5'],
         dataLabels: {
             enabled: true,
         },
@@ -217,7 +217,7 @@
         grid: {
             borderColor: '#f2f5f7',
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         yaxis: {
             labels: {
                 formatter: function (val) {
@@ -269,7 +269,7 @@
         series: [{
             data: series.monthDataSeries2.prices
         }],
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         chart: {
             height: 320,
             type: 'line',
@@ -426,7 +426,7 @@
         dataLabels: {
             enabled: false
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         title: {
             text: 'Stepline Chart',
             align: 'left'
@@ -511,7 +511,7 @@
             type: 'gradient',
             gradient: {
                 shade: 'dark',
-                gradientToColors: ['#845adf'],
+                gradientToColors: ['#a814cadb'],
                 shadeIntensity: 1,
                 type: 'horizontal',
                 opacityFrom: 1,
@@ -565,7 +565,7 @@
             width: [3, 3, 2],
             curve: 'straight'
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
         title: {
             text: 'Missing data (null values)',
@@ -679,7 +679,7 @@
             type: 'line',
             height: 160
         },
-        colors: ['#845adf'],
+        colors: ['#a814cadb'],
         stroke: {
             curve: 'straight',
             width: 3,
@@ -840,7 +840,7 @@
             curve: 'straight',
             dashArray: [0, 8, 5]
         },
-        colors: ["#845adf", "#23b7e5", "#f5b849"],
+        colors: ["#a814cadb", "#23b7e5", "#f5b849"],
         title: {
             text: 'Page Statistics',
             align: 'left',
@@ -984,7 +984,7 @@
         dataLabels: {
             enabled: false
         },
-        colors: ["#845adf"],
+        colors: ["#a814cadb"],
         stroke: {
             curve: 'smooth',
             width: 3,
@@ -1073,7 +1073,7 @@
                 show: false
             }
         },
-        colors: ['#845adf'],
+        colors: ['#a814cadb'],
         stroke: {
             width: 3
         },
