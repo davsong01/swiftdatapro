@@ -97,7 +97,11 @@
                                 </td>
                                 <td>
                                     <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
-                                    <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
+                                    <strong>KYC Status: </strong>
+                                    <span style="color: {{ $customer->kyc_status == 1 ? 'green' : ($customer->kyc_status == 0 ? '#FFBF00' : 'red') }}">
+                                        {{ $customer->kyc_status == 1 ? 'Active' : ($customer->kyc_status == 0 ? 'Inactive' : 'Declined') }}
+                                    </span>
+
                                 </td>
                                 <td>{{ $customer->customer_level->name ?? 'N/A' }}</td>
                                 <td>

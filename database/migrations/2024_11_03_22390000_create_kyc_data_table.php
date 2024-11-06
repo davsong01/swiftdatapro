@@ -15,17 +15,19 @@ return new class extends Migration
      */
     public function up(): void
     {        
-        Schema::create('kyc_data', function (Blueprint $table) {
-            $table->id();
-            $table->string('user_id');
-            $table->string('bvn')->nullable();
-            $table->text('bvn_data')->nullable();
-            $table->string('nin')->nullable();
-            $table->string('means_of_identification_type')->nullable();
-            $table->string('means_of_identification_document')->nullable();
-                        
-            $table->timestamps();
-        });
+        if(!Schema::hasTable('kyc_data')){
+            Schema::create('kyc_data', function (Blueprint $table) {
+                $table->id();
+                $table->string('user_id');
+                $table->string('bvn')->nullable();
+                $table->text('bvn_data')->nullable();
+                $table->string('nin')->nullable();
+                $table->string('means_of_identification_type')->nullable();
+                $table->string('means_of_identification_document')->nullable();
+                            
+                $table->timestamps();
+            });
+        }
     }
 
     /**

@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\KycData;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
-use App\Models\KycData;
 use App\Services\ExcelService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
 
 class CustomerController extends Controller
 {
@@ -142,7 +144,7 @@ class CustomerController extends Controller
     public function pendingKYC(Request $request)
     {
         $title = 'Pending KYC';
-        $customers = User::whereHas('kycData')->orderby('id', 'DESC')->where('kyc_status', 0);
+        $customers = User::whereHas('kycData')->orderby('id', 'DESC')->whereIn('kyc_status', [0,2]);
         
         if (!empty($request->email)) {
             $customers = $customers->where('email', 'like', $request->email);
@@ -210,6 +212,42 @@ class CustomerController extends Controller
         return redirect(route('pending.kyc'))->with('message', 'Operation Successful');
     }
 
+    public function declinePendingKYC(Request $request, $id = null)
+    {
+        $kyc = KycData::where('id', $id)->first();
+        $user = User::where('id', $kyc->user_id)->first();
+
+        $data = [
+            'kyc_data_id' => $kyc->id,
+            'reason' => $request->reason,
+            'kyc_status' => 2,
+            'email' => $user->email,
+            'name' => $user->name,
+        ];
+        dd($data);
+        $user->update([
+            'kyc_status' => 2,
+        ]);
+
+        $this->logKycAction($data);
+        $this->sendkycMail($data);
+
+        return redirect(route('pending.kyc'))->with('message', 'Operation Successful');
+    }
+
+    public function logKycAction($data){
+        $log = new KycLogController();
+        return $log->logKycAction($data);
+    }
+    
+    public function sendkycMail($data){
+        $body = "Hello {$data['name']}Sent You A Review (" . $request->rate_comment . ')<br/><br/>';
+        $body .= '<p>Kindly attend to this review.' . '<br/></p>';
+        $subject = "New Review Has Arrived";
+
+        $this->sendEmail($setting->admin_email, $subject, $body);
+    }
+
     public function edit($id)
     {
         $customer = User::with('automated_accounts', 'transactions')->where('id', $id)->first();
@@ -224,8 +262,18 @@ class CustomerController extends Controller
     }
 
     public function updateCustomerAccount(Request $request, $user){
+        $validator =  Validator::make($request->all(), [
+            'email' => 'required|email|unique:users,email,'.$user,
+            'mobile' => 'required|unique:users,mobile,'.$user,
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput($request->all());
+        }
+
         $user = User::where('id', $user)->first();
-    
         $user->update([
             "full_name" => $request->full_name,
             "middle_name" => $request->middle_name,

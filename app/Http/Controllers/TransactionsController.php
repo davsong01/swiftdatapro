@@ -1574,6 +1574,14 @@ class TransactionsController extends Controller
             );
         }
 
+        if ($user->kyc_status != 1) {
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'KYC is not approved, please contact admin',
+            );
+        }
+
         // Check min/max of resource
         if(!empty($resource) && $resource->fixed_price == 'no' && !empty($resource->min) && !empty($resource->max)){
             if($request->unit_price < $resource->min  ){

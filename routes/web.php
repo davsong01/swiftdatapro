@@ -112,6 +112,7 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::post('update-single-pending-kyc/{id}', [CustomerController::class, 'updatePendingKYC'])->name('pending.kyc.update');
 
         Route::any('approve-kyc/{id?}', [CustomerController::class, 'approvePendingKYC'])->name('approve.kyc');
+        Route::any('decline-kyc/{id?}', [CustomerController::class, 'declinePendingKYC'])->name('decline.kyc');
         
         Route::get('duplicate-product/{product}', [ProductController::class, 'duplicateProduct'])->name('duplicate.product');
 

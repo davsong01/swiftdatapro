@@ -4,9 +4,11 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.bootstrap5.min.css">
 @endsection
-@section('title', 'View '.$customer->username)
+@section('title')
+ View {{$customer->username}}&nbsp; <span class="badge bg-{{ $customer->kyc_status == 1 ? 'success' : ($customer->kyc_status == 0 ? 'warning' : 'danger') }} fw-semibold float-end">{{ $customer->kyc_status == 1 ? 'Active' : ($customer->kyc_status == 0 ? 'Inactive' : 'Declined') }}</span>
+@endsection
 @section('breadcrumb')
-<li class="breadcrumb-item"><a href="{{route('pending.kyc')}}">All Pending KYC</a></li>
+<li class="breadcrumb-item"><a href="{{route('pending.kyc')}}">All Pending KYC</a> </li>
 @endsection
 @section('breadcrumb-active')
 <li class="breadcrumb-item active" aria-current="page">{{$customer->username}}</li>
@@ -18,62 +20,44 @@
         <div class="card custom-card">
             <div class="card-body">
                 <div class="card-title">
+                @if(hasAccess('kyc.approve'))
                 <a onclick="return confirm('Are you sure you want to approve?');" href="{{ route('approve.kyc', $customer->kycData->id) }}" class="btn btn-success"><i class="fa fa-check"></i>Approve KYC</a>
+                
+                    @if($customer->kyc_status == 0)
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#decline-kyc">Decline KYC</button>
+
+                        <div class="modal fade" id="decline-kyc" tabindex="-1" aria-labelledby="decline-kycLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <form action="{{ route('decline.kyc', $customer->kycData->id) }}" method="POST" enctype="multipart/form-data">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h6 class="modal-title" id="decline-kyc">Decline KYC</h6>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            @csrf
+                                            <div class="row gy-4">
+                                                <div class="col-md-12">
+                                                    <label class="form-label" for="name">Reason</label>
+                                                    <textarea name="reason" class="form-control" id="" cols="30" rows="10"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Close</button>
+                                            <button type="button" class="btn btn-primary">Submit</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
+                @endif
                 @include('includes.alerts')
             </div>
             @include('admin.customers.single-pending-kyc-form')
-            {{-- <form action="{{ route('pending.kyc.update', $customer->kycData->id) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <div class="row gy-4">
-                    <div class="col-md-6">
-                        <label class="form-label" for="name">Name</label>
-                        <input type="text" class="form-control" value="{{ $customer->name }}" disabled>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="ref_code">Ref Code</label>
-                        <input type="text" class="form-control"
-                            placeholder="Ref code" value="{{ $customer->ref_code }}"
-                            disabled>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="bvn">BVN</label>
-                        <input name="bvn" type="text" class="form-control" placeholder="BVN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->kycData->bvn : mask($customer->kycData->bvn) }}" {{ !in_array('view.sensitive.data', allowedPermissions()) ? 'readonly' : '' }}>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="nin">NIN</label>
-                        <input type="text" name="nin" class="form-control"
-                            placeholder="NIN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->kycData->nin : mask($customer->kycData->nin) }}" {{ !in_array('view.sensitive.data', allowedPermissions()) ? 'readonly' : '' }}>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label class="form-label" for="gender">Means of Identification Type</label>
-                        <select class="form-control" name="means_of_identification_type" id="means_of_identification_type" required>
-                            <option value="">Select</option>
-                            <option value="international_passport" {{ isset($customer->kycData->means_of_identification_type) && $customer->kycData->means_of_identification_type == 'international_passport' ? 'selected' : '' }}>International Passport</option>
-                            <option value="drivers_license" {{ isset($customer->kycData->means_of_identification_type) && $customer->kycData->means_of_identification_type == 'drivers_license' ? 'selected' : '' }}>Driver's License</option>
-                            <option value="electricity_bill" {{ isset($customer->kycData->means_of_identification_type) && $customer->kycData->means_of_identification_type == 'electricity_bill' ? 'selected' : '' }}>Electricity Bill</option>
-                            <option value="nin_slip" {{ isset($customer->kycData->means_of_identification_type) && $customer->kycData->means_of_identification_type == 'nin_slip' ? 'selected' : '' }}>NIN Slip</option>
-                            <option value="voters_card" {{ isset($customer->kycData->means_of_identification_type) && $customer->kycData->means_of_identification_type == 'voters_card' ? 'selected' : '' }}>Voter's Card</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <img style="width: 70px;" src="{{asset($customer->kycData->means_of_identification_document)}}" alt="">
-                            </div>
-                            <div class="col-md-10">
-                                <label class="form-label">Means of Identification Document (JPEG, JPG Only, 1mb max)</label>
-                                <div class="input-group mb-3">
-                                    <input type="file" class="form-control" name="means_of_identification_document" accept=".jpeg, .jpg, image/jpeg" id="means_of_identification_document">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-12">
-                        <button type="Save" class="btn btn-primary">Submit</button>
-                    </div>
-                </div>
-            </form> --}}
             </div>
         </div>
     </div>
