@@ -79,6 +79,10 @@
                                         <option value="SUCCESSFUL" {{ \Request::get('status') == 'SUCCESSFUL' ? 'selected' : ''}}>Successful</option>
                                         <option value="FAILED" {{ \Request::get('status') == 'FAILED' ? 'selected' : ''}}>Failed</option>
                                         <option value="ATTENTION-REQUIRED" {{ \Request::get('status') == 'ATTENTION-REQUIRED' ? 'selected' : ''}}>Attention Required</option>
+                                        <option value="ADMIN-REFUND" {{ \Request::get('status') == 'ADMIN-REFUND' ? 'selected' : ''}}>Admin Refund</option>
+                                        <option value="REFUNDED" {{ \Request::get('status') == 'REFUNDED' ? 'selected' : ''}}>Refunded</option>
+                                        
+                                        
                                     </select>
                                 </div>
                             </div>
@@ -126,6 +130,24 @@
                     </thead>
                     <tbody>
                         @foreach($transactions as $transaction)
+                        <?php 
+                            if($transaction->buyer_status == 'FAILED'){
+                                $color = 'red';
+                                $bg = 'danger';
+                            }elseif($transaction->buyer_status == 'initiated'){
+                                $color = '#FDAC41';
+                                $bg = 'dark';
+                            }elseif($transaction->buyer_status == 'ATTENTION-REQUIRED'){
+                                $color = '#FDAC41';
+                                $bg = 'warning';
+                            }elseif(in_array($transaction->buyer_status, ['ADMIN-REFUND'])){
+                                $color = 'black';
+                                $bg = 'dark';
+                            }else {
+                                $color = 'green';
+                                $bg = 'success';
+                            }
+                        ?>
                         <tr>
                             <td>{{$count++}}</td>
                             <td>
@@ -144,15 +166,14 @@
                                     <strong><a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->full_name  }}</a> <br>
                                     <a target="_blank" href="{{ route('customers.edit', $transaction->customer?->id) }}">{{ $transaction->customer->email  }}</a> <br>
                                 @endif
-                                
                                 </strong>
                                 {{ $transaction->mobile_number }} <br>
                                 {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>
-                                @if($transaction->status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
-                                <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+                                <button class="btn btn-{{ $bg }} btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+                                {{-- @if($transaction->buyer_status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
                                 @else
                                 <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
-                                @endif 
+                                @endif  --}}
                             </td>
                             <td>
                                 <small>

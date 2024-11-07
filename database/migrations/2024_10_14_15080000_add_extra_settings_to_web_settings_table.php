@@ -13,9 +13,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('web_settings', 'extra_settings')) {
+        if (!Schema::hasColumn('final_transactions', ['is_resolved','admin_id','resolved_on','resolved_transaction_id'])) {
             Schema::table('web_settings', function (Blueprint $table) {
-                $table->json('extra_settings')->nullable();
+                $table->integer('is_resolved')->nullable();
+                $table->integer('admin_id')->nullable();
+                $table->timestamp('resolved_on')->nullable();
+                $table->string('resolved_transaction_id')->nullable();
             });
         }
     }
@@ -27,8 +30,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('web_settings', function (Blueprint $table) {
-            $table->dropColumn('extra_settings');
+        Schema::table('final_transactions', function (Blueprint $table) {
         });
     }
 };

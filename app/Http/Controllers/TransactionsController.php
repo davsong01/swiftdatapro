@@ -1700,4 +1700,97 @@ class TransactionsController extends Controller
         $query = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->requery($transaction);
         return response()->json($query);
     }
+
+    public function reverseToWallet(Transactions $transaction){
+        if($transaction->buyer_status != 'ATTENTION-REQUIRED'){
+            $format = [
+                'status' => 'failed',
+                'response' => 'Transaction not qualified to be refunded, Invalid status'
+            ];
+        }
+
+        if($transaction->pre_bal >= $transaction->post_bal){
+            $format = [
+                'status' => 'failed',
+                'response' => 'Transaction not qualified to be refunded, Pre and Post Balance is the same'
+            ];
+        }
+
+        if($transaction->is_resolved == 0){
+            $format = [
+                'status' => 'failed',
+                'response' => 'Transaction is already resolved!'
+            ];
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $user = $transaction->customer;
+            
+            $user->lockForUpdate();
+
+            $balance = walletBalance($user);
+            $report = 'Refund of ' .$transaction->total_amount. ' for ' . $transaction->billersCode .' was succesful.';
+            
+            $data = [
+                'mobile_number' => $transaction->mobile_number,
+                'unit_price' => $transaction->total_amount,
+                'buyer_amount' => $transaction->total_amount,
+                'buyer_prebal' => $balance,
+                'buyer_postbal' => $balance + $transaction->total_amount,
+                'buyer_descr' => $report,
+                'type' => 'credit',
+                'buyer_status' => 'ADMIN-REFUND',
+                'customer_status' => 'ADMIN-REFUND',
+                'buyer_service' => $transaction->buyer_service,
+                'charge_from' => 'WALLET',
+                'user_type' => $user->level,
+                'sys_ref' => $transaction->sys_ref.'-ADMIN-REFUND',
+                'api_ref' => $transaction->api_ref.'-ADMIN-REFUND',
+                'api_report' => 'DONE',
+                'buyer_quantity' => $transaction->buyer_quantity,
+                'provider_id' => $transaction->provider_id,
+                'variation_id' => $transaction->variation_id,
+                'product_id' => $transaction->product_id ?? null,
+                'discount' => $transaction->discount,
+                'src_price' => 0,
+                'channel' => 'website',
+                'provider' => $transaction->provider,
+                'billersCode' => $transaction->billersCode,
+                'category_id' => $transaction->category_id,
+                'profit' => 0,
+                'api_report' => 'DONE',
+                'user_id' => $user->id,
+            ];
+            
+            $newTransaction = $this->logTransaction($data);
+
+            $transaction->update([
+                'buyer_status' => 'REFUNDED',
+                'is_resolved' => 1,
+                'admin_id' => auth()->guard('admin')->user()->id,
+                'resolved_on' => now(),
+                'resolved_transaction_id' => $newTransaction->id,
+            ]);
+
+            DB::commit();
+
+            $body = 'Dear ' .$user->full_name . '<br>Refund of ' .$transaction->total_amount. ' for ' . $transaction->billersCode .' was succesful on ' . config('app.name') . '<br><br>';
+                
+            // if (in_array('transaction-email', settings()->allowed_email_notifications)) {
+            //     $this->sendEmail(auth()->user()->email, $subject, $body);
+            // }
+            return [
+                'status' => 'success',
+                'message' => 'Customer refunded successfully',
+            ];
+        }catch(\Exception $e){
+            DB::rollBack();
+            return [
+                'status' => 'failed',
+                'message' => $e->getMessage(). ' Line: '.$e->getLine().' File: '.$e->getFile(),
+            ];
+        }
+    }
 }

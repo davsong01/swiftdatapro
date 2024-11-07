@@ -68,4 +68,9 @@ class Transactions extends Model
             return $this->buyer_amount;
         }
     }
+
+    public function resolved_transaction()
+    {
+        return $this->hasOne(Transactions::class,'id','resolved_transaction_id');
+    }
 }

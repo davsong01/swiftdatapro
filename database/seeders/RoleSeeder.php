@@ -197,7 +197,8 @@ class RoleSeeder extends Seeder
             'approve.kyc',
             'pending.kyc.update',
             'decline.kyc',
-            're-query-transaction'
+            're-query-transaction',
+            'reverse-to-wallet'
         ];
 
         // RolePermission::truncate();

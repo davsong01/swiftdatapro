@@ -129,6 +129,7 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::get('admin-deposit-transactions', [TransactionsController::class, 'adminDepositTransactions'])->name('admin.deposit.transactions');
         Route::get('single-transaction-view/{transaction}', [TransactionsController::class, 'singleTransactionView'])->name('admin.single.transaction.view');
         Route::get('re-query-transactions/{transaction}', [TransactionsController::class, 'requery'])->name('re-query-transaction');
+        Route::get('reverse-to-wallet/{transaction}', [TransactionsController::class, 'reverseToWallet'])->name('reverse-to-wallet');
 
         Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
         Route::get('profile', [ProfileController::class, 'showProfilePage'])->name('admin.profile');

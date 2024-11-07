@@ -52,10 +52,19 @@
 <?php 
     if($transaction->buyer_status == 'FAILED'){
         $color = 'red';
+        $bg = 'danger';
     }elseif($transaction->buyer_status == 'initiated'){
         $color = '#FDAC41';
+        $bg = 'dark';
+    }elseif($transaction->buyer_status == 'ATTENTION-REQUIRED'){
+        $color = '#FDAC41';
+        $bg = 'warning';
+    }elseif(in_array($transaction->buyer_status, ['ADMIN-REFUND'])){
+        $color = 'black';
+        $bg = 'dark';
     }else {
         $color = 'green';
+        $bg = 'success';
     }
 ?>
 <div class="row">
@@ -63,7 +72,7 @@
         <div class="card">
             <div class="col-md-12">
                 <div class="card-header" style="padding:1.4rem 0.7rem">
-                    <h4 class="card-title">Transaction Details</h4>
+                    <h4 class="card-title">Transaction Details <a class="btn btn-{{ $bg }} btn-sm"><span><strong>{{ $transaction->buyer_status }}</strong></span></a></h4>
                 </div>
             </div>
             <div class="card-content">
@@ -86,6 +95,11 @@
                         <div class="col-md-3">
                             <strong>Request Id:</strong> <br>{{ $transaction->sys_ref }} <br>
                             <strong>Transaction Id:</strong> <br>{{ $transaction->api_ref }} <br>
+                            @if($transaction->is_resolved == 1)
+                            <span style="color:green">
+                            <strong>Resolved Transaction:</strong> <br><a style="color:green" target="_blank" href="{{ route('admin.single.transaction.view', $transaction->resolved_transaction_id) }}">{{ $transaction->resolved_transaction->sys_ref }}</a><br>
+                            </span>
+                            @endif
                             <strong>IP Address: </strong><br>{{ $transaction->ip_address }} <br>
                             <strong>Domain: </strong><br>{{ $transaction->domain }} <br>
                         </div>
@@ -139,7 +153,7 @@
                             @endif
                             {{-- @if(!in_array($transaction->reason, ['LEVEL-UPGRADE','WALLET-FUNDING'])) --}}
                             <br>
-                            <strong class="heads">Transaction Details</strong> <br>
+                            <strong class="heads">Transaction Details</strong>  <br>
                             <strong>Product:</strong> {{ $transaction->buyer_service }}
                             @if($transaction->category)<br>
                             <strong>Category:</strong> {{ $transaction->category->name }}
@@ -261,7 +275,9 @@
                             {{-- <button id="qw_debit" class="btn btn-danger btn-sm" style="color:#fff;"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-440v-80h560v80H200Z"/></svg> Query Debit</button> --}}
                             
                             <a id="qw-transaction" onclick="queryStatus()" class="btn btn-dark btn-sm" style="color:#fff;">Re Query Transaction</a>
-                            <a id="reverse-to-wallet" onclick="return confirm('Are you sure you want to delete forever?');reverseToWallets('{{$transaction->id}}')" data-id="{{$transaction->id}}" class="btn btn-info btn-sm" style="color:#fff;">Reverse To Wallet</a>
+                            @if($transaction->buyer_status == 'ATTENTION-REQUIRED')
+                            <a id="reverse-to-wallet" class="btn btn-info btn-sm" style="color:#fff;" onclick="if (confirm('Are you sure you want to refund customer?')) reverseToWallet('{{ $transaction->id }}'); return false;" >Refund Customer</a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -311,6 +327,29 @@
 				$('#q_res').show();
 				$('#q_res').html('<strong>Provider Response</strong><br>'+data.api_response);
 
+			}
+		});
+	}
+
+    function reverseToWallet(e){
+        $('#q_res').val("");
+
+        url = "{{ route('reverse-to-wallet', $transaction->id) }}";
+		$.ajax({
+			url : url,
+			type : 'GET',
+			beforeSend: function (){
+				$('#q_res').hide();
+				$('#img_loading').show();
+                $('.well').show();
+				$('#img_loading2').show();
+				$('#qw_status').html('Processing....');
+			},
+			success:function (data) {
+                $('#qw_status').html('<strong style="color:' + (data.status === 'success' ? 'green' : 'red') + ';">' + data.message + '</strong>');
+				$('#img_loading').hide();
+
+                location.reload();
 			}
 		});
 	}
