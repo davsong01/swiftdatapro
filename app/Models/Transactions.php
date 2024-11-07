@@ -10,6 +10,7 @@ use App\Models\Variation;
 use App\Models\CustomerLevel;
 use App\Models\PaymentGateway;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TransactionStatusChangeTrack;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -68,9 +69,20 @@ class Transactions extends Model
             return $this->buyer_amount;
         }
     }
-
+    
     public function resolved_transaction()
     {
         return $this->hasOne(Transactions::class,'id','resolved_transaction_id');
     }
+
+    public function resolved_by()
+    {
+        return $this->hasOne(Admin::class,'id','admin_id');
+    }
+
+    public function transaction_change_histories()
+    {
+        return $this->hasMany(TransactionStatusChangeTrack::class, 'transaction_id')->orderBy('created_at','desc');
+    }
+
 }

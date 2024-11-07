@@ -17,6 +17,7 @@ use App\Models\DepositTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Services\JsonResponseService;
 use App\Services\MobileResponseService;
+use App\Models\TransactionStatusChangeTrack;
 
 
 class TransactionsController extends Controller
@@ -1340,7 +1341,16 @@ class TransactionsController extends Controller
     }
 
     public function adminTransactions(Request $request){
-        $transactions = Transactions::with('customer:id,full_name,middle_name,last_name,email,username,level,mobile', 'product:id,display_name', 'variation:id,system_name')->latest();
+        // $transactions = Transactions::with('customer:id,full_name,middle_name,last_name,email,username,level,mobile', 'product:id,display_name', 'variation:id,system_name')->orderBy('resolved_transaction_id')->latest();
+
+        $transactions = Transactions::with(
+            'customer:id,full_name,middle_name,last_name,email,username,level,mobile',
+            'product:id,display_name',
+            'variation:id,system_name'
+        )
+        ->orderByRaw('CASE WHEN resolved_transaction_id IS NULL THEN 1 ELSE 0 END, resolved_transaction_id')
+        ->latest();
+
         $products = Product::all();
         
         if ($request->email) {
@@ -1707,6 +1717,8 @@ class TransactionsController extends Controller
                 'status' => 'failed',
                 'response' => 'Transaction not qualified to be refunded, Invalid status'
             ];
+
+            return $format;
         }
 
         if($transaction->pre_bal >= $transaction->post_bal){
@@ -1714,6 +1726,8 @@ class TransactionsController extends Controller
                 'status' => 'failed',
                 'response' => 'Transaction not qualified to be refunded, Pre and Post Balance is the same'
             ];
+
+            return $format;
         }
 
         if($transaction->is_resolved == 0){
@@ -1721,6 +1735,8 @@ class TransactionsController extends Controller
                 'status' => 'failed',
                 'response' => 'Transaction is already resolved!'
             ];
+
+            return $format;
         }
 
         DB::beginTransaction();
@@ -1774,6 +1790,10 @@ class TransactionsController extends Controller
                 'resolved_transaction_id' => $newTransaction->id,
             ]);
 
+            $newTransaction->update([
+                'resolved_transaction_id' => $newTransaction->id,
+            ]);
+            
             DB::commit();
 
             $body = 'Dear ' .$user->full_name . '<br>Refund of ' .$transaction->total_amount. ' for ' . $transaction->billersCode .' was succesful on ' . config('app.name') . '<br><br>';
@@ -1792,5 +1812,38 @@ class TransactionsController extends Controller
                 'message' => $e->getMessage(). ' Line: '.$e->getLine().' File: '.$e->getFile(),
             ];
         }
+    }
+
+    public function resolveTransaction(Request $request, Transactions $transaction)
+    {
+        DB::beginTransaction();
+
+        try {
+            $data = [
+                'admin_id' => auth()->guard('admin')->user()->id,
+                'previous_status' => $transaction->buyer_status,
+                'current_status' => $request->status,
+                'transaction_id' => $transaction->id
+            ];
+
+            $transaction->buyer_status = $request->status;
+            $transaction->save();
+            
+            $this->logTransactionStatusChangeTrack($data);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'status' => 'failed',
+                'message' => $e->getMessage() . ' Line: ' . $e->getLine() . ' File: ' . $e->getFile(),
+            ];
+        }
+
+        return back()->with('message', 'Transaction reolved successfully');
+    }
+
+    public function logTransactionStatusChangeTrack($data){
+        TransactionStatusChangeTrack::create($data);
+        return;
     }
 }

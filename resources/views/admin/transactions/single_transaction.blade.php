@@ -109,15 +109,10 @@
                             <span style="color:{{ $color }}"><strong>{{ ucfirst($transaction->buyer_descr) }}</strong></span><br><br>
                             <strong>Buyer Status</strong> <br>
                             <span style="color:{{ $color }}"><strong>{{ ucfirst($transaction->buyer_status) }}</strong></span><br><br>
-                            {{-- @if(!in_array($transaction->buyer_status, ['completed','success']))
-                            <a id="qw_resolve" class="btn btn-success btn-sm" style="color:#fff;"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M754-81q-8 0-15-2.5T726-92L522-296q-6-6-8.5-13t-2.5-15q0-8 2.5-15t8.5-13l85-85q6-6 13-8.5t15-2.5q8 0 15 2.5t13 8.5l204 204q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13l-85 85q-6 6-13 8.5T754-81Zm0-95 29-29-147-147-29 29 147 147ZM205-80q-8 0-15.5-3T176-92l-84-84q-6-6-9-13.5T80-205q0-8 3-15t9-13l212-212h85l34-34-165-165h-57L80-765l113-113 121 121v57l165 165 116-116-43-43 56-56H495l-28-28 142-142 28 28v113l56-56 142 142q17 17 26 38.5t9 45.5q0 24-9 46t-26 39l-85-85-56 56-42-42-207 207v84L233-92q-6 6-13 9t-15 3Zm0-96 170-170v-29h-29L176-205l29 29Zm0 0-29-29 15 14 14 15Zm549 0 29-29-29 29Z"/></svg> Resolve</a>
-                            @endif --}}
-                            {{-- Description <br> --}}
-                            {{-- <span style="color:{{ $color }}"><strong>{{ ucfirst($transaction->descr) }}</strong></span><br><br> --}}
                         </div>
                         <div class="col-md-3">
-                            @if(!empty($transaction->extra))
                             <strong>Extras:</strong> <br>
+                            @if(!empty($transaction->extra))
                             {{ ucfirst($transaction->extra) }}
                             
                             @endif
@@ -173,8 +168,8 @@
                             
                         </div>
                         <div class="col-md-3">
+                            <strong class="heads">Request Payload</strong> <br>
                             @if(!empty($transaction->post_fields))
-                                <strong class="heads">Request Payload</strong> <br>
                                 <div>
                                     <code style="margin:10px 0">
                                         {!! $transaction->post_fields !!}
@@ -185,8 +180,8 @@
                         </div>
                         
                         <div class="col-md-3">
-                            @if(!empty($transaction->api_response))
                             <strong class="heads">API Response/Reason</strong> <br>
+                            @if(!empty($transaction->api_response))
                             <div>
                                 <code style="margin:10px 0">
                                     {!! $transaction->api_response!!}
@@ -196,7 +191,31 @@
                             @endif
                         </div>
                     </div>
-
+                    @if($transaction->is_resolved == 1)
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong class="heads" style="color:#a211c5">Resolved Trail</strong> <br>
+                            <strong>Resolved On: </strong>{{$transaction->resolved_on}} <br>
+                            <strong>Resolved By: </strong>{{$transaction->resolved_by->full_name}} <br>
+                            <strong>Transaction ID: </strong>{{ $transaction->resolved_transaction->sys_ref}} <br>
+                            <strong>Type: {{ $transaction->resolved_transaction->type}} </strong> <br>
+                            <span style="color:red"><strong>Wallet Before : </strong>{!! settings()->currency. number_format($transaction->resolved_transaction->buyer_prebal, 2) !!} <br>
+                            <span style="color:green"><strong>Wallet After : </strong>{!! settings()->currency. number_format($transaction->resolved_transaction->buyer_postbal, 2) !!}
+                            </span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong class="heads" style="color:#a211c5">Status Trail</strong> <br>
+                            @foreach($transaction->transaction_change_histories as $history)
+                                <strong>Added On: </strong>{{ $transaction->resolved_on }} <br>
+                                <strong>Added By: </strong>{{$transaction->resolved_by->full_name}} <br>
+                                <span style="color:#f76800"><strong>Previous Status: </strong>{{ $history->previous_status}}<br>
+                                <span style="color:#168c33"><strong>Current Status: </strong>{{ $history->current_status}}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+                    <hr>
                     <div class="row">
                         <div class="table-responsive">
                             <table id="table-extended-success" class="table mb-0">
@@ -274,9 +293,47 @@
 
                             {{-- <button id="qw_debit" class="btn btn-danger btn-sm" style="color:#fff;"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-440v-80h560v80H200Z"/></svg> Query Debit</button> --}}
                             
-                            <a id="qw-transaction" onclick="queryStatus()" class="btn btn-dark btn-sm" style="color:#fff;">Re Query Transaction</a>
-                            @if($transaction->buyer_status == 'ATTENTION-REQUIRED')
-                            <a id="reverse-to-wallet" class="btn btn-info btn-sm" style="color:#fff;" onclick="if (confirm('Are you sure you want to refund customer?')) reverseToWallet('{{ $transaction->id }}'); return false;" >Refund Customer</a>
+                            <a id="qw-transaction" onclick="queryStatus()" class="btn btn-dark btn-sm" style="color:#fff;"><i class='bx bx-search-alt' ></i> Re Query Transaction</a>
+                            @if(in_array('view.sensitive.data', allowedPermissions()) && in_array($transaction->buyer_status, ['ADMIN-RESOLVED','ADMIN-REFUND','REFUND','ATTENTION-REQUIRED']))
+                                <button type="button" class="btn btn-primary btn-sm" style="color:#fff;" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                <i class='bx bx-cog'></i> Resolve
+                                </button>
+                                <div class="modal fade" id="exampleModal" tabindex="-1"
+                                    aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form action="{{ route('resolve-transaction', $transaction->id) }}" method="POST">
+                                            <div class="modal-header">
+                                                <h6 class="modal-title" id="exampleModalLabel1">Resolve Transaction</h6>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                           
+                                            <div class="modal-body">
+                                                @csrf
+                                                <div class="row gy-4">
+                                                    <div class="col-md-12">
+                                                        <label for="status" class="form-label">Select Final Status</label>
+                                                        <select class="form-control" name="status" id="status" required>
+                                                            <option value="">Select</option>
+                                                            <option value="ADMIN-RESOLVED" {{ old('status') == 'ADMIN-RESOLVED' ? 'selected' : ''}}>ADMIN RESOLVED</option>
+                                                            <option value="FAILED" {{ old('status') == 'FAILED' ? 'selected' : ''}}>FAILED</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Close</button>
+                                                <button type="submit" class="btn btn-primary">Update</button>
+                                            </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                            @if($transaction->buyer_status == 'ATTENTION-REQUIRED' && in_array('view.sensitive.data', allowedPermissions()))
+                                <a id="reverse-to-wallet" class="btn btn-info btn-sm" style="color:#fff;" onclick="if (confirm('Are you sure you want to refund customer?')) reverseToWallet('{{ $transaction->id }}'); return false;"><i class='bx bx-undo'></i> Refund Customer</a>
                             @endif
                         </div>
                     </div>

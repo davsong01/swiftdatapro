@@ -567,7 +567,7 @@ class HomeController extends Controller
 
     public function transactions(Request $request){
         $transactions = Transactions::select(['id','product_id','variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_service', 'type','buyer_amount', 'unit_price', 'charges', 'discount','buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra', 'created_at'])->with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
-        
+
         if (!empty($request->service)) {
             $transactions = $transactions->where('product_id', $request->service);
         }
@@ -594,7 +594,9 @@ class HomeController extends Controller
             $transactions = $transactions->whereBetween('created_at', [$from, $to]);
         }
 
-        $transactions = $transactions->orderBy('created_at', 'DESC')->paginate(50);
+        $transactions = $transactions->orderByRaw('CASE WHEN resolved_transaction_id IS NULL THEN 1 ELSE 0 END, resolved_transaction_id')
+        ->latest()->paginate(50);
+        // $transactions = $transactions->orderBy('created_at', 'DESC')->paginate(50);
 
         $products = Product::select('id', 'category_id','type', 'display_name')->where('status', 'active')->get();
 
