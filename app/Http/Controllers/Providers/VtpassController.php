@@ -941,7 +941,7 @@ class VtpassController extends Controller
                 'public-key: ' . $api->public_key,
                 'secret-key: ' . $api->secret_key,
             ];
-
+            
             $payload = [
                 'request_id' => $request_id,
                 'url' => $url
@@ -970,7 +970,7 @@ class VtpassController extends Controller
     public function balance($api, $no_format = null)
     {
         try {
-            $url = env('ENV') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
+            $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
             $url = $url . "balance";
 
             $headers = [
@@ -978,11 +978,11 @@ class VtpassController extends Controller
                 'public-key: ' . $api->public_key,
                 'secret-key: ' . $api->secret_key,
             ];
-
-            $response = $this->basicApiCall($url, [], $headers, 'GET');
-
+            // \Log::info($headers);
+            $response = $this->advancedApiCall($url, [], $headers, 'GET');
+            $response = json_decode($response, true);
+            
             if (isset($response['code']) && $response['code'] == 1 && !empty($response['contents'])) {
-                $result = $response;
                 $balance = '#' . number_format($response['contents']['balance'], 2);
                 $status = 'success';
                 $status_code = 1;
