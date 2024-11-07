@@ -1208,7 +1208,7 @@ class GongzoController extends Controller
                 'response' => '',
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
             ];
-            dd($format);
+            
             return $format;
 
         }
@@ -1217,7 +1217,6 @@ class GongzoController extends Controller
     }
 
     public function processApiResponse($res,$request){
-       
         if(empty($res)){
             $formatted = [
                 'status' => 'attention-required',
@@ -1299,5 +1298,35 @@ class GongzoController extends Controller
         }
        
         return $formatted;
+    }
+
+    public function balance($api)
+    {
+        $headers = [
+            "Authorization: Token " . $api->api_key . "",
+            'Content-Type: application/json'
+        ];
+
+        $url = "https://www.gongozconcept.com/api/user";
+
+        $resX = $this->advancedApiCall($url, [], $headers);
+        
+        return $resX;
+       
+        try {
+            
+        } catch (\Throwable $th) {
+            $format = [
+                'api_response' => $resX,
+                'postfields' => $pstfields,
+                'status' => 'attention-required',
+                'response' => '',
+                'error' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
+            ];
+
+            return $format;
+        }
+
+        return $format;
     }
 }
