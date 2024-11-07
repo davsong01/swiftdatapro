@@ -935,7 +935,7 @@ class VtpassController extends Controller
         try {
             $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
             $url = $url . "requery";
-            
+
             $headers = [
                 'api-key: ' . $api->api_key,
                 'public-key: ' . $api->public_key,
