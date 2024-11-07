@@ -1667,8 +1667,48 @@ class EasyAccessController extends Controller
         return $formatted;
     }
 
-    public function requery($transaction){
+    function requery($transaction)
+    {
+        $api = $transaction->api;
+        $request_id = $transaction->sys_ref;
 
+        $url = $api->live_base_url . "status/?token=" . $api->api_key . "&refid=" . $request_id;
+
+        try {
+            if (env('APP_ENV') != 'local') {
+                $response = $this->basicApiCall($url, ['reference' => $request_id], ['AuthorizationToken' => $api->api_key]);
+            } else {
+                $response = json_decode('{"success":"true","message":"Dear Customer, You have successfully shared 500MB Data to 23481643xxxxx. Your SME data balance is 13xxx.xxGB expires 27\/08\/2022. Thankyou","network":"MTN","mobileno":"081643xxxxx","amount":"129","data_type":"SME","reference_no":"ID2765423xxxxx","client_reference":null,"transaction_date":"28-05-2022 01:25:53 am","status":"Successful","auto_refund_status":"success"}', true);
+            }
+
+            $status = isset($result['status']) ? strtolower($result['status']) : 'false';
+            $success = isset($result['success']) ? strtolower($result['success']) : 'failed';
+            
+            if (isset($status) && $status !== "failed" && $success !== 'false') {
+                $status = 'success';
+                $api_response = $response;
+                $message = $response['message'];
+            } else {
+                $status = 'failed';
+                $api_response = $response;
+                $message = $response['message'];
+            }
+
+            $format = [
+                'status' => $status,
+                'api_response' => $api_response ?? null,
+                'message' => $message ?? null,
+            ];
+
+        } catch (\Exception $th) {
+            return $format = [
+                'status' => 'attention-required',
+                'api_response' => $api_response ?? $response,
+                'message' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
+            ];
+        }
+
+        return $format;
     }
 
     public function balance($api, $no_format = null)

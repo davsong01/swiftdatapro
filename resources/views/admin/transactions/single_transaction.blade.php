@@ -135,7 +135,6 @@
                                     <br>
                                 @endforeach
                             @endif
-
                         </div>
                         <div class="col-md-3">
                             <strong class="heads">Payment Details</strong> <br>
@@ -176,6 +175,8 @@
                                     </code>
 
                                 </div>
+                            @else
+                            No Data
                             @endif
                         </div>
                         
@@ -188,14 +189,16 @@
                                 </code>
 
                             </div>
+                            @else
+                            No Data
                             @endif
                         </div>
                     </div>
-                    @if($transaction->is_resolved == 1)
                     <hr>
                     <div class="row">
                         <div class="col-md-6">
                             <strong class="heads" style="color:#a211c5">Resolved Trail</strong> <br>
+                            @if($transaction->is_resolved == 1)
                             <strong>Resolved On: </strong>{{$transaction->resolved_on}} <br>
                             <strong>Resolved By: </strong>{{$transaction->resolved_by->full_name}} <br>
                             <strong>Transaction ID: </strong>{{ $transaction->resolved_transaction->sys_ref}} <br>
@@ -203,18 +206,25 @@
                             <span style="color:red"><strong>Wallet Before : </strong>{!! settings()->currency. number_format($transaction->resolved_transaction->buyer_prebal, 2) !!} <br>
                             <span style="color:green"><strong>Wallet After : </strong>{!! settings()->currency. number_format($transaction->resolved_transaction->buyer_postbal, 2) !!}
                             </span>
+                            @else
+                            No Data
+                            @endif
                         </div>
                         <div class="col-md-6">
                             <strong class="heads" style="color:#a211c5">Status Trail</strong> <br>
+                            @if($transaction->transaction_change_histories->count() > 0)
                             @foreach($transaction->transaction_change_histories as $history)
-                                <strong>Added On: </strong>{{ $transaction->resolved_on }} <br>
-                                <strong>Added By: </strong>{{$transaction->resolved_by->full_name}} <br>
-                                <span style="color:#f76800"><strong>Previous Status: </strong>{{ $history->previous_status}}<br>
+                                <strong>Added On: </strong>{{ $history->created_at }} <br>
+                                <strong>Added By: </strong>{{$history->resolved_by->full_name}} <br>
+                                <span style="color:#f76800"><strong>Previous Status: </strong>{{ $history->previous_status}}</span><br>
                                 <span style="color:#168c33"><strong>Current Status: </strong>{{ $history->current_status}}</span>
+                                <hr style="margin: 2.8px !important;">
                             @endforeach
+                            @else
+                            No Data
+                            @endif
                         </div>
                     </div>
-                    @endif
                     <hr>
                     <div class="row">
                         <div class="table-responsive">
