@@ -492,4 +492,31 @@ if (!function_exists("hasAccess")) {
             return $user->cashback;
         }
     }
+
+    if (!function_exists("buyerStatusColors")) {
+        function buyerStatusColors($transaction){
+            if ($transaction->buyer_status == 'FAILED') {
+                $color = 'red';
+                $bg = 'danger';
+            } elseif ($transaction->buyer_status == 'initiated') {
+                $color = '#FDAC41';
+                $bg = 'dark';
+            } elseif ($transaction->buyer_status == 'ATTENTION-REQUIRED') {
+                $color = '#FDAC41';
+                $bg = 'warning';
+            } elseif (in_array($transaction->buyer_status, ['ADMIN-REFUND'])) {
+                $color = 'black';
+                $bg = 'dark';
+            } else {
+                $color = 'green';
+                $bg = 'success';
+            }
+
+            return [
+                'color' => $color,
+                'bg' => $bg,
+            ];
+        }
+    }
+
 }

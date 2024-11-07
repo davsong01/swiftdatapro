@@ -131,22 +131,7 @@
                     <tbody>
                         @foreach($transactions as $transaction)
                         <?php 
-                            if($transaction->buyer_status == 'FAILED'){
-                                $color = 'red';
-                                $bg = 'danger';
-                            }elseif($transaction->buyer_status == 'initiated'){
-                                $color = '#FDAC41';
-                                $bg = 'dark';
-                            }elseif($transaction->buyer_status == 'ATTENTION-REQUIRED'){
-                                $color = '#FDAC41';
-                                $bg = 'warning';
-                            }elseif(in_array($transaction->buyer_status, ['ADMIN-REFUND'])){
-                                $color = 'black';
-                                $bg = 'dark';
-                            }else {
-                                $color = 'green';
-                                $bg = 'success';
-                            }
+                            $colors = buyerStatusColors($transaction);
                         ?>
                         <tr>
                             <td>{{$count++}}</td>
@@ -169,7 +154,7 @@
                                 </strong>
                                 {{ $transaction->mobile_number }} <br>
                                 {{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }} <br>
-                                <button class="btn btn-{{ $bg }} btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+                                <button class="btn btn-{{ $colors['bg'] }} btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                 {{-- @if($transaction->buyer_status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
                                 @else
                                 <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>

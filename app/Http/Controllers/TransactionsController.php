@@ -1715,30 +1715,30 @@ class TransactionsController extends Controller
         if($transaction->buyer_status != 'ATTENTION-REQUIRED'){
             $format = [
                 'status' => 'failed',
-                'response' => 'Transaction not qualified to be refunded, Invalid status'
+                'message' => 'Transaction not qualified to be refunded, Invalid status'
             ];
 
             return $format;
         }
 
-        if($transaction->pre_bal >= $transaction->post_bal){
+        if($transaction->buyer_prebal <= $transaction->buyer_postbal){
             $format = [
                 'status' => 'failed',
-                'response' => 'Transaction not qualified to be refunded, Pre and Post Balance is the same'
+                'message' => 'Transaction not qualified to be refunded, Pre and Post Balance is the same'
             ];
 
             return $format;
         }
 
-        if($transaction->is_resolved == 0){
+        if($transaction->is_resolved == 1){
             $format = [
                 'status' => 'failed',
-                'response' => 'Transaction is already resolved!'
+                'message' => 'Transaction is already resolved!'
             ];
 
             return $format;
         }
-
+        
         DB::beginTransaction();
 
         try {
@@ -1769,7 +1769,7 @@ class TransactionsController extends Controller
                 'provider_id' => $transaction->provider_id,
                 'variation_id' => $transaction->variation_id,
                 'product_id' => $transaction->product_id ?? null,
-                'discount' => $transaction->discount,
+                'discount' => 0,
                 'src_price' => 0,
                 'channel' => 'website',
                 'provider' => $transaction->provider,

@@ -50,29 +50,14 @@
 @endsection
 @section('content')
 <?php 
-    if($transaction->buyer_status == 'FAILED'){
-        $color = 'red';
-        $bg = 'danger';
-    }elseif($transaction->buyer_status == 'initiated'){
-        $color = '#FDAC41';
-        $bg = 'dark';
-    }elseif($transaction->buyer_status == 'ATTENTION-REQUIRED'){
-        $color = '#FDAC41';
-        $bg = 'warning';
-    }elseif(in_array($transaction->buyer_status, ['ADMIN-REFUND'])){
-        $color = 'black';
-        $bg = 'dark';
-    }else {
-        $color = 'green';
-        $bg = 'success';
-    }
+    $colors = buyerStatusColors($transaction);
 ?>
 <div class="row">
     <div class="col-md-12">
         <div class="card">
             <div class="col-md-12">
                 <div class="card-header" style="padding:1.4rem 0.7rem">
-                    <h4 class="card-title">Transaction Details <a class="btn btn-{{ $bg }} btn-sm"><span><strong>{{ $transaction->buyer_status }}</strong></span></a></h4>
+                    <h4 class="card-title">Transaction Details <a class="btn btn-{{ $colors['bg'] }} btn-sm"><span><strong>{{ $transaction->buyer_status }}</strong></span></a></h4>
                 </div>
             </div>
             <div class="card-content">
@@ -106,9 +91,9 @@
                         
                         <div class="col-md-3">
                             <strong>User Status:</strong> <br>
-                            <span style="color:{{ $color }}"><strong>{{ ucfirst($transaction->buyer_descr) }}</strong></span><br><br>
+                            <span style="color:{{ $colors['color'] }}"><strong>{{ ucfirst($transaction->buyer_descr) }}</strong></span><br><br>
                             <strong>Buyer Status</strong> <br>
-                            <span style="color:{{ $color }}"><strong>{{ ucfirst($transaction->buyer_status) }}</strong></span><br><br>
+                            <span style="color:{{ $colors['color'] }}"><strong>{{ ucfirst($transaction->buyer_status) }}</strong></span><br><br>
                         </div>
                         <div class="col-md-3">
                             <strong>Extras:</strong> <br>

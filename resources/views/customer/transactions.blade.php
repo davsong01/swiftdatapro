@@ -106,6 +106,9 @@
                         <div class="col-md-12">
                             <div class="row">
                                 @foreach ($transactions as $transaction)
+                                <?php 
+                                    $colors = buyerStatusColors($transaction);
+                                ?>
                                 <div class="col-md-4" style="box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;padding-top:10px;padding-bottom: 10px;">
                                     <div class="">
                                         @if(!empty($transaction->product_id))
@@ -119,13 +122,15 @@
                                             </small> <br>
                                         @endif
                                         <strong>
-                                        @if($transaction->status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
+                                        <button class="btn btn-{{ $colors['bg'] }} btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
+
+                                        {{-- @if($transaction->status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
                                         <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                         @elseif(in_array($transaction->buyer_statusbuyer_status, ['ATTENTION-REQUIRED', 'PENDING']))
                                         <button class="btn btn-warning btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                         @else
                                         <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
-                                        @endif 
+                                        @endif  --}}
                                         <br>
                                         </strong>
                                         @if(!empty($transaction->extra))
