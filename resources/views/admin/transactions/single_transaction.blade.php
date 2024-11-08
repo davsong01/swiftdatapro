@@ -287,9 +287,10 @@
                             {{-- <button id="qw_credit" class="btn btn-success btn-sm" style="color:#fff;"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q65 0 123 19t107 53l-58 59q-38-24-81-37.5T480-800q-133 0-226.5 93.5T160-480q0 133 93.5 226.5T480-160q32 0 62-6t58-17l60 61q-41 20-86 31t-94 11Zm280-80v-120H640v-80h120v-120h80v120h120v80H840v120h-80ZM424-296 254-466l56-56 114 114 400-401 56 56-456 457Z"/></svg> Query Credit</button> --}}
 
                             {{-- <button id="qw_debit" class="btn btn-danger btn-sm" style="color:#fff;"><svg fill="white" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M200-440v-80h560v80H200Z"/></svg> Query Debit</button> --}}
-                            
-                            <a id="qw-transaction" onclick="queryStatus()" class="btn btn-dark btn-sm" style="color:#fff;"><i class='bx bx-search-alt' ></i> Re Query Transaction</a>
-                            @if(in_array('view.sensitive.data', allowedPermissions()) && in_array($transaction->buyer_status, ['ADMIN-RESOLVED','ADMIN-REFUND','REFUND','ATTENTION-REQUIRED']))
+                            @if(!in_array($transaction->buyer_status, ['ADMIN-RESOLVED','ADMIN-REFUND','REFUND','DEPOSIT']))
+                                <a id="qw-transaction" onclick="queryStatus()" class="btn btn-dark btn-sm" style="color:#fff;"><i class='bx bx-search-alt' ></i> Re Query Transaction</a>
+                            @endif
+                            @if(in_array('view.sensitive.data', allowedPermissions()) && in_array($transaction->buyer_status, ['ADMIN-RESOLVED','ATTENTION-REQUIRED']))
                                 <button type="button" class="btn btn-primary btn-sm" style="color:#fff;" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 <i class='bx bx-cog'></i> Resolve
                                 </button>
