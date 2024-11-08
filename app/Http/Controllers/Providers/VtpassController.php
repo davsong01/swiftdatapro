@@ -817,7 +817,7 @@ class VtpassController extends Controller
         
         return $params;
     }
-
+    
     public function query($request, $api){
         $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
         $url = $url . 'pay';

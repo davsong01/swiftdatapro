@@ -26,6 +26,6 @@ class DepositTransaction extends Model
 
     public function transaction()
     {
-        return $this->hasOne(Transactions::class, 'sys_ref', 'sys_ref');
+        return $this->hasOne(Transactions::class, 'api_ref', 'api_ref');
     }
 }

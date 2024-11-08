@@ -1310,8 +1310,8 @@ class GongzoController extends Controller
         $url = "https://www.gongozconcept.com/api/user";
 
         $resX = $this->advancedApiCall($url, [], $headers);
-        
-        return $resX;
+
+        $resX = json_decode($resX);
        
         try {
             

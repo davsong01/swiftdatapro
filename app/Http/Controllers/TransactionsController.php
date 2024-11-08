@@ -1781,7 +1781,7 @@ class TransactionsController extends Controller
             ];
             
             $newTransaction = $this->logTransaction($data);
-
+            
             $transaction->update([
                 'buyer_status' => 'REFUNDED',
                 'is_resolved' => 1,

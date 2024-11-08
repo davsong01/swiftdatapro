@@ -1,12 +1,12 @@
 @extends('layouts.new.app')
 @section('extra-css')
 @endsection
-@section('title', 'Deposit Transactions')
+@section('title', 'Customer Deposits')
 @section('breadcrumb')
 <li class="breadcrumb-item"><a href="{{route('dashboard')}}">Dashboard</a></li>
 @endsection
 @section('breadcrumb-active')
-<li class="breadcrumb-item active" aria-current="page">All Deposit Transactions</li>
+<li class="breadcrumb-item active" aria-current="page">Customer Deposits</li>
 @endsection
 @section('content')
 <div class="row">
@@ -108,34 +108,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($transactions as $transaction)
+                        @foreach($transactions as $deposit)
                         <tr>
                             <td>{{$count++}}</td>
-                            <td><strong>Email:</strong> {{$transaction->customer->email}} <br>
-                                <strong>Account No: </strong>{{ $transaction->account_number }} <br>
-                                @if( $transaction->user_status == 'SUCCESSFUL')
-                                <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->user_status) }}</button>
+                            <td><strong>Email:</strong> {{$deposit->customer->email}} <br>
+                                <strong>Account No: </strong>{{ $deposit->account_number }} <br>
+                                @if( $deposit->user_status == 'SUCCESSFUL')
+                                <button class="btn btn-success btn-sm" readonly>{{ucfirst($deposit->user_status) }}</button>
                                 @else
-                                <button class="btn btn-danger btn-sm" readonly>{{ucfirst($transaction->user_status) }}</button>
+                                <button class="btn btn-danger btn-sm" readonly>{{ucfirst($deposit->user_status) }}</button>
                                 @endif 
                             </td>
+                            
                             <td>
-                                <strong>Gateway: </strong>{{ucfirst($transaction->gateway?->name) }} <br>
-                                <strong>Sys Reference: </strong>{{$transaction->sys_ref}} <br>
-                                <strong>Provider Reference: </strong>{{$transaction->api_ref }} <br>
-                                <strong>Date: </strong>{{ date("M jS, Y g:iA", strtotime($transaction->created_at)) }}
+                                <strong>Gateway: </strong>{{ucfirst($deposit->gateway?->name) }} <br>
+                                <strong>Sys Reference: </strong>{{$deposit->sys_ref}} <br>
+                                <strong>Provider Reference: </strong>{{$deposit->api_ref }} <br>
+                                <strong>Date: </strong>{{ date("M jS, Y g:iA", strtotime($deposit->created_at)) }}
                             </td>
+                            @if(!empty($deposit->transaction))
                             <td>
                                 @if(hasAccess('admin.single.transaction.view'))
-                                    <a target="_blank" class="btn btn-info-light btn-wave btn-sm" href="{{ route('admin.single.transaction.view', $transaction->transaction->id) }}">View</a>
+                                    <a target="_blank" class="btn btn-info-light btn-wave btn-sm" href="{{ route('admin.single.transaction.view', $deposit->transaction->id) }}">View</a>
                                 @endif
                             </td>
+                            @endif
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-
             {{ $transactions->links() }}
         </div>
     </div>
@@ -143,5 +145,4 @@
 @endsection
 @section('extra-js')
 <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
-    
 @endsection

@@ -30,6 +30,9 @@
                             <th>Products</th>
                             <th>File Name</th>
                             <th>Status</th>
+                            @if(hasAccess('api.edit') || hasAccess('api.balance'))
+                            <th>Balance</th>
+                            @endif
                             <th>Date Added</th>
                             @if(hasAccess('api.edit') || hasAccess('api.balance'))
                             <th>Actions</th>
@@ -48,13 +51,13 @@
                             <td style="color:{{ $api->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($api->status) }}</td>
                             <td>{{ $api->created_at }}</td>
                             @if(hasAccess('api.edit') || hasAccess('api.balance'))
+                            <td>{{ $api->balance }}</td>
                             <td>
                                 @if(hasAccess('api.edit'))
                                 <a href="{{ route('api.edit', $api->id) }}"><button type="button" class="btn btn-primary-light btn-wave btn-sm"><i class="bx bxs-pencil"></i>View/Edit</button></a>
                                 @endif
                             </td>
                             @endif
-                            
                         </tr>
                         @endforeach
                     </tbody>

@@ -22,13 +22,12 @@
                                         {{ settings()->currency.number_format($wallet_balance)}}
                                     </span>
                                 </div>
-                                 <br> <br>
+                                <br> <br>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="col-md-4">
                 <div class="card custom-card">
                     <div class="card-body">
