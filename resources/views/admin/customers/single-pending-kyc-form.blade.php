@@ -1,3 +1,4 @@
+
 <form action="{{ route('pending.kyc.update', $customer->kycData->id) }}" method="POST" enctype="multipart/form-data">
     @csrf
     <div class="row gy-4">

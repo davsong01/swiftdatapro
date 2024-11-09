@@ -256,10 +256,13 @@
                         <button type="button" data-bs-toggle="modal" data-bs-target="#kycstatus" class="btn btn-danger btn-wave">Update Kyc Status</button>
                     </div>
                 </div>
-                
                 <div class="tab-content">
                     <div class="tab-pane" id="kyc-data" role="tabpanel">
+                        @if(!empty($customer->kycData))
                         @include('admin.customers.single-pending-kyc-form')
+                        @else
+                        No Data
+                        @endif
                     </div>
                 </div>
             </div>

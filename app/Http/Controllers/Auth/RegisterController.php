@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use DateTime;
 use DateTimeZone;
 use App\Models\User;
+use App\Models\KycData;
 use App\Models\UserVerify;
 use App\Models\WebSetting;
 use Illuminate\Support\Str;
@@ -155,10 +156,13 @@ class RegisterController extends Controller
 
         // Send Admin Notification email
         $this->sendAdminNotificationEmail($user,$settings);
-        // UserVerify::create([
-        //     'user_id' => $user->id,
-        //     'token' => $user->users_sid
-        // ]);
+        
+        KycData::updateOrCreate(['user_id' => $user->id], [
+            'user_id' => $user->id,
+            'bvn' => null,
+            'nin' => null,
+            'bvn_data' => null,
+        ]);
 
         return $user;
     }
