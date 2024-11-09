@@ -330,35 +330,20 @@ class CustomerController extends Controller
         if($data['kyc_status'] == 1){
             $subject = "Your KYC Submission Has Been Approved – Welcome to Unrestricted Access!";
             $message = "Dear {$data['name']}, <br><br>
-                We're pleased to inform you that your KYC (Know Your Customer) submission has been successfully approved! You can now log in to your account and begin transactions without any restrictions. <br><br>
-
-                We understand the importance of your security and privacy and are committed to safeguarding your information. By completing your KYC, you have added an additional layer of protection, allowing us to serve you better and ensuring a safe and seamless experience. <br><br>
-
-                Thank you for choosing {$settings->sitename} as your trusted partner. If you have any questions, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>
-
-                Best regards,<br><br>
+                We're pleased to inform you that your KYC (Know Your Customer) submission has been successfully approved! You can now log in to your account and begin transactions without any restrictions. <br><br>We understand the importance of your security and privacy and are committed to safeguarding your information. By completing your KYC, you have added an additional layer of protection, allowing us to serve you better and ensuring a safe and seamless experience. <br><br>Thank you for choosing {$settings->sitename} as your trusted partner. If you have any questions, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>Best regards,<br><br>
                 {$settings->sitename}
             ";
         }
 
         if ($data['kyc_status'] == 2) {
             $subject = "KYC Submission Update – Action Required";
-            $message = "Dear {$data['name']}, <br><br>
-                Thank you for your recent KYC submission. After careful review, we regret to inform you that your submission has not been approved.";
+            $message = "Dear {$data['name']}, <br><br>Thank you for your recent KYC submission. After careful review, we regret to inform you that your submission has not been approved.";
 
-                if (!empty($data['reason'])) {
-                    $message .= "<br><br>The reason for this decision is as follows:<br><br>
-                    <strong>{$data['reason']}</strong>";
-                }
+            if (!empty($data['reason'])) {
+                $message .= "<br><br>The reason for this decision is as follows:<br><br><strong>{$data['reason']}</strong>";
+            }
 
-            $message .= "<br><br>
-                To continue using our services, we kindly ask you to review and update your information as needed. Once updated, please resubmit your KYC documents for further review. <br><br>
-
-                We value your security and privacy and are here to support you through this process. If you have any questions or need assistance with resubmission, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>
-
-                Thank you for choosing {$settings->sitename} as your trusted partner. <br><br>
-                Best regards,<br><br>
-                {$settings->sitename}
+            $message .= "<br><br>To continue using our services, we kindly ask you to review and update your information as needed. Once updated, please resubmit your KYC documents for further review. <br><br>We value your security and privacy and are here to support you through this process. If you have any questions or need assistance with resubmission, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>Thank you for choosing {$settings->sitename} as your trusted partner. <br><br>Best regards,<br><br>{$settings->sitename}
             ";
         }
         
