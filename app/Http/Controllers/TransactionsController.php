@@ -1348,8 +1348,8 @@ class TransactionsController extends Controller
             'product:id,display_name',
             'variation:id,system_name'
         )
-        ->orderByRaw('CASE WHEN resolved_transaction_id IS NULL THEN 1 ELSE 0 END, resolved_transaction_id')
-        ->latest();
+        ->orderBy('created_at','DESC')
+        ->orderByRaw('CASE WHEN resolved_transaction_id IS NULL THEN 1 ELSE 0 END, resolved_transaction_id');
 
         $products = Product::all();
         

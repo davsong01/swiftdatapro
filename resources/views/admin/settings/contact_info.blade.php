@@ -92,9 +92,13 @@
                         </select>
                     </div>
                     <div class="col-md-6">
+                        <label for="kyc_verification_cost" class="form-label">KYC Verification Cost</label>
+                        <input type="number" value="{{ $contact->kyc_verification_cost ?? old('kyc_verification_cost')}}" class="form-control" id="kyc_verification_cost" name="kyc_verification_cost">
+                    </div>
+
+                    <div class="col-md-6">
                         <label for="disable_registration" class="form-label">Disable New Registration<span
                         class="text-danger">*</span></label>
-                        
                         <select class="form-control" name="disable_registration" id="disable_registration" required>
                             <option value="" selected>Select</option>
                             <option value="yes" {{ $contact->disable_registration == 'yes' ? 'selected' : '' }}>Yes</option>

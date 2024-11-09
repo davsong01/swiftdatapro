@@ -7,6 +7,7 @@ use App\Models\KycData;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
+use App\Models\WebSetting;
 use App\Services\ExcelService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -204,22 +205,92 @@ class CustomerController extends Controller
     public function approvePendingKYC(Request $request, $id=null){
         $kyc = KycData::where('id', $id)->first();
         $user = User::where('id', $kyc->user_id)->first();
+        $settings = settings();
 
-        $data = [
-            'kyc_data_id' => $kyc->id,
-            'reason' => $request->reason,
-            'kyc_status' => 1,
-            'email' => $user->email,
-            'name' => $user->name,
-        ];
+        if($settings->kyc_verification_cost > 0){
+        
+            try {
+                DB::beginTransaction();
+                $user->lockForUpdate();
 
-        $this->logKycAction($data);
+                $balance = walletBalance($user);
+                $report = 'KYC Verification Charge of ' . $settings->kyc_verification_cost;
+                $api_reference = $this->generateRequestId('KVC');
 
-        $user->update([
-            'kyc_status' => 1,
-        ]);
+                $transactionData = [
+                    'mobile_number' => $user->mobile,
+                    'unit_price' => $settings->kyc_verification_cost,
+                    'buyer_amount' => $settings->kyc_verification_cost,
+                    'buyer_prebal' => $balance,
+                    'buyer_postbal' => $balance - $settings->kyc_verification_cost,
+                    'buyer_descr' => $report,
+                    'type' => 'debit',
+                    'buyer_status' => 'KYC-VERIFICATION-CHARGE',
+                    'customer_status' => 'KYC-VERIFICATION-CHARGE',
+                    'buyer_service' => 'KYC-VERIFICATION-CHARGE',
+                    'charge_from' => 'WALLET',
+                    'user_type' => $user->level,
+                    'sys_ref' => $api_reference,
+                    'api_ref' => $api_reference,
+                    'api_report' => 'DONE',
+                    'buyer_quantity' => 1,
+                    'provider_id' => null,
+                    'variation_id' => null,
+                    'product_id' => null,
+                    'discount' => 0,
+                    'src_price' => 0,
+                    'channel' => 'website',
+                    'provider' => null,
+                    'billersCode' => $user->mobile,
+                    'category_id' => null,
+                    'profit' => 0,
+                    'api_report' => 'DONE',
+                    'user_id' => $user->id,
+                ];
+                
+                $this->logTransaction($transactionData);
+                // log transaction
 
-        $this->sendkycMail($data);
+                $user->wallets -= $settings->kyc_verification_cost;
+                $user->save();
+
+                $response = [
+                    'status' => 'success'
+                ];
+
+                DB:: commit();
+                
+
+            } catch (\Exception $e) {
+                DB::rollBack();
+                $response = [
+                    'status' => 'failed',
+                    'message' => $e->getMessage() . ' Line: ' . $e->getLine() . ' File: ' . $e->getFile(),
+                ];
+            }
+
+        }else{
+            $response = [
+                'status' => 'success'
+            ];
+        }
+        
+        if($response['status'] == 'success'){
+            $data = [
+                'kyc_data_id' => $kyc->id,
+                'reason' => $request->reason,
+                'kyc_status' => 1,
+                'email' => $user->email,
+                'name' => $user->name,
+            ];
+            $this->logKycAction($data);
+            
+            $user->update([
+                'kyc_status' => 1,
+            ]);
+
+            $this->sendkycMail($data);
+        }
 
         return redirect(route('pending.kyc'))->with('message', 'Operation Successful');
     }
