@@ -21,7 +21,8 @@
 
     <!-- Main Theme Js -->
     <script src="{{ asset('new/assets/js/main.js') }}"></script>
-    
+    @include('layouts/main_menu_css')
+
     <!-- Bootstrap Css -->
     <link id="style" href="{{ asset('new/assets/libs/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" >
 
