@@ -303,7 +303,7 @@ class PaymentGatewayController extends Controller
                                     'payment_gateway_id' => $api->id,
                                     'account_number' => $account_number,
                                 ]);
-
+                                
                                 if ($deposit) {
                                     $data = [
                                         'mobile_number' => $user->mobile,

@@ -12,6 +12,7 @@ use App\Models\Transactions;
 use App\Models\RolePermission;
 use App\Models\AutomatedDeposit;
 use App\Models\EarnedTransactions;
+use Illuminate\Support\Facades\DB;
 
 if (!function_exists('sendNativeMail')) {
     function sendNativeMail($to, $subject, $body)
@@ -515,6 +516,126 @@ if (!function_exists("hasAccess")) {
             return [
                 'color' => $color,
                 'bg' => $bg,
+            ];
+        }
+    }
+
+    // if (!function_exists("customerStatistics")) {
+    //     function customerStatistics()
+    //     {
+    //         $today = Carbon::today();
+    //         $startOfWeek = Carbon::now()->startOfWeek(); // Start of current week (Sunday)
+    //         $startOfMonth = Carbon::today()->startOfMonth(); // Start of current month
+
+    //         // Query logic
+    //         $query = Transactions::with('customer:id,full_name,middle_name,last_name')
+    //         ->whereNotIn('buyer_service', ['KYC-VERIFICATION-CHARGE', 'DEPOSIT'])
+    //         ->whereIn('buyer_status', ['SUCCESSFUL'])
+    //         ->addSelect(DB::raw('SUM(unit_price) as unit_price, COUNT(id) as count, user_id'))
+    //         ->groupBy('user_id');
+
+    //         // Customer of the Day
+    //         $customerOfTheDay = clone $query;
+    //         $customerOfTheDay = $customerOfTheDay->whereDate('created_at', $today)
+    //         ->orderBy('unit_price', 'DESC')
+    //         ->first();
+
+    //         // Customer of the Week
+    //         $customerOfTheWeek = clone $query;
+    //         $customerOfTheWeek = $customerOfTheWeek->whereBetween('created_at', [$startOfWeek, Carbon::now()])
+    //         ->orderBy('unit_price', 'DESC')
+    //         ->first();
+
+    //         // Customer of the Month
+    //         $customerOfTheMonth = clone $query;
+    //         $customerOfTheMonth = $customerOfTheMonth->whereBetween('created_at', [$startOfMonth, Carbon::now()])
+    //         ->orderBy('unit_price', 'DESC')
+    //         ->first();
+
+    //         // Return the results
+    //         return [
+    //             'customer_of_the_day' => $customerOfTheDay,
+    //             'customer_of_the_week' => $customerOfTheWeek,
+    //             'customer_of_the_month' => $customerOfTheMonth,
+    //         ];
+    //     }
+    // }
+    if (!function_exists("customerStatistics")) {
+        function customerStatistics()
+        {
+            $today = Carbon::today();
+            $startOfWeek = Carbon::now()->startOfWeek(); // Start of current week (Sunday)
+            $startOfMonth = Carbon::today()->startOfMonth(); // Start of current month
+
+            // Query logic
+            $query = Transactions::with('customer:id,full_name,middle_name,last_name') 
+                ->whereNotIn('buyer_service', ['KYC-VERIFICATION-CHARGE', 'DEPOSIT'])
+                ->whereIn('buyer_status', ['SUCCESSFUL'])
+                ->addSelect(DB::raw('SUM(unit_price) as unit_price, COUNT(id) as count, user_id'))
+                ->groupBy('user_id');
+
+            // Customer of the Day
+            $customerOfTheDay = clone $query;
+            $customerOfTheDay = $customerOfTheDay->whereDate('created_at', $today)
+                ->addSelect(DB::raw('MIN(created_at) as date_from, MAX(created_at) as date_to'))  // Get date range
+                ->orderBy('unit_price', 'DESC')
+                ->first();
+
+            // Customer of the Week
+            $customerOfTheWeek = clone $query;
+            $customerOfTheWeek = $customerOfTheWeek->whereBetween('created_at', [$startOfWeek, Carbon::now()])
+                ->addSelect(DB::raw('MIN(created_at) as date_from, MAX(created_at) as date_to'))  // Get date range
+                ->orderBy('unit_price', 'DESC')
+                ->first();
+
+            // Customer of the Month
+            $customerOfTheMonth = clone $query;
+            $customerOfTheMonth = $customerOfTheMonth->whereBetween('created_at', [$startOfMonth, Carbon::now()])
+                ->addSelect(DB::raw('MIN(created_at) as date_from, MAX(created_at) as date_to'))  // Get date range
+                ->orderBy('unit_price', 'DESC')
+                ->first();
+
+            // Convert date_from and date_to to Carbon instances before formatting
+            if ($customerOfTheDay) {
+                $customerOfTheDay->date_from = Carbon::parse($customerOfTheDay->date_from);
+                $customerOfTheDay->date_to = Carbon::parse($customerOfTheDay->date_to);
+            }
+
+            if ($customerOfTheWeek) {
+                $customerOfTheWeek->date_from = Carbon::parse($customerOfTheWeek->date_from);
+                $customerOfTheWeek->date_to = Carbon::parse($customerOfTheWeek->date_to);
+            }
+
+            if ($customerOfTheMonth) {
+                $customerOfTheMonth->date_from = Carbon::parse($customerOfTheMonth->date_from);
+                $customerOfTheMonth->date_to = Carbon::parse($customerOfTheMonth->date_to);
+            }
+            
+            return [
+                'customer_of_the_day' => [
+                    'user_id' => $customerOfTheDay->user_id,
+                    'unit_price' => $customerOfTheDay->unit_price,
+                    'count' => $customerOfTheDay->count,
+                    'date_from' => $customerOfTheDay->date_from,
+                    'date_to' => $customerOfTheDay->date_to,
+                    'name' => $customerOfTheDay->customer->name ?? null,
+                ],
+                'customer_of_the_week' => [
+                    'user_id' => $customerOfTheWeek->user_id,
+                    'unit_price' => $customerOfTheWeek->unit_price,
+                    'count' => $customerOfTheWeek->count,
+                    'date_from' => $customerOfTheWeek->date_from,
+                    'date_to' => $customerOfTheWeek->date_to,
+                    'name' => $customerOfTheWeek->customer->name ?? null,
+                ],
+                'customer_of_the_month' => [
+                    'user_id' => $customerOfTheMonth->user_id,
+                    'unit_price' => $customerOfTheMonth->unit_price,
+                    'count' => $customerOfTheMonth->count,
+                    'date_from' => $customerOfTheMonth->date_from,
+                    'date_to' => $customerOfTheMonth->date_to,
+                    'name' => $customerOfTheMonth->customer->name ?? null,
+                ],
             ];
         }
     }

@@ -37,6 +37,8 @@ class AdminDashboardController extends Controller
         $success = $clone3->whereIn('buyer_status',['DELIVERED', 'SUCCESSFUL'])->get();
         $customers = User::count();
 
-        return view('admin.dashboard', compact('t_profit','pending','failed','success', 'wallet_balance', 'earnings_balance','t_pending','t_success','t_failed','customers', 't_all'));
+        $customerStatistics = customerStatistics();
+        
+        return view('admin.dashboard', compact('t_profit','pending','failed','success', 'wallet_balance', 'earnings_balance','t_pending','t_success','t_failed','customers', 't_all', 'customerStatistics'));
     }
 }
