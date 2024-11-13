@@ -206,6 +206,7 @@
                             
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
                                 <div class="mb-2">Best Customer today
+                                    <strong> <br>{{ !empty($customerStatistics['customer_of_the_day']) ? $customerStatistics['customer_of_the_day']['name'] : 'N/A' }}</strong>
                                     @if(!empty($customerStatistics['customer_of_the_day']['email']))
                                     <strong><br> <a style="color:blue" target="_blank" href="{{ route('customers.edit', $customerStatistics['customer_of_the_day']['user_id'])}}">{{ !empty($customerStatistics['customer_of_the_day']['email']) ? $customerStatistics['customer_of_the_day']['email'] : 'N/A' }}</a></strong>
                                     @else   
@@ -244,6 +245,7 @@
                             </div>
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
                                 <div class="mb-2">Best Customer this week
+                                    <strong> <br>{{ !empty($customerStatistics['customer_of_the_week']) ? $customerStatistics['customer_of_the_week']['name'] : 'N/A' }}</strong>
                                     @if(!empty($customerStatistics['customer_of_the_week']['email']))
                                     <strong><br> <a style="color:blue" target="_blank" href="{{ route('customers.edit', $customerStatistics['customer_of_the_week']['user_id'])}}">{{ !empty($customerStatistics['customer_of_the_week']['email']) ? $customerStatistics['customer_of_the_week']['email'] : 'N/A' }}</a></strong>
                                     @else   
