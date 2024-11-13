@@ -1428,7 +1428,7 @@
             &[data-menu-styles="gradient"][data-nav-style=menu-click][data-toggled=menu-click-closed],
             &[data-menu-styles="gradient"][data-nav-style=menu-hover][data-toggled=menu-hover-closed] {
                 .app-sidebar .main-sidebar-header {
-                    background: linear-gradient(to right, var(--primary-color) 0, rgb(var(--secondary-rgb)) 100%);
+                    background: linear-gradient(to right, #a211c5 0, rgb(var(--secondary-rgb)) 100%);
                 }
             }
 

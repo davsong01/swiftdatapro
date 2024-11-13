@@ -568,12 +568,12 @@ if (!function_exists("hasAccess")) {
             $startOfMonth = Carbon::today()->startOfMonth(); // Start of current month
 
             // Query logic
-            $query = Transactions::with('customer:id,full_name,middle_name,last_name') 
+            $query = Transactions::with('customer:id,full_name,middle_name,last_name,email') 
                 ->whereNotIn('buyer_service', ['KYC-VERIFICATION-CHARGE', 'DEPOSIT'])
                 ->whereIn('buyer_status', ['SUCCESSFUL'])
                 ->addSelect(DB::raw('SUM(unit_price) as unit_price, COUNT(id) as count, user_id'))
                 ->groupBy('user_id');
-
+            
             // Customer of the Day
             $customerOfTheDay = clone $query;
             $customerOfTheDay = $customerOfTheDay->whereDate('created_at', $today)
@@ -613,28 +613,31 @@ if (!function_exists("hasAccess")) {
             
             return [
                 'customer_of_the_day' => [
-                    'user_id' => $customerOfTheDay->user_id,
-                    'unit_price' => $customerOfTheDay->unit_price,
-                    'count' => $customerOfTheDay->count,
-                    'date_from' => $customerOfTheDay->date_from,
-                    'date_to' => $customerOfTheDay->date_to,
+                    'user_id' => $customerOfTheDay->user_id ?? null,
+                    'unit_price' => $customerOfTheDay->unit_price ?? null,
+                    'count' => $customerOfTheDay->count  ?? null,
+                    'date_from' => $customerOfTheDay->date_from  ?? null,
+                    'date_to' => $customerOfTheDay->date_to  ?? null,
                     'name' => $customerOfTheDay->customer->name ?? null,
+                    'email' => $customerOfTheDay->customer->email ?? null,
                 ],
                 'customer_of_the_week' => [
-                    'user_id' => $customerOfTheWeek->user_id,
-                    'unit_price' => $customerOfTheWeek->unit_price,
-                    'count' => $customerOfTheWeek->count,
-                    'date_from' => $customerOfTheWeek->date_from,
-                    'date_to' => $customerOfTheWeek->date_to,
+                    'user_id' => $customerOfTheWeek->user_id ?? null,
+                    'unit_price' => $customerOfTheWeek->unit_price ?? null,
+                    'count' => $customerOfTheWeek->count ?? null,
+                    'date_from' => $customerOfTheWeek->date_from ?? null,
+                    'date_to' => $customerOfTheWeek->date_to ?? null,
                     'name' => $customerOfTheWeek->customer->name ?? null,
+                    'email' => $customerOfTheWeek->customer->email ?? null,
                 ],
                 'customer_of_the_month' => [
-                    'user_id' => $customerOfTheMonth->user_id,
-                    'unit_price' => $customerOfTheMonth->unit_price,
-                    'count' => $customerOfTheMonth->count,
-                    'date_from' => $customerOfTheMonth->date_from,
-                    'date_to' => $customerOfTheMonth->date_to,
+                    'user_id' => $customerOfTheMonth->user_id ?? null,
+                    'unit_price' => $customerOfTheMonth->unit_price ?? null,
+                    'count' => $customerOfTheMonth->count ?? null,
+                    'date_from' => $customerOfTheMonth->date_from ?? null,
+                    'date_to' => $customerOfTheMonth->date_to ?? null,
                     'name' => $customerOfTheMonth->customer->name ?? null,
+                    'email' => $customerOfTheMonth->customer->email ?? null,
                 ],
             ];
         }

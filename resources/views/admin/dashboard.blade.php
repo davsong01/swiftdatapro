@@ -206,20 +206,26 @@
                             
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
                                 <div class="mb-2">Best Customer today
-                                    <strong> <br>{{ !empty($customerStatistics['customer_of_the_day']['name'] ) ? $customerStatistics['customer_of_the_day']['name'] : 'N/A' }}</strong>
+                                    @if(!empty($customerStatistics['customer_of_the_day']['email']))
+                                    <strong><br> <a style="color:blue" target="_blank" href="{{ route('customers.edit', $customerStatistics['customer_of_the_day']['user_id'])}}">{{ !empty($customerStatistics['customer_of_the_day']['email']) ? $customerStatistics['customer_of_the_day']['email'] : 'N/A' }}</a></strong>
+                                    @else   
+                                    N/A
+                                    @endif
                                 </div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
-                                        @if(!empty($customerStatistics['customer_of_the_day']))
+                                        @if(!empty($customerStatistics['customer_of_the_day']['user_id']))
                                         {{ settings()->currency.number_format($customerStatistics['customer_of_the_day']['unit_price']) }} <small>({{ $customerStatistics['customer_of_the_day']['count']}})</small>
                                         @else
-                                        N/A
+                                        N/A <br>
                                         @endif
                                     </span>
                                     <br>
-                                    @if(!empty($customerStatistics['customer_of_the_day']))
+                                    @if(!empty($customerStatistics['customer_of_the_day']['user_id']))
                                     <small style="font-size:9px"><span style="color:red">{{ $customerStatistics['customer_of_the_day']['date_from'] }}</span> <strong>to</strong> 
                                     <span style="color:green">{{ $customerStatistics['customer_of_the_day']['date_to'] }}</span></small>
+                                    @else   
+                                    <br>
                                     @endif
                                 </div>
                             </div>
@@ -238,20 +244,26 @@
                             </div>
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
                                 <div class="mb-2">Best Customer this week
-                                    <strong> <br>{{ !empty($customerStatistics['customer_of_the_week']['name']) ? $customerStatistics['customer_of_the_week']['name'] : 'N/A' }}</strong>
+                                    @if(!empty($customerStatistics['customer_of_the_week']['email']))
+                                    <strong><br> <a style="color:blue" target="_blank" href="{{ route('customers.edit', $customerStatistics['customer_of_the_week']['user_id'])}}">{{ !empty($customerStatistics['customer_of_the_week']['email']) ? $customerStatistics['customer_of_the_week']['email'] : 'N/A' }}</a></strong>
+                                    @else   
+                                    N/A 
+                                    @endif
                                 </div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
-                                        @if(!empty($customerStatistics['customer_of_the_week']))
+                                        @if(!empty($customerStatistics['customer_of_the_week']['user_id']))
                                         {{ settings()->currency.number_format($customerStatistics['customer_of_the_week']['unit_price']) }} <small>({{ $customerStatistics['customer_of_the_week']['count']}})</small>
                                         @else
-                                        N/A
+                                        N/A <br>
                                         @endif
                                     </span>
                                     <br>
-                                    @if(!empty($customerStatistics['customer_of_the_week']))
+                                    @if(!empty($customerStatistics['customer_of_the_week']['user_id']))
                                     <small style="font-size:9px"><span style="color:red">{{ $customerStatistics['customer_of_the_week']['date_from'] }}</span> <strong>to</strong> 
                                     <span style="color:green">{{ $customerStatistics['customer_of_the_week']['date_to'] }}</span></small>
+                                    @else   
+                                    <br>
                                     @endif
                                 </div>
                             </div>
@@ -271,13 +283,18 @@
                             <div class="col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8 ps-0">
                                 <div class="mb-2">Best Customer this month
                                     <strong> <br>{{ !empty($customerStatistics['customer_of_the_month']) ? $customerStatistics['customer_of_the_month']['name'] : 'N/A' }}</strong>
+                                    @if(!empty($customerStatistics['customer_of_the_month']['email']))
+                                    <strong><br> <a style="color:blue" target="_blank" href="{{ route('customers.edit', $customerStatistics['customer_of_the_month']['user_id'])}}">{{ !empty($customerStatistics['customer_of_the_month']['email']) ? $customerStatistics['customer_of_the_month']['email'] : 'N/A' }}</a></strong>
+                                    @else   
+                                    N/A
+                                    @endif
                                 </div>
                                 <div class="text-muted mb-1 fs-12">
                                     <span class="text-dark fw-semibold fs-20 lh-1 vertical-bottom">
                                         @if(!empty($customerStatistics['customer_of_the_month']))
                                         {{ settings()->currency.number_format($customerStatistics['customer_of_the_month']['unit_price']) }} <small>({{ $customerStatistics['customer_of_the_month']['count']}})</small>
                                         @else
-                                        N/A
+                                        N/A <br>
                                         @endif
                                     </span>
                                     <br>
