@@ -948,8 +948,11 @@ class VtpassController extends Controller
             ];
 
             $response = $this->advancedApiCall($url, $payload, $headers);
+            // $response = '{"response_description":"TRANSACTION SUCCESSFUL","code":"016","content":{"transactions":{"status":"failed","product_name":"MTN Airtime VTU","unique_element":"08144492546","unit_price":200,"quantity":1,"service_verification":null,"channel":"api","commission":"6.00","total_amount":194,"discount":null,"type":"Airtime Recharge","email":"adebolaademilekan27@gmail.com","phone":"09057566532","name":null,"extras":null,"convinience_fee":0,"amount":"200.00","platform":"api","method":"wallet","transactionId":"17317287728853966462859092","product_id":2}},"requestId":"20241116044627204-SWFT","amount":"200.00","transaction_date":"2024-11-16T03:46:12.000000Z","purchased_code":""}';
+
             
             $format = $this->processApiResponse($response);
+            
             $format['api_response'] = $response;
             
             return $format;

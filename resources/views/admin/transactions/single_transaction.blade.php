@@ -290,7 +290,7 @@
                             @if(!in_array($transaction->buyer_status, ['ADMIN-RESOLVED','ADMIN-REFUND','REFUND','DEPOSIT']))
                                 <a id="qw-transaction" onclick="queryStatus()" class="btn btn-dark btn-sm" style="color:#fff;"><i class='bx bx-search-alt' ></i> Re Query Transaction</a>
                             @endif
-                            @if(in_array('view.sensitive.data', allowedPermissions()) && in_array($transaction->buyer_status, ['ADMIN-RESOLVED','ATTENTION-REQUIRED']))
+                            @if(in_array('view.sensitive.data', allowedPermissions()) && in_array($transaction->buyer_status, ['ADMIN-RESOLVED','ATTENTION-REQUIRED','SUCCESSFUL']))
                                 <button type="button" class="btn btn-primary btn-sm" style="color:#fff;" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 <i class='bx bx-cog'></i> Resolve
                                 </button>
