@@ -569,7 +569,8 @@ if (!function_exists("hasAccess")) {
 
             // Query logic
             $query = Transactions::with('customer:id,full_name,middle_name,last_name,email') 
-                ->whereNotIn('buyer_service', ['KYC-VERIFICATION-CHARGE', 'DEPOSIT'])
+                ->where('type','debit')
+                ->whereNotIn('buyer_service', ['KYC-VERIFICATION-CHARGE', 'DEPOSIT', 'ADMIN-CREDIT', 'ADMIN-REFUNDED'])
                 ->whereIn('buyer_status', ['SUCCESSFUL'])
                 ->addSelect(DB::raw('SUM(unit_price) as unit_price, COUNT(id) as count, user_id'))
                 ->groupBy('user_id');
