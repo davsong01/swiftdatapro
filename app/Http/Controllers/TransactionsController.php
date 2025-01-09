@@ -617,7 +617,7 @@ class TransactionsController extends Controller
                     'api_report' => 'FAILED',
                     'failure_reason' => $api_response['error'] ?? ($api_response['response'] ?? 'unknown error'),
                 ]);
-
+                
                 // Roll back the wallet deduction
                 $user->wallets += $request->total_amount;
                 $user->save();
@@ -751,6 +751,15 @@ class TransactionsController extends Controller
     }
 
     public function formatOderReport($resource, $request, $transaction,$api_response){
+        $api_resX = null;
+
+        if (isset($api_response['code'])) {
+            if (!in_array($api_response['code'], [18, 11, 12, 13, 14, 15, 17, 19, 27, 28])) {
+                $api_resX = $api_response['response'] ?? null;
+            }
+        }
+
+
         if ($api_response['status'] == 'success') {
             $order_report = strtoupper('Purchase Successful on ' . $request['billersCode']) .'. '. $api_response['response'];
             $extra = $api_response['extra'] ?? '';
@@ -781,17 +790,16 @@ class TransactionsController extends Controller
                 'message' => $order_report,
             ];
         }else{
-            
-            if(!empty($api_response['response'])){
-                $order_report = strtoupper('Purchase failed on ' .$request['billersCode'] . ' Error: ' . $api_response['response']);
+            if(!empty($api_resX)){
+                $order_report = strtoupper('Purchase failed on ' .$request['billersCode'] . ' Error: ' . $api_resX);
             }else{
                 $order_report = strtoupper('Purchase failed on ' . $request['billersCode'] ?? $resource->name);
             }
 
             if ($resource->slug == 'smile-data') {
-                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' Purchase failed on ' . $request['billersCode']) . '. ' . $api_response['response'] ?? '';
+                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' Purchase failed on ' . $request['billersCode']) . '. ' . $api_resX ?? '';
             } elseif ($resource->slug == 'spectranet-data') {
-                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' E-pin Purchase failed on ' . $request['billersCode']) . '. ' . $api_response['response'] ?? '';
+                $order_report = strtoupper(settings()->currency . $transaction->buyer_amount . ' E-pin Purchase failed on ' . $request['billersCode']) . '. ' . $api_resX ?? '';
             }
 
             $final_response = array(
@@ -803,7 +811,7 @@ class TransactionsController extends Controller
                 'message' => $order_report
             );
         }
-    
+        
         return [
             'order_report' => $order_report,
             'final_response' => $final_response

@@ -846,10 +846,12 @@ class VtpassController extends Controller
         ];
 
         $resX = $this->advancedApiCall($url, $postdata, $headers);
+        $resX = '{"code":"018","response_description":"LOW WALLET BALANCE","content":{"errors":""}}';
         
         // dd($postdata['url'], $postdata['payload'], $headers, $resX);
         try {
             $format = $this->processApiResponse($resX);
+            
             $format['api_response'] = $resX;
             $format['postfields'] = json_encode($postdata);      
 
@@ -878,6 +880,7 @@ class VtpassController extends Controller
                 'extra' => '',
                 'response' => 'Something went wrong, please try again later',
                 'error' => 'Something went wrong, please try again later',
+                'code' => null
             ];
             
         }else{
@@ -912,6 +915,7 @@ class VtpassController extends Controller
                     'response' => $true_response,
                     'extra' => $extra ?? null,
                     'error' => null,
+                    'code' => $code
                 ];
             } catch (\Throwable $th) {
                 $formatted = [
@@ -919,6 +923,7 @@ class VtpassController extends Controller
                     'extra' => '',
                     'response' => $th->getMessage().' '.$th->getFile().' '.$th->getLine() ,
                     'error' => $th->getMessage(),
+                    'code' => null
                 ];
     
             }
