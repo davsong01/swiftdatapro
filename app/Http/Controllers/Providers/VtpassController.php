@@ -846,7 +846,7 @@ class VtpassController extends Controller
         ];
 
         $resX = $this->advancedApiCall($url, $postdata, $headers);
-        $resX = '{"code":"018","response_description":"LOW WALLET BALANCE","content":{"errors":""}}';
+        // $resX = '{"code":"018","response_description":"LOW WALLET BALANCE","content":{"errors":""}}';
         
         // dd($postdata['url'], $postdata['payload'], $headers, $resX);
         try {
