@@ -617,7 +617,7 @@ class TransactionsController extends Controller
                     'api_report' => 'FAILED',
                     'failure_reason' => $api_response['error'] ?? ($api_response['response'] ?? 'unknown error'),
                 ]);
-                
+
                 // Roll back the wallet deduction
                 $user->wallets += $request->total_amount;
                 $user->save();
@@ -754,8 +754,10 @@ class TransactionsController extends Controller
         $api_resX = null;
 
         if (isset($api_response['code'])) {
-            if (!in_array($api_response['code'], [18, 11, 12, 13, 14, 15, 17, 19, 27, 28])) {
-                $api_resX = $api_response['response'] ?? null;
+            if (!in_array($api_response['code'], ['018', '011', '012', '013', '014', '015', '017', '019', '027', '028'])) {
+                $api_resX = 'ERROR: '. $api_response['response'] ?? null;
+            }else{
+                $api_resX = 'Please Contact Admin. CODE:'. $api_response['code'];
             }
         }
 
@@ -791,7 +793,7 @@ class TransactionsController extends Controller
             ];
         }else{
             if(!empty($api_resX)){
-                $order_report = strtoupper('Purchase failed on ' .$request['billersCode'] . ' Error: ' . $api_resX);
+                $order_report = strtoupper('Purchase failed on ' .$request['billersCode'] . $api_resX);
             }else{
                 $order_report = strtoupper('Purchase failed on ' . $request['billersCode'] ?? $resource->name);
             }
