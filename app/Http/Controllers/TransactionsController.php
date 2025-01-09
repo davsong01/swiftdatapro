@@ -755,7 +755,7 @@ class TransactionsController extends Controller
 
         if (isset($api_response['code'])) {
             if (!in_array($api_response['code'], ['018', '011', '012', '013', '014', '015', '017', '019', '027', '028'])) {
-                $api_resX = 'ERROR: '. $api_response['response'] ?? null;
+                $api_resX = '. ERROR: '. $api_response['response'] ?? null;
             }else{
                 $api_resX = 'Please Contact Admin. CODE:'. $api_response['code'];
             }
