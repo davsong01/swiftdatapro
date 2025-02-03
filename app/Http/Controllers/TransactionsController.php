@@ -761,7 +761,6 @@ class TransactionsController extends Controller
             }
         }
 
-
         if ($api_response['status'] == 'success') {
             $order_report = strtoupper('Purchase Successful on ' . $request['billersCode']) .'. '. $api_response['response'];
             $extra = $api_response['extra'] ?? '';
@@ -1506,7 +1505,7 @@ class TransactionsController extends Controller
 
     public function transactionReceipt($transaction_id)
     {
-        $transaction = Transactions::with(['product', 'category', 'variation','customer'])->where('id', $transaction_id)->first()->toArray();
+        $transaction = Transactions::with(['product', 'category', 'variation','customer','biller'])->where('id', $transaction_id)->first()->toArray();
     
         $pdf = Pdf::loadView('customer.receipts.transaction_receipt', ['transaction' => $transaction])->setPaper('a4', 'portrait');
         return $pdf->download($transaction['sys_ref'] . '.pdf');

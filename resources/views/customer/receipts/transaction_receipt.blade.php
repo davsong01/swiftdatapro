@@ -212,10 +212,25 @@
 					<td>Biller</td>
 					<td>{{$transaction['billersCode'] ?? ''}}</td>
 				</tr>
+				@if(isset($transaction['biller']['customer_name']))
+				<tr class="item">
+					<td>Customer Name</td>
+					<td>{{$transaction['biller']['customer_name']}}</td>
+				</tr>
+				@else
 				<tr class="item">
 					<td>Name</td>
 					<td>{{$transaction['customer']['full_name']}}</td>
 				</tr>
+				@endif
+				
+				@if(isset($transaction['biller']['customer_address']))
+				<tr class="item">
+					<td>Customer Address</td>
+					<td>{{$transaction['biller']['customer_address']}}</td>
+				</tr>
+				@endif
+				
 				<tr class="item">
 					<td>Email</td>
 					<td>{{$transaction['customer']['email']}}</td>

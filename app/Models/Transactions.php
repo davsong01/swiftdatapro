@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Variation;
+use App\Models\BillersLog;
 use App\Models\CustomerLevel;
 use App\Models\PaymentGateway;
 use Illuminate\Database\Eloquent\Model;
@@ -51,6 +52,11 @@ class Transactions extends Model
     public function customer()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function biller()
+    {
+        return $this->belongsTo(BillersLog::class, 'billersCode', 'unique_element');
     }
 
     public function upgrade_level()

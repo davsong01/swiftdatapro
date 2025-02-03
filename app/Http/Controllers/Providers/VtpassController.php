@@ -716,6 +716,21 @@ class VtpassController extends Controller
 
                 );
             }
+
+            try {
+                //code...
+                BillersLog::updateOrCreate(['unique_element' => $request['billersCode']],[
+                    'unique_element' => $request['billersCode'] ?? null,
+                    'customer_name' => $result->content->Customer_Name ?? null,
+                    'customer_address' => $address ?? null,
+                    'category_id' => $request['product']->category_id ?? null,
+                    'product_id' => $request['product']->id ?? null,
+                    'provider_id' => $request['product']->api_id ?? null,
+                    'raw_response' => json_encode($response),
+                ]);
+            } catch (\Throwable $th) {
+                \Log::error(['biller log error' => $th->getMessage()]);
+            }
         } else {
             $error = $result->content->error ?? $result->message;
             $fail_response =  $fail_response = 'Validation Error: ' . $error ?? 'Unable to verify at the moment, please try again';

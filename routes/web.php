@@ -7,6 +7,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Controllers\BankController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\PatchController;
 use App\Http\Controllers\StaffController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -45,6 +46,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 Route::get('populate', [Controller::class, 'populateData']);
 
 Route::get('cron/synchronize', [Controller::class, 'synchronizeTransactions']);
+Route::get('patch/update-biller-from-transaction', [PatchController::class, 'updateBillersLogFromTransactions']);
 
 Route::post('webhook_payment/{type?}', [PaymentGatewayController::class, 'analyzeWebhookPayment']);
 
