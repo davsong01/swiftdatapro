@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\KycData;
 use App\Models\Product;
+use App\Models\Customer;
+use App\Models\WebSetting;
 use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
-use App\Models\WebSetting;
 use App\Services\ExcelService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -437,5 +438,31 @@ class CustomerController extends Controller
         }
 
         return back()->with('message', 'Update succesful');
+    }
+
+    public function customersBulkAction(Request $request){
+        $request->validate([
+            'action' => 'required',
+            'customer_id' => 'required|array',
+        ]);
+        $action = $request->action;
+        $customerIds = $request->customer_id;
+
+        if ($action === 'delete') {
+            User::whereIn('id', $customerIds)->delete();
+            return back()->with('success', 'Selected customers have been deleted.');
+        }
+
+        // if ($action === 'activate') {
+        //     Customer::whereIn('id', $customerIds)->update(['status' => 'active']);
+        //     return back()->with('success', 'Selected customers have been activated.');
+        // }
+
+        // if ($action === 'deactivate') {
+        //     Customer::whereIn('id', $customerIds)->update(['status' => 'inactive']);
+        //     return back()->with('success', 'Selected customers have been deactivated.');
+        // }
+
+        return back()->with('error', 'Invalid action selected.');
     }
 }

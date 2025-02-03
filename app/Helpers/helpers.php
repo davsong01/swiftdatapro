@@ -437,6 +437,7 @@ if (!function_exists("allowedPermissions")) {
         
         if (in_array(1, $roles)) {
             $permissions = RolePermission::pluck('route')->toArray();
+            
             return $permissions;
         }else{
             return $permissions;

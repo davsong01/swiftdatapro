@@ -99,57 +99,94 @@
                     </form>
                     <hr>
                 </div>
-                <div class="table-responsive">
-                    <table class="table text-nowrap"  style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Details</th>
-                                <th>Status</th>
-                                <th>Level</th>
-                                <th>Balances</th>
-                                <th>Joined</th>
-                                @if(hasAccess('customers.edit'))
-                                <th>Action</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($customers as $customer)
-                            <tr>
-                                <td>
-                                    <p>
-                                        <strong>Name: </strong><a target="_blank" href="{{ route('customers.edit', $customer->id) }}">
-                                        {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
-                                        <strong>Username: </strong> {{ $customer->username }} <br>
-                                        <strong>Email: </strong> {{ $customer->email }} <br>
-                                        <strong>Phone: </strong> {{ $customer->mobile }}
-                                    </p>                            
-                                </td>
-                                <td>
-                                    <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
-                                    <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
-                                </td>
-                                <td>{{ $customer->customer_level->name ?? 'N/A' }}</td>
-                                <td>
-                                    Wallet: {!! settings()->currency !!}{{ number_format(walletBalance($customer)) }} <br>
-                                    Referral:  {!! settings()->currency !!}{{ number_format(referralBalance($customer)) }} <br>
-                                </td>
-                                <td> 
-                                    <strong>Joined: </strong>{{ date("M jS, Y g:iA", strtotime($customer->created_at)) }} <br>
-                                    <strong>Last Login: </strong>{{ date("M jS, Y g:iA", strtotime($customer->last_login)) }} <br>
-                                    <strong>Email Verification: </strong><span style="color:{{ !empty($customer->email_verified_at) ? 'green' : 'red' }}">{{ !empty($customer->email_verified_at) ? 'Verified' : 'Unverified' }}</span> <br>
-                                </td>
-                                @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
-                                <td>
-                                    <a href="{{ route('customers.edit', $customer->id) }}"><button type="button" class="btn btn-info btn-sm mr-1 mb-1"><i class="fa fa-edit"></i><span class="align-middle ml-25">View</span></button>
-                                    </a>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                <form id="bulkActionForm" method="POST" action="{{ route('customers.bulkAction') }}">
+                    @csrf
+                    <div class="mb-3 col-md-3">
+                        <select name="action" id="bulkAction" class="form-control">
+                            <option value="">Select Action</option>
+                            <option value="delete">Delete</option>
+                            {{-- <option value="activate">Activate</option>
+                            <option value="deactivate">Deactivate</option> --}}
+                        </select>
+                    </div>
+                    <div class="mb-3 col-md-3">
+                        <button type="submit" class="btn btn-primary mt-2" onclick="return confirmBulkAction()">Apply</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table text-nowrap"  style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>S/N</th>
+                                    <th>Status</th>
+                                    <th>Level</th>
+                                    <th>Balances</th>
+                                    <th>Joined</th>
+                                    @if(hasAccess('customers.edit'))
+                                    <th>Action</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($customers as $customer)
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" name="customer_id[]" value="{{ $customer->id }}">
+                                    </td>
+                                    <td>
+                                        {{ $loop->iteration }}
+                                    </td>
+                                    <td>
+                                        <p>
+                                            <strong>Name: </strong><a target="_blank" href="{{ route('customers.edit', $customer->id) }}">
+                                            {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
+                                            <strong>Username: </strong> {{ $customer->username }} <br>
+                                            <strong>Email: </strong> {{ $customer->email }} <br>
+                                            <strong>Phone: </strong> {{ $customer->mobile }}
+                                        </p>                            
+                                    </td>
+                                    <td>
+                                        <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
+                                        <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
+                                    </td>
+                                    <td>{{ $customer->customer_level->name ?? 'N/A' }}</td>
+                                    <td>
+                                        Wallet: {!! settings()->currency !!}{{ number_format(walletBalance($customer)) }} <br>
+                                        Referral:  {!! settings()->currency !!}{{ number_format(referralBalance($customer)) }} <br>
+                                    </td>
+                                    <td> 
+                                        <strong>Joined: </strong>{{ date("M jS, Y g:iA", strtotime($customer->created_at)) }} <br>
+                                        <strong>Last Login: </strong>{{ date("M jS, Y g:iA", strtotime($customer->last_login)) }} <br>
+                                        <strong>Email Verification: </strong><span style="color:{{ !empty($customer->email_verified_at) ? 'green' : 'red' }}">{{ !empty($customer->email_verified_at) ? 'Verified' : 'Unverified' }}</span> <br>
+                                    </td>
+                                    @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
+                                    <td>
+                                        <a href="{{ route('customers.edit', $customer->id) }}"><button type="button" class="btn btn-info btn-sm mr-1 mb-1"><i class="fa fa-edit"></i><span class="align-middle ml-25">View</span></button>
+                                        </a>
+                                    </td>
+                                    @endif
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+
+                <script>
+                    document.getElementById('selectAll').addEventListener('click', function() {
+                        let checkboxes = document.querySelectorAll('.customerCheckbox');
+                        checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+                    });
+
+                    function confirmBulkAction() {
+                        let action = document.getElementById('bulkAction').value;
+                        if (!action) {
+                            alert('Please select an action to apply.');
+                            return false;
+                        }
+                        return confirm(`Are you sure you want to perform "${action}" on the selected customers?`);
+                    }
+                </script>
             </div>
             {!! $customers->appends($_GET)->links() !!}
         </div>
