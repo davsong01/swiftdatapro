@@ -20,7 +20,14 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $customers = User::orderby('id', 'DESC');
+        // $customers = User::orderby('id', 'DESC');
+        $customers = User::orderByRaw("
+            CASE 
+                WHEN kyc_status = 1 AND status = 'active' THEN 1 
+                ELSE 2 
+            END
+        ")->orderBy('id', 'DESC');
+
         
         if (!empty($request->email)) {
             $customers = $customers->where('email', 'like', $request->email);
@@ -67,7 +74,7 @@ class CustomerController extends Controller
             return ExcelService::download($customers, $headings);
         }
 
-        $customers = $customers->paginate(20);
+        $customers = $customers->paginate(40);
 
         $title = 'All Customers';
         $customer_levels = CustomerLevel::all();
