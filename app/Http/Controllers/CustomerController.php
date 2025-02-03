@@ -20,13 +20,15 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        // $customers = User::orderby('id', 'DESC');
-        $customers = User::orderByRaw("
-            CASE 
-                WHEN kyc_status = 1 AND status = 'active' THEN 1 
-                ELSE 2 
-            END
-        ")->orderBy('id', 'DESC');
+        $customers = User::select('*', \DB::raw('(wallets + cashback) as total_balance'))
+        ->orderByRaw("
+                CASE 
+                    WHEN kyc_status = 1 AND status = 'active' THEN 1 
+                    ELSE 2 
+                END
+            ")
+            ->orderByDesc('total_balance')
+            ->orderByDesc('id');
 
         
         if (!empty($request->email)) {
