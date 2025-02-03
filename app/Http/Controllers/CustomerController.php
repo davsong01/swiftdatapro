@@ -447,10 +447,10 @@ class CustomerController extends Controller
         ]);
         $action = $request->action;
         $customerIds = $request->customer_id;
-
+        
         if ($action === 'delete') {
             User::whereIn('id', $customerIds)->delete();
-            return back()->with('success', 'Selected customers have been deleted.');
+            return back()->with('message', 'Selected customers have been deleted.');
         }
 
         // if ($action === 'activate') {

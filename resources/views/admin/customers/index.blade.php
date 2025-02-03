@@ -116,7 +116,9 @@
                         <table class="table text-nowrap"  style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Action</th>
+                                    <th>
+                                        <input type="checkbox" id="select-all">
+                                    </th>
                                     <th>S/N</th>
                                     <th>Status</th>
                                     <th>Level</th>
@@ -131,7 +133,7 @@
                                 @foreach($customers as $customer)
                                 <tr>
                                     <td>
-                                        <input type="checkbox" name="customer_id[]" value="{{ $customer->id }}">
+                                        <input type="checkbox" name="customer_id[]" value="{{ $customer->id }}" class="customer-checkbox">
                                     </td>
                                     <td>
                                         {{ $loop->iteration }}
@@ -190,7 +192,12 @@
             </div>
             {!! $customers->appends($_GET)->links() !!}
         </div>
-
+        <script>
+            document.getElementById('select-all').addEventListener('change', function () {
+                let checkboxes = document.querySelectorAll('.customer-checkbox');
+                checkboxes.forEach(checkbox => checkbox.checked = this.checked);
+            });
+        </script>
     </div>
 </div>
 @endsection
