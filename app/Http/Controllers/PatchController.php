@@ -17,6 +17,7 @@ class PatchController extends Controller
         ->orderBy('created_at', 'desc')
         ->get();
         // dd($transactions);
+        $count = 0;
         foreach ($transactions as $transaction) {
             $response = json_decode($transaction->api_response);
             
@@ -35,8 +36,14 @@ class PatchController extends Controller
                         // 'raw_response' => json_encode($response),
                     ]
                 );
+                $count++;
             }
         }
+
+        return response()->json([
+            'message' => 'Billers Log updated successfully',
+            'count' => $count,
+        ]);
         
     }
 }
