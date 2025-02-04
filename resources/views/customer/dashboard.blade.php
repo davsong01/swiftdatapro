@@ -182,6 +182,9 @@
                             <i class="fa fa-dollar-sign" style="font-size: 30px; color: #fff;"></i>
                         </div>
                         <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">All Time Funding</p>
+                        <p style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px;">
+                            {!! settings()->currency !!}{{ number_format($allTimeFunding, 2) }}
+                        </p>
                     </div>
                 </div>
                 <!-- All Time Transactions -->
@@ -191,15 +194,21 @@
                             <i class="fa fa-exchange-alt" style="font-size: 30px; color: #fff;"></i>
                         </div>
                         <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">All Time Transactions</p>
+                        <p style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px;">
+                            {!! settings()->currency !!}{{ number_format($allTimeTransactions, 2) }}
+                        </p>
                     </div>
                 </div>
                 <!-- Most Favorite Product -->
                 <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #ff7043;">
+                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #940798;">
                         <div class="option-card-icon">
                             <i class="fa fa-star" style="font-size: 30px; color: #fff;"></i>
                         </div>
                         <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">Most Favorite Product</p>
+                        <p style="font-size: 18px; font-weight: 800; color: #fff; margin-top: 5px;">
+                            {{ $mostBoughtProduct?->product?->name }}
+                        </p>
                     </div>
                 </div>
             </div>

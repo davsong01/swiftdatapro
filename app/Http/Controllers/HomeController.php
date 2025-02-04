@@ -99,10 +99,14 @@ class HomeController extends Controller
 
     public function dashboard()
     {
+        $allTimeFunding = DepositTransaction::where('user_id', auth()->user()->id)->where('user_service','DEPOSIT')->where('user_status', 'SUCCESSFUL')->sum('user_amount');
+        $allTimeTransactions = Transactions::where('user_id', auth()->user()->id)->whereNotIn('buyer_service',['ADMIN-CREDIT'])->where('buyer_status', 'SUCCESSFUL')->sum('buyer_amount');
+        $mostBoughtProduct = Transactions::with('product:id,name')->select('product_id', DB::raw('count(*) as total'))->where('user_id', auth()->user()->id)->groupBy('product_id')->orderBy('total', 'DESC')->first();
+        
         $this->createReservedAccount(auth()->user());
         $customer_levels = CustomerLevel::where('id', '>', auth()->user()->level)->get();
 
-        return view('customer.dashboard', compact('customer_levels'));
+        return view('customer.dashboard', compact('customer_levels', 'allTimeFunding','allTimeTransactions', 'mostBoughtProduct'));
     }
 
     public function customerReview(Request $request, JsonResponseService $response){
