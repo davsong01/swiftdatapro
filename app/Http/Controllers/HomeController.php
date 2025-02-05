@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use DateTime;
 use DateTimeZone;
 use App\Models\User;
+use App\Models\KycData;
 use App\Models\Product;
 use App\Models\WebSetting;
 use Illuminate\Support\Str;
@@ -28,8 +29,8 @@ use App\Services\MobileResponseService;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
+use App\Services\KycVerificationApiService;
 use App\Http\Controllers\PaymentGatewayController;
-use App\Models\KycData;
 
 class HomeController extends Controller
 {
@@ -64,7 +65,7 @@ class HomeController extends Controller
             $document = auth()->user()->kycData->means_of_identification_document ?? null;
         }
 
-        KycData::updateOrCreate([
+        $kycData = KycData::updateOrCreate([
             'user_id' => auth()->user()->id,
         ], [
             'user_id' => auth()->user()->id,
@@ -79,9 +80,26 @@ class HomeController extends Controller
                 $user->update([
                     'kyc_status' => 1,
                 ]);
+
+                $kycData->update([
+                    'verification_data' => [
+                        'nin' => [
+                            'status' => 'verified',
+                            'method' => 'auto',
+                            'date_verified' => Carbon::now(),
+                        ],
+                        'bvn' => [
+                            'status' => 'verified',
+                            'method' => 'auto',
+                            'date_verified' => Carbon::now(),
+                        ],
+                    ],
+                ]);
             }
 
             $message = 'Operation Successful';
+        }elseif(isset($kyc_mode) && $kyc_mode == 'api'){
+            $ninVerification = KycVerificationApiService::verify('nin', $request->nin ?? $kyc_data->nin); 
         }else{
             $message = 'Operation Successful, please be patient while an admin approves your submission';
         }

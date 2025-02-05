@@ -88,6 +88,7 @@
                         <select class="form-control" name="kyc_verification_mode" id="kyc_verification_mode" required>
                             <option value="" selected>Select</option>
                             <option value="manual" {{ $contact->kyc_verification_mode  == 'manual' ? 'selected' : '' }}>Manual</option>
+                            <option value="api" {{ $contact->kyc_verification_mode  == 'api' ? 'selected' : '' }}>Via Api</option>
                             <option value="auto" {{ $contact->kyc_verification_mode == 'auto' ? 'selected' : '' }}>Automated</option>
                         </select>
                     </div>

@@ -13,11 +13,27 @@
                 disabled>
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="bvn">BVN</label>
+            <label class="form-label" for="bvn">BVN 
+                @if(isset($kycDataStatuses->bvn))
+                <span class="badge" style="background-color: {{ $kycDataStatuses->bvn->status == 'verified' ? '#28a745' : '#dc3545' }}; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                    {{ ucfirst($kycDataStatuses->bvn->status) }} 
+                </span><span class="verified-by"> by: {{ $kycDataStatuses->bvn->method }}</span>
+                @else
+                <span class="badge" style="background-color:#dc3545; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">Unverified</span>
+                @endif
+        </label>
             <input name="bvn" type="text" class="form-control" placeholder="BVN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->kycData->bvn : mask($customer->kycData->bvn) }}" {{ !in_array('view.sensitive.data', allowedPermissions()) ? 'readonly' : '' }}>
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="nin">NIN</label>
+            <label class="form-label" for="nin">NIN
+                @if(isset($kycDataStatuses->nin))
+                <span class="badge" style="background-color: {{ $kycDataStatuses->nin->status == 'verified' ? '#28a745' : '#dc3545' }}; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
+                    {{ ucfirst($kycDataStatuses->nin->status) }} 
+                </span><span class="verified-by"> by: {{ $kycDataStatuses->nin->method }}</span>
+                @else
+                <span class="badge" style="background-color:#dc3545; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">Unverified</span>
+                @endif
+            </label>
             <input type="text" name="nin" class="form-control"
                 placeholder="NIN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->kycData->nin : mask($customer->kycData->nin) }}" {{ !in_array('view.sensitive.data', allowedPermissions()) ? 'readonly' : '' }}>
         </div>

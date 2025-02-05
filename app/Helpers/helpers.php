@@ -12,6 +12,7 @@ use App\Models\Transactions;
 use App\Models\RolePermission;
 use App\Models\AutomatedDeposit;
 use App\Models\EarnedTransactions;
+use App\Models\KycData;
 use Illuminate\Support\Facades\DB;
 
 if (!function_exists('sendNativeMail')) {
@@ -642,6 +643,14 @@ if (!function_exists("hasAccess")) {
                     'email' => $customerOfTheMonth->customer->email ?? null,
                 ],
             ];
+        }
+    }
+
+    if (!function_exists("kycDataStatus")) {
+        function kycDataStatus($user_id)
+        {
+            $kyc = KycData::where('user_id', $user_id)->first();
+            return !empty($kyc) ? $kyc->verification_data : null;
         }
     }
 

@@ -1,8 +1,17 @@
+<?php
+    $kycDataStatuses = kycDataStatus(auth()->user()->id);  
+?>
+@endphp
 @extends('layouts.new.app')
 @section('extra-css')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.bootstrap5.min.css">
+<style>
+    .verified-by {
+        color: #a211c5;
+    }
+</style>
 @endsection
 @section('title', 'Edit '.$customer->username)
 @section('breadcrumb')
