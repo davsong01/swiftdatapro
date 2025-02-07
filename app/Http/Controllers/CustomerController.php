@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use App\Services\KycVerificationApiService;
 
 
 class CustomerController extends Controller
@@ -474,4 +475,45 @@ class CustomerController extends Controller
 
         return back()->with('error', 'Invalid action selected.');
     }
+
+    public function verifyKycData($id, $customer_id, $type, $value)
+    {
+        $kyc = KycData::where('id', $id)->first();
+        
+        if (!$kyc) {
+            return back()->with('message', 'KYC record not found');
+        }
+
+        $status = KycVerificationApiService::verify($type, $value);
+
+        if ($status == 'success') {
+            // Ensure verification_data is an object
+            $verificationData = (array) $kyc->verification_data ?? [];
+
+            if ($type == 'nin') {
+                $verificationData['nin'] = [
+                    'status' => $verificationData['nin']['status'] ?? 'verified',
+                    'method' => $verificationData['nin']['method'] ?? 'api',
+                    'date_verified' => $verificationData['nin']['date_verified'] ?? Carbon::now(),
+                ];
+            }
+
+            if ($type == 'bvn') {
+                $verificationData['bvn'] = [
+                    'status' => $verificationData['bvn']['status'] ?? 'verified',
+                    'method' => $verificationData['bvn']['method'] ?? 'api',
+                    'date_verified' => $verificationData['bvn']['date_verified'] ?? Carbon::now(),
+                ];
+            }
+
+            // Update and save the verification data
+            $kyc->verification_data = $verificationData;
+            $kyc->save();
+
+            return back()->with('message', 'Verification successful');
+        }
+
+        return back()->with('message', 'Verification failed');
+    }
+
 }

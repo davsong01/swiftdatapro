@@ -11,6 +11,7 @@ class Api extends Model
     use HasFactory;
 
     protected $guarded = [];
+    protected $casts = ['meta_data' => 'object'];
     
     public function products(){
         return $this->hasMany(Product::class);

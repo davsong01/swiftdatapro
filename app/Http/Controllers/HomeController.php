@@ -99,7 +99,32 @@ class HomeController extends Controller
 
             $message = 'Operation Successful';
         }elseif(isset($kyc_mode) && $kyc_mode == 'api'){
-            $ninVerification = KycVerificationApiService::verify('nin', $request->nin ?? $kyc_data->nin); 
+            if($request->nin){
+                $ninVerification = KycVerificationApiService::verify('nin', $request->nin ?? $kyc_data->nin);
+                if($ninVerification && $ninVerification['status']){
+                    $verificationData['nin'] = [
+                        'status' => 'verified',
+                        'method' => 'api',
+                        'date_verified' => Carbon::now(),
+                    ];
+                } 
+
+            }
+            if($request->bvn){
+                $bvnVerification = KycVerificationApiService::verify('bvn', $request->bvn ?? $kyc_data->bvn);
+
+                if ($bvnVerification && $bvnVerification['status']) {
+                    $verificationData['bvn'] = [
+                        'status' => 'verified',
+                        'method' => 'api',
+                        'date_verified' => Carbon::now(),
+                    ];
+                }
+            }
+
+            $kycData->update([
+                'verification_data' => $verificationData,
+            ]);
         }else{
             $message = 'Operation Successful, please be patient while an admin approves your submission';
         }

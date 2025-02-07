@@ -76,12 +76,10 @@
                         <label for="logo" class="form-label">Site Logo</label>
                         <input type="file" class="form-control" id="logo" name="logo">
                     </div>
-
                     <div class="col-md-6">
                         <label for="site_favicon" class="form-label">Site Favicon</label>
                         <input type="file" class="form-control" id="site_favicon" name="site_favicon">
                     </div>
-
                     <div class="col-md-6">
                         <label for="kyc_verification_mode" class="form-label">KYC Mode<span
                         class="text-danger">*</span></label>
@@ -92,6 +90,27 @@
                             <option value="auto" {{ $contact->kyc_verification_mode == 'auto' ? 'selected' : '' }}>Automated</option>
                         </select>
                     </div>
+                    <div class="col-md-6">
+                        <label for="bvn_verification_provider_id" class="form-label">BVN Verification Provider<span
+                        class="text-danger">*</span></label>
+                        <select class="form-control" name="bvn_verification_provider_id" id="bvn_verification_provider_id" required>
+                            <option value="" selected>Select</option>
+                            @foreach ($verificationServices as $item)
+                                <option value="{{$item->id}}" {{ $item->id  ==  $contact->bvn_verification_provider_id ? 'selected' : '' }}>Biday</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="nin_verification_provider_id" class="form-label">NIN Verification Provider<span
+                        class="text-danger"></span></label>
+                        <select class="form-control" name="nin_verification_provider_id" id="nin_verification_provider_id">
+                            <option value="" selected>Select</option>
+                            @foreach ($verificationServices as $item)
+                                <option value="{{$item->id}}" {{ $item->id  ==  $contact->nin_verification_provider_id ? 'selected' : '' }}>Biday</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
                     <div class="col-md-6">
                         <label for="kyc_verification_cost" class="form-label">KYC Verification Cost</label>
                         <input type="number" value="{{ $contact->kyc_verification_cost ?? old('kyc_verification_cost')}}" class="form-control" id="kyc_verification_cost" name="kyc_verification_cost">

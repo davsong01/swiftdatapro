@@ -32,7 +32,7 @@ class ApiController extends Controller
             "secret_key" => "nullable",
             "public_key" => "nullable"
         ]);
-
+        
         Api::updateOrCreate([
             "name" => $request->name,
             "slug" => $request->slug,
@@ -66,8 +66,14 @@ class ApiController extends Controller
             "secret_key" => "nullable",
             "public_key" => "nullable",
             "sandbox_base_url" => "nullable",
-            "live_base_url" => "nullable"
+            "live_base_url" => "nullable",
+            "meta_data" => "nullable"
         ]);
+
+        $meta_data = [
+            'nin_verification_api_version' => $request->nin_verification_api_version ?? $api->meta_data->nin_verification_api_version,
+            'bvn_verification_api_version' => $request->bvn_verification_api_version ?? $api->meta_data->bvn_verification_api_version,
+        ];
 
         $api->update([
             "name" => $request->name,
@@ -80,6 +86,7 @@ class ApiController extends Controller
             "public_key" => $request->public_key,
             "sandbox_base_url" => $request->sandbox_base_url,
             "live_base_url" => $request->live_base_url,
+            "meta_data" => $meta_data
         ]);
 
         return back()->with('message', 'Updated successfully');

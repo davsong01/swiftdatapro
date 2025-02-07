@@ -13,25 +13,33 @@
                 disabled>
         </div>
         <div class="col-md-6">
-            <label class="form-label" for="bvn">BVN 
+        <label class="form-label" for="bvn">BVN 
+            @if(!empty($customer->kycData->nin))
                 @if(isset($kycDataStatuses->bvn))
                 <span class="badge" style="background-color: {{ $kycDataStatuses->bvn->status == 'verified' ? '#28a745' : '#dc3545' }}; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
                     {{ ucfirst($kycDataStatuses->bvn->status) }} 
-                </span><span class="verified-by"> by: {{ $kycDataStatuses->bvn->method }}</span>
+                </span>
+                <span class="verified-by"> by: {{ $kycDataStatuses->bvn->method }}</span>
                 @else
-                <span class="badge" style="background-color:#dc3545; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">Unverified</span>
+                <span class="badge" style="background-color:#dc3545; color: #fff; border-radius: 5px; font-size: 12px;">Unverified<a href="{{route('manual-verify-kyc',['id' => $customer->kycData->id,'customer_id' => $customer->id, 'type' => 'bvn', 'value' => $customer->kycData->bvn])}}" class="btn btn-light btn-sm" style="margin-left: 10px;">
+                    <i id="verifyIcon" class="fa fa-check"></i> Verify
+                </a></span> 
                 @endif
+            @endif
         </label>
             <input name="bvn" type="text" class="form-control" placeholder="BVN" value="{{ in_array('view.sensitive.data', allowedPermissions()) ? $customer->kycData->bvn : mask($customer->kycData->bvn) }}" {{ !in_array('view.sensitive.data', allowedPermissions()) ? 'readonly' : '' }}>
         </div>
         <div class="col-md-6">
             <label class="form-label" for="nin">NIN
-                @if(isset($kycDataStatuses->nin))
-                <span class="badge" style="background-color: {{ $kycDataStatuses->nin->status == 'verified' ? '#28a745' : '#dc3545' }}; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">
-                    {{ ucfirst($kycDataStatuses->nin->status) }} 
-                </span><span class="verified-by"> by: {{ $kycDataStatuses->nin->method }}</span>
-                @else
-                <span class="badge" style="background-color:#dc3545; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">Unverified</span>
+                @if(!empty($customer->kycData->nin))
+                    @if(isset($kycDataStatuses->nin))
+                    <span class="badge" style="background-color: {{ $kycDataStatuses->nin->status == 'verified' ? '#28a745' : '#dc3545' }}; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 12px;">{{ ucfirst($kycDataStatuses->nin->status) }}
+                    </span><span class="verified-by"> by: {{ $kycDataStatuses->nin->method }}</span>
+                    @else
+                    <span class="badge" style="background-color:#dc3545; color: #fff; border-radius: 5px; font-size: 12px;">Unverified<a href="{{route('manual-verify-kyc',['id' => $customer->kycData->id, 'customer_id' => $customer->id, 'type' => 'nin', 'value' => $customer->kycData->nin])}}" class="btn btn-light btn-sm" style="margin-left: 10px;">
+                    <i id="verifyIcon" class="fa fa-check"></i> Verify
+                    </a></span> 
+                    @endif
                 @endif
             </label>
             <input type="text" name="nin" class="form-control"

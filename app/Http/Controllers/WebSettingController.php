@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Api;
 use App\Models\WebSetting;
 use Illuminate\Http\Request;
 
@@ -47,8 +48,8 @@ class WebSettingController extends Controller
         $contact = WebSetting::first();
         $allowed_domains_for_registration = !empty($contact->allowed_domain_emails_for_registration) ? implode(',',json_decode($contact->allowed_domain_emails_for_registration, true)) : '';
         $extra_settings = $contact->extra_settings;
-
-        return view('admin.settings.contact_info', compact('extra_settings','contact', 'allowed_domains_for_registration'));
+        $verificationServices = Api::whereIn('slug', ['bd'])->get();
+        return view('admin.settings.contact_info', compact('extra_settings','contact', 'allowed_domains_for_registration', 'verificationServices'));
     }
 
     /**
@@ -63,6 +64,7 @@ class WebSettingController extends Controller
         foreach ($request->extra_settings as $key => $value) {
             $extra_settings[$key] = $request->extra_settings[$key] ? $request->extra_settings[$key] : $old_extra_settings[$key];
         }
+
         
         // foreach ($request->only('extra_settings')['extra_settings'] as $key => $value) {
         //     if (!array_key_exists($key, $old_extra_settings)) {

@@ -78,6 +78,26 @@
                                 <option value="inactive" {{ $api->status == 'inactive' ? 'selected' : ''}}>Inactive</option>
                             </select>
                         </div>
+                        @if($api->slug == 'bd')
+                        <div class="col-md-6">
+                            <label for="input-label" class="form-label">NIN Verification API Version<span
+                            class="text-danger">*</span></label>
+                            <select class="form-control" name="nin_verification_api_version" id="nin_verification_api_version" required>
+                                <option value="">Select</option>
+                                <option value="1" {{ isset($api->meta_data->nin_verification_api_version) && $api->meta_data->nin_verification_api_version == '1' ? 'selected' : ''}}>Version 1</option>
+                                <option value="inactive" {{ isset($api->meta_data->nin_verification_api_version) && $api->meta_data->nin_verification_api_version == '2' ? 'selected' : ''}}>Version 2</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="input-label" class="form-label">BVN Verification API Version<span
+                            class="text-danger">*</span></label>
+                            <select class="form-control" name="bvn_verification_api_version" id="bvn_verification_api_version" required>
+                                <option value="">Select</option>
+                                <option value="1" {{ isset($api->meta_data->bvn_verification_api_version) && $api->meta_data->bvn_verification_api_version == '1' ? 'selected' : ''}}>Version 1</option>
+                                <option value="inactive" {{ isset($api->meta_data->bvn_verification_api_version) && $api->meta_data->bvn_verification_api_version == '2' ? 'selected' : ''}}>Version 2</option>
+                            </select>
+                        </div>
+                        @endif
                     </div>
                     <div class="row mt-2">
                         <button class="btn btn-primary" type="submit">Update</button>

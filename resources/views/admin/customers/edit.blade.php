@@ -1,5 +1,5 @@
 <?php
-    $kycDataStatuses = kycDataStatus(auth()->user()->id);  
+    $kycDataStatuses = kycDataStatus($customer->id);  
 ?>
 @endphp
 @extends('layouts.new.app')
@@ -7,9 +7,18 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.3.0/css/responsive.bootstrap.min.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.2.3/css/buttons.bootstrap5.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <style>
     .verified-by {
         color: #a211c5;
+    }
+
+    .spinner-border {
+        display: none;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-width: 0.2em;
+        margin-left: 5px;
     }
 </style>
 @endsection

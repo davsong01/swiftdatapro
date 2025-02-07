@@ -200,7 +200,8 @@ class RoleSeeder extends Seeder
             're-query-transaction',
             'reverse-to-wallet',
             'resolve-transaction',
-            'customers.bulkAction'
+            'customers.bulkAction',
+            'manual-verify-kyc'
         ];
 
         // RolePermission::truncate();

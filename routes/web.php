@@ -110,6 +110,7 @@ Route::group(['prefix' => 'swt5609', 'before' => 'swt5609'],function () {
         Route::get('inactive-customers', [CustomerController::class, 'inactiveCustomers'])->name('customers.inactive');
         Route::get('pending-kyc', [CustomerController::class, 'pendingKYC'])->name('pending.kyc');
         Route::get('view-single-pending-kyc/{id}', [CustomerController::class, 'viewPendingKYC'])->name('kyc.view');
+        Route::get('manual-verify-kyc/{id}/{customer_id}/{type?}/{value?}', [CustomerController::class, 'verifyKycData'])->name('manual-verify-kyc');
 
         
         Route::post('customers-bulk-action', [CustomerController::class, 'customersBulkAction'])->name('customers.bulkAction');
