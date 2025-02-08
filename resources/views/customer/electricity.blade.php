@@ -50,12 +50,7 @@
       <span class="input-group-text"><i style="font-weight: bold" class="fa fa-shopping-cart"></i></span>
       <select class="form-control" id="service_plan" name="service_plan" style="font-size:11px" required>
         <option value="">--Select Plan--</option>
-        {{-- <option value="prepaid"
-          {{ old('service_plan') == 'prepaid' ? 'selected' : '' }}>
-          Prepaid</option>
-        <option value="postpaid"
-          {{ old('service_plan') == 'postpaid' ? 'selected' : '' }}>
-          Postspaid</option> --}}
+        
       </select>
     </div>
     <div class="input-group mb-3">

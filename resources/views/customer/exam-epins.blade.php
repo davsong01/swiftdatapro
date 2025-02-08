@@ -16,10 +16,11 @@
       <br /><br />
   </div>
 </div>
+<div class="alert verify-response" style="color:white;background:red;border-radius: 10px 5px;display:none">
+  <div id="responsex"></div>
+</div>
 <div class="alert" style="background-color: #fff; border-radius: 0px 0px 0px 0px;">
-
   <!-- start -->
-
   <div id="response"></div>
   <form id="form-data">
     <div class="input-group mb-3">
@@ -28,15 +29,26 @@
           <option value="">--Choose--</option>
           @foreach($category->products as $product)
             @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
-              <option data-system_price="{{ intval($product->system_price) }}" data-fixed_price="{{ $product->fixed_price }}"
+              <option data-slug ="{{ $product->slug }}" data-system_price="{{ intval($product->system_price) }}" data-fixed_price="{{ $product->fixed_price }}"
                 data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
                 data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
-                value="{{ $product->id }}">{{ $product->display_name .' - '.getProductDiscount($product->system_price, $product->id)['display_value'] }}</option>
+                value="{{ $product->id }}">
+                {{ $product->display_name }}
+                @if(!in_array($product->slug, ['jamb']))
+                {{ ' - '.getProductDiscount($product->system_price, $product->id)['display_value'] }}
+                @endif
+              </option>
             @endif
           @endforeach
         </select>
     </div>
-
+    <span id="result"></span>
+    <div class="input-group mb-3" style="display:none" id="service-div">
+      <span class="input-group-text"><i style="font-weight: bold" class="fas fa-layer-group"></i></span>
+      <select class="form-control" id="service_plan" name="service_plan" style="font-size:11px" required>
+        <option value="">--Select Plan--</option>
+      </select>
+    </div>
     <div class="alert alert-success" id="valAmount" style="display:none"></div>
     {{-- @if($product->allow_quantity == 'yes') --}}
     <div class="input-group mb-3">
@@ -59,10 +71,10 @@
     <small>Forget Pin ? <a href="/reset_pin">Reset Here</a></small>
     <div class="input-group mb-3">
         <span class="input-group-text" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-weight: bold"></i></span>
-      
         <input type="password" class="form-control" placeholder="Transaction PIN" id="security_pin" required>
     </div>
     <div class="input-group mb-3">
+      <button class="btn btn-success btn-block" style="width: 100%;display:none" id="verifyJamb">Verify Jamb Account ID</button>
       <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">Purchase Now</button>
     </div>
   </form>
@@ -78,7 +90,150 @@
     $("#service_module").change(function() {
       $('#valAmount').hide();
       $('#service_quantity').val('');
+
+      var selectedOption = $("#service_module option:selected");
+      var productSlug = selectedOption.data("slug");
+      
+      if(productSlug == 'jamb'){
+        $('#submitBtn').hide();
+        $('#verifyJamb').show();
+        $('#service-div').show();
+        getJambVariations(productSlug, $("#service_module").val());
+      }else{
+        $('#submitBtn').show();
+        $('#verifyJamb').hide();
+        $('#service-div').hide();
+      }
     })
+
+
+    function getJambVariations(slug, product_id){
+      if ($("#service_module").val() != "") {
+        $.ajaxSetup({
+          headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          }
+        });
+
+        $.LoadingOverlay("show");
+
+        $.ajax({
+          url: "{{ url('customer-get-variations') }}/" + product_id,
+          method: 'GET',
+          success: function (RES_data) {
+            $.LoadingOverlay("hide");
+            $("#service_plan").html(RES_data);
+            $("#service-div").show();
+          }
+        })
+      }
+    }
+
+    $("#verifyJamb").click(function (event) {
+      var inputs = document.getElementById("form-data").getElementsByTagName("input");
+      // Loop through each input and perform validation
+      for (var i = 0; i < inputs.length; i++) {
+          var input = inputs[i];
+
+          // Check if the input is required and empty
+          if (input.hasAttribute("required") && input.value.trim() === "") {
+              alert("Please fill all inputs");
+              return;
+          }
+      }
+
+      var formData = {
+        product_id: $("#service_module").val(),
+        variation_id: $("#service_plan").val(),
+        billersCode: $("#smart_no").val(),
+        security_pin: $("#security_pin").val(),
+      };
+
+      $.LoadingOverlay("show");
+      $.ajaxSetup({
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+      });
+      $.ajax({
+        url: '{{ url("/") }}/verify',
+        method: 'POST',
+        dataType: 'json',
+        data: formData,
+        success: function (response_fd) {
+          $.LoadingOverlay("hide");
+          console.log(response_fd);
+          
+          if (response_fd.status == 'success') {
+            if (response_fd.renewal_amount && response_fd.renewal_amount > 0) {
+              $("#renewal_amount").val(response_fd.renewal_amount);
+            }
+            $("#myModal2 .modal-body").html(response_fd.message);
+            $("#verify-title").html(response_fd.title);
+
+            $("#myModal2").modal("show");
+          } else {
+            $(".verify-response").show();
+            $("#responsex").html(response_fd.message);
+          }
+        }
+      });
+
+      event.preventDefault();
+    });
+
+    $("#submitBills").click(function (event) {
+      var inputs = document.getElementById("form-data").getElementsByTagName("input");
+      // Loop through each input and perform validation
+      for (var i = 0; i < inputs.length; i++) {
+          var input = inputs[i];
+
+          // Check if the input is required and empty
+          if (input.hasAttribute("required") && input.value.trim() === "") {
+              alert("Please fill all inputs");
+              return;
+          }
+      }
+
+      var formData = {
+        product_id: $("#service_module").val(),
+        variation_id: $("#service_plan").val(),
+        billersCode: $("#smart_no").val(),
+        security_pin: $("#security_pin").val(),
+      };
+
+      $.LoadingOverlay("show");
+      $.ajaxSetup({
+        headers: {
+          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+      });
+      $.ajax({
+        url: '{{ url("/") }}/verify',
+        method: 'POST',
+        dataType: 'json',
+        data: formData,
+        success: function (response_fd) {
+          $.LoadingOverlay("hide");
+          console.log(response_fd);
+          
+          if (response_fd.status == 'success') {
+            if (response_fd.renewal_amount && response_fd.renewal_amount > 0) {
+              $("#renewal_amount").val(response_fd.renewal_amount);
+            }
+            $("#myModal2 .modal-body").html(response_fd.message);
+            $("#verify-title").html(response_fd.title);
+
+            $("#myModal2").modal("show");
+          } else {
+            $(".verify-response").show();
+            $("#responsex").html(response_fd.message);
+          }
+        }
+      });
+
+      event.preventDefault();
+    });
 
     function calDiscount() {
       
