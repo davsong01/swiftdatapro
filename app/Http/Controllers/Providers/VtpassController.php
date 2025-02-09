@@ -635,12 +635,11 @@ class VtpassController extends Controller
             'type' => $request['variation']->slug,
             'billersCode' => $request['billersCode'],
         ];
-
-        $response = $this->advancedApiCall($url, $postdata, $headers, 'POST');
         
+        $response = $this->advancedApiCall($url, $postdata, $headers, 'POST');
+       
         $result = json_decode($response);
         if (isset($result->code) && $result->code == 000 && !empty($result->content) && !empty($result->content->Customer_Name)) {
-
             if ($request['variation']->category->slug == 'electricity') {
                 $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button>';
                 $address = $result->content->Address ?? '';
@@ -717,6 +716,21 @@ class VtpassController extends Controller
                 );
             }
 
+            if($request['product']->slug == 'jamb'){
+                $button = '<button class="btn btn-success btn-block" onclick="pay4Jamb()">Make Payment</button>';
+                $address = $result->content->Address ?? '';
+                $response = [
+                    'status' => 'success',
+                    'provider' => 'VTPASS',
+                    'status_code' => '200',
+                    'customerName' => $result->content->Customer_Name ?? '',
+                    'button_link' => $button,
+                    'message' => 'Customer Name: ' . $result->content->Customer_Name. ' <br/><br/>' . $button . '',
+                    'title' => '<strong>Please confirm that the details are correct before you click make payment</strong>',
+                    'raw_response' => $response,
+                ];
+            }
+            
             try {
                 //code...
                 BillersLog::updateOrCreate(['unique_element' => $request['billersCode']],[
@@ -732,7 +746,7 @@ class VtpassController extends Controller
                 \Log::error(['biller log error' => $th->getMessage()]);
             }
         } else {
-            $error = $result->content->error ?? $result->message;
+            $error = $result->content->errors[0] ?? ($result->content->error ?? $result->message);
             $fail_response =  $fail_response = 'Validation Error: ' . $error ?? 'Unable to verify at the moment, please try again';
             
             $response = [
@@ -816,7 +830,7 @@ class VtpassController extends Controller
             ];
         } 
 
-
+        
         $pstfields = [
             'url' =>  $url,
             'payload' => $postdata,

@@ -73,6 +73,7 @@ class TransactionsController extends Controller
         $api = $request['variation']->api;
     
         $verify = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->verify($request, $api);
+        $response = [];
         
         if ($request['variation']->category->slug == 'electricity') {
             $button = '<button class="btn btn-success btn-block" onclick="pay4Bills()">Make Payment</button>';
@@ -95,12 +96,23 @@ class TransactionsController extends Controller
                 'desc' => $verify['message'] ?? '',
                 'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? ($verify['renewal_amount'] ?? $request['variation']->system_price) : ($variations['price'] ?? 0),
             );
+        }
 
+        if ($request['variation']->category->slug == 'exam-epins') {
+            $response = array(
+                'status' => $verify['status'] ?? '',
+                'status_code' => $verify['status_code'] ?? '100',
+                'message' => $verify['message'] ?? '',
+                'title' => $verify['title'] ?? '',
+                'desc' => $verify['message'] ?? '',
+                'renewal_amount' => !empty($request->request_type) && $request->request_type == 'renewal' ? ($verify['renewal_amount'] ?? $request['variation']->system_price) : ($variations['price'] ?? 0),
+            );
         }
 
         if($mobile){
             return $verify ;
         }
+        
         return response()->json($response);
 
     }

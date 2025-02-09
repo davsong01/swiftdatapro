@@ -45,9 +45,14 @@
     <span id="result"></span>
     <div class="input-group mb-3" style="display:none" id="service-div">
       <span class="input-group-text"><i style="font-weight: bold" class="fas fa-layer-group"></i></span>
-      <select class="form-control" id="service_plan" name="service_plan" style="font-size:11px" required>
+      <select class="form-control" id="service_plan" name="service_plan" style="font-size:11px">
         <option value="">--Select Plan--</option>
       </select>
+    </div>
+    <div class="input-group mb-3" style="display:none" id="smart-card-div">
+      <span class="input-group-text"><i style="font-weight: bold" class="fa fa-pencil-square-o"></i></span>
+      <input type="text" class="form-control" placeholder="Jamb Profile ID." id="smart_no" name="smart_no"
+        value="{{ old('smart_no') }}" required>
     </div>
     <div class="alert alert-success" id="valAmount" style="display:none"></div>
     {{-- @if($product->allow_quantity == 'yes') --}}
@@ -74,14 +79,33 @@
         <input type="password" class="form-control" placeholder="Transaction PIN" id="security_pin" required>
     </div>
     <div class="input-group mb-3">
-      <button class="btn btn-success btn-block" style="width: 100%;display:none" id="verifyJamb">Verify Jamb Account ID</button>
+      <button class="btn btn-success btn-block" style="width: 100%;display:none" id="verifyJamb">Verify Jamb Profile ID</button>
       <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">Purchase Now</button>
     </div>
   </form>
  <br>
 </div>
 
-
+<div id="myModal2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="myModalLabel"></h3>
+        <span id="verify-title"></span>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light-secondary" data-bs-dismiss="modal">
+          <i class="bx bx-x d-block d-sm-none"></i>
+          <span class="d-none d-sm-block" onclick="closeModal()">Close</span>
+        </button>
+        {{-- <button type="submit" class="btn btn-primary ml-1"><span class="d-none d-sm-block">Submit</span> --}}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 @section('scripts')
 <script type="text/javascript">
@@ -98,11 +122,14 @@
         $('#submitBtn').hide();
         $('#verifyJamb').show();
         $('#service-div').show();
+        $("#smart-card-div").show();
+
         getJambVariations(productSlug, $("#service_module").val());
       }else{
         $('#submitBtn').show();
         $('#verifyJamb').hide();
         $('#service-div').hide();
+        $("#smart-card-div").hide();
       }
     })
 
@@ -148,13 +175,14 @@
         billersCode: $("#smart_no").val(),
         security_pin: $("#security_pin").val(),
       };
-
+      
       $.LoadingOverlay("show");
       $.ajaxSetup({
         headers: {
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
       });
+      
       $.ajax({
         url: '{{ url("/") }}/verify',
         method: 'POST',
@@ -162,12 +190,8 @@
         data: formData,
         success: function (response_fd) {
           $.LoadingOverlay("hide");
-          console.log(response_fd);
           
           if (response_fd.status == 'success') {
-            if (response_fd.renewal_amount && response_fd.renewal_amount > 0) {
-              $("#renewal_amount").val(response_fd.renewal_amount);
-            }
             $("#myModal2 .modal-body").html(response_fd.message);
             $("#verify-title").html(response_fd.title);
 
@@ -198,7 +222,7 @@
       var formData = {
         product_id: $("#service_module").val(),
         variation_id: $("#service_plan").val(),
-        billersCode: $("#smart_no").val(),
+        // billersCode: $("#smart_no").val(),
         security_pin: $("#security_pin").val(),
       };
 
@@ -334,5 +358,40 @@
     function closeModal() {
       $("#myModal2").modal("hide");
     }
+    
+    function pay4Jamb() {
+      var formData = {
+        product_id: $("#service_module").val(),
+        variation: $("#service_plan").val(),
+        billersCode: $("#smart_no").val(),
+        security_pin: $("#security_pin").val(),
+        amount: $("#amount").val(),
+        mobile_no: $("#mobile_no").val(),
+        security_pin: $("#security_pin").val(),
+      };
+
+      $("#myModal2").modal("hide");
+      $.LoadingOverlay("show");
+      $.ajax({
+        url: '{{ config('app.url')}}/buy/exam-epins',
+        method: 'POST',
+        dataType: 'json',
+        data: formData,
+        success: function (response_fd) {
+          $.LoadingOverlay("hide");
+          if (response_fd.status == 'success') {
+            $("#successModal").modal("show");
+            $("#successModal .modal-body").html(response_fd.message);
+            setTimeout(function () {
+              window.location.reload();
+            }, 3000);
+          } else {
+            $("#errorModal").modal("show");
+            $("#errorModal .modal-body").html(response_fd.message);
+          }
+        }
+      });
+
+    };
 </script>
 @endsection
