@@ -37,7 +37,7 @@
                         @foreach($billers as $bank)
                         <tr>
                             <td>{{ $bank->biller }}</td>
-                            <td>{{ $bank->admin->full_name }}</td>
+                            <td>{{ $bank->admin?->full_name }}</td>
                             <td>{{ $bank->created_at }}</td>
                             @if(hasAccess('blacklist.edit') || hasAccess('blacklist.destroy'))
                             <td>
