@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="english">
 <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -101,15 +100,14 @@
     </style>
     @yield('extra-css')
 </head>
-
 <body class="crm_body_bg">
     <nav class="sidebar">
         <div class="logo">
-            <h5 class="">Available Balance. <br /> <span style="color: #940798;font-weight: bold;font-size: 20px;">
-                {{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span></h5>
-            <h6 class="">Level: {{ auth()->user()->customer_level->name }} <span
-                    style="color: #940798;font-weight: bold;font-size: 18px;"></span></h6>
-
+            <h5>
+                <x-balance-toggle :balance="walletBalance(auth()->user())" />
+            </h5>
+            <h6 class="">Level: {{ auth()->user()->customer_level->name }} <span style="color: #940798;font-weight: bold;font-size: 18px;"></span>
+            </h6>
             <div class="sidebar_close_icon d-lg-none">
                 <i class="ti-close"></i>
             </div>
@@ -283,7 +281,6 @@
     </nav>
 
     <section class="main_content dashboard_part large_header_bg">
-
         <div class="container-fluid g-0" style="background-color: #fff;">
             <div class="row">
                 <div class="col-lg-12 p-0">
@@ -450,23 +447,19 @@
     <div class="alert">
         @yield('header')
         <div class="col-xl-12">
-        <div class="alert" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;">
+        <div class="alert" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;padding:2.75rem 1.25rem">
+            {{-- <x-balance-toggle :balance="walletBalance(auth()->user())" /> --}}
 
-            <div id="response" style="text-align: left;">
-                <span>Available Balance
-                    <span style="float: right;"></span>
+            <div style="text-align: left;">
+                <span style="float: right;">
+                    <button class="btn btn-dark" style="font-size:10px">
+                        <a style="color:white" href="{{route('automated.pay')}}">Fund Wallet</a>
+                    </button>
                 </span>
-                <br />
-                <span style="color: #940798;font-weight: bold;font-size: 25px;">{{ settings()->currency.number_format(walletBalance(auth()->user()), 2) }}</span>
-                <span style="float: right;"><button class="btn btn-dark" style="font-size:10px"><a style="color:white" href="{{route('automated.pay')}}">Fund Wallet</a></button></span>
-
             </div>
         </div>
         @yield('body')
     </div>
-        
-   
-{{-- Footer --}}
 <div class="">
     <div class="container-fluid">
         <div class="row">
@@ -487,7 +480,7 @@
         </div>
     </div>
 </div>
-</section>
+
 <script type="text/javascript">
     function FundWallet() {
         window.location.href = "automated_pay";
@@ -517,39 +510,19 @@
     })
 </script>
 
-<!--
-<div id="back-top" style="display: none;">
-<a title="Go to Top" href="#">
-<i class="ti-angle-up"></i>
-</a>
-</div>-->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
 <script type="text/javascript" src="backend/js/overlay.js"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/js/all.min.js"></script>
-
-{{-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script> --}}
-
-{{-- bootstrap --}}
-{{-- <script src="{{ asset('backend/js/popper1.min.js') }}"></script>
-<script src="{{ asset('backend/js/bootstrap1.min.js') }}"></script> --}}
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-
 <script src="{{ asset('backend/js/metisMenu.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/count_up/jquery.waypoints.min.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/chartlist/Chart.min.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/count_up/jquery.counterup.min.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/niceselect/js/jquery.nice-select.min.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/owl_carousel/js/owl.carousel.min.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/datatable/js/jquery.dataTables.min.js') }}"></script>
 <script src="{{ asset('backend/vendors/datatable/js/dataTables.responsive.min.js') }}"></script>
 <script src="{{ asset('backend/vendors/datatable/js/dataTables.buttons.min.js') }}"></script>
@@ -559,26 +532,19 @@
 <script src="{{ asset('backend/vendors/datatable/js/vfs_fonts.js') }}"></script>
 <script src="{{ asset('backend/vendors/datatable/js/buttons.html5.min.js') }}"></script>
 <script src="{{ asset('backend/vendors/datatable/js/buttons.print.min.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/datepicker/datepicker.js') }}"></script>
 <script src="{{ asset('backend/vendors/datepicker/datepicker.en.js') }}"></script>
 <script src="{{ asset('backend/vendors/datepicker/datepicker.custom.js') }}"></script>
 <script src="{{ asset('backend/js/chart.min.js') }}"></script>
 <script src="{{ asset('backend/vendors/chartjs/roundedBar.min.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/progressbar/jquery.barfiller.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/tagsinput/tagsinput.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/text_editor/summernote-bs4.js') }}"></script>
 <script src="{{ asset('backend/vendors/am_chart/amcharts.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/scroll/perfect-scrollbar.min.js') }}"></script>
 <script src="{{ asset('backend/vendors/scroll/scrollable-custom.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/vectormap-home/vectormap-2.0.2.min.js') }}"></script>
 <script src="{{ asset('backend/vendors/vectormap-home/vectormap-world-mill-en.js') }}"></script>
-
 <script src="{{ asset('backend/vendors/apex_chart/apex-chart2.js') }}"></script>
 <script src="{{ asset('backend/vendors/apex_chart/apex_dashboard.js') }}"></script>
 <script src="{{ asset('backend/vendors/echart/echarts.min.js') }}"></script>
@@ -591,7 +557,9 @@
 </script>
 <script src="{{ asset('backend/js/dashboard_init.js') }}"></script>
 <script src="{{ asset('backend/js/custom.js') }}"></script>
- @yield('scripts')
+
+@yield('scripts')
+
 <script>
     var url = 'https://wati-integration-service.clare.ai/ShopifyWidget/shopifyWidget.js?66890';
     var s = document.createElement('script');
@@ -628,6 +596,33 @@
     };
     var x = document.getElementsByTagName('script')[0];
     x.parentNode.insertBefore(s, x);
+    
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const toggleButton = document.querySelector(".toggleBalance");
+    const hiddenBalance = document.querySelector(".hiddenBalance");
+    const balance = document.querySelector(".balance");
+
+    if (toggleButton) {
+        toggleButton.addEventListener("click", function () {
+            // Toggle visibility
+            if (hiddenBalance.style.display === "none") {
+                hiddenBalance.style.display = "inline";
+                balance.style.display = "none";
+            } else {
+                hiddenBalance.style.display = "none";
+                balance.style.display = "inline";
+            }
+
+            // Toggle eye icon class
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
+        });
+    }
+});
+
+
 </script>
 </body>
 

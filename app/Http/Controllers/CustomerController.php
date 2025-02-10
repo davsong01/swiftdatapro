@@ -476,44 +476,74 @@ class CustomerController extends Controller
         return back()->with('error', 'Invalid action selected.');
     }
 
-    public function verifyKycData($id, $customer_id, $type, $value)
+    public function verifyKycData($id, $type, $value)
     {
         $kyc = KycData::where('id', $id)->first();
-        
+
         if (!$kyc) {
             return back()->with('message', 'KYC record not found');
         }
 
-        $status = KycVerificationApiService::verify($type, $value);
+        $response = KycVerificationApiService::verify($type, $value);
+        
+        $status = !empty($response->status) ? ($response->status ?? $response->success) : null;
+        
+        $existingVerificationData =  $this->deepObjectToArray($kyc->verification_data ?? []);
+        if (!is_array($existingVerificationData)) {
+            $existingVerificationData = json_decode($existingVerificationData, true) ?? [];
+        }
 
-        if ($status == 'success') {
-            // Ensure verification_data is an object
-            $verificationData = (array) $kyc->verification_data ?? [];
+        if ($status) {
+            $verificationData = $existingVerificationData;
+
+            $newRawData = isset($response->data->data) ? (array) $response->data->data : [];
 
             if ($type == 'nin') {
-                $verificationData['nin'] = [
-                    'status' => $verificationData['nin']['status'] ?? 'verified',
-                    'method' => $verificationData['nin']['method'] ?? 'api',
-                    'date_verified' => $verificationData['nin']['date_verified'] ?? Carbon::now(),
-                ];
+                $newRawData = isset($response->data->data) ? $this->deepObjectToArray($response->data->data) : [];
+
+                $verificationData['nin'] = array_merge(
+                    (array) ($existingVerificationData['nin'] ?? []),
+                    [
+                        'status' => $existingVerificationData['nin']['status'] ?? 'verified',
+                        'method' => $existingVerificationData['nin']['method'] ?? 'api',
+                        'date_verified' => $existingVerificationData['nin']['date_verified'] ?? Carbon::now(),
+                        'raw_data' => array_merge(
+                            $this->deepObjectToArray($existingVerificationData['nin']['raw_data'] ?? []), $newRawData),
+                    ]
+                );
             }
 
-            if ($type == 'bvn') {
-                $verificationData['bvn'] = [
-                    'status' => $verificationData['bvn']['status'] ?? 'verified',
-                    'method' => $verificationData['bvn']['method'] ?? 'api',
-                    'date_verified' => $verificationData['bvn']['date_verified'] ?? Carbon::now(),
-                ];
+            if ($type == 'bvn'
+            ) {
+                $newRawData = isset($response->data) ? $this->deepObjectToArray($response->data) : [];
+                $verificationData['bvn'] = array_merge(
+                    ($existingVerificationData['bvn'] ?? []),
+                    [
+                        'status' => $existingVerificationData['bvn']['status'] ?? 'verified',
+                        'method' => $existingVerificationData['bvn']['method'] ?? 'api',
+                        'date_verified' => $existingVerificationData['bvn']['date_verified'] ?? Carbon::now(),
+                        'raw_data' => array_merge(($existingVerificationData['bvn']['raw_data'] ?? []), $newRawData),
+                    ]
+                );
             }
 
-            // Update and save the verification data
+            // dd($verificationData);
             $kyc->verification_data = $verificationData;
             $kyc->save();
 
             return back()->with('message', 'Verification successful');
         }
 
-        return back()->with('message', 'Verification failed');
+        return back()->with('error', 'Verification failed');
+    }
+
+    function deepObjectToArray($data){
+        if (is_object($data)) {
+            return array_map([$this, 'deepObjectToArray'], (array) $data);
+        } elseif (is_array($data)) {
+            return array_map([$this, 'deepObjectToArray'], $data);
+        }
+        return $data;
     }
 
 }

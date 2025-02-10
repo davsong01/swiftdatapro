@@ -1,6 +1,3 @@
-<?php
-    $kycDataStatuses = kycDataStatus($customer->id);  
-?>
 @endphp
 @extends('layouts.new.app')
 @section('extra-css')

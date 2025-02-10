@@ -22,7 +22,6 @@
                 <div class="card-title">
                 @if(hasAccess('kyc.approve'))
                 <a onclick="return confirm('Are you sure you want to approve?');" href="{{ route('approve.kyc', $customer->kycData->id) }}" class="btn btn-success"><i class="fa fa-check"></i>Approve KYC</a>
-                
                     @if($customer->kyc_status == 0)
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#decline-kyc">Decline KYC</button>
 

@@ -76,55 +76,23 @@ class HomeController extends Controller
         ]);
 
         if(isset($kyc_mode) && $kyc_mode == 'auto'){
-            if (!empty($request->bvn) || !empty($request->nin)) {
-                $user->update([
-                    'kyc_status' => 1,
-                ]);
-
-                $kycData->update([
-                    'verification_data' => [
-                        'nin' => [
-                            'status' => 'verified',
-                            'method' => 'auto',
-                            'date_verified' => Carbon::now(),
-                        ],
-                        'bvn' => [
-                            'status' => 'verified',
-                            'method' => 'auto',
-                            'date_verified' => Carbon::now(),
-                        ],
-                    ],
-                ]);
-            }
-
-            $message = 'Operation Successful';
+            // if (!empty($request->bvn) || !empty($request->nin)) {
+            //     $user->update([
+            //         'kyc_status' => 1,
+            //     ]);
+            // }
+            // $message = 'Operation Successful';
         }elseif(isset($kyc_mode) && $kyc_mode == 'api'){
-            if($request->nin){
-                $ninVerification = KycVerificationApiService::verify('nin', $request->nin ?? $kyc_data->nin);
-                if($ninVerification && $ninVerification['status']){
-                    $verificationData['nin'] = [
-                        'status' => 'verified',
-                        'method' => 'api',
-                        'date_verified' => Carbon::now(),
-                    ];
-                } 
-
-            }
-            if($request->bvn){
-                $bvnVerification = KycVerificationApiService::verify('bvn', $request->bvn ?? $kyc_data->bvn);
-
-                if ($bvnVerification && $bvnVerification['status']) {
-                    $verificationData['bvn'] = [
-                        'status' => 'verified',
-                        'method' => 'api',
-                        'date_verified' => Carbon::now(),
-                    ];
-                }
+            if(!empty($request->bvn)){
+                app('App\Http\Controllers\CustomerController')->verifyKycData($kycData->id, 'bvn', $request->bvn);
             }
 
-            $kycData->update([
-                'verification_data' => $verificationData,
-            ]);
+            if (!empty($request->nin)) {
+                app('App\Http\Controllers\CustomerController')->verifyKycData($kycData->id, 'nin', $request->bvn);
+            }
+
+            $message = 'Operation Successful, please be patient while an admin approves your submission';
+
         }else{
             $message = 'Operation Successful, please be patient while an admin approves your submission';
         }
