@@ -69,34 +69,5 @@ Login
     </div>
     @endsection
     @section('extra-js')
-    {{-- <script type="text/javascript">
-        $("#form-data").submit(function (event) {
-            $("#submitBtn").html('Please wait...');
-            var formData = {
-                username: $("#username").val(),
-                password: $("#password").val(),
-                req_token: $("#req_token").val(),
-            };
-            $.ajax({
-                url: 'app/resources/login',
-                method: 'POST',
-                dataType: 'json',
-                data: formData,
-                success: function (response_fd) {
-                    console.log(response_fd);
-                    if (response_fd.status == 'success') {
-                        $('#submitBtn').html('Redirecting...');
-                        setTimeout(function () {
-                            window.location.href = response_fd.redirect;
-                        }, 1000);
-                    } else {
-                        $("#submitBtn").html('Sign In');
-                        $("#response").html(response_fd.message);
-                    }
-                }
-            });
-
-            event.preventDefault();
-        });
-    </script> --}}
+  
     @endsection
