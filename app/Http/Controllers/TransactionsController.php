@@ -444,9 +444,9 @@ class TransactionsController extends Controller
             if (in_array($resource->category->slug, ['electricity', 'cable'])) {
                 $request['billersCode'] = $request->billersCode;
             } else {
-                $request['billersCode'] = $request['account_id'] ?: $request->mobile_no;
+                $request['billersCode'] = $request->billersCode ?? ($request['account_id'] ?: $request->mobile_no);
             }
-
+            
             $checks = $this->runChecks($request, $product, $api, $resource);
 
             if (!empty($checks) && $checks['status'] == 'fail') {
