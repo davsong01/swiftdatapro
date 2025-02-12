@@ -22,7 +22,7 @@ class CustomerController extends Controller
     public function index(Request $request)
     {
         $customers = User::select('*', \DB::raw('(wallets + cashback) as total_balance'))
-        ->orderByRaw("
+            ->orderByRaw("
                 CASE 
                     WHEN kyc_status = 1 AND status = 'active' THEN 1 
                     ELSE 2 
@@ -31,7 +31,7 @@ class CustomerController extends Controller
             ->orderByDesc('total_balance')
             ->orderByDesc('id');
 
-        
+
         if (!empty($request->email)) {
             $customers = $customers->where('email', 'like', $request->email);
         }
@@ -62,7 +62,7 @@ class CustomerController extends Controller
             $customers = $customers->whereBetween('created_at', [$from, $to]);
         }
 
-        if(!empty($request->download) && $request->download == 'yes'){
+        if (!empty($request->download) && $request->download == 'yes') {
             $customers = $customers->select(
                 DB::raw("CONCAT(COALESCE(full_name, ''), ' ', COALESCE(middle_name, ''), ' ', COALESCE(last_name, '')) as name"),
                 'email',
@@ -72,8 +72,8 @@ class CustomerController extends Controller
                 'gender',
                 'created_at'
             )->get()->toArray();
-                
-            $headings = ['Name', 'Email', 'Phone Number', 'Level', 'Username', 'Gender', 'Joined']; 
+
+            $headings = ['Name', 'Email', 'Phone Number', 'Level', 'Username', 'Gender', 'Joined'];
             return ExcelService::download($customers, $headings);
         }
 
@@ -115,7 +115,7 @@ class CustomerController extends Controller
         $customers = $customers->paginate(20);
         $customer_levels = CustomerLevel::all();
 
-        return view('admin.customers.index', compact('customers','title','customer_levels'));
+        return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
     }
 
     public function inActiveCustomers(Request $request)
@@ -156,8 +156,8 @@ class CustomerController extends Controller
     public function pendingKYC(Request $request)
     {
         $title = 'Pending KYC';
-        $customers = User::whereHas('kycData')->orderby('id', 'DESC')->whereIn('kyc_status', [0,2]);
-        
+        $customers = User::whereHas('kycData')->orderby('id', 'DESC')->whereIn('kyc_status', [0, 2]);
+
         if (!empty($request->email)) {
             $customers = $customers->where('email', 'like', $request->email);
         }
@@ -180,23 +180,25 @@ class CustomerController extends Controller
 
             $customers = $customers->whereBetween('created_at', [$from, $to]);
         }
-        
+
         $customers = $customers->paginate(20);
-        
+
         return view('admin.customers.pending-kyc', compact('customers', 'title'));
     }
 
-    public function viewPendingKYC($id){
+    public function viewPendingKYC($id)
+    {
         $customer = User::with('kycData')->where('id', $id)->first();
         return view('admin.customers.view-single-pending-kyc', compact('customer'));
     }
 
-    public function updatePendingKYC(Request $request, $id){
+    public function updatePendingKYC(Request $request, $id)
+    {
         $kyc = KycData::where('id', $id)->first();
-        
-        if(!empty($request->means_of_identification_document)){
+
+        if (!empty($request->means_of_identification_document)) {
             $means_of_identification_document  = $this->uploadFile($request->means_of_identification_document, 'ukycs');
-        }else{
+        } else {
             $means_of_identification_document = $kyc->means_of_identification_document;
         }
 
@@ -209,17 +211,18 @@ class CustomerController extends Controller
             'means_of_identification_document' => $means_of_identification_document,
             'means_of_identification_type' => $request->means_of_identification_type ?? $kyc->means_of_identification_type
         ]);
-    
-        return back()->with('message','Update successful');
+
+        return back()->with('message', 'Update successful');
     }
 
-    public function approvePendingKYC(Request $request, $id=null){
+    public function approvePendingKYC(Request $request, $id = null)
+    {
         $kyc = KycData::where('id', $id)->first();
         $user = User::where('id', $kyc->user_id)->first();
         $settings = settings();
 
-        if($settings->kyc_verification_cost > 0){
-        
+        if ($settings->kyc_verification_cost > 0) {
+
             try {
                 DB::beginTransaction();
                 $user->lockForUpdate();
@@ -258,7 +261,7 @@ class CustomerController extends Controller
                     'api_report' => 'DONE',
                     'user_id' => $user->id,
                 ];
-                
+
                 $this->logTransaction($transactionData);
                 // log transaction
 
@@ -269,9 +272,7 @@ class CustomerController extends Controller
                     'status' => 'success'
                 ];
 
-                DB:: commit();
-                
-
+                DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
                 $response = [
@@ -279,14 +280,13 @@ class CustomerController extends Controller
                     'message' => $e->getMessage() . ' Line: ' . $e->getLine() . ' File: ' . $e->getFile(),
                 ];
             }
-
-        }else{
+        } else {
             $response = [
                 'status' => 'success'
             ];
         }
-        
-        if($response['status'] == 'success'){
+
+        if ($response['status'] == 'success') {
             $data = [
                 'kyc_data_id' => $kyc->id,
                 'reason' => $request->reason,
@@ -295,7 +295,7 @@ class CustomerController extends Controller
                 'name' => $user->name,
             ];
             $this->logKycAction($data);
-            
+
             $user->update([
                 'kyc_status' => 1,
             ]);
@@ -318,7 +318,7 @@ class CustomerController extends Controller
             'email' => $user->email,
             'name' => $user->name,
         ];
-        
+
         $this->logKycAction($data);
 
         $user->update([
@@ -330,15 +330,17 @@ class CustomerController extends Controller
         return redirect(route('pending.kyc'))->with('message', 'Operation Successful');
     }
 
-    public function logKycAction($data){
+    public function logKycAction($data)
+    {
         $log = new KycLogController();
         return $log->logKycAction($data);
     }
-    
-    public function sendkycMail($data){
+
+    public function sendkycMail($data)
+    {
         $settings = settings();
-        
-        if($data['kyc_status'] == 1){
+
+        if ($data['kyc_status'] == 1) {
             $subject = "Your KYC Submission Has Been Approved – Welcome to Unrestricted Access!";
             $message = "Dear {$data['name']}, <br><br>
                 We're pleased to inform you that your KYC (Know Your Customer) submission has been successfully approved! You can now log in to your account and begin transactions without any restrictions. <br><br>We understand the importance of your security and privacy and are committed to safeguarding your information. By completing your KYC, you have added an additional layer of protection, allowing us to serve you better and ensuring a safe and seamless experience. <br><br>Thank you for choosing {$settings->sitename} as your trusted partner. If you have any questions, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>Best regards,<br><br>
@@ -357,9 +359,9 @@ class CustomerController extends Controller
             $message .= "<br><br>To continue using our services, we kindly ask you to review and update your information as needed. Once updated, please resubmit your KYC documents for further review. <br><br>We value your security and privacy and are here to support you through this process. If you have any questions or need assistance with resubmission, please do not hesitate to reach out to us on whatsapp at: {$settings->whatsapp_no}<br><br>Thank you for choosing {$settings->sitename} as your trusted partner. <br><br>Best regards,<br><br>{$settings->sitename}
             ";
         }
-        
+
         $this->sendEmail($data['email'], $subject, $message);
-        
+
         return;
     }
 
@@ -376,10 +378,11 @@ class CustomerController extends Controller
         return view('admin.customers.edit', compact('customer', 'customerLevels', 'products'));
     }
 
-    public function updateCustomerAccount(Request $request, $user){
+    public function updateCustomerAccount(Request $request, $user)
+    {
         $validator =  Validator::make($request->all(), [
-            'email' => 'required|email|unique:users,email,'.$user,
-            'mobile' => 'required|unique:users,mobile,'.$user,
+            'email' => 'required|email|unique:users,email,' . $user,
+            'mobile' => 'required|unique:users,mobile,' . $user,
         ]);
 
         if ($validator->fails()) {
@@ -400,34 +403,36 @@ class CustomerController extends Controller
             "level" => $request->customerlevel,
             "mobile" => $request->mobile,
         ]);
-        
+
         return back()->with('message', 'Update succesful');
     }
 
-    public function updateCustomerProducts(Request $request, $user){
+    public function updateCustomerProducts(Request $request, $user)
+    {
         $user = User::where('id', $user)->first();
-        
-        if(!empty($request->product_blacklist_all)){
+
+        if (!empty($request->product_blacklist_all)) {
             $request['product_blacklist'] = Product::pluck('id')->toArray();
         }
-        
+
         $user->update([
             'product_blacklist' => $request->product_blacklist,
         ]);
-        
+
         return back()->with('message', 'Blacklisted Product Update succesful');
     }
 
-    public function updateCustomerOtherActions(Request $request){
+    public function updateCustomerOtherActions(Request $request)
+    {
         $user = User::where('id', $request->customer)->first();
-        
-        if(!empty($request->type)){
-            if($request->type == 'password-change'){
+
+        if (!empty($request->type)) {
+            if ($request->type == 'password-change') {
                 $user->update([
                     'pass' => Hash::make($request->password),
                 ]);
             }
-           
+
             if ($request->type == 'transaction-pin-change') {
                 $user->update([
                     'transaction_pin' =>  base64_encode(base64_encode(base64_encode($request->transaction_pin))),
@@ -450,14 +455,15 @@ class CustomerController extends Controller
         return back()->with('message', 'Update succesful');
     }
 
-    public function customersBulkAction(Request $request){
+    public function customersBulkAction(Request $request)
+    {
         $request->validate([
             'action' => 'required',
             'customer_id' => 'required|array',
         ]);
         $action = $request->action;
         $customerIds = $request->customer_id;
-        
+
         if ($action === 'delete') {
             User::whereIn('id', $customerIds)->delete();
             return back()->with('message', 'Selected customers have been deleted.');
@@ -485,9 +491,9 @@ class CustomerController extends Controller
         }
 
         $response = KycVerificationApiService::verify($type, $value);
-        
+
         $status = !empty($response->status) ? ($response->status ?? $response->success) : null;
-        
+
         $existingVerificationData =  $this->deepObjectToArray($kyc->verification_data ?? []);
         if (!is_array($existingVerificationData)) {
             $existingVerificationData = json_decode($existingVerificationData, true) ?? [];
@@ -508,12 +514,15 @@ class CustomerController extends Controller
                         'method' => $existingVerificationData['nin']['method'] ?? 'api',
                         'date_verified' => $existingVerificationData['nin']['date_verified'] ?? Carbon::now(),
                         'raw_data' => array_merge(
-                            $this->deepObjectToArray($existingVerificationData['nin']['raw_data'] ?? []), $newRawData),
+                            $this->deepObjectToArray($existingVerificationData['nin']['raw_data'] ?? []),
+                            $newRawData
+                        ),
                     ]
                 );
             }
 
-            if ($type == 'bvn'
+            if (
+                $type == 'bvn'
             ) {
                 $newRawData = isset($response->data) ? $this->deepObjectToArray($response->data) : [];
                 $verificationData['bvn'] = array_merge(
@@ -534,10 +543,11 @@ class CustomerController extends Controller
             return back()->with('message', 'Verification successful');
         }
 
-        return back()->with('error', 'Verification failed');
+        return back()->with('error', 'Verification failed, Error: ' . $response->message ?? 'N/A');
     }
 
-    function deepObjectToArray($data){
+    function deepObjectToArray($data)
+    {
         if (is_object($data)) {
             return array_map([$this, 'deepObjectToArray'], (array) $data);
         } elseif (is_array($data)) {
@@ -545,5 +555,4 @@ class CustomerController extends Controller
         }
         return $data;
     }
-
 }

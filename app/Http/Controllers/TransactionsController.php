@@ -444,7 +444,7 @@ class TransactionsController extends Controller
             if (in_array($resource->category->slug, ['electricity', 'cable'])) {
                 $request['billersCode'] = $request->billersCode;
             } else {
-                $request['billersCode'] = $request['account_id'] ?? $request->mobile_no;
+                $request['billersCode'] = $request['account_id'] ?: $request->mobile_no;
             }
 
             $checks = $this->runChecks($request, $product, $api, $resource);
@@ -1661,8 +1661,16 @@ class TransactionsController extends Controller
                 ];
             }
         }
-        
-        if (!empty($checkBlacklist)) {
+
+        if (empty($request->billersCode)) {
+            $response = array(
+                'status' => 'fail',
+                'status_code' => '100',
+                'message' => 'Unique element is not present !!!',
+            );
+        }
+
+        if (!empty($checkBlacklist) && !empty($request->billersCode)) {
             $response = array(
                 'status' => 'fail',
                 'status_code' => '100',
@@ -1705,6 +1713,8 @@ class TransactionsController extends Controller
             );
 
         }
+
+        \Log::info(['checks: ' => $response, 'request' => $request->all()]);
 
         return $response;
     }
