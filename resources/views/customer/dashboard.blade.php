@@ -68,321 +68,193 @@
     </div>
 </div>
 
-<!-- Option-section -->
-{{-- <center>
-    <div class="alert" style="background-color: #fff; color: #000; border-radius: 15px; padding: 20px; box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 30px;">
-        <div class="option-section">
-            <div class="row gx-4">
-                <!-- Airtime Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <a href="{{ route('buy', 'airtime') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-phone" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Airtime</p>
-                        </a>
+<div class="alert" style="background-color: #fff; color: #000; border-radius: 15px; padding: 20px; box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 30px;">
+    <div class="option-section">
+        <div class="row gx-4 mt-3">
+            <!-- All Time Funding -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #81c784;">
+                    <div class="option-card-icon">
+                        <i class="fa fa-eye toggleFunding" style="font-size: 20px; color: #fff; cursor: pointer;"></i>
                     </div>
+                    <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">All Time Funding</p>
+                    <p class="hiddenFunding" style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px;">
+                        ****
+                    </p>
+                    <p class="funding" style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px; display: none;">
+                        {!! settings()->currency !!}{{ number_format($allTimeFunding, 2) }}
+                    </p>
                 </div>
-                <!-- Data Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <a href="{{ route('buy', 'data') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-wifi" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Buy Data</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Cable TV Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <a href="{{ route('buy', 'cable') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-tv" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Cable TV</p>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row gx-4 mt-3">
-                <!-- Pay Bills Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <a href="{{ route('buy', 'electricity') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-lightbulb" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Pay Bills</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Buy E-Pins Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <a href="{{ route('buy', 'exam-epins') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-qrcode" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Buy E-Pins</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Withdraw Commission Option -->
-                @if(referralBalance(auth()->user()) > 1)
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <div class="option-card-icon">
-                            <i class="fa fa-download" style="font-size: 30px; color: #940798;"></i>
-                        </div>
-                        <p id="withdraw" style="font-weight: bold; font-size: 14px; margin-top: 10px;">Withdraw Commission</p>
-                    </div>
-                </div>
-                @endif
             </div>
 
-            <div class="row gx-4 mt-3">
-                <!-- Swap Airtime Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <a href="{{ route('buy', 'airtime2cash') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-wallet" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Swap Airtime</p>
-                        </a>
+            <!-- All Time Transactions -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #ffcc80;">
+                    <div class="option-card-icon">
+                        <i class="fa fa-eye toggleTransactions" style="font-size: 20px; color: #fff; cursor: pointer;"></i>
                     </div>
+                    <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">All Time Transactions</p>
+                    <p class="hiddenTransactions" style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px;">
+                        ****
+                    </p>
+                    <p class="transactions" style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px; display: none;">
+                        {!! settings()->currency !!}{{ number_format($allTimeTransactions, 2) }}
+                    </p>
                 </div>
-                <!-- Get Graphic Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center;">
-                        <a href="{{ route('buy', 'graphic') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-paper-plane" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Get Graphic</p>
-                        </a>
+            </div>
+
+            <!-- Most Favorite Product -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #940798;">
+                    <div class="option-card-icon">
+                        <i class="fa fa-star" style="font-size: 30px; color: #fff;"></i>
                     </div>
+                    <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">Most Favorite Product</p>
+                    <p style="font-size: 18px; font-weight: 800; color: #fff; margin-top: 5px;">
+                        {{ $mostBoughtProduct?->product?->name }}
+                    </p>
                 </div>
             </div>
         </div>
-    </div>
-</center> --}}
-<center>
-    <div class="alert" style="background-color: #fff; color: #000; border-radius: 15px; padding: 20px; box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 30px;">
-        <div class="option-section">
-             <div class="row gx-4 mt-3">
-                <!-- All Time Funding -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #81c784;">
+        <div class="row gx-4">
+            <!-- Airtime Option -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <a href="{{ route('buy', 'airtime') }}">
                         <div class="option-card-icon">
-                            <i class="fa fa-dollar-sign" style="font-size: 30px; color: #fff;"></i>
+                            <i class="fa fa-phone" style="font-size: 30px; color: #940798;"></i>
                         </div>
-                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">All Time Funding</p>
-                        <p style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px;">
-                            {!! settings()->currency !!}{{ number_format($allTimeFunding, 2) }}
-                        </p>
-                    </div>
-                </div>
-                <!-- All Time Transactions -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #ffcc80;">
-                        <div class="option-card-icon">
-                            <i class="fa fa-exchange-alt" style="font-size: 30px; color: #fff;"></i>
-                        </div>
-                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">All Time Transactions</p>
-                        <p style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px;">
-                            {!! settings()->currency !!}{{ number_format($allTimeTransactions, 2) }}
-                        </p>
-                    </div>
-                </div>
-                <!-- Most Favorite Product -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #940798;">
-                        <div class="option-card-icon">
-                            <i class="fa fa-star" style="font-size: 30px; color: #fff;"></i>
-                        </div>
-                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px; color: #fff;">Most Favorite Product</p>
-                        <p style="font-size: 18px; font-weight: 800; color: #fff; margin-top: 5px;">
-                            {{ $mostBoughtProduct?->product?->name }}
-                        </p>
-                    </div>
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Airtime</p>
+                    </a>
                 </div>
             </div>
-            <div class="row gx-4">
-                <!-- Airtime Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
-                        <a href="{{ route('buy', 'airtime') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-phone" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Airtime</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Data Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
-                        <a href="{{ route('buy', 'data') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-wifi" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Buy Data</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Cable TV Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
-                        <a href="{{ route('buy', 'cable') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-tv" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Cable TV</p>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            
-           
-            
-            <div class="row gx-4 mt-3">
-                <!-- Pay Bills Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
-                        <a href="{{ route('buy', 'electricity') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-lightbulb" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Pay Bills</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Buy E-Pins Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
-                        <a href="{{ route('buy', 'exam-epins') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-qrcode" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Buy E-Pins</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Withdraw Commission Option -->
-                @if(referralBalance(auth()->user()) > 1)
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+            <!-- Data Option -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <a href="{{ route('buy', 'data') }}">
                         <div class="option-card-icon">
-                            <i class="fa fa-download" style="font-size: 30px; color: #940798;"></i>
+                            <i class="fa fa-wifi" style="font-size: 30px; color: #940798;"></i>
                         </div>
-                        <p id="withdraw" style="font-weight: bold; font-size: 14px; margin-top: 10px;">Withdraw Commission</p>
-                    </div>
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Buy Data</p>
+                    </a>
                 </div>
-                @endif
             </div>
-
-            <div class="row gx-4 mt-3">
-                <!-- Swap Airtime Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
-                        <a href="{{ route('buy', 'airtime2cash') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-wallet" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Swap Airtime</p>
-                        </a>
-                    </div>
-                </div>
-                <!-- Get Graphic Option -->
-                <div class="col-md-4 pb-3">
-                    <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
-                        <a href="{{ route('buy', 'graphic') }}">
-                            <div class="option-card-icon">
-                                <i class="fa fa-paper-plane" style="font-size: 30px; color: #940798;"></i>
-                            </div>
-                            <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Get Graphic</p>
-                        </a>
-                    </div>
+            <!-- Cable TV Option -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <a href="{{ route('buy', 'cable') }}">
+                        <div class="option-card-icon">
+                            <i class="fa fa-tv" style="font-size: 30px; color: #940798;"></i>
+                        </div>
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Cable TV</p>
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-</center>
-
-
-<!-- Option-section -->
-
-{{-- <div class="col-xl-12">
-    <div class="alert" style="background-color: #fff">
-        <div id="response"></div>
-        <label style="color: red;">Refer a friend and earn extra cash on
-            {{ config('app.name') }}</label>
-        <p>Get 50% bonus immediately a user you referred upgrades level.</p>
-        <p class="text-dark" style="font-weight: bold;">Referral Link
-            <span>{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}</span> <i
-                class="fa fa-copy" style="font-size: 13px;cursor: pointer;" onclick="copyFunction()">Copy</i> <span
-                id="refres"></span>
-        </p>
         
-        @if ($customer_levels->count() > 0) <br>
-            <label style="color: blue;">Upgrade Customer level</label>
-            <select class="form-control" id="level">
-            <option value="">--Select Level--</option>
-                @foreach ($customer_levels as $level)
-                <option value="{{ $level->id }}">Upgrade To {{ $level->name }} =>{{ settings()->currency.number_format($level->upgrade_amount) }}</option>
-                @endforeach
-            </select>
-            <br />
-            <button class="btn btn-success btn-block" style="width: 50%" id="upgrade">UPGRADE</button>
-        @endif
+        
+        
+        <div class="row gx-4 mt-3">
+            <!-- Pay Bills Option -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <a href="{{ route('buy', 'electricity') }}">
+                        <div class="option-card-icon">
+                            <i class="fa fa-lightbulb" style="font-size: 30px; color: #940798;"></i>
+                        </div>
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Pay Bills</p>
+                    </a>
+                </div>
+            </div>
+            <!-- Buy E-Pins Option -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <a href="{{ route('buy', 'exam-epins') }}">
+                        <div class="option-card-icon">
+                            <i class="fa fa-qrcode" style="font-size: 30px; color: #940798;"></i>
+                        </div>
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Buy E-Pins</p>
+                    </a>
+                </div>
+            </div>
+            <!-- Withdraw Commission Option -->
+            @if(referralBalance(auth()->user()) > 1)
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <div class="option-card-icon">
+                        <i class="fa fa-download" style="font-size: 30px; color: #940798;"></i>
+                    </div>
+                    <p id="withdraw" style="font-weight: bold; font-size: 14px; margin-top: 10px;">Withdraw Commission</p>
+                </div>
+            </div>
+            @endif
+        </div>
 
+        <div class="row gx-4 mt-3">
+            <!-- Swap Airtime Option -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <a href="{{ route('buy', 'airtime2cash') }}">
+                        <div class="option-card-icon">
+                            <i class="fa fa-wallet" style="font-size: 30px; color: #940798;"></i>
+                        </div>
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Swap Airtime</p>
+                    </a>
+                </div>
+            </div>
+            <!-- Get Graphic Option -->
+            <div class="col-md-4 pb-3">
+                <div class="option-card" style="box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 20px 0px; border-radius: 15px; padding: 15px; text-align: center; background-color: #f7f7f7;">
+                    <a href="{{ route('buy', 'graphic') }}">
+                        <div class="option-card-icon">
+                            <i class="fa fa-paper-plane" style="font-size: 30px; color: #940798;"></i>
+                        </div>
+                        <p style="font-weight: bold; font-size: 14px; margin-top: 10px;">Get Graphic</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Option-section -->
+<div class="row">
+    <div class="col-xl-12">
+        <div class="alert" style="background-color: #fff; border-radius: 15px; padding: 20px; box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 30px;">
+            <div id="response"></div>
+            
+            <div class="referral-section">
+                <label style="color: #e63946; font-size: 18px; font-weight: bold;">Refer a Friend and Earn Extra Cash on {{ config('app.name') }}</label>
+                <p style="font-size: 16px; margin-top: 5px;">Get a 50% bonus immediately when a user you referred upgrades their level.</p>
+                
+                <p class="text-dark" style="font-weight: bold; margin-top: 20px;">Referral Link</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}" id="myCode" style="background-color: transparent; color: #333; border: 1px solid #ccc; border-radius: 8px; padding-left: 10px;" readonly>
+                    <button class="btn btn-outline-primary" style="border-radius: 8px;" onclick="copyFunction()">Copy <i class="fa fa-copy"></i></button>
+                </div>
+                <span id="refres" style="display: inline-block; margin-top: 5px; font-size: 14px; color: green;"></span>
+            </div>
+    
+            @if ($customer_levels->count() > 0)
+                <br />
+                <div class="level-upgrade-section">
+                    <label style="color: #1e90ff; font-size: 16px; font-weight: bold;">Upgrade Your Customer Level</label>
+                    <select class="form-control" id="level" style="border-radius: 8px; margin-top: 10px;">
+                        <option value="">--Select Level--</option>
+                        @foreach ($customer_levels as $level)
+                            <option value="{{ $level->id }}">
+                                Upgrade to {{ $level->name }} => {{ settings()->currency.number_format($level->upgrade_amount) }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <br />
+                    <button class="btn btn-success btn-block" style="width: 50%; border-radius: 8px; margin-top: 15px;" id="upgrade">Upgrade</button>
+                </div>
+            @endif
+        </div>
     </div>
 
 </div>
-<input type="text" id="myCode" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}"
-    style="background-color: transparent; color: transparent; height: 0px;border: none;"> --}}
-    <div class="row">
-        <div class="col-xl-12">
-            <div class="alert" style="background-color: #fff; border-radius: 15px; padding: 20px; box-shadow: rgba(0, 0, 0, 0.1) 0px 10px 30px;">
-                <div id="response"></div>
-                
-                <div class="referral-section">
-                    <label style="color: #e63946; font-size: 18px; font-weight: bold;">Refer a Friend and Earn Extra Cash on {{ config('app.name') }}</label>
-                    <p style="font-size: 16px; margin-top: 5px;">Get a 50% bonus immediately when a user you referred upgrades their level.</p>
-                    
-                    <p class="text-dark" style="font-weight: bold; margin-top: 20px;">Referral Link</p>
-                    <div class="input-group">
-                        <input type="text" class="form-control" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}" id="myCode" style="background-color: transparent; color: #333; border: 1px solid #ccc; border-radius: 8px; padding-left: 10px;" readonly>
-                        <button class="btn btn-outline-primary" style="border-radius: 8px;" onclick="copyFunction()">Copy <i class="fa fa-copy"></i></button>
-                    </div>
-                    <span id="refres" style="display: inline-block; margin-top: 5px; font-size: 14px; color: green;"></span>
-                </div>
-        
-                @if ($customer_levels->count() > 0)
-                    <br />
-                    <div class="level-upgrade-section">
-                        <label style="color: #1e90ff; font-size: 16px; font-weight: bold;">Upgrade Your Customer Level</label>
-                        <select class="form-control" id="level" style="border-radius: 8px; margin-top: 10px;">
-                            <option value="">--Select Level--</option>
-                            @foreach ($customer_levels as $level)
-                                <option value="{{ $level->id }}">
-                                    Upgrade to {{ $level->name }} => {{ settings()->currency.number_format($level->upgrade_amount) }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <br />
-                        <button class="btn btn-success btn-block" style="width: 50%; border-radius: 8px; margin-top: 15px;" id="upgrade">Upgrade</button>
-                    </div>
-                @endif
-            </div>
-        </div>
-
-    </div>
 
 <!-- Hidden Input Field for Referral Code -->
 <input type="text" id="myCode" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}"
@@ -475,8 +347,6 @@
                     $("#errorModal .modal-body").html(response.message);
                 }
             },
-           
-            
         });
 
         setTimeout(function () {
@@ -512,5 +382,17 @@
             window.location.reload();
         }, 2000);
     })
+
+    // $(".toggleFunding").on("click", function () {
+    //     alert('icon');
+    //     $(this).siblings(".hiddenFunding, .funding").toggle();
+
+    //     let icon = $(this).find("i");
+    //     if (icon.hasClass("fa-eye")) {
+    //         icon.removeClass("fa-eye").addClass("fa-eye-slash");
+    //     } else {
+    //         icon.removeClass("fa-eye-slash").addClass("fa-eye");
+    //     }
+    // });
 </script>
 @endsection

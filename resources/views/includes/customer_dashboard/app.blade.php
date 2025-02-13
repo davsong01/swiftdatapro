@@ -560,24 +560,22 @@
 <script src="{{ asset('backend/js/custom.js') }}"></script>
 <script>
     $(document).ready(function () {
-    $(".toggleBalance").on("click", function () {
-        $(".hiddenBalance, .balance").toggle();
+        $(".toggleBalance").on("click", function () {
+            $(".hiddenBalance, .balance").toggle();
 
-        let icon = $(this).find("svg");
-        let currentIcon = icon.attr("data-icon");
+            let icon = $(this).find("svg");
+            let currentIcon = icon.attr("data-icon");
 
-        if (currentIcon === "eye") {
-            icon.attr("data-icon", "eye-slash");
-        } else {
-            icon.attr("data-icon", "eye");
-        }
+            if (currentIcon === "eye") {
+                icon.attr("data-icon", "eye-slash");
+            } else {
+                icon.attr("data-icon", "eye");
+            }
+        });
+       
     });
-});
-
-
 </script>
 @yield('scripts')
-
 <script>
     var url = 'https://wati-integration-service.clare.ai/ShopifyWidget/shopifyWidget.js?66890';
     var s = document.createElement('script');
@@ -616,7 +614,41 @@
     x.parentNode.insertBefore(s, x);
     
 </script>
+<script>
+    $(document).on("click", ".toggleFunding", function () {
+        let parentCard = $(this).closest(".option-card");
 
+        // Toggle visibility of funding amounts
+        parentCard.find(".hiddenFunding, .funding").toggle();
+
+        // Find the SVG icon inside the clicked element
+        let icon = $(this);
+        let currentIcon = icon.attr("data-icon");
+
+        // Toggle between "eye" and "eye-slash"
+        if (currentIcon === "eye") {
+            icon.attr("data-icon", "eye-slash");
+        } else {
+            icon.attr("data-icon", "eye");
+        }
+    });
+
+    $(document).on("click", ".toggleTransactions", function () {
+        let parentCard = $(this).closest(".option-card");
+
+        parentCard.find(".hiddenTransactions, .transactions").toggle();
+
+        let icon = $(this);
+        let currentIcon = icon.attr("data-icon");
+
+        if (currentIcon === "eye") {
+            icon.attr("data-icon", "eye-slash");
+        } else {
+            icon.attr("data-icon", "eye");
+        }
+    });
+
+</script>
 </body>
 
 </html>
