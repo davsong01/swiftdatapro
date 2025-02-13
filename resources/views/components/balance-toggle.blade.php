@@ -10,23 +10,3 @@
         <i class="toggleBalance fa fa-eye-slash" style="cursor: pointer; margin-left: 10px;"></i>
     </span>
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script>
-    $(document).ready(function () {
-        $(".toggleBalance").click(function () {
-            let hiddenBalance = $(".hiddenBalance");
-            let balance = $(".balance");
-
-            if (hiddenBalance.is(":visible")) {
-                hiddenBalance.hide();
-                balance.show();
-            } else {
-                hiddenBalance.show();
-                balance.hide();
-            }
-
-            $(this).toggleClass("fa-eye fa-eye-slash");
-        });
-    });
-</script>

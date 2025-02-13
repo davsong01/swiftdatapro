@@ -448,7 +448,7 @@
         @yield('header')
         <div class="col-xl-12">
         <div class="alert" style="box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;padding:2.75rem 1.25rem">
-            {{-- <x-balance-toggle :balance="walletBalance(auth()->user())" /> --}}
+            <x-balance-toggle :balance="walletBalance(auth()->user())" />
 
             <div style="text-align: left;">
                 <span style="float: right;">
@@ -511,6 +511,7 @@
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/js-loading-overlay@1.1.0/dist/js-loading-overlay.min.js"></script>
 <script type="text/javascript" src="backend/js/overlay.js"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
@@ -557,7 +558,24 @@
 </script>
 <script src="{{ asset('backend/js/dashboard_init.js') }}"></script>
 <script src="{{ asset('backend/js/custom.js') }}"></script>
+<script>
+    $(document).ready(function () {
+    $(".toggleBalance").on("click", function () {
+        $(".hiddenBalance, .balance").toggle();
 
+        let icon = $(this).find("svg");
+        let currentIcon = icon.attr("data-icon");
+
+        if (currentIcon === "eye") {
+            icon.attr("data-icon", "eye-slash");
+        } else {
+            icon.attr("data-icon", "eye");
+        }
+    });
+});
+
+
+</script>
 @yield('scripts')
 
 <script>
@@ -598,32 +616,7 @@
     x.parentNode.insertBefore(s, x);
     
 </script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const toggleButton = document.querySelector(".toggleBalance");
-    const hiddenBalance = document.querySelector(".hiddenBalance");
-    const balance = document.querySelector(".balance");
 
-    if (toggleButton) {
-        toggleButton.addEventListener("click", function () {
-            // Toggle visibility
-            if (hiddenBalance.style.display === "none") {
-                hiddenBalance.style.display = "inline";
-                balance.style.display = "none";
-            } else {
-                hiddenBalance.style.display = "none";
-                balance.style.display = "inline";
-            }
-
-            // Toggle eye icon class
-            this.classList.toggle("fa-eye");
-            this.classList.toggle("fa-eye-slash");
-        });
-    }
-});
-
-
-</script>
 </body>
 
 </html>
