@@ -266,8 +266,9 @@ class Controller extends BaseController
             $controller = 'SmePlugController';
         } else if ($api->slug == 'graphic') {
             $controller = 'GraphicController';
+        } else if ($api->slug == 'bd') {
+            $controller = 'BiddayVerificationController';
         }
-
         return $controller;
     }
 }

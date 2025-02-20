@@ -205,7 +205,16 @@
                     </div>
                 </a>
             </li>
-
+            <li>
+                <a href="{{ route('buy', 'verification-service')}}" aria-expanded="false">
+                    <div class="nav_icon_small">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="nav_title">
+                        <span>NIN/BVN Verification Service </span>
+                    </div>
+                </a>
+            </li>
             <li>
                 <a href="{{ route('buy', 'exam-epins')}}" aria-expanded="false">
                     <div class="nav_icon_small">

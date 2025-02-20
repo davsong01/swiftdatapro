@@ -52,7 +52,7 @@
     <div class="input-group mb-3" style="display:none" id="smart-card-div">
       <span class="input-group-text"><i style="font-weight: bold" class="fa fa-pencil-square-o"></i></span>
       <input type="text" class="form-control" placeholder="Jamb Profile ID." id="smart_no" name="smart_no"
-        value="{{ old('smart_no') }}" required>
+        value="{{ old('smart_no') }}">
     </div>
     <div class="alert alert-success" id="valAmount" style="display:none"></div>
     {{-- @if($product->allow_quantity == 'yes') --}}
@@ -222,7 +222,6 @@
       var formData = {
         product_id: $("#service_module").val(),
         variation_id: $("#service_plan").val(),
-        // billersCode: $("#smart_no").val(),
         security_pin: $("#security_pin").val(),
       };
 

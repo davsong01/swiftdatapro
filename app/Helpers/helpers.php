@@ -470,7 +470,8 @@ if (!function_exists("hasAccess")) {
                 'phone',
                 'meter_number',
                 'iuc_number',
-                'account_id'
+                'account_id',
+                'billersCode'
             ];
         }
     }

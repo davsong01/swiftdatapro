@@ -35,7 +35,7 @@ class TransactionsController extends Controller
                 return $query->where('status', 'active')->whereNotIn('id', $productBlacklist)->get();
             }
         ])->where('status', 'active')->where('slug', $service)->first();
-
+        
         if (\Request::is('mobile/*')) {
             return $category->products;
         }
@@ -43,6 +43,7 @@ class TransactionsController extends Controller
         if(!$category){
             return redirect(route('dashboard'));
         }
+
         // return view('customer.airtime', compact('service','category'));
         return view('customer.'.$service, compact('service','category'));
     }
