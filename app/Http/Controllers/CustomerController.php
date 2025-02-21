@@ -491,9 +491,8 @@ class CustomerController extends Controller
         }
 
         $response = KycVerificationApiService::verify($type, $value);
-
-        $status = !empty($response->status) ? ($response->status ?? $response->success) : null;
-
+        $status = !empty($response) ? ($response->status ?? $response->success) : null;
+        
         $existingVerificationData =  $this->deepObjectToArray($kyc->verification_data ?? []);
         if (!is_array($existingVerificationData)) {
             $existingVerificationData = json_decode($existingVerificationData, true) ?? [];

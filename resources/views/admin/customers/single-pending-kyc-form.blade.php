@@ -130,12 +130,13 @@
                                         </thead>
                                         <tbody>
                                             @foreach($kycDataStatuses->bvn->raw_data as $key => $value)
+                                                
                                                 @if(!in_array($key, $excludedKeys) && $value !== '****')
                                                     <tr>
                                                         <th>{{ ucfirst(str_replace('_', ' ', $key)) }}</th>
                                                         <td>
-                                                            @if($key == 'photo' || $key == 'signature')
-                                                                <img src="data:image/jpeg;base64,{{ is_string($value) ? $value : json_encode($value) }}" height="50" onclick="zoomImg(this)" style="cursor:zoom-in"/>
+                                                            @if($key == 'image' || $key == 'signature')
+                                                                <img src="data:image/jpeg;base64,{{ is_string($value) ? $value : json_encode($value) }}" height="150" onclick="zoomImg(this)" style="cursor:zoom-in"/>
                                                             @else
                                                                 {{-- Convert stdClass to an array and encode it properly --}}
                                                                 {{ is_array($value) || is_object($value) ? json_encode((array) $value) : $value }}
@@ -178,7 +179,7 @@
                                                         <th>{{ ucfirst(str_replace('_', ' ', $key)) }}</th>
                                                         <td>
                                                             @if($key == 'photo' || $key == 'signature')
-                                                                <img src="data:image/jpeg;base64,{{ $value }}" height="50" onclick="zoomImg(this)" style="cursor:zoom-in"/>
+                                                                <img src="data:image/jpeg;base64,{{ $value }}" height="150" onclick="zoomImg(this)" style="cursor:zoom-in"/>
                                                             @else
                                                                 {{ is_array($value) ? json_encode($value) : $value }}
                                                             @endif
