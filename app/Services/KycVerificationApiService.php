@@ -56,7 +56,7 @@ class KycVerificationApiService
             $response = curl_exec($ch);
             curl_close($ch);
         }
-        // \Log::info(['nin verification response' => $response]);
+        \Log::info(['nin verification response' => $response]);
         return $response = !empty($response) ? json_decode($response) : null;        
     }
 
@@ -102,7 +102,7 @@ class KycVerificationApiService
             curl_close($ch);
         }
         
-        // \Log::info(['bvn verification response' => $response]);
+        \Log::info(['bvn verification response' => $response]);
         return $response = !empty($response) ? json_decode($response) : null;
     }
 
