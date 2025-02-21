@@ -205,6 +205,7 @@
                     </div>
                 </a>
             </li>
+            @if(env('ENT') == 'local')
             <li>
                 <a href="{{ route('buy', 'verification-service')}}" aria-expanded="false">
                     <div class="nav_icon_small">
@@ -215,6 +216,7 @@
                     </div>
                 </a>
             </li>
+            @endif
             <li>
                 <a href="{{ route('buy', 'exam-epins')}}" aria-expanded="false">
                     <div class="nav_icon_small">

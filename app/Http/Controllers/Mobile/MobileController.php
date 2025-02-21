@@ -231,10 +231,10 @@ class MobileController extends Controller
                 'name' => 'Result E-pins',
                 'slug' => 'exam-epins'
             ],
-            'NIN/BVN Verification Service' => [
-                'name' => 'NIN Verification Service',
-                'slug' => 'nin-verification-service'
-            ],
+            // 'NIN/BVN Verification Service' => [
+            //     'name' => 'NIN Verification Service',
+            //     'slug' => 'nin-verification-service'
+            // ],
 
             'My Transactions' => [
                 'All Transactions' => 'All Transactions',

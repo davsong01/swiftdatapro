@@ -57,18 +57,18 @@ class HomeController extends Controller
         $kyc_mode = $settings->kyc_verification_mode;
         $user = auth()->user();
 
-        $kyc_data = KycData::where('user_id', auth()->user()->id)->first();
+        $kyc_data = KycData::where('user_id', $user->id)->first();
 
         if(!empty($request->means_of_identification_document)){
             $document = $this->uploadFile($request->means_of_identification_document, 'ukycs');
         }else{
-            $document = auth()->user()->kycData->means_of_identification_document ?? null;
+            $document = $user->kycData->means_of_identification_document ?? null;
         }
 
         $kycData = KycData::updateOrCreate([
-            'user_id' => auth()->user()->id,
+            'user_id' => $user->id,
         ], [
-            'user_id' => auth()->user()->id,
+            'user_id' => $user->id,
             'bvn' => $request->bvn ?? $kyc_data->bvn,
             'nin' => $request->nin ?? $kyc_data->nin,
             'means_of_identification_document' => $document,

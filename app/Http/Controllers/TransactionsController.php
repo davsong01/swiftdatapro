@@ -37,7 +37,7 @@ class TransactionsController extends Controller
         ])->where('status', 'active')->where('slug', $service)->first();
         
         if (\Request::is('mobile/*')) {
-            return $category->products;
+            return !empty($category->products) ? $category->products : null;
         }
         
         if(!$category){
@@ -1715,7 +1715,7 @@ class TransactionsController extends Controller
 
         }
 
-        \Log::info(['checks: ' => $response, 'request' => $request->all()]);
+        // \Log::info(['checks: ' => $response, 'request' => $request->all()]);
 
         return $response;
     }

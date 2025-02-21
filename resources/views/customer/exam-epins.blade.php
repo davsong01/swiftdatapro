@@ -118,19 +118,21 @@
       var selectedOption = $("#service_module option:selected");
       var productSlug = selectedOption.data("slug");
       
-      if(productSlug == 'jamb'){
+      if (productSlug == 'jamb') {
         $('#submitBtn').hide();
         $('#verifyJamb').show();
         $('#service-div').show();
         $("#smart-card-div").show();
+        $("#smart_no").attr('required', true);
 
         getJambVariations(productSlug, $("#service_module").val());
-      }else{
+    } else {
         $('#submitBtn').show();
         $('#verifyJamb').hide();
         $('#service-div').hide();
         $("#smart-card-div").hide();
-      }
+        $("#smart_no").removeAttr('required');
+    }
     })
 
 
@@ -158,6 +160,7 @@
 
     $("#verifyJamb").click(function (event) {
       var inputs = document.getElementById("form-data").getElementsByTagName("input");
+      
       // Loop through each input and perform validation
       for (var i = 0; i < inputs.length; i++) {
           var input = inputs[i];
