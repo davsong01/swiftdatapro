@@ -243,7 +243,7 @@ class PaymentGatewayController extends Controller
                     $payvessel_signature = $hashkey;
                 }
 
-                if ($payvessel_signature == $hashkey && $ip_address == "162.246.254.36") {
+                if ($payvessel_signature == $hashkey && in_array($ip_address, ["162.246.254.36", "3.255.23.38"])) {
                     if (env('ENT') == 'local') {
                         $data = json_decode('{"transaction":{"date":"2023-10-14T19:36:29","reference":"100033231014183603000986812789","sessionid":"100033231014183603000986812789"},"order":{"currency":"NGN","amount":500,"settlement_amount":470,"fee":30,"description":"Inbound Transfer From PALMPAY - TAOFEEK PHILIP ADEBOLA/Palmpay to ADEGLOBAL-Admin/5121073865-9Payment Service Bank"},"customer":{"email":"adeglobaltelecom@gmail.com","phone":"09057566532"},"virtualAccount":{"virtualAccountNumber":"5121073865","virtualBank":"120001"},"sender":{"senderAccountNumber":"7046734407","SenderBankCode":"100033","senderBankName":"Palmpay","senderName":"PALMPAY - TAOFEEK PHILIP ADEBOLA"},"message":"Success","code":"00"}', true);
                     }else{
