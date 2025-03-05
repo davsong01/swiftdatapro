@@ -581,8 +581,8 @@ class HomeController extends Controller
     }
 
     public function transactions(Request $request){
-        $transactions = Transactions::select(['id','product_id','variation_id', 'category_id', 'user_id', 'buyer_status', 'buyer_service', 'type','buyer_amount', 'unit_price', 'charges', 'discount','buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra', 'created_at'])->with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
-
+        $transactions = Transactions::select(['id','product_id','variation_id', 'api_response', 'category_id', 'user_id', 'buyer_status', 'buyer_service', 'type','buyer_amount', 'unit_price', 'charges', 'discount','buyer_quantity', 'channel', 'buyer_prebal', 'buyer_postbal', 'buyer_descr', 'sys_ref', 'api_ref', 'billersCode', 'extra', 'created_at'])->with(['product', 'variation'])->where('user_id', auth()->user()->id)->where('buyer_status', '!=', 'initiated');
+       
         if (!empty($request->service)) {
             $transactions = $transactions->where('product_id', $request->service);
         }

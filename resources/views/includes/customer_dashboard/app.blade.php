@@ -205,14 +205,14 @@
                     </div>
                 </a>
             </li>
-            @if(env('ENT') == 'local')
+            @if(env('ENT') == 'local' || in_array(auth()->user()->id, [1]))
             <li>
                 <a href="{{ route('buy', 'verification-service')}}" aria-expanded="false">
                     <div class="nav_icon_small">
                         <i class="fas fa-lightbulb"></i>
                     </div>
                     <div class="nav_title">
-                        <span>NIN/BVN Verification Service </span>
+                        <span>NIN Verification Service </span>
                     </div>
                 </a>
             </li>

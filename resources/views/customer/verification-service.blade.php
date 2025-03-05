@@ -51,7 +51,7 @@
           <option value="">--Choose--</option>
           @foreach($category->products as $product)
             @if($product->has_variations == 'yes' && $product->variations->count() > 0 || $product->has_variations == 'no')
-              <option data-fixed_price="{{ $product->fixed_price }}"
+              <option data-fixed_price="{{ $product->fixed_price }}" data-slug="{{ $product->slug }}"
                 data-allow_quantity="{{ $product->allow_quantity }}" data-max="{{ $product->max }}"
                 data-min="{{ $product->min }}" data-has_variations="{{ $product->has_variations }}"
                 value="{{ $product->id }}">{{ $product->display_name }}</option>
@@ -80,18 +80,15 @@
           <span class="input-group-text"><i style="font-weight: bold" class="fas fa-phone"></i></span>
           <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no" required>
         </div>
-        <div class="input-group mb-3" id="billersCode" style="margin-top: 35px">
+        <div class="input-group mb-3" id="billersCode-div" style="margin-top: 35px">
             <div class=" input-group-text">
                 <br><br>
-                <span class="" id=""><i class="fas fa-user" style="font-weight: bold"></i></span>
+                <span class="" id=""><i class="fa fa-database" style="font-weight: bold"></i></span>
             </div>
-            <input type="text" class="form-control" name="billersCode" placeholder="Identification Number"
-                id="billersCode">
+            <input type="text" class="form-control" name="billersCode" placeholder="" id="billersCode">
         </div>
 
-        <div id="extra"
-            style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">
-        </div>
+        <div id="extra" style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none"></div>
 
         <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
         <div class="input-group mb-3">
@@ -162,8 +159,17 @@
     var min = $('#network_module').find(':selected').data('min');
     var quantity_graduation = $('#network_module').find(':selected').data('quantity_graduation');
     var fixed_price = $('#network_module').find(':selected').data('fixed_price');
+    var slug = $('#network_module').find(':selected').data('slug');
 
     var amount = $('#amount').val();
+    if (slug.includes('nin')) {
+      $("#billersCode").attr("placeholder", "Enter NIN");
+    }
+
+    if (slug.includes('bvn')) {
+      $("#billersCode").attr("placeholder", "Enter BVN");
+    }
+
 
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
@@ -179,24 +185,14 @@
             $("#smile-verify-email").hide();
 
           }
-          if (network_module == 'mtn-datacard') {
-            $("#ask_pins").show();
-            $("#ask_pins_small").show();
-            $("#how_to_load").show();
-            $("#how_to_load").show();
 
-            $("#quantity").attr("required", true);
-            $("#mobile_no").attr("required", false);
+          $("#ask_pins").hide();
+          $("#quantity").attr("required", false);
+          $("#quantity").val("1");
+          $("#ask_pins_small").hide();
+          $("#how_to_load").hide();
+          $("#mobile_no").attr("required", true);
 
-          } else {
-            $("#ask_pins").hide();
-            $("#quantity").attr("required", false);
-            $("#quantity").val("1");
-            $("#ask_pins_small").hide();
-            $("#how_to_load").hide();
-            $("#mobile_no").attr("required", true);
-
-          }
           $("#dataplanloader").html(RES_data);
         }
       })
@@ -211,15 +207,13 @@
       network_module: $("#network_module").val(),
       dataplanloader: $("#dataplanloader").val(),
       mobile_no: $("#mobile_no").val(),
+      billersCode: $("#billersCode").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
       quantity: $("#quantity").val()
     };
 
-    if ($("#network_module").val() == 'smile-data') {
-      return verifySmile();
-    }
-    $.LoadingOverlay("show");
+    // $.LoadingOverlay("show");
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -259,81 +253,6 @@
 
     event.preventDefault();
   });
-
-  function verifySmile() {
-    var formData = {
-      service_module: $("#network_module").val(),
-      smart_no: $("#smile_email").val(),
-      dataplanloader: $("#dataplanloader").val(),
-      mobile_no: $("#mobile_no").val(),
-      security_pin: $("#security_pin").val(),
-      req_token: $("#req_token").val(),
-      quantity: $("#quantity").val(),
-    };
-
-    $.LoadingOverlay("show");
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-    $.ajax({
-      url: 'customer/verify',
-      method: 'POST',
-      dataType: 'json',
-      data: formData,
-      success: function(response_fd) {
-        $.LoadingOverlay("hide");
-
-        if (response_fd.status == 'success') {
-          $("#myModal2 .modal-header").html(response_fd.title);
-          $("#myModal2 .modal-body").html(response_fd.message);
-          $("#myModal2").modal("show");
-        } else {
-          $("#errorModal").modal("show");
-          $("#errorModal .modal-body").html(response_fd.message);
-        }
-      }
-
-    });
-
-    event.preventDefault();
-  }
-
-  function pay4smile(account_id) {
-    var formData = {
-      network_module: $("#network_module").val(),
-      smart_no: $("#smile_email").val(),
-      dataplanloader: $("#dataplanloader").val(),
-      mobile_no: $("#mobile_no").val(),
-      security_pin: $("#security_pin").val(),
-      req_token: $("#req_token").val(),
-      quantity: $("#quantity").val(),
-      account_id: account_id,
-    };
-
-    $("#myModal2").modal("hide");
-    $.LoadingOverlay("show");
-    $.ajax({
-      url: 'customer/data',
-      method: 'POST',
-      dataType: 'json',
-      data: formData,
-      success: function(response_fd) {
-        $.LoadingOverlay("hide");
-        if (response_fd.status == 'success') {
-          $("#successModal").modal("show");
-          $("#successModal .modal-body").html(response_fd.message);
-          setTimeout(function() {
-            window.location.reload();
-          }, 3000);
-        } else {
-          $("#errorModal").modal("show");
-          $("#errorModal .modal-body").html(response_fd.message);
-        }
-      }
-    });
-  };
 
   function closeModal() {
     $("#myModal2").modal("hide");

@@ -442,10 +442,16 @@ class TransactionsController extends Controller
                 $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
             }
 
-            if (in_array($resource->category->slug, ['electricity', 'cable'])) {
-                $request['billersCode'] = $request->billersCode;
+            // if (in_array($resource->category->slug, ['electricity', 'cable'])) {
+            //     $request['billersCode'] = $request->billersCode;
+            // } else {
+            //     $request['billersCode'] = $request->billersCode ?? ($request['account_id'] ?: $request->mobile_no);
+            // }
+
+            if (in_array($resource->category->slug, ['data', 'airtime'])) {
+                $request['billersCode'] =  $request->billersCode ?? $request->mobile_no;
             } else {
-                $request['billersCode'] = $request->billersCode ?? ($request['account_id'] ?: $request->mobile_no);
+                $request['billersCode'] = $request->billersCode ?? ($request['account_id'] ?? $request->mobile_no);
             }
             
             $checks = $this->runChecks($request, $product, $api, $resource);
@@ -492,7 +498,6 @@ class TransactionsController extends Controller
             $request['variation_code'] = $variation->variation_code ?? null;
             $request['quantity'] = $quantity;
             //end intialization
-
             $data = [
                 'mobile_number' => $request->mobile_no,
                 'unit_price' => $request['unit_price'],
@@ -528,7 +533,6 @@ class TransactionsController extends Controller
 
             // Log transaction before calling the API
             $transaction = $this->logTransaction($data);
-
             $data['resource'] = $resource;
             $data['product'] = $product;
             $data['billersCode'] = $request['billersCode'] ?? null;
@@ -541,7 +545,6 @@ class TransactionsController extends Controller
             // Deduct wallet balance and save
             $user->wallets -= $request['total_amount'];
             $user->save();
-
             // Commit the wallet deduction and transaction log
             DB::commit();
 
@@ -551,6 +554,7 @@ class TransactionsController extends Controller
             // Initiate the API call with updated transaction data
             // $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($data, $api))
             // ->query($data);
+            // dd($this->getApiFilename($api));
             $api_response = app('App\Http\Controllers\Providers\\' . $this->getApiFilename($api))->query($data, $api);
             
             // Handle API response
@@ -745,7 +749,7 @@ class TransactionsController extends Controller
         *Transaction Date:* ' . date("M jS, Y g:iA", strtotime(now())) . '';
         
         $string = "https://api.whatsapp.com/send?phone=" . settings()->whatsapp_no . "&text=" . urlencode($string);
-       
+        
         return redirect()->away($string);
     }
 

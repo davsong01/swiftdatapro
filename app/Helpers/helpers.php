@@ -655,4 +655,17 @@ if (!function_exists("hasAccess")) {
         }
     }
 
+    if (!function_exists("deepObjectToArray")) {
+        function deepObjectToArray($object){
+            if (is_object($object)) {
+                $object = get_object_vars($object);
+            }
+
+            if (is_array($object)) {
+                return array_map('deepObjectToArray', $object);
+            }
+
+            return $object;
+        }
+    }
 }

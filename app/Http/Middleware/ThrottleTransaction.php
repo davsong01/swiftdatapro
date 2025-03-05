@@ -16,24 +16,25 @@ class ThrottleTransaction
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $transaction_restriction_settings = settings()->transaction_restriction_settings;
-        $throttleTime = $transaction_restriction_settings['trottle_transactions_time'] ?? 0;
+        if(env('ENT') !== 'local'){
+            $transaction_restriction_settings = settings()->transaction_restriction_settings;
+            $throttleTime = $transaction_restriction_settings['trottle_transactions_time'] ?? 0;
+            
+            if($throttleTime > 0){
+                $key = 'transaction-throttle-' . $request->user()->id . '-' . $request->route()->getName();
         
-        if($throttleTime > 0){
-            $key = 'transaction-throttle-' . $request->user()->id . '-' . $request->route()->getName();
-    
-            if (Cache::has($key)) {
-                return response()->json([
-                    'status' => 'fail',
-                    'status_code' => '100',
-                    'message' => 'Please wait before making another transaction.',
-                ]);
+                if (Cache::has($key)) {
+                    return response()->json([
+                        'status' => 'fail',
+                        'status_code' => '100',
+                        'message' => 'Please wait before making another transaction.',
+                    ]);
+                }
+        
+                // Store the key in cache for the throttle duration
+                Cache::put($key, true, $throttleTime);
             }
-    
-            // Store the key in cache for the throttle duration
-            Cache::put($key, true, $throttleTime);
         }
-
         return $next($request);
 
     }

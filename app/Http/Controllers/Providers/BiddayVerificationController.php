@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Models\CustomerLevel;
 use App\Http\Controllers\Controller;
+use App\Services\KycVerificationApiService;
 
 class BiddayVerificationController extends Controller
 {
@@ -673,75 +674,45 @@ class BiddayVerificationController extends Controller
     //     return $params;
     // }
 
-    public function getPostData($request, $api){
-        $slug = $request['product']->slug ?? null;
-        $resource = $request['resource'] ?? null;
-
-        if ($slug == 'mtn-gifting' || $slug == 'mtn-cg' || $slug == 'gifting' || $slug == 'mtn-sme' || str_contains($slug, 'mtn')) {
-            $ntwk = 1;
-            $url = $api->live_base_url . "data/";
-        } elseif ($slug == 'airtel-cg') {
-            $ntwk = 4;
-            $url = $api->live_base_url . "data/";
-        } elseif ($slug == 'airtel') {
-            $ntwk = 4;
-            $url = $api->live_base_url . "data/";
-        } elseif ($slug == 'glo-cg') {
-            $ntwk = 2;
-            $url = $api->live_base_url . "data/";
-        } elseif ($slug == 'glo') {
-            $ntwk = 2;
-            $url = $api->live_base_url . "data/";
-        } else if ($slug == 'mtn' || $slug == 'mtn-sme') {
-            $ntwk = 1;
-            $url = $api->live_base_url . "data/";
-        } else if ($slug == '9mobile-cg' || $slug == '9mobile') {
-            $ntwk = 3;
-            $url = $api->live_base_url . "data/";
-        }else{
-            $url = $api->live_base_url . "data/";
-        }
-        
-        $postdata = [
-            'url' => $url ?? $api->live_base_url . "data/",
-            'network' => $ntwk ?? null,
-            'plan' => $resource->slug ?? $request['buyer_service'],
-            'mobile_number' => $request['mobile_number'],
-            'Ported_number' => true,
-            'quantity' => $request['quantity'] ?? 1,
-        ];
-        
-        return $postdata;
-    }
-
     public function query($data, $api){
-        $headers = [
-            "Authorization: Token " . $api->api_key . "",
-            'Content-Type: application/json'
+        $format = [
+            'status' => 'attention-required',
+            'extra' => '',
+            'response' => 'Something went wrong, please try again later',
+            'error' => 'Something went wrong, please try again later',
         ];
+
+        $response = 'no-response';
         
-        $pstfields = $this->getPostData($data, $api);
-        dd($pstfields);
-        if (env('ENT') == 'local') {
-            $resX = '{"id":19263669,"ident":"Data22d134b73-a60","payment_medium":"MAIN WALLET","network":1,"apiresponse":"Dear Customer, You have gifted 3072MB, please dial *323*2*5# to check your balance. Thankyou.","api_response":"Dear Customer, You have gifted 3072MB, please dial *323*2*5# to check your balance. Thankyou.","balance_before":"62185.88000000008","balance_after":"61411.88000000008","mobile_number":"09135759113","plan":283,"Status":"SUCCESSFUL","plan_network":"MTN","plan_name":"3.0GB","plan_amount":"774.0","create_date":"2024-05-31T18:51:00.642075","Ported_number":true}';
-        } else {
-            $resX = $this->advancedApiCall($pstfields['url'], json_encode($pstfields), $headers);
-        }
-        // dd($resX, $postdata)
-        // $resX = '{"id":8796051,"ident":"Data3c8b22038-740","network":1,"apiresponse":"something went wrong please check back later","api_response":"something went wrong please check back later","balance_before":"3938.0","balance_after":"3711.0","mobile_number":"08149292337","plan":281,"Status":"failed","plan_network":"MTN","plan_name":"1.0GB","plan_amount":"227.0","create_date":"2023-08-21T20:56:25.563155","Ported_number":true}';
-
-        // $resX = '{"id":19292559,"ident":"Data102a1dfaca-cbe","payment_medium":"MAIN WALLET","network":1,"apiresponse":"You are not sending to valid MTN number.","api_response":"You are not sending to valid MTN number.","balance_before":"2779.9800000000832","balance_after":"2649.4800000000832","mobile_number":"08180010243","plan":289,"Status":"failed","plan_network":"MTN","plan_name":"500.0MB","plan_amount":"130.5","create_date":"2024-06-01T18:43:51.781740","Ported_number":true}';
-
         try {
-            $format = $this->processApiResponse($resX, $data);
+            if (str_contains($data['resource']->slug, 'nin')) {
+                if($data['resource']->slug == 'ninv2'){
+                    $data['url'] = $api->live_base_url . "nin/";
+                    $data['postdata'] = [
+                        'value' => $data['billersCode'],
+                    ];
 
-            $format['postfields'] = $pstfields;      
-            $format['api_response'] = $resX;          
-        
+                    $response = KycVerificationApiService::genericVerification($data, $api);
+
+                    if(!empty($response)){
+                        $response = deepObjectToArray($response);
+                    }
+                    
+                    $format = [
+                        'true_response' => '',
+                        'status' => !empty($response['status'] && $response['status'] == true) ? 'success' : 'failed',
+                        'postfields' => $data['postdata'] ?? '',
+                        'api_response' => $response,
+                        'response' => '',
+                    ];
+
+                }
+
+            }
         } catch (\Throwable $th) {
             $format = [
-                'api_response' => $resX,         
-                'postfields' => $pstfields,
+                'api_response' => $response,         
+                'postfields' => $data['postdata'] ?? '',
                 'status' => 'attention-required',
                 'response' => '',
                 'error' => $th->getMessage(). '. File: '.$th->getFile().'. Line:'.$th->getLine(),
@@ -750,121 +721,7 @@ class BiddayVerificationController extends Controller
             return $format;
 
         }
-       
-        return $format;
-    }
-
-    public function processApiResponse($res,$request){
-        if(empty($res)){
-            $formatted = [
-                'status' => 'attention-required',
-                'extra' => '',
-                'response' => 'Something went wrong, please try again later',
-                'error' => 'Something went wrong, please try again later',
-            ];
-            
-        }else{
-            try {
-                // Process APi call
-                $result = json_decode($res, true);
-                
-                $check = !empty($result['api_response']) ? $this->apiResponseMatchCheck($result['api_response']) : '';
-
-                $result['api_response'] = $check == true ? $result['api_response'] : '';
-                
-                if($request['product']->slug == 'mtn' && $request['category']->slug == 'data'){
-                    $result['Status'] = isset($result['Status']) ? strtoupper($result['Status']) : null;
-
-                    if (isset($result['Status']) && $result['Status'] !== 'FAILED') {
-                        if ($result['Status'] == 'PROCESSING') {
-                            $result['apiresponse'] = '';
-                        }
-                        $status = 'success';
-                        $true_response = 'You have successfully shared data to ' . $request['mobile_number'] . '. ' . $result['api_response'];
-                    } else {
-                        $status = 'failed';
-                        $true_response = 'ERROR: ' . $result['api_response'];
-                    }
-                }else{
-                    try {
-                        $pinsx = [];
-                        $res = str_replace(array(
-                                '\'', '"',
-                                '',
-                            ), ' ', $result);
-                        if (isset($result) && !empty($result)) {
-                            foreach ($result as $key => $value) {
-                                if (strpos($key, 'pin') !== false) {
-                                    $pinsx[] = $value;
-                                }
-                            }
-                        }
-
-                        $pins = (isset($pinsx) && !empty($pinsx)) ? 'PINS: ' . implode(', ', $pinsx) : '';
-                    } catch (\Throwable $th) {}
-                    
-                    $true_response = isset($result['api_response']) ? str_replace("'", '', $result['api_response']) : '';
-                    
-                    $result['Status'] = isset($result['Status']) ? strtoupper($result['Status']) : null;
-                    
-                    if ((isset($result['Status']) && $result['Status'] !== 'FAILED' && !empty($result['Status']) || (isset($result['Status']) && $result['Status'] == 'NULL'))) {
-                        if ($result['Status'] == 'PROCESSING') {
-                            $true_response = '';
-                        }
-                        $status = 'success';
-                    } else {
-                        $status = 'failed';
-                        $true_response = $result['error'][0] ?? ($true_response ?? '');
-                    }
-                }
-                $formatted = [
-                    'status' => $status,
-                    'response' => $true_response,
-                    'extra' => $pins ?? null,
-                    'error' => null,
-                ];
-               
-            } catch (\Throwable $th) {
-                $formatted = [
-                    'status' => 'attention-required',
-                    'extra' => '',
-                    'response' => $th->getMessage().' '.$th->getFile().' '.$th->getLine() ,
-                    'error' => $th->getMessage() . ' ' . $th->getFile() . ' ' . $th->getLine(),
-                ];
-    
-            }
-        }
-       
-        return $formatted;
-    }
-
-    public function balance($api)
-    {
-        $headers = [
-            "Authorization: Token " . $api->api_key . "",
-            'Content-Type: application/json'
-        ];
-
-        $url = "https://www.gongozconcept.com/api/user";
-
-        $resX = $this->advancedApiCall($url, [], $headers);
-
-        $resX = json_decode($resX);
-       
-        try {
-            
-        } catch (\Throwable $th) {
-            $format = [
-                'api_response' => $resX,
-                'postfields' => $pstfields,
-                'status' => 'attention-required',
-                'response' => '',
-                'error' => $th->getMessage() . '. File: ' . $th->getFile() . '. Line:' . $th->getLine(),
-            ];
-
-            return $format;
-        }
 
         return $format;
-    }
+    }   
 }
