@@ -195,7 +195,7 @@
                             @include('admin.products.add_variations_form')
                         </div>
 
-                        <a onclick="return confirm('You are about to pull old variations, I hope you know what you are doing')" href="{{ route('variations.old.pull', $product->id) }}" class="btn btn-light align-items-center"><i class="bx bx-refresh"></i>&nbsp; Pull Old Variations</a>
+                        {{-- <a onclick="return confirm('You are about to pull old variations, I hope you know what you are doing')" href="{{ route('variations.old.pull', $product->id) }}" class="btn btn-light align-items-center"><i class="bx bx-refresh"></i>&nbsp; Pull Old Variations</a> --}}
 
                         @if($product->variations->count() < 1)
                             <a href="{{ route('variations.pull', $product->id) }}" class="btn btn-dark align-items-center"><i class="bx bx-plus"></i>&nbsp; Pull Variations</a>

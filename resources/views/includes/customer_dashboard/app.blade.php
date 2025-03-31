@@ -212,7 +212,7 @@
                         <i class="fas fa-lightbulb"></i>
                     </div>
                     <div class="nav_title">
-                        <span>NIN Verification Service </span>
+                        <span>BVN/NIN Verification Service </span>
                     </div>
                 </a>
             </li>

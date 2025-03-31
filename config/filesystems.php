@@ -36,6 +36,12 @@ return [
             'throw' => false,
         ],
 
+        'verification' => [
+            ' driver ' => ' local ',
+            ' root ' => base_path('verification'),
+        ],
+
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),

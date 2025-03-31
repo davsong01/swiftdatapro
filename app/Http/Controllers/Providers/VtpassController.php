@@ -882,17 +882,7 @@ class VtpassController extends Controller
         
         try {
             $format = $this->processApiResponse($resX);
-            
             $format['api_response'] = $resX;
-
-
-            if(isset($format['commission'])){
-                $format['getSourcePriceAndCalculateProfit'] = [
-                    'source_price' => $request['unit_price'] - $format['commission'],
-                    'profit' => $request['buyer_amount'] - ($request['unit_price'] - $format['commission']),
-                ];
-            }
-            
             $format['postfields'] = json_encode($postdata);      
 
         } catch (\Throwable $th) {

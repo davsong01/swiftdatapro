@@ -191,18 +191,10 @@
                                     </div>
                                     <div class="statistics-date">
                                         <small class="text-muted">
-                                            {{-- <a target="_blank" href="{{ route('transaction.status', $transaction->sys_ref) }}" class="btn btn-sm btn-primary glow mt-md-2 mb-1">View</a></small> <small class="text-muted"> --}}
-                                            <a target="_blank" href="{{ route('transaction.receipt.download', $transaction->id) }}" class="btn btn-sm btn-info glow mt-md-2 mb-1">Download Transaction Receipt</a>
-                                            
-                                            <?php 
-                                                if($transaction->id == 443260){
-                                                    App\Services\KycVerificationApiService::generateNinPdf($transaction);  
-                                                }
-                                            ?>
-                                            {{-- @if(!in_array($transaction->buyer_status, ['SUCCESSFUL']) && !in_array($transaction->category->slug, ['verification-service']))
-                                            @endif --}}
-                                            {{-- @if(!in_array($transaction->reason, ['LEVEL-UPGRADE','WALLET-FUNDING']) && !in_array($transaction->buyer_status, ['failed']))
-                                            @endif --}}
+                                            <a target="_blank" href="{{ route('transaction.receipt.download', $transaction->id) }}" class="btn btn-sm btn-info glow mt-md-2 mb-1">Transaction Receipt</a>
+                                            @if(in_array($transaction->product->slug, ['nin-verification']) && $transaction->buyer_status == 'SUCCESSFUL' )
+                                                <a target="_blank" href="{{ route('transaction.generateslip', $transaction->id) }}" class="btn btn-sm btn-dark glow mt-md-2 mb-1">BVN/NIN Slip</a>
+                                            @endif
                                         </small>
                                     </div>
                                 </div>

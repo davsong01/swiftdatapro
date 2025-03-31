@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 
+use Transaction;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Blacklist;
 use App\Models\Variation;
 use App\Models\WebSetting;
+use Illuminate\Support\Str;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use App\Services\ExcelService;
@@ -17,6 +19,7 @@ use App\Models\DepositTransaction;
 use Illuminate\Support\Facades\DB;
 use App\Services\JsonResponseService;
 use App\Services\MobileResponseService;
+use App\Services\KycVerificationApiService;
 use App\Models\TransactionStatusChangeTrack;
 
 
@@ -326,8 +329,8 @@ class TransactionsController extends Controller
                     'failure_reason' => $api_response['error'] ?? 'attention-required',
                     'extra' => $api_response['extra'] ?? null,
                     'post_fields' => $api_response['postfields'],
-                    'src_price' => $getSourcePriceAndCalculateProfit['src_price'],
-                    'profit' => $getSourcePriceAndCalculateProfit['profit'],
+                    'src_price' => $getSourcePriceAndCalculateProfit['src_price'] ?? $data['unit_price'],
+                    'profit' => $getSourcePriceAndCalculateProfit['profit'] ?? 0,
                 ]);
 
                 $body = 'Dear ' . auth()->user()->full_name . ' The transaction below was carried out on your account on ' . config('app.name') . '<br><br>
@@ -1250,6 +1253,14 @@ class TransactionsController extends Controller
         return $pdf->download($transaction['sys_ref'] . '.pdf');
         // return view('customer.receipts.transaction_receipt', compact('transaction'));
     }
+
+    public function verificationSlip(Transactions $transaction)
+    {
+        if(in_array($transaction->product->slug, ['nin-verification'])){
+            return KycVerificationApiService::generateNinPdf($transaction);
+        }
+    }
+
 
     public function getAmount($product, $variation, $request){
         if ($product->has_variations == 'yes') {
