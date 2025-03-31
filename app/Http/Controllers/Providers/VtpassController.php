@@ -584,10 +584,13 @@ class VtpassController extends Controller
         $variations = (!empty($variations['response_description']) && !empty($variations['content'])) ? $variations['content'] : [];
         $variations = $variations['variations'] ?? $variations['varations'];
         
+        Variation::where(['product_id' => $product->id, 'api_id' => $product->api_id])->update(['status' => 'inactive']);
+        
         foreach ($variations as $variation) {
-            if (Variation::where(['slug' => $variation['variation_code'], 'product_id' => $product->id, 'api_id' => $product->api_id])->count() > 0) {
-                continue;
-            }
+            // if ($old = Variation::where(['slug' => $variation['variation_code'], 'product_id' => $product->id, 'api_id' => $product->api_id])->count() > 0) {
+            //     continue;
+            // }
+            
             Variation::updateOrCreate([
                 'product_id' => $product['id'],
                 'category_id' => $product['category_id'],
@@ -604,6 +607,7 @@ class VtpassController extends Controller
                 'fixed_price' => strtolower($variation['fixedPrice']),
                 'api_price' => $variation['variation_amount'],
                 'system_price' => $variation['variation_amount'],
+                'status' => 'active',
             ]);
         }
 
@@ -615,7 +619,7 @@ class VtpassController extends Controller
         $url = env('ENT') == 'local' ? $api->sandbox_base_url : $api->live_base_url;
         $url = $url.'service-variations?serviceID='.$product->slug;
         $response = $this->advancedApiCall($url, [], [], 'GET');
-       
+
         return $response;
        
     }
@@ -637,7 +641,7 @@ class VtpassController extends Controller
         ];
         
         $response = $this->advancedApiCall($url, $postdata, $headers, 'POST');
-       
+        
         $result = json_decode($response);
         if (isset($result->code) && $result->code == 000 && !empty($result->content) && !empty($result->content->Customer_Name)) {
             if ($request['variation']->category->slug == 'electricity') {
@@ -873,19 +877,25 @@ class VtpassController extends Controller
             'subscription_type' => $subscription_type ?? null,
             'quantity' => $request['quantity'] ?? 1,
         ];
-
-        $resX = $this->advancedApiCall($url, $postdata, $headers);
-        // $resX = '{"code":"018","response_description":"LOW WALLET BALANCE","content":{"errors":""}}';
         
-        // dd($postdata['url'], $postdata['payload'], $headers, $resX);
+        $resX = $this->advancedApiCall($url, $postdata, $headers);
+        
         try {
             $format = $this->processApiResponse($resX);
             
             $format['api_response'] = $resX;
+
+
+            if(isset($format['commission'])){
+                $format['getSourcePriceAndCalculateProfit'] = [
+                    'source_price' => $request['unit_price'] - $format['commission'],
+                    'profit' => $request['buyer_amount'] - ($request['unit_price'] - $format['commission']),
+                ];
+            }
+            
             $format['postfields'] = json_encode($postdata);      
 
         } catch (\Throwable $th) {
-
             $format = [
                 'api_response' => $resX,         
                 'status' => 'attention-required',
@@ -899,6 +909,7 @@ class VtpassController extends Controller
 
         }
     
+
         return $format;
     }
 
@@ -925,6 +936,7 @@ class VtpassController extends Controller
                 $chargeableStatuses = ['pending', 'delivered'];
                 if (in_array($status, $chargeableStatuses)) {
                     $status = "successful";
+                    $commission = $result['content']['transactions']['commission'];
                 }
 
                 $pinsx = [];
@@ -944,8 +956,10 @@ class VtpassController extends Controller
                     'response' => $true_response,
                     'extra' => $extra ?? null,
                     'error' => null,
-                    'code' => $code
+                    'code' => $code,
+                    'commission' => $commission
                 ];
+
             } catch (\Throwable $th) {
                 $formatted = [
                     'status' => 'attention-required',
@@ -1055,5 +1069,47 @@ class VtpassController extends Controller
         }
 
         return $format;
+    }
+
+    public function getSourcePriceAndCalculateProfit($product, $variation, $request){
+        $provider_percentage_discount = $product->provider_percentage_discount;
+        if ($product->has_variations == 'yes' && !empty($variation) && $variation->fixed_price == 'yes') {
+            // If product has variation and variation fixed price == yes, use variation->api_price
+            $src_price = $variation->api_price;
+            $profit = $request['total_amount'] - $src_price;
+
+            if(empty($src_price)){
+                if (!empty($provider_percentage_discount)) {
+                    $discount_off = $provider_percentage_discount / 100 * $request['unit_price'];
+                    $src_price = ($request['unit_price'] - $discount_off);
+                    $src_price =  $src_price;
+
+                    // Profit is amount charged - provider charge 
+                    $profit = $request['total_amount'] - $src_price;
+                } else {
+                    $src_price = 0;
+                }
+            }
+        } else {
+
+            if(!empty($provider_percentage_discount)){
+                $discount_off = $provider_percentage_discount / 100 * $request['unit_price'];
+                $src_price = ($request['unit_price'] - $discount_off );
+                $src_price =  $src_price;
+
+                // Profit is amount charged - provider charge 
+                $profit = $request['total_amount'] - $src_price;
+            }else{
+                $src_price = $product->system_price;
+                $profit = $request['total_amount'] - $src_price;
+            }
+        }
+
+        $profit = $profit * $request['quantity'];
+
+        return [
+            'source_price' => $src_price,
+            'profit' => $profit
+        ];
     }
 }

@@ -168,7 +168,7 @@
 
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
-      $.LoadingOverlay("show");
+      // $.LoadingOverlay("show");
       $.ajax({
         url: "{{ url('customer-get-variations') }}/" + product_id,
         method: 'GET',
@@ -220,7 +220,7 @@
     if ($("#network_module").val() == 'smile-data') {
       return verifySmile();
     }
-    $.LoadingOverlay("show");
+    // $.LoadingOverlay("show");
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -272,7 +272,7 @@
       quantity: $("#quantity").val(),
     };
 
-    $.LoadingOverlay("show");
+    // $.LoadingOverlay("show");
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -314,7 +314,7 @@
     };
 
     $("#myModal2").modal("hide");
-    $.LoadingOverlay("show");
+    // $.LoadingOverlay("show");
     $.ajax({
       url: 'customer/data',
       method: 'POST',

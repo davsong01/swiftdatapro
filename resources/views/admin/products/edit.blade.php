@@ -239,7 +239,7 @@
                                     </div>
                                     
                                     <div class="col-md-3">
-                                            <label class="form-label" for="status">Status</label>
+                                            <label class="form-label text-{{ $variation->status == 'active' ? 'success' : 'danger'}}" for="status">Status</label>
                                             <select class="form-control" name="status[{{ $variation->id }}]" id="status" required>
                                                 <option value="">Select</option>
                                                 <option value="active" {{ $variation->status == 'active' ? 'selected' : ''}}>Active</option>
