@@ -133,13 +133,12 @@ class KycVerificationApiService
             ]
         );
 
-        if (env('ENT') !== 'local') {
+        if (env('ENT') == 'local') {
             $response = Self::ninDummy();
         } else {
             $response = curl_exec($ch);
             curl_close($ch);
 
-            dd($response, $endpoint);
         }
         \Log::info(['nin verification response' => $response]);
         return $response = !empty($response) ? json_decode($response) : null;
