@@ -135,7 +135,7 @@ class RegisterController extends Controller
             'cashback' => 0,
             'users_sid' => $users_sid,
             'referral' => '',
-            'level' => 1,
+            'level' => 4,
             'last_login' => $time,
             'email' => $data['email'],
             'security_pin' => '',
