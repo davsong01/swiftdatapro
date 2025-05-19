@@ -106,13 +106,14 @@
                         <div class="col-md-12">
                             <div class="row">
                                 @foreach ($transactions as $transaction)
+                                
                                 <?php 
                                     $colors = buyerStatusColors($transaction);
                                 ?>
                                 <div class="col-md-4" style="box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;padding-top:10px;padding-bottom: 10px;">
                                     <div class="">
                                         @if(!empty($transaction->product_id))
-                                            <span class="title">Service</span>:
+                                            <span class="title">Service </span>:
                                             <small>
                                             <span class="mr-50 text-bold-200">
                                                 <strong>{{ $transaction->product->name ?? $transaction->buyer_descr}}</strong>
@@ -123,7 +124,6 @@
                                         @endif
                                         <strong>
                                         <button class="btn btn-{{ $colors['bg'] }} btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
-
                                         {{-- @if($transaction->status == 'DELIVERED' || $transaction->buyer_status == 'SUCCESSFUL')
                                         <button class="btn btn-success btn-sm" readonly>{{ucfirst($transaction->buyer_status) }}</button>
                                         @elseif(in_array($transaction->buyer_statusbuyer_status, ['ATTENTION-REQUIRED', 'PENDING']))
@@ -143,6 +143,7 @@
                                         <small>
                                             {{ $transaction->buyer_descr }}</strong>
                                         </small>
+                                       
                                         @if(!empty($transaction->billersCode))
                                          <br>
                                         <span class="title">Biller</span>:
@@ -157,6 +158,7 @@
                                         <small style="color:{{$transaction->type == 'debit' ? 'red' : 'green' }}">{{$transaction->type == 'debit' ? '- ' : '+ '}}{!! settings()->currency !!}{{ number_format($transaction->buyer_amount, 2) }}
                                         {{$transaction->type == 'debit' ? '(Debit)' : '(Credit)' }}
                                         </small> 
+                                        
                                         @if($transaction->discount > 0)
                                         <br>
                                         <span class="title">Discount Applied</span>:
@@ -192,9 +194,11 @@
                                     <div class="statistics-date">
                                         <small class="text-muted">
                                             <a target="_blank" href="{{ route('transaction.receipt.download', $transaction->id) }}" class="btn btn-sm btn-info glow mt-md-2 mb-1">Transaction Receipt</a>
-                                            @if(in_array($transaction->product->slug, ['nin-verification']) && $transaction->buyer_status == 'SUCCESSFUL' )
+                                             @if(isset($transaction->product->slug) && in_array($transaction->product->slug, ['nin-verification']) && $transaction->buyer_status == 'SUCCESSFUL' )
                                                 <a target="_blank" href="{{ route('transaction.generateslip', $transaction->id) }}" class="btn btn-sm btn-dark glow mt-md-2 mb-1">BVN/NIN Slip</a>
                                             @endif
+                                            
+                                        
                                         </small>
                                     </div>
                                 </div>

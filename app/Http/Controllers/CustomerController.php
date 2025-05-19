@@ -153,6 +153,7 @@ class CustomerController extends Controller
         return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
     }
 
+    
     public function pendingKYC(Request $request)
     {
         $title = 'Pending KYC';
@@ -468,6 +469,11 @@ class CustomerController extends Controller
             User::whereIn('id', $customerIds)->delete();
             return back()->with('message', 'Selected customers have been deleted.');
         }
+        
+        if ($action === 'change_customer_level') {
+            $this->changeCustomerLevelMass($request->all());
+            return back()->with('message', 'Selected customers have been moved to level '.$request->customer_level);
+        }
 
         // if ($action === 'activate') {
         //     Customer::whereIn('id', $customerIds)->update(['status' => 'active']);
@@ -480,6 +486,18 @@ class CustomerController extends Controller
         // }
 
         return back()->with('error', 'Invalid action selected.');
+    }
+
+    public function changeCustomerLevelMass($request)
+    {
+        set_time_limit(3600);
+        $customer_ids = $request['customer_id'];
+        
+        if (!empty($customer_ids)) {
+            User::whereIn('id', $customer_ids)->update(['level' => $request['customer_level']]);
+        }
+
+        return true;
     }
 
     public function verifyKycData($id, $type, $value)

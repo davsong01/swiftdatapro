@@ -150,8 +150,22 @@
                                     <label class="form-label" for="name">System Price ({!! settings()['currency']!!})</label>
                                     <input type="number" class="form-control" id="system_price" name="system_price"  value="{{ $product->system_price ?? old('system_price') }}">
                                 </div>
+                                <div class="col-md-6">
+                                    <label class="form-label" for="name">Discount Type</label>
+
+                                    <select class="form-control" name="discount_type" id="discount_type">
+                                        <option value="">Select...</option>
+                                        <option value="flat" {{ $product->discount_type == 'flat' ? 'selected' : '' }}>Flat</option>
+                                        <option value="percentage" {{ $product->discount_type == 'percentage' ? 'selected' : '' }}>Percentage</option>
+                                    </select>
+                                </div>
 
                                 @foreach($customerlevel as $level)
+                                @php
+                                    if(!empty($product->discount_type)){
+                                        $product->category->discount_type = $product->discount_type;
+                                    }
+                                @endphp
                                 <div class="col-md-6">
                                     <label class="form-label" for="name">{{ $level->name }} @if($product->category->discount_type == 'flat') Discounted Price ({!! settings()['currency']!!}) @else Discounted Percentage (%) @endif</label>
                                     <input type="number" class="form-control" id="productlevel" name="productlevel[{{ $level->id }}]" step=".01" value="{{ $product->customer_level_price($level->id) }}">

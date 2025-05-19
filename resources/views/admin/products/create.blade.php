@@ -144,6 +144,15 @@
                                         <input step="0.1" type="number" class="form-control tiny" id="provider_percentage_discount" name="provider_percentage_discount" value="{{ old('provider_percentage_discount') }}">
                                     </div>
                                     <div class="col-md-6">
+                                        <label class="form-label" for="discount_type">Discount Type</label>
+                                        <select class="form-control" name="discount_type" id="discount_type" required>
+                                            <option value="">Select...</option>
+                                            <option value="flat" {{ old('discount_type') == 'flat' ? 'selected' : '' }}>Flat</option>
+                                            <option value="percentage" {{ old('discount_type') == 'percentage' ? 'selected' : '' }}>Percentage</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-md-6">
                                         <label class="form-label" for="name">System Price</label>
                                         <input type="number" class="form-control tiny" id="system_price" name="system_price"  value="{{ old('system_price') }}">
                                     </div>

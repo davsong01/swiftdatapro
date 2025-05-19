@@ -52,7 +52,7 @@ class VariationController extends Controller
         
         foreach ($variations as $key => $variation) {
             $discount = getVariationDiscount(amount: $variation->system_price, variation_id: $variation->id);
-
+            
             $variation->discount = $discount['display_value'];
             if (in_array($variation->category->unique_element, verifiableUniqueElements()) || in_array($variation->slug, array_keys(specialVerifiableVariations()))) {
                 $variation->verifiable = 'yes';

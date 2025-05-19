@@ -105,13 +105,13 @@
                         <select name="action" id="bulkAction" class="form-control">
                             <option value="">Select Action</option>
                             <option value="delete">Delete</option>
-                            {{-- <option value="activate">Activate</option>
-                            <option value="deactivate">Deactivate</option> --}}
+                            <option value="change_customer_level">Change Customer Level</option>
                         </select>
                     </div>
                     <div class="mb-3 col-md-3">
                         <button type="submit" class="btn btn-primary mt-2" onclick="return confirmBulkAction()">Apply</button>
                     </div>
+                    <input type="hidden" name="customer_level" id="customerLevelInput">
                     <div class="table-responsive">
                         <table class="table text-nowrap"  style="width:100%">
                             <thead>
@@ -186,6 +186,14 @@
                             alert('Please select an action to apply.');
                             return false;
                         }
+
+                        if (action === 'change_customer_level') {
+                            // Show modal instead of submitting
+                            const modal = new bootstrap.Modal(document.getElementById('customerLevelModal'));
+                            modal.show();
+                            return false; 
+                        }
+
                         return confirm(`Are you sure you want to perform "${action}" on the selected customers?`);
                     }
                 </script>
@@ -200,8 +208,44 @@
         </script>
     </div>
 </div>
+<!-- Modal -->
+<div class="modal fade" id="customerLevelModal" tabindex="-1" aria-labelledby="customerLevelModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select Customer Level</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <select id="modalCustomerLevel" name="customer_level" class="form-control">
+                    <option value="">Select Level</option>
+                    @foreach($customer_levels as $level)
+                        <option value="{{ $level->id }}" {{ \Request::get('level') == $level->id ? 'selected' : ''}}>{{ $level->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="submitCustomerLevel()">Proceed</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 @section('extra-js')
+<script>
+    function submitCustomerLevel() {
+        const selectedLevel = document.getElementById('modalCustomerLevel').value;
+        if (!selectedLevel) {
+            alert("Please select a customer level.");
+            return;
+        }
+
+        document.getElementById('customerLevelInput').value = selectedLevel;
+        document.getElementById('bulkActionForm').submit();
+    }
+</script>
 <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
 
 <!-- Datatables Cdn -->

@@ -17,6 +17,7 @@ use App\Services\ExcelService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\DepositTransaction;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use App\Services\JsonResponseService;
 use App\Services\MobileResponseService;
 use App\Services\KycVerificationApiService;
@@ -166,7 +167,7 @@ class TransactionsController extends Controller
                 $resource = $product;
                 $discount = getProductDiscount($request['amount'], $product->id, $request['quantity'] ?? 1);
             }
-
+            
             // if (in_array($resource->category->slug, ['electricity', 'cable'])) {
             //     $request['billersCode'] = $request->billersCode;
             // } else {

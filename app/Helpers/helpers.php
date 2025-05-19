@@ -139,7 +139,7 @@ if (!function_exists("getProductDiscount")) {
         }
 
         $product = Product::where('id', $product_id)->first();
-        $discount_type = $product->category->discount_type;
+        $discount_type = $product->discount_type ?? $product->category->discount_type;
         
         // Check if resource has a category discount
         // Bypass discount type
@@ -200,7 +200,7 @@ if (!function_exists("getProductCharges")) {
         }
 
         $product = Product::where('id', $product_id)->first();
-        $discount_type = $product->category->discount_type;
+        $discount_type = $product->discount_type ?? $product->category->discount_type;
 
         if ($product->user_discount) {
             $discount = $product->user_discount;
@@ -248,7 +248,7 @@ if (!function_exists("getVariationDiscount")) {
         }
         
         $variation = Variation::where('id', $variation_id)->first();
-        $discount_type = $variation->category->discount_type;
+        $discount_type = $variation->product->discount_type ?? $variation->category->discount_type;
         
         // Check if resource has a category discount
         if($discount_type == 'percentage'){
@@ -267,7 +267,7 @@ if (!function_exists("getVariationDiscount")) {
         $discount = !empty($individualdiscount) ? $individualdiscount : ($discount ?? NULL);
 
         // \Log::info(['id' => $variation->id, 'discount' => $discount, 'sy_price' => $individualdiscount]);
-
+        
         if (!empty($discount)) {
             $type = $discount_type;
             if ($discount_type == 'flat') {

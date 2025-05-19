@@ -52,7 +52,8 @@ class ProductController extends Controller
             "max" => 'nullable',
             "allow_subscription_type" => "nullable",
             'referral_commission' => 'nullable',
-            'provider_percentage_discount'
+            'provider_percentage_discount' => 'nullable',
+            'discount_type' => 'nullable',
         ]);
 
         if (!empty($request->image)) {
@@ -94,6 +95,8 @@ class ProductController extends Controller
                 "allow_subscription_type" => $request->allow_subscription_type ?? 'no',
                 'referral_commission' => $request->referral_commission,
                 'provider_percentage_discount' => $request->provider_percentage_discount,
+                'discount_type' => $request->discount_type,
+
             ]
         );
 
@@ -166,7 +169,8 @@ class ProductController extends Controller
             "max" => 'nullable',
             "allow_subscription_type" => "nullable",
             'referral_commission' => 'nullable',
-            'provider_percentage_discount',
+            'provider_percentage_discount' => 'nullable',
+            'discount_type' => 'nullable',
             "image" => "sometimes|mimes:jpeg,png|max:1024",
         ]);
 
@@ -227,6 +231,7 @@ class ProductController extends Controller
             "allow_subscription_type" => $request->allow_subscription_type,
             'referral_commission' => $request->referral_commission,
             'provider_percentage_discount' => $request->provider_percentage_discount,
+            'discount_type' => $request->discount_type,
         ]);
 
         $productLevel = $request->productlevel;
