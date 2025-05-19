@@ -466,7 +466,7 @@ class CustomerController extends Controller
         $customerIds = $request->customer_id;
 
         if ($action === 'delete') {
-            User::whereIn('id', $customerIds)->delete();
+            User::whereIn('id', $customerIds)->forceDelete();;
             return back()->with('message', 'Selected customers have been deleted.');
         }
         
