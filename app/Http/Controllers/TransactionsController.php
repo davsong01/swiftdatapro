@@ -187,6 +187,7 @@ class TransactionsController extends Controller
                 if (\Request::is('mobile/*')) {
                     return $checks;
                 }
+
                 return $this->jsonresponseservice->build($checks);
             }
 
@@ -453,10 +454,15 @@ class TransactionsController extends Controller
         
         // checks
         $request['billersCode'] = $request->mobile_no;
-        $checks = $this->runChecks($request, $product, $api);
+        $checks = $this->runChecks($request, $product, $api, $resource);
         
         if (!empty($checks) && $checks['status'] == 'fail') {
-            return $this->jsonresponseservice->build($checks);
+            if (\Request::is('mobile/*')) {
+                return $checks;
+            }
+            
+            return back()->with('error', $checks['message']);
+            // return $this->jsonresponseservice->build($checks);
         }
 
         $request['quantity'] = $request->quantity ?? 1;
