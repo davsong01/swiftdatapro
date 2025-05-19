@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->enum('discount_type', ['percentage', 'flat'])->default('flat')->after('system_price');
+            $table->enum('discount_type', ['percentage', 'flat'])->nullable()->after('system_price');
         });
     }
 
