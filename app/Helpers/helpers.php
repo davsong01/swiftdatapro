@@ -484,7 +484,7 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                 if ($allTimeFunding > 0) {
                     return null;
                 }
-                
+
                 $upline = User::where('ref_code', $user->ref_by)
                     ->orWhere('username', $user->ref_by)
                     ->lockForUpdate()
@@ -526,7 +526,8 @@ if (!function_exists("getAndUpdateReferralCommission")) {
         }
 
         if ($type === 'level-upgrade') {
-            if (!empty($commission_settings['allow_first_deposit_refferal']) && $commission_settings['allow_first_deposit_refferal'] == 'yes') {
+            // bring in the upgrade commission implementation her
+            if (!empty($commission_settings['allow_level_upgrade_refferal']) && $commission_settings['allow_level_upgrade_refferal'] == 'yes') {
                 $upline = User::where('ref_code', $user->ref_by)
                     ->orWhere('username', $user->ref_by)
                     ->lockForUpdate()
