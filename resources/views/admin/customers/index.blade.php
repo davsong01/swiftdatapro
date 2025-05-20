@@ -120,8 +120,8 @@
                                         <input type="checkbox" id="select-all">
                                     </th>
                                     <th>S/N</th>
+                                    <th>Details</th>
                                     <th>Status</th>
-                                    <th>Level</th>
                                     <th>Balances</th>
                                     <th>Joined</th>
                                     @if(hasAccess('customers.edit'))
@@ -144,14 +144,15 @@
                                             {{ $customer->full_name . ' ' . $customer->middle_name .' ' . $customer->last_name  }}</a> <br>
                                             <strong>Username: </strong> {{ $customer->username }} <br>
                                             <strong>Email: </strong> {{ $customer->email }} <br>
-                                            <strong>Phone: </strong> {{ $customer->mobile }}
+                                            <strong>Phone: </strong> {{ $customer->mobile }} <br>
+                                            <strong>Customer Level: </strong> {{ $customer->customer_level->name ?? 'N/A' }}
                                         </p>                            
                                     </td>
                                     <td>
                                         <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
                                         <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
                                     </td>
-                                    <td>{{ $customer->customer_level->name ?? 'N/A' }}</td>
+                                    
                                     <td>
                                         Wallet: {!! settings()->currency !!}{{ number_format(walletBalance($customer)) }} <br>
                                         Referral:  {!! settings()->currency !!}{{ number_format(referralBalance($customer)) }} <br>
