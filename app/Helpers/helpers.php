@@ -2,6 +2,7 @@
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\KycData;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Discount;
@@ -11,8 +12,8 @@ use App\Models\Notification;
 use App\Models\Transactions;
 use App\Models\RolePermission;
 use App\Models\AutomatedDeposit;
+use App\Models\DepositTransaction;
 use App\Models\EarnedTransactions;
-use App\Models\KycData;
 use Illuminate\Support\Facades\DB;
 
 if (!function_exists('sendNativeMail')) {
@@ -387,49 +388,184 @@ if (!function_exists("getSourcePriceAndCalculateProfit")) {
 // }
 
 if (!function_exists("getAndUpdateReferralCommission")) {
-    function getAndUpdateReferralCommission($user, $product, $variation, $transaction)
-    {
+    function getAndUpdateReferralCommission($type, $user, $product, $transaction)
+    { 
         $earned = null;
-        if (!empty(settings()->allow_transaction_refferal_system) && settings()->allow_transaction_refferal_system == 'yes') {
-            $upline = User::where('ref_code', $user->ref_by)
-                ->orWhere('username', $user->ref_by)
-                ->lockForUpdate()
-                ->first(['id', 'ref_by', 'cashback']);
+        $commission_settings = settings()->refferal_commission_settings;
 
-            $referral_commission = $product->referral_commission;
+        if($type === 'transaction'){
+            if (!empty($commission_settings['allow_transaction_refferal']) && $commission_settings['allow_transaction_refferal']== 'yes') {
+                $upline = User::where('ref_code', $user->ref_by)
+                    ->orWhere('username', $user->ref_by)
+                    ->lockForUpdate()
+                    ->first(['id', 'ref_by', 'cashback']);
 
-            if (!$upline || empty($referral_commission)) {
-                return null;
+                $referral_commission = $product->referral_commission ?? ($commission_settings['transaction_refferal_commission_percent'] ?? null);
+                
+                if (!$upline || empty($referral_commission)) {
+                    return null;
+                }
+
+                $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
+
+                if ($referral_commission <= 0) {
+                    return null;
+                }
+
+                // Update earning
+                $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
+
+                // Update earnings
+                $earned = EarnedTransactions::create([
+                    'user_id' => $upline->id,
+                    'ref_code' => $user->ref_code,
+                    'amount' =>  $referral_commission,
+                    'type' => 'credit',
+                    'sys_reference' => $transaction->sys_ref,
+                    'description' => $descr,
+                    'created_at' => Carbon::now(),
+                ]);
+
+                // Update cash back balance
+                $upline->update([
+                    'cashback' => $upline->cashback + $referral_commission,
+                ]);
+
+                $earned = $earned->amount;
             }
-
-            $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
-
-            if ($referral_commission <= 0) {
-                return null;
-            }
-
-            // Update earning
-            $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
-
-            // Update earnings
-            $earned = EarnedTransactions::create([
-                'user_id' => $upline->id,
-                'ref_code' => $user->ref_code,
-                'amount' =>  $referral_commission,
-                'type' => 'credit',
-                'sys_reference' => $transaction->sys_ref,
-                'description' => $descr,
-                'created_at' => Carbon::now(),
-            ]);
-
-            // Update cash back balance
-            $upline->update([
-                'cashback' => $upline->cashback + $referral_commission,
-            ]);
-
-            $earned = $earned->amount;
         }
 
+        // if ($type === 'upgrrade') {
+        //     if (!empty($commission_settings['allow_transaction_refferal']) && $commission_settings['allow_transaction_refferal'] == 'yes') {
+        //         $upline = User::where('ref_code', $user->ref_by)
+        //             ->orWhere('username', $user->ref_by)
+        //             ->lockForUpdate()
+        //             ->first(['id', 'ref_by', 'cashback']);
+
+        //         $referral_commission = $product->referral_commission ?? ($commission_settings['transaction_refferal_commission_percent'] ?? null);
+
+        //         if (!$upline || empty($referral_commission)) {
+        //             return null;
+        //         }
+
+        //         $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
+
+        //         if ($referral_commission <= 0) {
+        //             return null;
+        //         }
+
+        //         // Update earning
+        //         $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
+
+        //         // Update earnings
+        //         $earned = EarnedTransactions::create([
+        //             'user_id' => $upline->id,
+        //             'ref_code' => $user->ref_code,
+        //             'amount' =>  $referral_commission,
+        //             'type' => 'credit',
+        //             'sys_reference' => $transaction->sys_ref,
+        //             'description' => $descr,
+        //             'created_at' => Carbon::now(),
+        //         ]);
+
+        //         // Update cash back balance
+        //         $upline->update([
+        //             'cashback' => $upline->cashback + $referral_commission,
+        //         ]);
+
+        //         $earned = $earned->amount;
+        //     }
+        // }
+
+        if ($type === 'first-deposit') {
+            if (!empty($commission_settings['allow_first_deposit_refferal']) && $commission_settings['allow_first_deposit_refferal'] == 'yes') {
+                $allTimeFunding = DepositTransaction::where('user_id', auth()->user()->id)->where('user_service', 'DEPOSIT')->where('user_status', 'SUCCESSFUL')->count();
+
+                if ($allTimeFunding > 0) {
+                    return null;
+                }
+                
+                $upline = User::where('ref_code', $user->ref_by)
+                    ->orWhere('username', $user->ref_by)
+                    ->lockForUpdate()
+                    ->first(['id', 'ref_by', 'cashback']);
+
+                $referral_commission = $commission_settings['first_deposit_refferal_commission_percent'] ?? null;
+
+                if (!$upline || empty($referral_commission)) {
+                    return null;
+                }
+
+                $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
+
+                if ($referral_commission <= 0) {
+                    return null;
+                }
+
+                // Update earning
+                $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
+
+                // Update earnings
+                $earned = EarnedTransactions::create([
+                    'user_id' => $upline->id,
+                    'ref_code' => $user->ref_code,
+                    'amount' =>  $referral_commission,
+                    'type' => 'credit',
+                    'sys_reference' => $transaction->sys_ref,
+                    'description' => $descr,
+                    'created_at' => Carbon::now(),
+                ]);
+
+                // Update cash back balance
+                $upline->update([
+                    'cashback' => $upline->cashback + $referral_commission,
+                ]);
+
+                $earned = $earned->amount;
+            }
+        }
+
+        if ($type === 'level-upgrade') {
+            if (!empty($commission_settings['allow_first_deposit_refferal']) && $commission_settings['allow_first_deposit_refferal'] == 'yes') {
+                $upline = User::where('ref_code', $user->ref_by)
+                    ->orWhere('username', $user->ref_by)
+                    ->lockForUpdate()
+                    ->first(['id', 'ref_by', 'cashback']);
+
+                $referral_commission = $commission_settings['first_deposit_refferal_commission_percent'] ?? null;
+
+                if (!$upline || empty($referral_commission)) {
+                    return null;
+                }
+
+                $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
+
+                if ($referral_commission <= 0) {
+                    return null;
+                }
+
+                // Update earning
+                $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
+
+                // Update earnings
+                $earned = EarnedTransactions::create([
+                    'user_id' => $upline->id,
+                    'ref_code' => $user->ref_code,
+                    'amount' =>  $referral_commission,
+                    'type' => 'credit',
+                    'sys_reference' => $transaction->sys_ref,
+                    'description' => $descr,
+                    'created_at' => Carbon::now(),
+                ]);
+
+                // Update cash back balance
+                $upline->update([
+                    'cashback' => $upline->cashback + $referral_commission,
+                ]);
+
+                $earned = $earned->amount;
+            }
+        }
         return $earned;
     }
 }

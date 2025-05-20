@@ -283,7 +283,7 @@ class TransactionsController extends Controller
             // Handle API response
             if ($api_response['status'] === 'success') {
                 $report = $this->formatOderReport($product, $request, $transaction, $api_response);
-                $commission = getAndUpdateReferralCommission($user, $product, $variation, $transaction);
+                $commission = getAndUpdateReferralCommission('transaction', $user, $product, $transaction);
 
                 $transaction->update([
                     'buyer_status' => 'SUCCESSFUL',

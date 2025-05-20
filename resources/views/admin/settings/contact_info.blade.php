@@ -147,18 +147,7 @@
                             <option value="no" {{ $contact->enable_switcher == 'no' ? 'selected' : '' }}>No</option>
                         </select>
                     </div>
-                    
-                    <div class="col-md-6">
-                        <label for="allow_transaction_refferal_system" class="form-label">Allow Refferal Commission system<span
-                        class="text-danger">*</span></label>
-                        
-                        <select class="form-control" name="allow_transaction_refferal_system" id="allow_transaction_refferal_system" required>
-                            <option value="" selected>Select</option>
-                            <option value="yes" {{  $contact->allow_transaction_refferal_system == 'yes' ? 'selected' : '' }}>Yes</option>
-                            <option value="no" {{  $contact->allow_transaction_refferal_system == 'no' ? 'selected' : '' }}>No</option>
-                        </select>
-                    </div>
-
+                
                     <div class="col-md-6">
                         <label for="seo_title" class="form-label">SEO Description<span
                         class="text-danger">*</span></label>
@@ -168,6 +157,65 @@
                     </div>
                 </div>
             </div>
+            <div class="card-header">
+                <h5>Refferal Commission Settings</h5> <br>
+            </div>
+            @php
+                $refferal_commission_settings = $contact->refferal_commission_settings;
+            @endphp
+            
+            <div class="card-body">
+                <div class="row gy-4">
+                    <div class="col-md-6">
+                        <label for="allow_transaction_refferal" class="form-label">Allow Refferal Commission on transaction/purchase? <span
+                        class="text-danger">*</span></label>
+                        
+                        <select class="form-control" name="refferal_commission_settings[allow_transaction_refferal]" id="allow_transaction_refferal" required>
+                            <option value="" selected>Select</option>
+                            <option value="yes" {{  isset($contact->refferal_commission_settings['allow_transaction_refferal']) && $contact->refferal_commission_settings['allow_transaction_refferal'] == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{  isset($contact->refferal_commission_settings['allow_transaction_refferal']) && $contact->refferal_commission_settings['allow_transaction_refferal'] == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="transaction_refferal_commission_percent" class="form-label"> &nbsp;Transaction Referral Commission Percent</label>
+                        <input type="number" step="0.001" name="refferal_commission_settings[transaction_refferal_commission_percent]" class="form-control" id="transaction_refferal_commission_percent" value="{{ isset($contact->refferal_commission_settings['transaction_refferal_commission_percent']) ? $contact->refferal_commission_settings['transaction_refferal_commission_percent'] : ''}}">
+                    </div>
+                </div>
+
+                <div class="row gy-4 mt-2">
+                    <div class="col-md-6">
+                        <label for="allow_transaction_refferal_system" class="form-label">Allow Refferal Commission on First Deposit? <span
+                        class="text-danger">*</span></label>
+                        
+                        <select class="form-control" name="refferal_commission_settings[allow_first_deposit_refferal]" id="allow_first_deposit_refferal" required>
+                            <option value="" selected>Select</option>
+                            <option value="yes" {{  isset($contact->refferal_commission_settings['allow_first_deposit_refferal']) && $contact->refferal_commission_settings['allow_first_deposit_refferal'] == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{  isset($contact->refferal_commission_settings['allow_first_deposit_refferal']) && $contact->refferal_commission_settings['allow_first_deposit_refferal'] == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="transaction_refferal_commission_percent" class="form-label"> &nbsp;First Deposit Referral Commission Percent</label>
+                        <input type="number" step="0.001" name="refferal_commission_settings[first_deposit_refferal_commission_percent]" class="form-control" id="first_deposit_refferal_commission_percent" value="{{ isset($contact->refferal_commission_settings['first_deposit_refferal_commission_percent']) ? $contact->refferal_commission_settings['first_deposit_refferal_commission_percent'] : ''}}">
+                    </div>
+                </div>
+
+                <div class="row gy-4 mt-2">
+                    <div class="col-md-6">
+                        <label for="allow_transaction_refferal_system" class="form-label">Allow Refferal Commission on level upgrade? <span
+                        class="text-danger">*</span></label>
+                        
+                        <select class="form-control" name="refferal_commission_settings[allow_level_upgrade_refferal]" id="allow_level_upgrade_refferal" required>
+                            <option value="" selected>Select</option>
+                            <option value="yes" {{  isset($contact->refferal_commission_settings['allow_level_upgrade_refferal']) && $contact->refferal_commission_settings['allow_level_upgrade_refferal'] == 'yes' ? 'selected' : '' }}>Yes</option>
+                            <option value="no" {{  isset($contact->refferal_commission_settings['allow_level_upgrade_refferal']) && $contact->refferal_commission_settings['allow_level_upgrade_refferal'] == 'no' ? 'selected' : '' }}>No</option>
+                        </select>
+                    </div>
+                    
+                </div>
+            </div>
+
+            
+
             <div class="card-header">
                 <h5>Transaction Settings</h5> <br>
             </div>
@@ -193,6 +241,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="card-header">
                 <h5>Email Notification Settings</h5> <br>
             </div>

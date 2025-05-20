@@ -500,7 +500,7 @@ class MobileController extends Controller
             "logo" => asset($settings->logo),
             "site_favicon" => asset($settings->site_favicon),
             "kyc_verification_mode" => $settings->kyc_verification_mode,
-            "allow_transaction_refferal_system" => $settings->allow_transaction_refferal_system,
+            "allow_transaction_refferal_system" => $settings->commission_settings['allow_transaction_refferal'] ?? null,
             "enable_mode_selector" => $settings->enable_mode_selector,
             "enable_switcher" => $settings->enable_switcher,
             "disable_registration" => $settings->disable_registration,

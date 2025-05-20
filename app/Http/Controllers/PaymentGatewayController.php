@@ -332,7 +332,10 @@ class PaymentGatewayController extends Controller
                                         'api_response' => json_encode($request->all()),
                                     ];
 
-                                    $this->logTransaction($data);
+                                    $transaction = $this->logTransaction($data);
+                                    getAndUpdateReferralCommission('first-deposit', $user, collect([]), $transaction);
+
+                                    // log commission
                                 }
 
                                 DB::commit();
