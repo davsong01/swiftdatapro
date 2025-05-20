@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class
         ]);
-       
+
+        // php artisan db:seed --class=RoleSeeder
     }
 }

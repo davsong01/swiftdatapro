@@ -121,6 +121,13 @@
                     </a>
                 </li>
                 @endif
+                @if (in_array('Deleted Customers', allowedPermissions()))
+                <li class="slide">
+                    <a href="{{ route('customers.deleted') }}" class="side-menu__item {{Route::is('customers.deleted') ? 'active' : '' }}">
+                        <span class="side-menu__label">Deleted Customers</span>
+                    </a>
+                </li>
+                @endif
                 
                 @if (in_array('Customer Levels', allowedPermissions()))
                 <li class="slide">

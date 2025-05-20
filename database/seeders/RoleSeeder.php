@@ -24,6 +24,7 @@ class RoleSeeder extends Seeder
             'All Customers',
             'Active Customers',
             'In Active Customers',
+            'Deleted Customers',
             'Customer Levels',
             'Reserved Accounts',
             'Settings',
@@ -172,7 +173,10 @@ class RoleSeeder extends Seeder
             
             'customers.active',
             'customers.inactive',
-
+            'customers.deleted',
+            'customers.forceDelete',
+            'customers.restore',
+          
             'duplicate.product',
 
             'variations.old.pull',

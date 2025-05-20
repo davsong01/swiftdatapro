@@ -84,6 +84,21 @@ class CustomerController extends Controller
         return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
     }
 
+    public function restore($id)
+    {
+        $customer = User::onlyTrashed()->findOrFail($id);
+        $customer->restore();
+
+        return back()->with('message', $customer->email.' restored successfully.');
+    }
+
+    public function forceDelete($id)
+    {
+        $customer = User::onlyTrashed()->findOrFail($id);
+        $customer->forceDelete();
+        return back()->with('message', 'Customer permanently deleted.');
+    }
+
     public function activeCustomers(Request $request)
     {
         $title = 'Active Customers';
@@ -153,6 +168,40 @@ class CustomerController extends Controller
         return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
     }
 
+    public function deletedCustomers(Request $request)
+    {
+        $title = 'Deleted Customers';
+        $customers = User::orderby('id', 'DESC')->onlyTrashed();
+        
+        if (!empty($request->email)) {
+            $customers = $customers->where('email', 'like', $request->email);
+        }
+
+        if (!empty($request->username)) {
+            $customers = $customers->where('username', 'like', $request->username);
+        }
+
+        if (!empty($request->mobile)) {
+            $customers = $customers->where('mobile', 'like', $request->mobile);
+        }
+
+        if (!empty($request->level)) {
+            $customers = $customers->where('level', $request->level);
+        }
+
+        if (!empty($request->from) && !empty($request->to)) {
+            $from = $request->from . ' 00:00:00';
+            $to = $request->to . ' 23:59:59';
+
+            $customers = $customers->whereBetween('created_at', [$from, $to]);
+        }
+
+        $customers = $customers->paginate(20);
+
+        $customer_levels = CustomerLevel::all();
+
+        return view('admin.customers.index', compact('customers', 'title', 'customer_levels'));
+    }
     
     public function pendingKYC(Request $request)
     {

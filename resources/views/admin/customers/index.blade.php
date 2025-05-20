@@ -106,6 +106,8 @@
                             <option value="">Select Action</option>
                             <option value="delete">Delete</option>
                             <option value="change_customer_level">Change Customer Level</option>
+                            {{-- <option value="delete">Delete Permanently</option> --}}
+
                         </select>
                     </div>
                     <div class="mb-3 col-md-3">
@@ -150,7 +152,11 @@
                                     </td>
                                     <td>
                                         <strong>Account Status: </strong><span style="color:{{$customer->status == 'active' ? 'green' : 'red'}}">{{ ucfirst($customer->status) }}</span> <br>
-                                        <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span>
+                                        <strong>KYC Status: </strong><span style="color:{{$customer->kyc_status == 1 ? 'green' : 'red'}}">{{$customer->kyc_status == 0 ? 'Inactive' : 'Active'}}</span> <br>
+                                        <strong>Account Status: </strong>
+                                        <span style="color: {{ $customer->trashed() ? 'gray' : ($customer->kyc_status == 1 ? 'green' : 'red') }}">
+                                            {{ $customer->trashed() ? 'Deleted' : ($customer->kyc_status == 1 ? 'Active' : 'Inactive') }}
+                                        </span>
                                     </td>
                                     
                                     <td>
@@ -164,8 +170,30 @@
                                     </td>
                                     @if(hasAccess('customers.edit') || hasAccess('customers.destroy'))
                                     <td>
-                                        <a href="{{ route('customers.edit', $customer->id) }}"><button type="button" class="btn btn-info btn-sm mr-1 mb-1"><i class="fa fa-edit"></i><span class="align-middle ml-25">View</span></button>
+                                        <a href="{{ route('customers.edit', $customer->id) }}">
+                                            <button style="display:block" type="button" class="btn btn-info btn-sm mb-1">
+                                                <i class="fa fa-edit"></i>
+                                                <span class="align-middle ml-25">View</span>
+                                            </button>
                                         </a>
+                                        
+                                        @if ($customer->trashed())
+                                            <a onclick="return confirm('Are you sure want to restore')" style="display:block" href="{{ route('customers.restore', $customer->id) }}">
+                                                <button style="display:block" type="button" class="btn btn-success btn-sm mb-1">
+                                                    <i class="fa fa-undo"></i>
+                                                    <span class="align-middle ml-25">Restore</span>
+                                                </button>
+                                            </a>
+
+                                            <a onclick="return confirm('Are you sure want to Permanently delete')" style="display:block" href="{{ route('customers.forceDelete', $customer->id) }}">
+                                                <button style="display:block" type="button" class="btn btn-danger btn-sm mb-1">
+                                                    <i class="fa fa-trash"></i>
+                                                    <span class="align-middle ml-25">Delete Permanently</span>
+                                                </button>
+                                            </a>
+
+                                        @endif
+                                    
                                     </td>
                                     @endif
                                 </tr>
@@ -235,6 +263,7 @@
 
 @endsection
 @section('extra-js')
+
 <script>
     function submitCustomerLevel() {
         const selectedLevel = document.getElementById('modalCustomerLevel').value;
