@@ -195,18 +195,14 @@ class HomeController extends Controller
             $newbal = $balanceBefore - $amount;
             
             $descr1 = 'Activation of level ' . $level->name . ' was successful';
-            $descr2 = 'Referral bonus of N' . $refb . ' landed from ' . auth()->user()->username;
-            $descr3 = 'Admin bonus of N' . $admb . ' landed from ' . auth()->user()->username;
+            $descr2 = 'Level Upgrade Referral bonus of N' . $refb . ' landed from ' . auth()->user()->username;
+            $descr3 = 'Level Upgrade Admin bonus of N' . $admb . ' landed from ' . auth()->user()->username;
             $upline = $refinfo->ref_by;
 
-            
-            try {
-                // Create a DB transaction
-                DB::transaction();
 
-                // Log the transaction for upgrade service
+            try {
+                DB::beginTransaction();
                 
-                // Check if ($upline !== 'ADMIN') { and log referral commission
                 $extras = [
                     'upline' => $upline,
                     'descr1' => $descr1,
@@ -221,135 +217,21 @@ class HomeController extends Controller
                     'balanceBefore' => $balanceBefore,
                     'newbal' => $newbal,
                     'package' => $package,
-                    'upline' => $upline,
                 ];
-
-                $responseX = getAndUpdateReferralCommission('level-upgrade', auth()->user(), collect([]), $transaction, $extras);
-                dd($responseX);
-                return json_encode($responseX);
-
-                // Commit transaction and return appropraite response
-
+                
+                $responseX = getAndUpdateReferralCommission('level-upgrade', auth()->user(), collect([]), collect([]), $extras);
+                
+                DB::commit();
             } catch (\Throwable $th) {
-                //throw $th;
-            }
-
-            if ($upline !== 'ADMIN') {
-                // Credit referral
-                $uplineDetails = User::where('ref_code', $upline)->orwhere('username', $upline)->first();
-                
-                if ($uplineDetails) {
-                    // Update cash back balance
-                    $uplineDetails->update([
-                        'cashback' => $uplineDetails->cashback + $refb,
-                    ]);
-
-                    // Update referral earning transactions
-                    EarnedTransactions::create([
-                        'user_id' => $uplineDetails->id,
-                        'ref_code' => $refinfo->ref_code,
-                        'amount' => $refb,
-                        'type' => 'credit',
-                        'sys_reference' => $reference,
-                        'description' => $descr2,
-                        'created_at' => Carbon::now(),
-                    ]);
-                    
-                    /****
-                     * Update bonus to admin
-                     */
-                    // Update cash back balance for balance
-                    $adinfo->update([
-                        'cashback' => $adinfo->cashback + $admb,
-                    ]);
-
-                    // Update earninigs for admin
-                    EarnedTransactions::create([
-                        'user_id' => $adinfo->id,
-                        'ref_code' => $refinfo->ref_code,
-                        'amount' => $refb,
-                        'type' => 'credit',
-                        'sys_reference' => $reference,
-                        'description' => $descr3,
-                        'created_at' => Carbon::now(),
-                    ]);
-                    
-                    
-
-                    return json_encode($responseX);
-        
-                }
-            } else {
-                // credit admin only with full money
-                // Update final transactions
-                $new_ad_bonus = $adinfo->wallet + $amount;
-                $descr3 = 'Admin bonus of N' . $amount . ' landed from ' . auth()->user()->username;
-
-                // Update earnings
-                $earned = EarnedTransactions::create([
-                    'user_id' => $adinfo->id,
-                    'ref_code' => $refinfo->ref_code,
-                    'amount' => $amount,
-                    'type' => 'credit',
-                    'sys_reference' => $reference,
-                    'description' => $descr3,
-                    'created_at' => Carbon::now(),
-                ]);
-            
-                // Update cash back balance
-                $adinfo->update([
-                    'cashback' => $adinfo->cashback + $amount,
-                ]);
-
-                // User upgrade transaction history
-
-                
-                $data = [
-                    'mobile_number' => auth()->user()->mobile, 
-                    'buyer_email' => auth()->user()->email,
-                    'user_id' => auth()->user()->id, 
-                    'buyer_service' => 'UPGRADE', 
-                    'buyer_amount' => $amount, 
-                    'buyer_prebal' => $balanceBefore, 
-                    'buyer_postbal' => $newbal, 
-                    'buyer_descr' => $descr1, 
-                    'buyer_status' => 'SUCCESSFUL', 
-                    'charge_from' => 'WALLET', 
-                    'user_type' => $package, 
-                    'sys_ref' => $reference, 
-                    'api_ref' => $reference, 
-                    'api_report' => 'GOOD',
-                    'type' => 'debit',
-                    'src_price' => '0', 
-                    'profit' => '0',
-                    'databyte' => '0',
-                    'type' => 'debit',
-                    'billersCode' => auth()->user()->username,
-                    'unit_price' => $amount,
-                ];
-
-                $this->logTransaction($data);
-                $responseX = [
-                    'status_code' => 200,
-                    'status' => 'success',
-                    'message' => $descr1,
-                ];
-
-                if (\Request::is('mobile/*')) {
-                    return MobileResponseService::json(
-                        message: $descr1,
-                        data: $responseX,
-                        status: 200
-                    );
-                }
-
-                return json_encode($responseX);
-
+                DB::rollBack();
+                // dd($th->getMessage(), $th->getLine(), $th->getFile());  
+                return response()->json(['message' => 'Transaction failed'], 500);
             }
 
             auth()->user()->level = $level->id;
             auth()->user()->save();
-            
+
+            return json_encode($responseX);
         }else{
             $responseX = [
                 'status_code' => 100,

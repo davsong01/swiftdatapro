@@ -489,14 +489,19 @@ if (!function_exists("getAndUpdateReferralCommission")) {
             if (!empty($commission_settings['allow_level_upgrade_refferal']) && $commission_settings['allow_level_upgrade_refferal'] == 'yes') {
                 if ($extra['upline'] !== 'ADMIN') {
                     // Credit referral
-                    $uplineDetails = User::where('ref_code', $upline)->orwhere('username', $upline)->first();
+                    $query = User::where('ref_code', $extra['upline'])
+                        ->orWhere('username', $extra['upline']);
 
+                    // $sql = $query->toRawSql(); 
+                    $uplineDetails = $query->first();
+                    
+                    // dd($extra['upline'], $sql);
                     if ($uplineDetails) {
                         // Update cash back balance
                         $uplineDetails->update([
                             'cashback' => $uplineDetails->cashback + $extra['refb'],
                         ]);
-
+                        
                         // Update referral earning transactions
                         EarnedTransactions::create([
                             'user_id' => $uplineDetails->id,
@@ -513,22 +518,22 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                             'buyer_email' => auth()->user()->email,
                             'user_id' => auth()->user()->id,
                             'buyer_service' => 'UPGRADE',
-                            'buyer_amount' => $amount,
-                            'buyer_prebal' => $balanceBefore,
-                            'buyer_postbal' => $newbal,
-                            'buyer_descr' => $descr1,
+                            'buyer_amount' => $extra['amount'],
+                            'buyer_prebal' => $extra['balanceBefore'],
+                            'buyer_postbal' => $extra['newbal'],
+                            'buyer_descr' => $extra['descr1'],
                             'buyer_status' => 'SUCCESSFUL',
                             'type' => 'debit',
                             'charge_from' => 'WALLET',
-                            'user_type' => $package,
-                            'sys_ref' => $reference,
-                            'api_ref' => $reference,
+                            'user_type' => $extra['package'],
+                            'sys_ref' => $extra['reference'],
+                            'api_ref' => $extra['reference'],
                             'api_report' => 'GOOD',
                             'src_price' => '0',
                             'profit' => '0',
                             'databyte' => '0',
                             'billersCode' => auth()->user()->username,
-                            'unit_price' => $data['amount'],
+                            'unit_price' => $extra['amount'],
                         ];
 
                         if (\Request::is('mobile/*')) {
@@ -536,19 +541,18 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                         }
 
                         $transaction = app('App\Http\Controllers\Controller')->logTransaction($data);
-
                         auth()->user()->wallets = $transaction->buyer_postbal;
                         auth()->user()->save();
 
                         $responseX = [
                             'status_code' => 200,
                             'status' => 'success',
-                            'message' => $descr1,
+                            'message' => $extra['descr1'],
                         ];
 
                         if (\Request::is('mobile/*')) {
                             return MobileResponseService::json(
-                                message: $descr1,
+                                message: $extra['descr1'],
                                 data: $responseX,
                                 status: 200
                             );
@@ -558,20 +562,23 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                          * Update bonus to admin
                          */
                         // Update cash back balance for balance
-                        $extra['adinfo']->update([
-                            'cashback' => $extra['adinfo']->cashback + $extra['admb'],
-                        ]);
+                        if(!empty($extra['adinfo'])){
+                            $extra['adinfo']->update([
+                                'cashback' => $extra['adinfo']->cashback + $extra['admb'],
+                            ]);
+                            
+                            // Update earninigs for admin
+                            EarnedTransactions::create([
+                                'user_id' => $extra['adinfo']->id,
+                                'ref_code' => $extra['refinfo']->ref_code,
+                                'amount' => $extra['refb'],
+                                'type' => 'credit',
+                                'sys_reference' => $extra['reference'],
+                                'description' => $extra['descr3'],
+                                'created_at' => Carbon::now(),
+                            ]);
+                        }
 
-                        // Update earninigs for admin
-                        EarnedTransactions::create([
-                            'user_id' => $extra['adinfo']->id,
-                            'ref_code' => $extra['refinfo']->ref_code,
-                            'amount' => $extra['refb'],
-                            'type' => 'credit',
-                            'sys_reference' => $extra['reference'],
-                            'description' => $extra['descr3'],
-                            'created_at' => Carbon::now(),
-                        ]);
 
                         $responseX = [
                             'status_code' => 200,
@@ -588,6 +595,20 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                         }
 
                         return $responseX;
+                    }else{
+                        $responseX = [
+                            'status_code' => 200,
+                            'status' => 'success',
+                            'message' => $extra['descr1'],
+                        ];
+
+                        if (\Request::is('mobile/*')) {
+                            return MobileResponseService::json(
+                                message: $extra['descr1'],
+                                data: $responseX,
+                                status: 200
+                            );
+                        }
                     }
                 } else {
                     // credit admin only with full money
@@ -651,12 +672,12 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                             status: 200
                         );
                     }
-
+                    
                     return $responseX;
                 }
             }
         }
-        return $earned;
+
     }
 }
 
