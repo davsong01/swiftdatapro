@@ -1,6 +1,8 @@
 @extends('includes.customer_dashboard.app')
 @section('header')
-
+@php
+    $settings = settings();
+@endphp
 @if(!empty(popupNotification()))
 <div id="popupNotificationModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
     aria-hidden="true">
@@ -82,7 +84,7 @@
                         ****
                     </p>
                     <p class="funding" style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px; display: none;">
-                        {!! settings()->currency !!}{{ number_format($allTimeFunding, 2) }}
+                        {!! $settings->currency !!}{{ number_format($allTimeFunding, 2) }}
                     </p>
                 </div>
             </div>
@@ -98,7 +100,7 @@
                         ****
                     </p>
                     <p class="transactions" style="font-size: 22px; font-weight: 800; color: #fff; margin-top: 5px; display: none;">
-                        {!! settings()->currency !!}{{ number_format($allTimeTransactions, 2) }}
+                        {!! $settings->currency !!}{{ number_format($allTimeTransactions, 2) }}
                     </p>
                 </div>
             </div>
@@ -224,15 +226,25 @@
             <div id="response"></div>
             
             <div class="referral-section">
+                @if($settings->refferal_commission_settings['allow_level_upgrade_refferal'] && $settings->refferal_commission_settings['allow_level_upgrade_refferal'] == 'yes')
                 <label style="color: #e63946; font-size: 18px; font-weight: bold;">Refer a Friend and Earn Extra Cash on {{ config('app.name') }}</label>
+                @endif
+
+                @if($settings->refferal_commission_settings['allow_first_deposit_refferal'] && $settings->refferal_commission_settings['allow_first_deposit_refferal'] == 'yes')
+                    <p style="font-size: 16px; margin-top: 5px;">Get a {{ $settings->refferal_commission_settings['first_deposit_refferal_commission_percent'] }}% bonus immediately on Your Refferal first Deposit.</p>
+                @endif
+
+                @if($settings->refferal_commission_settings['allow_level_upgrade_refferal'] && $settings->refferal_commission_settings['allow_level_upgrade_refferal'] == 'yes')
                 <p style="font-size: 16px; margin-top: 5px;">Get a 50% bonus immediately when a user you referred upgrades their level.</p>
-                
                 <p class="text-dark" style="font-weight: bold; margin-top: 20px;">Referral Link</p>
                 <div class="input-group">
                     <input type="text" class="form-control" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}" id="myCode" style="background-color: transparent; color: #333; border: 1px solid #ccc; border-radius: 8px; padding-left: 10px;" readonly>
                     <button class="btn btn-outline-primary" style="border-radius: 8px;" onclick="copyFunction()">Copy <i class="fa fa-copy"></i></button>
                 </div>
                 <span id="refres" style="display: inline-block; margin-top: 5px; font-size: 14px; color: green;"></span>
+                @endif
+                
+                
             </div>
     
             @if ($customer_levels->count() > 0)
@@ -243,7 +255,7 @@
                         <option value="">--Select Level--</option>
                         @foreach ($customer_levels as $level)
                             <option value="{{ $level->id }}">
-                                Upgrade to {{ $level->name }} => {{ settings()->currency.number_format($level->upgrade_amount) }}
+                                Upgrade to {{ $level->name }} => {{ $settings->currency.number_format($level->upgrade_amount) }}
                             </option>
                         @endforeach
                     </select>
