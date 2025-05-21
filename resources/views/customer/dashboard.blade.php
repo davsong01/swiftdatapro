@@ -265,8 +265,6 @@
 
 <script>
     $('#popupNotificationModal').modal('show');
-
-
     $(document).ready(function() {
         $('#popupNotificationModal').modal('show');
     });

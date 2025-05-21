@@ -195,167 +195,43 @@ class HomeController extends Controller
             $newbal = $balanceBefore - $amount;
             
             $descr1 = 'Activation of level ' . $level->name . ' was successful';
-            $descr2 = 'Referral bonus of N' . $refb . ' landed from ' . auth()->user()->username;
-            $descr3 = 'Admin bonus of N' . $admb . ' landed from ' . auth()->user()->username;
+            $descr2 = 'Level Upgrade Referral bonus of N' . $refb . ' landed from ' . auth()->user()->username;
+            $descr3 = 'Level Upgrade Admin bonus of N' . $admb . ' landed from ' . auth()->user()->username;
             $upline = $refinfo->ref_by;
-            
-            if ($upline !== 'ADMIN') {
-                // Credit referral
-                $uplineDetails = User::where('ref_code', $upline)->orwhere('username', $upline)->first();
+
+
+            try {
+                DB::beginTransaction();
                 
-                if ($uplineDetails) {
-                    // Update cash back balance
-                    $uplineDetails->update([
-                        'cashback' => $uplineDetails->cashback + $refb,
-                    ]);
-
-                    // Update referral earning transactions
-                    EarnedTransactions::create([
-                        'user_id' => $uplineDetails->id,
-                        'ref_code' => $refinfo->ref_code,
-                        'amount' => $refb,
-                        'type' => 'credit',
-                        'sys_reference' => $reference,
-                        'description' => $descr2,
-                        'created_at' => Carbon::now(),
-                    ]);
-                    
-                    /****
-                     * Update bonus to admin
-                     */
-                    // Update cash back balance for balance
-                    $adinfo->update([
-                        'cashback' => $adinfo->cashback + $admb,
-                    ]);
-
-                    // Update earninigs for admin
-                    EarnedTransactions::create([
-                        'user_id' => $adinfo->id,
-                        'ref_code' => $refinfo->ref_code,
-                        'amount' => $refb,
-                        'type' => 'credit',
-                        'sys_reference' => $reference,
-                        'description' => $descr3,
-                        'created_at' => Carbon::now(),
-                    ]);
-                    
-                    $data = [
-                        'mobile_number' => auth()->user()->mobile,
-                        'buyer_email' => auth()->user()->email,
-                        'user_id' => auth()->user()->id,
-                        'buyer_service' => 'UPGRADE',
-                        'buyer_amount' => $amount,
-                        'buyer_prebal' => $balanceBefore,
-                        'buyer_postbal' => $newbal,
-                        'buyer_descr' => $descr1,
-                        'buyer_status' => 'SUCCESSFUL',
-                        'type' => 'debit',
-                        'charge_from' => 'WALLET',
-                        'user_type' => $package,
-                        'sys_ref' => $reference,
-                        'api_ref' => $reference,
-                        'api_report' => 'GOOD',
-                        'src_price' => '0',
-                        'profit' => '0',
-                        'databyte' => '0',
-                        'billersCode' => auth()->user()->ussername,
-                        'unit_price' => $amount,
-                    ];
-
-                    if (\Request::is('mobile/*')) {
-                        $data['channel'] = 'mobile';
-                    }
-
-                    $transaction = $this->logTransaction($data);
-                    auth()->user()->wallets = $transaction->buyer_postbal;
-                    auth()->user()->save();
-
-                    $responseX = [
-                        'status_code' => 200,
-                        'status' => 'success',
-                        'message' => $descr1,
-                    ];
-
-                    if (\Request::is('mobile/*')) {
-                        return MobileResponseService::json(
-                            message: $descr1,
-                            data: $responseX,
-                            status: 200
-                        );
-                    }
-
-                    return json_encode($responseX);
-        
-                }
-            } else {
-                // credit admin only with full money
-                // Update final transactions
-                $new_ad_bonus = $adinfo->wallet + $amount;
-                $descr3 = 'Admin bonus of N' . $amount . ' landed from ' . auth()->user()->username;
-
-                // Update earnings
-                $earned = EarnedTransactions::create([
-                    'user_id' => $adinfo->id,
-                    'ref_code' => $refinfo->ref_code,
+                $extras = [
+                    'upline' => $upline,
+                    'descr1' => $descr1,
+                    'descr2' => $descr2,
+                    'descr3' => $descr3,
+                    'refb' => $refb,
+                    'admb' => $admb,
+                    'refinfo' => $refinfo,
+                    'adinfo' => $adinfo,
+                    'reference' => $reference,
                     'amount' => $amount,
-                    'type' => 'credit',
-                    'sys_reference' => $reference,
-                    'description' => $descr3,
-                    'created_at' => Carbon::now(),
-                ]);
-            
-                // Update cash back balance for balance
-                $adinfo->update([
-                    'cashback' => $adinfo->cashback + $amount,
-                ]);
-
-                // User upgrade transaction history
-                $data = [
-                    'mobile_number' => auth()->user()->mobile, 
-                    'buyer_email' => auth()->user()->email,
-                    'user_id' => auth()->user()->id, 
-                    'buyer_service' => 'UPGRADE', 
-                    'buyer_amount' => $amount, 
-                    'buyer_prebal' => $balanceBefore, 
-                    'buyer_postbal' => $newbal, 
-                    'buyer_descr' => $descr1, 
-                    'buyer_status' => 'SUCCESSFUL', 
-                    'charge_from' => 'WALLET', 
-                    'user_type' => $package, 
-                    'sys_ref' => $reference, 
-                    'api_ref' => $reference, 
-                    'api_report' => 'GOOD',
-                    'type' => 'debit',
-                    'src_price' => '0', 
-                    'profit' => '0',
-                    'databyte' => '0',
-                    'type' => 'debit',
-                    'billersCode' => auth()->user()->ussername,
-                    'unit_price' => $amount,
+                    'balanceBefore' => $balanceBefore,
+                    'newbal' => $newbal,
+                    'package' => $package,
                 ];
-
-                $this->logTransaction($data);
-                $responseX = [
-                    'status_code' => 200,
-                    'status' => 'success',
-                    'message' => $descr1,
-                ];
-
-                if (\Request::is('mobile/*')) {
-                    return MobileResponseService::json(
-                        message: $descr1,
-                        data: $responseX,
-                        status: 200
-                    );
-                }
-
-                return json_encode($responseX);
-
+                
+                $responseX = getAndUpdateReferralCommission('level-upgrade', auth()->user(), collect([]), collect([]), $extras);
+                
+                DB::commit();
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                // dd($th->getMessage(), $th->getLine(), $th->getFile());  
+                return response()->json(['message' => 'Transaction failed'], 500);
             }
 
             auth()->user()->level = $level->id;
             auth()->user()->save();
-            
+
+            return json_encode($responseX);
         }else{
             $responseX = [
                 'status_code' => 100,
@@ -373,6 +249,233 @@ class HomeController extends Controller
             return json_encode($responseX);
         }
     }
+
+    // public function upgradeLevel(Request $request, JsonResponseService $response)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'level' => [
+    //             'required',
+    //             'exists:customer_levels,id',
+    //             function ($attribute, $value, $fail) {
+    //                 if ($value <= auth()->user()->level) {
+    //                     $fail('The ' . $attribute . ' must be greater than current level.');
+    //                 }
+    //             },
+    //         ],
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         $responseX = [
+    //             'status_code' => 100,
+    //             'status' => 'fail',
+    //             'message' => $validator->messages()->first(),
+    //         ];
+
+    //         if (\Request::is('mobile/*')) {
+    //             return MobileResponseService::json(
+    //                 error: $validator->messages()->first(),
+    //                 status: 422
+    //             );
+    //         }
+
+    //         return json_encode($responseX);
+    //     }
+
+    //     $level = CustomerLevel::where('id', $request->level)->first();
+    //     $reference = $this->generateRequestId('SWFTUPGRD');
+
+    //     $dateTime = new DateTime('now', new DateTimeZone('Africa/Lagos'));
+    //     $timestring = time();
+
+    //     $refb = $level->upgrade_amount - $level->admin_inch;
+    //     $admb = $level->admin_inch;
+    //     $amount = $level->upgrade_amount;
+
+    //     $adinfo = User::where('username', 'ADMIN')->first();
+    //     $refinfo = auth()->user();
+    //     $balanceBefore = walletBalance(auth()->user());
+    //     $package = $level->name;
+
+    //     if ($balanceBefore >= $amount && $amount > 0) {
+    //         // Update user wallet and balance
+    //         $newbal = $balanceBefore - $amount;
+
+    //         $descr1 = 'Activation of level ' . $level->name . ' was successful';
+    //         $descr2 = 'Referral bonus of N' . $refb . ' landed from ' . auth()->user()->username;
+    //         $descr3 = 'Admin bonus of N' . $admb . ' landed from ' . auth()->user()->username;
+    //         $upline = $refinfo->ref_by;
+
+    //         if ($upline !== 'ADMIN') {
+    //             // Credit referral
+    //             $uplineDetails = User::where('ref_code', $upline)->orwhere('username', $upline)->first();
+
+    //             if ($uplineDetails) {
+    //                 // Update cash back balance
+    //                 $uplineDetails->update([
+    //                     'cashback' => $uplineDetails->cashback + $refb,
+    //                 ]);
+
+    //                 // Update referral earning transactions
+    //                 EarnedTransactions::create([
+    //                     'user_id' => $uplineDetails->id,
+    //                     'ref_code' => $refinfo->ref_code,
+    //                     'amount' => $refb,
+    //                     'type' => 'credit',
+    //                     'sys_reference' => $reference,
+    //                     'description' => $descr2,
+    //                     'created_at' => Carbon::now(),
+    //                 ]);
+
+    //                 /****
+    //                  * Update bonus to admin
+    //                  */
+    //                 // Update cash back balance for balance
+    //                 $adinfo->update([
+    //                     'cashback' => $adinfo->cashback + $admb,
+    //                 ]);
+
+    //                 // Update earninigs for admin
+    //                 EarnedTransactions::create([
+    //                     'user_id' => $adinfo->id,
+    //                     'ref_code' => $refinfo->ref_code,
+    //                     'amount' => $refb,
+    //                     'type' => 'credit',
+    //                     'sys_reference' => $reference,
+    //                     'description' => $descr3,
+    //                     'created_at' => Carbon::now(),
+    //                 ]);
+
+    //                 $data = [
+    //                     'mobile_number' => auth()->user()->mobile,
+    //                     'buyer_email' => auth()->user()->email,
+    //                     'user_id' => auth()->user()->id,
+    //                     'buyer_service' => 'UPGRADE',
+    //                     'buyer_amount' => $amount,
+    //                     'buyer_prebal' => $balanceBefore,
+    //                     'buyer_postbal' => $newbal,
+    //                     'buyer_descr' => $descr1,
+    //                     'buyer_status' => 'SUCCESSFUL',
+    //                     'type' => 'debit',
+    //                     'charge_from' => 'WALLET',
+    //                     'user_type' => $package,
+    //                     'sys_ref' => $reference,
+    //                     'api_ref' => $reference,
+    //                     'api_report' => 'GOOD',
+    //                     'src_price' => '0',
+    //                     'profit' => '0',
+    //                     'databyte' => '0',
+    //                     'billersCode' => auth()->user()->ussername,
+    //                     'unit_price' => $amount,
+    //                 ];
+
+    //                 if (\Request::is('mobile/*')) {
+    //                     $data['channel'] = 'mobile';
+    //                 }
+
+    //                 $transaction = $this->logTransaction($data);
+    //                 auth()->user()->wallets = $transaction->buyer_postbal;
+    //                 auth()->user()->save();
+
+    //                 $responseX = [
+    //                     'status_code' => 200,
+    //                     'status' => 'success',
+    //                     'message' => $descr1,
+    //                 ];
+
+    //                 if (\Request::is('mobile/*')) {
+    //                     return MobileResponseService::json(
+    //                         message: $descr1,
+    //                         data: $responseX,
+    //                         status: 200
+    //                     );
+    //                 }
+
+    //                 return json_encode($responseX);
+    //             }
+    //         } else {
+    //             // credit admin only with full money
+    //             // Update final transactions
+    //             $new_ad_bonus = $adinfo->wallet + $amount;
+    //             $descr3 = 'Admin bonus of N' . $amount . ' landed from ' . auth()->user()->username;
+
+    //             // Update earnings
+    //             $earned = EarnedTransactions::create([
+    //                 'user_id' => $adinfo->id,
+    //                 'ref_code' => $refinfo->ref_code,
+    //                 'amount' => $amount,
+    //                 'type' => 'credit',
+    //                 'sys_reference' => $reference,
+    //                 'description' => $descr3,
+    //                 'created_at' => Carbon::now(),
+    //             ]);
+
+    //             // Update cash back balance
+    //             $adinfo->update([
+    //                 'cashback' => $adinfo->cashback + $amount,
+    //             ]);
+
+    //             // User upgrade transaction history
+    //             $data = [
+    //                 'mobile_number' => auth()->user()->mobile,
+    //                 'buyer_email' => auth()->user()->email,
+    //                 'user_id' => auth()->user()->id,
+    //                 'buyer_service' => 'UPGRADE',
+    //                 'buyer_amount' => $amount,
+    //                 'buyer_prebal' => $balanceBefore,
+    //                 'buyer_postbal' => $newbal,
+    //                 'buyer_descr' => $descr1,
+    //                 'buyer_status' => 'SUCCESSFUL',
+    //                 'charge_from' => 'WALLET',
+    //                 'user_type' => $package,
+    //                 'sys_ref' => $reference,
+    //                 'api_ref' => $reference,
+    //                 'api_report' => 'GOOD',
+    //                 'type' => 'debit',
+    //                 'src_price' => '0',
+    //                 'profit' => '0',
+    //                 'databyte' => '0',
+    //                 'type' => 'debit',
+    //                 'billersCode' => auth()->user()->ussername,
+    //                 'unit_price' => $amount,
+    //             ];
+
+    //             $this->logTransaction($data);
+    //             $responseX = [
+    //                 'status_code' => 200,
+    //                 'status' => 'success',
+    //                 'message' => $descr1,
+    //             ];
+
+    //             if (\Request::is('mobile/*')) {
+    //                 return MobileResponseService::json(
+    //                     message: $descr1,
+    //                     data: $responseX,
+    //                     status: 200
+    //                 );
+    //             }
+
+    //             return json_encode($responseX);
+    //         }
+
+    //         auth()->user()->level = $level->id;
+    //         auth()->user()->save();
+    //     } else {
+    //         $responseX = [
+    //             'status_code' => 100,
+    //             'status' => 'fail',
+    //             'message' => 'You do not have enough balance to upgrade!!!',
+    //         ];
+
+    //         if (\Request::is('mobile/*')) {
+    //             return MobileResponseService::json(
+    //                 error: 'You do not have enough balance to upgrade!!!',
+    //                 status: 422
+    //             );
+    //         }
+
+    //         return json_encode($responseX);
+    //     }
+    // }
 
     public function withdrawCashbackEarned(JsonResponseService $response){
         $user = auth()->user();
