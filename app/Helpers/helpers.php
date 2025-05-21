@@ -388,7 +388,7 @@ if (!function_exists("getSourcePriceAndCalculateProfit")) {
 // }
 
 if (!function_exists("getAndUpdateReferralCommission")) {
-    function getAndUpdateReferralCommission($type, $user, $product, $transaction)
+    function getAndUpdateReferralCommission($type, $user, $product, $transaction, $extra=null)
     { 
         $earned = null;
         $commission_settings = settings()->refferal_commission_settings;
@@ -413,7 +413,7 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                 }
 
                 // Update earning
-                $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
+                $descr = 'Referral Bonus of ' . settings()->currency . $referral_commission . ' landed from ' . $user->username;
 
                 // Update earnings
                 $earned = EarnedTransactions::create([
@@ -435,78 +435,36 @@ if (!function_exists("getAndUpdateReferralCommission")) {
             }
         }
 
-        // if ($type === 'upgrrade') {
-        //     if (!empty($commission_settings['allow_transaction_refferal']) && $commission_settings['allow_transaction_refferal'] == 'yes') {
-        //         $upline = User::where('ref_code', $user->ref_by)
-        //             ->orWhere('username', $user->ref_by)
-        //             ->lockForUpdate()
-        //             ->first(['id', 'ref_by', 'cashback']);
-
-        //         $referral_commission = $product->referral_commission ?? ($commission_settings['transaction_refferal_commission_percent'] ?? null);
-
-        //         if (!$upline || empty($referral_commission)) {
-        //             return null;
-        //         }
-
-        //         $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
-
-        //         if ($referral_commission <= 0) {
-        //             return null;
-        //         }
-
-        //         // Update earning
-        //         $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
-
-        //         // Update earnings
-        //         $earned = EarnedTransactions::create([
-        //             'user_id' => $upline->id,
-        //             'ref_code' => $user->ref_code,
-        //             'amount' =>  $referral_commission,
-        //             'type' => 'credit',
-        //             'sys_reference' => $transaction->sys_ref,
-        //             'description' => $descr,
-        //             'created_at' => Carbon::now(),
-        //         ]);
-
-        //         // Update cash back balance
-        //         $upline->update([
-        //             'cashback' => $upline->cashback + $referral_commission,
-        //         ]);
-
-        //         $earned = $earned->amount;
-        //     }
-        // }
-
         if ($type === 'first-deposit') {
             if (!empty($commission_settings['allow_first_deposit_refferal']) && $commission_settings['allow_first_deposit_refferal'] == 'yes') {
-                $allTimeFunding = DepositTransaction::where('user_id', auth()->user()->id)->where('user_service', 'DEPOSIT')->where('user_status', 'SUCCESSFUL')->count();
-
-                if ($allTimeFunding > 0) {
+                $allTimeFunding = DepositTransaction::where('user_id', $user->id)->where('user_service', 'DEPOSIT')->where('user_status', 'SUCCESSFUL')->count();
+                
+                if ($allTimeFunding > 1) {
                     return null;
                 }
-
+                
                 $upline = User::where('ref_code', $user->ref_by)
                     ->orWhere('username', $user->ref_by)
                     ->lockForUpdate()
                     ->first(['id', 'ref_by', 'cashback']);
-
+                
                 $referral_commission = $commission_settings['first_deposit_refferal_commission_percent'] ?? null;
-
+                
                 if (!$upline || empty($referral_commission)) {
                     return null;
                 }
 
                 $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
-
+                
                 if ($referral_commission <= 0) {
                     return null;
                 }
 
                 // Update earning
-                $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
+                $descr = 'First Time Deposit Referral Bonus of ' . settings()->currency. $referral_commission . ' landed from ' . $user->username;
 
                 // Update earnings
-                $earned = EarnedTransactions::create([
+                $record = EarnedTransactions::create([
                     'user_id' => $upline->id,
                     'ref_code' => $user->ref_code,
                     'amount' =>  $referral_commission,
@@ -521,50 +479,181 @@ if (!function_exists("getAndUpdateReferralCommission")) {
                     'cashback' => $upline->cashback + $referral_commission,
                 ]);
 
-                $earned = $earned->amount;
+                $earned = $record->amount;
             }
+
         }
 
         if ($type === 'level-upgrade') {
             // bring in the upgrade commission implementation her
             if (!empty($commission_settings['allow_level_upgrade_refferal']) && $commission_settings['allow_level_upgrade_refferal'] == 'yes') {
-                $upline = User::where('ref_code', $user->ref_by)
-                    ->orWhere('username', $user->ref_by)
-                    ->lockForUpdate()
-                    ->first(['id', 'ref_by', 'cashback']);
+                if ($extra['upline'] !== 'ADMIN') {
+                    // Credit referral
+                    $uplineDetails = User::where('ref_code', $upline)->orwhere('username', $upline)->first();
 
-                $referral_commission = $commission_settings['first_deposit_refferal_commission_percent'] ?? null;
+                    if ($uplineDetails) {
+                        // Update cash back balance
+                        $uplineDetails->update([
+                            'cashback' => $uplineDetails->cashback + $extra['refb'],
+                        ]);
 
-                if (!$upline || empty($referral_commission)) {
-                    return null;
+                        // Update referral earning transactions
+                        EarnedTransactions::create([
+                            'user_id' => $uplineDetails->id,
+                            'ref_code' => $extra['refinfo']->ref_code,
+                            'amount' => $extra['refb'],
+                            'type' => 'credit',
+                            'sys_reference' => $extra['reference'],
+                            'description' => $extra['descr2'],
+                            'created_at' => Carbon::now(),
+                        ]);
+
+                        $data = [
+                            'mobile_number' => auth()->user()->mobile,
+                            'buyer_email' => auth()->user()->email,
+                            'user_id' => auth()->user()->id,
+                            'buyer_service' => 'UPGRADE',
+                            'buyer_amount' => $amount,
+                            'buyer_prebal' => $balanceBefore,
+                            'buyer_postbal' => $newbal,
+                            'buyer_descr' => $descr1,
+                            'buyer_status' => 'SUCCESSFUL',
+                            'type' => 'debit',
+                            'charge_from' => 'WALLET',
+                            'user_type' => $package,
+                            'sys_ref' => $reference,
+                            'api_ref' => $reference,
+                            'api_report' => 'GOOD',
+                            'src_price' => '0',
+                            'profit' => '0',
+                            'databyte' => '0',
+                            'billersCode' => auth()->user()->username,
+                            'unit_price' => $data['amount'],
+                        ];
+
+                        if (\Request::is('mobile/*')) {
+                            $data['channel'] = 'mobile';
+                        }
+
+                        $transaction = app('App\Http\Controllers\Controller')->logTransaction($data);
+
+                        auth()->user()->wallets = $transaction->buyer_postbal;
+                        auth()->user()->save();
+
+                        $responseX = [
+                            'status_code' => 200,
+                            'status' => 'success',
+                            'message' => $descr1,
+                        ];
+
+                        if (\Request::is('mobile/*')) {
+                            return MobileResponseService::json(
+                                message: $descr1,
+                                data: $responseX,
+                                status: 200
+                            );
+                        }
+
+                        /****
+                         * Update bonus to admin
+                         */
+                        // Update cash back balance for balance
+                        $extra['adinfo']->update([
+                            'cashback' => $extra['adinfo']->cashback + $extra['admb'],
+                        ]);
+
+                        // Update earninigs for admin
+                        EarnedTransactions::create([
+                            'user_id' => $extra['adinfo']->id,
+                            'ref_code' => $extra['refinfo']->ref_code,
+                            'amount' => $extra['refb'],
+                            'type' => 'credit',
+                            'sys_reference' => $extra['reference'],
+                            'description' => $extra['descr3'],
+                            'created_at' => Carbon::now(),
+                        ]);
+
+                        $responseX = [
+                            'status_code' => 200,
+                            'status' => 'success',
+                            'message' => $extra['descr1'],
+                        ];
+
+                        if (\Request::is('mobile/*')) {
+                            return MobileResponseService::json(
+                                message: $extra['descr1'],
+                                data: $responseX,
+                                status: 200
+                            );
+                        }
+
+                        return $responseX;
+                    }
+                } else {
+                    // credit admin only with full money
+                    // Update final transactions
+                    $new_ad_bonus = $extra['adinfo']->wallet + $extra['amount'];
+                    $descr3 = 'Admin bonus of N' . $extra['amount'] . ' landed from ' . auth()->user()->username;
+
+                    // Update earnings
+                    $earned = EarnedTransactions::create([
+                        'user_id' => $extra['adinfo']->id,
+                        'ref_code' => $extra['refinfo']->ref_code,
+                        'amount' => $extra['amount'],
+                        'type' => 'credit',
+                        'sys_reference' => $extra['reference'],
+                        'description' => $descr3,
+                        'created_at' => Carbon::now(),
+                    ]);
+
+                    // Update cash back balance
+                    $extra['adinfo']->update([
+                        'cashback' => $extra['adinfo']->cashback + $extra['amount'],
+                    ]);
+
+                    // User upgrade transaction history
+                    $data = [
+                        'mobile_number' => auth()->user()->mobile,
+                        'buyer_email' => auth()->user()->email,
+                        'user_id' => auth()->user()->id,
+                        'buyer_service' => 'UPGRADE',
+                        'buyer_amount' => $extra['amount'],
+                        'buyer_prebal' => $extra['balanceBefore'],
+                        'buyer_postbal' => $extra['newbal'],
+                        'buyer_descr' => $extra['descr1'],
+                        'buyer_status' => 'SUCCESSFUL',
+                        'charge_from' => 'WALLET',
+                        'user_type' => $extra['package'],
+                        'sys_ref' => $extra['reference'],
+                        'api_ref' => $extra['reference'],
+                        'api_report' => 'GOOD',
+                        'type' => 'debit',
+                        'src_price' => '0',
+                        'profit' => '0',
+                        'databyte' => '0',
+                        'type' => 'debit',
+                        'billersCode' => auth()->user()->username,
+                        'unit_price' => $extra['amount'],
+                    ];
+
+                    app('App\Http\Controllers\Controller')->logTransaction($data);
+
+                    $responseX = [
+                        'status_code' => 200,
+                        'status' => 'success',
+                        'message' => $extra['descr1'],
+                    ];
+
+                    if (\Request::is('mobile/*')) {
+                        return MobileResponseService::json(
+                            message: $extra['descr1'],
+                            data: $responseX,
+                            status: 200
+                        );
+                    }
+
+                    return $responseX;
                 }
-
-                $referral_commission = $referral_commission / 100 * $transaction->buyer_amount;
-
-                if ($referral_commission <= 0) {
-                    return null;
-                }
-
-                // Update earning
-                $descr = 'Referral Bonus of N' . $referral_commission . ' landed from ' . $user->username;
-
-                // Update earnings
-                $earned = EarnedTransactions::create([
-                    'user_id' => $upline->id,
-                    'ref_code' => $user->ref_code,
-                    'amount' =>  $referral_commission,
-                    'type' => 'credit',
-                    'sys_reference' => $transaction->sys_ref,
-                    'description' => $descr,
-                    'created_at' => Carbon::now(),
-                ]);
-
-                // Update cash back balance
-                $upline->update([
-                    'cashback' => $upline->cashback + $referral_commission,
-                ]);
-
-                $earned = $earned->amount;
             }
         }
         return $earned;

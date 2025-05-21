@@ -334,8 +334,6 @@ class PaymentGatewayController extends Controller
 
                                     $transaction = $this->logTransaction($data);
                                     getAndUpdateReferralCommission('first-deposit', $user, collect([]), $transaction);
-
-                                    // log commission
                                 }
 
                                 DB::commit();
@@ -391,7 +389,7 @@ class PaymentGatewayController extends Controller
             if(env('ENT') == 'local'){
                 $MONNIFY_SIGNATURE = $computedHash;
             }
-
+            
             if ($MONNIFY_SIGNATURE == $computedHash && $final_amount > 0 && $paymentStatus == 'PAID') {
                 $account = AutomatedDeposit::where('account_number', $account_number)->first();
                 
@@ -403,7 +401,7 @@ class PaymentGatewayController extends Controller
                 
                 if ($cx_trx < 1) {
                     $user->lockForUpdate();
-
+                    
                     try {
 
                         \DB::beginTransaction();
@@ -459,11 +457,13 @@ class PaymentGatewayController extends Controller
                                 'charges' => $charges,
                                 'api_response' => json_encode($request->all()),
                             ];
-        
-                            $this->logTransaction($data);
+
+                            $transaction = $this->logTransaction($data);
+                            getAndUpdateReferralCommission('first-deposit', $user, collect([]), $transaction);
                         }
                         DB::commit();
                     }catch (\Throwable $th) {
+                        // dd($th->getMessage() . ' Line: ' . $th->getLine() . ' File: ' . $th->getFile());
                         DB:: rollback();
                         \Log::info(['Payment Webhook Error: ' => $th->getMessage().' Line: '.$th->getLine(). ' File: '.$th->getFile() ]);
                         //throw $th; 
