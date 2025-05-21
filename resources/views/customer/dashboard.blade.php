@@ -236,13 +236,13 @@
 
                 @if($settings->refferal_commission_settings['allow_level_upgrade_refferal'] && $settings->refferal_commission_settings['allow_level_upgrade_refferal'] == 'yes')
                 <p style="font-size: 16px; margin-top: 5px;">Get a 50% bonus immediately when a user you referred upgrades their level.</p>
+                @endif
                 <p class="text-dark" style="font-weight: bold; margin-top: 20px;">Referral Link</p>
                 <div class="input-group">
                     <input type="text" class="form-control" value="{{ url('/') }}/register?referral={{ auth()->user()->ref_code }}" id="myCode" style="background-color: transparent; color: #333; border: 1px solid #ccc; border-radius: 8px; padding-left: 10px;" readonly>
                     <button class="btn btn-outline-primary" style="border-radius: 8px;" onclick="copyFunction()">Copy <i class="fa fa-copy"></i></button>
                 </div>
                 <span id="refres" style="display: inline-block; margin-top: 5px; font-size: 14px; color: green;"></span>
-                @endif
                 
                 
             </div>
