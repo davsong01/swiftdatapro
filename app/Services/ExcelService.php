@@ -7,9 +7,9 @@ use Illuminate\Support\Collection;
 
 class ExcelService
 {
-    public static function download(array $data, array $headers)
+    public static function download(array $data, array $headers,$filename=null)
     {
-        $filename = rand().'.xlsx';
+        $filename = $filename ?? rand().'.xlsx';
         $dataWithHeaders = array_merge([$headers], $data);
 
         $collection = new Collection($data);

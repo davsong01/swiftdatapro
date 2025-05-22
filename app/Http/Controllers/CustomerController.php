@@ -63,18 +63,19 @@ class CustomerController extends Controller
         }
 
         if (!empty($request->download) && $request->download == 'yes') {
-            $customers = $customers->select(
-                DB::raw("CONCAT(COALESCE(full_name, ''), ' ', COALESCE(middle_name, ''), ' ', COALESCE(last_name, '')) as name"),
+            $exportData = (clone $customers)->select(
+                DB::raw("CONCAT(COALESCE(full_name, ''), ' ', COALESCE(middle_name, ''), ' ', COALESCE(last_name, '')) as fullname"),
                 'email',
                 'mobile',
                 'level',
                 'username',
                 'gender',
+                DB::raw('(wallets + cashback) as total_balance'),
                 'created_at'
             )->get()->toArray();
-
-            $headings = ['Name', 'Email', 'Phone Number', 'Level', 'Username', 'Gender', 'Joined'];
-            return ExcelService::download($customers, $headings);
+            
+            $headings = ['Name', 'Email', 'Phone Number', 'Level', 'Username', 'Gender', 'Total Balance', 'Joined'];
+            return ExcelService::download($exportData, $headings, 'Swiftdata User Data exported on '.now());
         }
 
         $customers = $customers->paginate(40);
