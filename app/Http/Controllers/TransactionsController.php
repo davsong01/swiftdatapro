@@ -1570,7 +1570,7 @@ class TransactionsController extends Controller
                 'resolved_transaction_id' => $newTransaction->id,
             ]);
 
-            $user->wallets += $balance + $transaction->total_amount;
+            $user->wallets += ($balance + $transaction->total_amount);
             $user->save();
             
             DB::commit();
