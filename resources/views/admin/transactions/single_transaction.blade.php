@@ -328,7 +328,7 @@
                                     </div>
                                 </div>
                             @endif
-                            @if($transaction->buyer_status == 'ATTENTION-REQUIRED' && in_array('view.sensitive.data', allowedPermissions()))
+                            @if($transaction->buyer_status == 'ATTENTION-REQUIRED' && $transaction->buyer_prebal <> $transaction->buyer_postbal && in_array('view.sensitive.data', allowedPermissions()))
                                 <a id="reverse-to-wallet" class="btn btn-info btn-sm" style="color:#fff;" onclick="if (confirm('Are you sure you want to refund customer?')) reverseToWallet('{{ $transaction->id }}'); return false;"><i class='bx bx-undo'></i> Refund Customer</a>
                             @endif
                         </div>

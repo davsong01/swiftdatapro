@@ -1569,14 +1569,14 @@ class TransactionsController extends Controller
             $newTransaction->update([
                 'resolved_transaction_id' => $newTransaction->id,
             ]);
+
+            $user->wallets += $balance + $transaction->total_amount;
+            $user->save();
             
             DB::commit();
 
             $body = 'Dear ' .$user->full_name . '<br>Refund of ' .$transaction->total_amount. ' for ' . $transaction->billersCode .' was succesful on ' . config('app.name') . '<br><br>';
                 
-            // if (in_array('transaction-email', settings()->allowed_email_notifications)) {
-            //     $this->sendEmail(auth()->user()->email, $subject, $body);
-            // }
             return [
                 'status' => 'success',
                 'message' => 'Customer refunded successfully',
@@ -1588,6 +1588,10 @@ class TransactionsController extends Controller
                 'message' => $e->getMessage(). ' Line: '.$e->getLine().' File: '.$e->getFile(),
             ];
         }
+
+        // if (in_array('transaction-email', settings()->allowed_email_notifications)) {
+        //     $this->sendEmail(auth()->user()->email, $subject, $body);
+        // }
     }
 
     public function resolveTransaction(Request $request, Transactions $transaction)
