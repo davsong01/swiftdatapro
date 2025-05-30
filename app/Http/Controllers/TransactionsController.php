@@ -181,7 +181,7 @@ class TransactionsController extends Controller
             }
             
             $checks = $this->runChecks($request, $product, $api, $resource);
-
+            
             if (!empty($checks) && $checks['status'] == 'fail') {
                 DB::rollBack();
                 if (\Request::is('mobile/*')) {
@@ -250,11 +250,10 @@ class TransactionsController extends Controller
                 'category_id' => $resource->category->id,
                 // 'profit' => $sourcePriceAndProfit['profit'] ?? 0,
             ];
-
+            
             if (\Request::is('mobile/*')) {
                 $data['channel'] = 'mobile';
             }
-
 
             // Log transaction before calling the API
             $transaction = $this->logTransaction($data);
@@ -1264,10 +1263,31 @@ class TransactionsController extends Controller
     public function verificationSlip(Transactions $transaction)
     {
         if(in_array($transaction->product->slug, ['nin-verification'])){
-            return KycVerificationApiService::generateNinPdf($transaction);
+            return KycVerificationApiService::generateRegularNinSlip($transaction);
         }
     }
 
+    public function verificationPlastic(Transactions $transaction)
+    {
+        if (in_array($transaction->product->slug, ['nin-verification'])) {
+            return KycVerificationApiService::generateNinPlastic($transaction);
+        }
+    }
+
+    public function verificationResponse(Transactions $transaction)
+    {
+        if (in_array($transaction->product->slug, ['nin-verification'])) {
+            return KycVerificationApiService::generateNinPlastic($transaction);
+        }
+        
+    }
+
+    public function verificationStandard(Transactions $transaction)
+    {
+        if (in_array($transaction->product->slug, ['nin-verification'])) {
+            return KycVerificationApiService::generateStandard($transaction);
+        }
+    }
 
     public function getAmount($product, $variation, $request){
         if ($product->has_variations == 'yes') {
@@ -1388,7 +1408,7 @@ class TransactionsController extends Controller
                 'message' => 'Product not enabled for customer, please contact support',
             ];
         }
-       
+        
         if ($request->security_pin !== $user->transaction_pin) {
             $response = [
                 'status' => 'fail',
@@ -1397,7 +1417,7 @@ class TransactionsController extends Controller
             ];
         }
         
-        if($product->category->slug != 'graphic'){
+        if(!in_array($product->category->slug, ['graphic', 'verification-service']) && !empty($request->mobile_no)) {
             if (strlen($request->mobile_no) !== 11 || !is_numeric($request->mobile_no)) {
                 $response = [
                     'status' => 'fail',

@@ -131,7 +131,7 @@ class BiddayVerificationController extends Controller
                     'value' => $data['billersCode'],
                 ];
             }
-
+            
             try {
                 $response = KycVerificationApiService::genericVerification($data, $api);
                 

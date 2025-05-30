@@ -143,16 +143,125 @@ class KycVerificationApiService
         return $response = !empty($response) ? json_decode($response) : null;
     }
 
-
-    public static function generateNinPdf($transaction)
+    public static function parseNinApiResponse($apiResponse)
     {
-        $result = json_decode($transaction->api_response, true);
+        $result = json_decode($apiResponse, true);
         $response = $result['data']['data'] ?? null;
         $status = $result['data']['status'] ?? false;
 
         if (!$status || !$response) {
-            return response()->json(['error' => 'NIN verification failed'], 400);
+            return [
+                'success' => false,
+                'message' => 'NIN verification failed',
+            ];
         }
+
+        return [
+            'success' => true,
+            'data' => [
+                'nin' => $response['nin'] ?? 'N/A',
+                'trackingId' => $response['trackingId'] ?? 'N/A',
+                'photo' => $response['photo'] ?? null,
+                'surname' => $response['surname'] ?? 'N/A',
+                'firstname' => $response['firstname'] ?? 'N/A',
+                'middlename' => $response['middlename'] ?? '',
+                'dob' => $response['birthdate'] ?? 'N/A',
+                'gender' => strtoupper($response['gender'] ?? 'N/A'),
+                'address' => $response['residence_AdressLine1'] ?? 'N/A',
+                'lga' => $response['residence_lga'] ?? 'N/A',
+                'state' => $response['residence_state'] ?? 'N/A',
+                'birthdate' => $response['birthdate'] ?? 'N/A',
+            ]
+        ];
+    }
+
+    public static function generateRegularNinSlip($transaction)
+    {
+
+        $response = self::parseNinApiResponse($transaction->api_response);
+
+        if (!$response['success']) {
+            return response()->json(['error' => $response['message']], 400);
+        }
+
+        $response = $response['data'];
+        
+        // Extract NIN data safely
+        $nin = $response['nin'] ?? 'N/A';
+        $trackingID = $response['trackingId'] ?? 'N/A';
+        $base64String = $response['photo'] ?? null;
+        $surname = $response['surname'] ?? 'N/A';
+        $firstname = $response['firstname'] ?? 'N/A';
+        $middlename = $response['middlename'] ?? '';
+        $dob = $response['birthdate'] ?? 'N/A';
+        $gender = strtoupper($response['gender'] ?? 'N/A');
+        $address = $response['address'] ?? 'N/A';
+        $lga = $response['lga'] ?? 'N/A';
+        $state = $response['state'] ?? 'N/A';
+
+        // Initialize TCPDF
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8');
+        $pdf->setPrintHeader(false);
+        $pdf->SetCreator(env('APP_NAME'));
+        $pdf->SetAuthor(env('APP_NAME'));
+        $pdf->SetTitle('NIN Slip');
+        $pdf->SetKeywords('NIN, TCPDF, Laravel');
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->AddPage();
+
+        // Background template
+        $pdf->Image(base_path('card_and_slip/nin/nin_slip.jpg'), 15, 50, 178, 80, '', '', '', false, 300);
+
+        // NIN photo
+        if ($base64String) {
+            $imageData = base64_decode($base64String);
+            $pdf->Image('@' . $imageData, 166.8, 69.3, 25, 31, '', '', '', false, 300);
+        }
+
+        // Set default font and color
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('helvetica', '', 9);
+
+        // Inject Text Fields
+        $pdf->Text(85, 71, $surname);
+        $pdf->Text(85, 79.7, $firstname);
+        $pdf->Text(85, 86.8, $middlename);
+        $pdf->Text(85, 96, $gender);
+        $pdf->SetFont('helvetica', '', 7);
+        $pdf->Text(32, 71.8, $trackingID);
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->Text(25, 79.5, $nin);
+
+        // Address (multiline)
+        $pdf->SetFont('helvetica', '', 9);
+        $pdf->MultiCell(50, 20, $address, 0, 'L', false, 1, 116, 74, true);
+
+        // Town and state
+        $pdf->SetFont('helvetica', '', 8);
+        $pdf->Text(116, 93, $lga);
+        $pdf->Text(116, 97, $state);
+
+        // Generate filename
+        $filename = 'regular_' . now()->format('YmdHis') . '.pdf';
+        $pdfContent = $pdf->Output($filename, 'S');
+
+        // Return response
+        return response($pdfContent)
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Length', strlen($pdfContent))
+            ->header('Content-Disposition', "attachment; filename={$filename}");
+    }
+
+
+    public static function generateNinPlastic($transaction)
+    {
+        $response = self::parseNinApiResponse($transaction->api_response);
+
+        if (!$response['success']) {
+            return response()->json(['error' => $response['message']], 400);
+        }
+
+        $response = $response['data'];
 
         // Extract NIN data safely
         $nin = $response['nin'] ?? 'N/A';
@@ -163,25 +272,36 @@ class KycVerificationApiService
         $middlename = $response['middlename'] ?? '';
         $dob = $response['birthdate'] ?? 'N/A';
         $gender = strtoupper($response['gender'] ?? 'N/A');
-        $address = $response['residenceAdressLine1'] ?? 'N/A';
-        $lga = $response['residenceLga'] ?? 'N/A';
-        $state = $response['residenceState'] ?? 'N/A';
-
+        $address = $response['address'] ?? 'N/A';
+        $lga = $response['lga'] ?? 'N/A';
+        $state = $response['state'] ?? 'N/A';
+        
         // Initialize TCPDF
         $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8');
         $pdf->setPrintHeader(false);
-        $pdf->SetCreator('SwiftData');
-        $pdf->SetAuthor('SwiftData');
-        $pdf->SetTitle('NIN Slip');
+        $pdf->SetCreator(env('APP_NAME'));
+        $pdf->SetAuthor(env('APP_NAME'));
+        $pdf->SetTitle('NIN Plastic');
         $pdf->SetKeywords('NIN, TCPDF, Laravel');
 
         $pdf->SetFont('helvetica', '', 12);
         $pdf->AddPage();
-        $pdf->MultiCell(150, 20, "Please find below your new High Resolution NIN Slip.", 0, 'C', false, 1, 35, 20, true, 0, false, true, 0, 'T', false);
+        $pdf->MultiCell(150, 20, "Please find below your Details.", 0, 'C', false, 1, 35, 20, true, 0, false, true, 0, 'T', false);
 
         // Add static images
-        $pdf->Image(base_path('card_and_Slip/premium.jpg'), 70, 50, 80, 50);
-        $pdf->Image(base_path('card_and_Slip/back.jpg'), 70, 101, 80, 50);
+        $imagePath = base_path('card_and_slip/nin/plastic.jpg');
+        if (file_exists($imagePath)) {
+            $pdf->Image($imagePath, 70, 50, 80, 50);
+        } else {
+            \Log::info("Plastic image not found at: $imagePath");
+        }
+
+        $imagePath = base_path('card_and_slip/nin/plastic_back.jpg');
+        if (file_exists($imagePath)) {
+            $pdf->Image($imagePath, 70, 101, 80, 50);
+        } else {
+            \Log::info("Plastic image not found at: $imagePath");
+        }
 
         // Generate QR Code
         $qrData = json_encode([
@@ -190,6 +310,7 @@ class KycVerificationApiService
             'DOB' => $dob,
             'Status' => 'Verified'
         ]);
+
         $style = ['border' => false, 'padding' => 0, 'fgcolor' => [0, 0, 0], 'bgcolor' => [255, 255, 255]];
         $pdf->write2DBarcode($qrData, 'QRCODE,H', 128, 53, 20, 20, $style, 'H');
 
@@ -213,13 +334,113 @@ class KycVerificationApiService
         }
 
         // Generate filename
-        $filename = 'premium_' . now()->format('YmdHis') . '.pdf';
+        $filename = 'plastic_' . now()->format('YmdHis') . '.pdf';
 
         // Return the PDF as a download
         return response($pdf->Output($filename, 'S'))
             ->header('Content-Type', 'application/pdf')
             ->header('Content-Disposition', "attachment; filename={$filename}");
     }
+
+    public static function generateStandard($transaction)
+    {
+        $parsed = self::parseNinApiResponse($transaction->api_response);
+
+        if (!$parsed['success']) {
+            return response()->json(['error' => $parsed['message']], 400);
+        }
+
+        $data = $parsed['data'];
+
+        $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8');
+        $pdf->setPrintHeader(false);
+        $pdf->SetCreator(env('APP_NAME'));
+        $pdf->SetAuthor(env('APP_NAME'));
+        $pdf->SetTitle('download slip');
+        $pdf->SetSubject('standard');
+        $pdf->SetKeywords('standard, TCPDF, Laravel');
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 12);
+
+        $introText = "Please find below your new High Resolution NIN Slip. You may cut it out of the paper, fold and laminate as desired. Please DO NOT allow others to make copies of your NIN Slip.\n";
+        $pdf->MultiCell(150, 20, $introText, 0, 'C', false, 1, 35, 20, true, 0, false, true, 0, 'T', false);
+
+        // Background Image
+        $standardImage = base_path('card_and_slip/nin/standard.jpg');
+        
+        if (file_exists($standardImage)) {
+            $pdf->Image($standardImage, 70, 50, 80, 50);
+        } else {
+            \Log::info("Standard image not found at: $standardImage");
+        }
+
+        // Optionally Overlay Back Image
+        $backImage = base_path('card_and_slip/nin/back.png');
+        if (file_exists($backImage)) {
+            $pdf->Image($backImage, 70, 50, 80, 50);
+        } else {
+            \Log::info("Back image not found at: $backImage");
+        }
+
+        // QR Code
+        $qrData = '{NIN: ' . $data['nin'] . ', NAME: ' . $data['firstname'] . ' ' . $data['middlename'] . ' ' . $data['surname'] . ', DOB: ' . $data['dob'] . ', Status:Verified}';
+        $style = ['border' => false, 'padding' => 0, 'fgcolor' => [0, 0, 0], 'bgcolor' => [255, 255, 255]];
+        $pdf->write2DBarcode($qrData, 'QRCODE,H', 131.2, 64.7, 14.2, 13.5, $style, 'H');
+
+        $pdf->Image(base_path('card_and_slip/nin/pin.png'), 135.8, 69.5, 4.5, 4.5);
+
+        // Profile photo
+        if (!empty($data['photo'])) {
+            $imgdata = base64_decode($data['photo']);
+            $pdf->Image('@' . $imgdata, 72, 62, 18, 23);
+        }
+
+        // Text Details
+        $font = 'helvetica';
+        // $font = base_path('card_and_slip/nin/ocrb10bt.ttf');
+        $pdf->SetFont($font, '', 8);
+        $pdf->Text(91.5, 65, $data['surname']);
+        $pdf->Text(91.5, 72, $data['firstname'] . ', ' . $data['middlename']);
+
+        $dobFormatted = date("d M Y", strtotime($data['dob']));
+        $pdf->Text(91.5, 78.7, $dobFormatted);
+
+        $pdf->Text(128, 80, date("d M Y")); // Issue date
+
+        // Bold NIN display
+        $formattedNin = substr($data['nin'], 0, 4) . " " . substr($data['nin'], 4, 3) . " " . substr($data['nin'], 7);
+        $pdf->SetFont($font, '', 21);
+        $pdf->setTextColor(0, 0, 0);
+        $pdf->Text(81, 89, $formattedNin);
+
+        // Watermark
+        $pdf->SetFont($font, '', 7);
+        $pdf->setTextColor(165, 162, 156);
+
+        $watermarkCoords = [
+            [50, 88, 95],
+            [50, 88, 93],
+            [127, 117, 72],
+        ];
+
+        foreach ($watermarkCoords as [$angle, $x, $y]) {
+            $pdf->StartTransform();
+            $pdf->Rotate($angle, $x, $y);
+            $pdf->Text(80, 80, $data['nin']);
+            $pdf->StopTransform();
+        }
+
+        $pdf->Text(129, 62, $data['nin']); // bottom text
+
+        // Output PDF
+        $filename = 'standard_' . date('YmdHis') . '.pdf';
+
+        return response($pdf->Output($filename, 'S'))
+            ->header('Content-Type', 'application/pdf')
+            ->header('Content-Disposition', "attachment; filename={$filename}");
+    }
+
 
     public static function ninDummy()
     {

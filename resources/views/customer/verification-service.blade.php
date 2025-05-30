@@ -27,21 +27,6 @@
         style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none">
     </div>
 
-    {{-- <div id="how_to_load" style="display:none;background: #d5f4d5;padding: 10px;margin-bottom: 10px;">
-        <div class="col-lg-12 me">
-            <div class="form-group">
-                <label class="small mb-1" for="amount" style="color: #000000">To Load MTN Data Card</label>
-                <ol style="margin-left: 15px;">
-                    <li style=" list-style: decimal;">Dial: *460*6*1#</li>
-                    <li style="list-style: decimal;">Insert the pin you generated from your swiftdatang account (make
-                        sure you include the letter S that ends the number)</li>
-                    <li style="list-style: decimal;">Recharge successful</li>
-                </ol>
-                To Check Data coupon balance: Dial *323*4#
-            </div>
-        </div>
-    </div> --}}
-
     <form id="form-data">
         <div class="input-group mb-3">
           <span class="input-group-text"><i style="font-weight: bold" class="fa-solid fa-wifi"></i></span>
@@ -68,64 +53,30 @@
             </select>
       </div>
         
-      <div class="input-group mb-3" id="ask_pins" style="display:none">
-          <div class="input-group-text">
-              <span class="" id="basic-addon1"><i class="fa fa-calculator" style="font-size: 25px;"></i></span>
+      <div class="input-group mb-3" id="billersCode-div" style="display: none;">
+          <div class=" input-group-text">
+              <br><br>
+              <span class="" id=""><i class="fa fa-database" style="font-weight: bold"></i></span>
           </div>
-          <input type="number" class="form-control" placeholder="No of Pins" id="quantity" value="">
-          <br>
+          <input type="text" class="form-control" name="billersCode" placeholder="" id="billersCode">
       </div>
 
-        <div class="input-group mb-3">
-          <span class="input-group-text"><i style="font-weight: bold" class="fas fa-phone"></i></span>
-          <input type="tel" class="form-control" placeholder="Mobile No." id="mobile_no" required>
-        </div>
-        <div class="input-group mb-3" id="billersCode-div" style="margin-top: 35px">
-            <div class=" input-group-text">
-                <br><br>
-                <span class="" id=""><i class="fa fa-database" style="font-weight: bold"></i></span>
-            </div>
-            <input type="text" class="form-control" name="billersCode" placeholder="" id="billersCode">
-        </div>
+      <div id="extra" style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none"></div>
 
-        <div id="extra" style="margin:5px 0;background: black;color: yellow;padding: 20px;margin-bottom: 15px;font-size: initial; display:none"></div>
+      <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
+      <div class="input-group mb-3">
+          <div class="input-group-text">
+              <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-weight: bold"></i></span>
+          </div>
+          <input type="password" class="form-control" placeholder="Transaction PIN" id="security_pin" required>
+      </div>
 
-        <small>Forget Pin ? <a target="_blank" href="{{ route('pin.reset') }}">Reset Here</a></small>
-        <div class="input-group mb-3">
-            <div class="input-group-text">
-                <span class="" id="basic-addon1"><i class="fa fa-unlock-alt" style="font-weight: bold"></i></span>
-            </div>
-            <input type="password" class="form-control" placeholder="Transaction PIN" id="security_pin" required>
-        </div>
+      <br>
 
-        <br>
-
-        <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">BUY NOW</button>
-
-        <br>
-        <br>
+      <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">BUY NOW</button>
+      <br>
+      <br>
     </form>
-
-
-    {{-- <hr /> --}}
-    {{-- <div id="checkbal">
-        <h5 style="font-weight:bold">CODES FOR BALANCE CHECKING AND RECHARGES</h5>
-
-        <h5 style="color:#940798"><img src="{{ asset('backend/img/mtn.png') }}" style="border-radius: 50%;" height="30px"> MTN SME DATA
-            <=> *323*3# OR *461*4# </h5>
-        <h5 style="color:#940798"><img src="{{ asset('backend/img/mtn.png') }}" style="border-radius: 50%;" height="30px"> MTN CG & CG
-            LITE DATA <=> *460*260# </h5>
-       
-        <h5 style="color:#940798"><img src="{{ asset('backend/img/glo.png') }}" style="border-radius: 50%;" height="30px"> GLO (CG &
-            Direct) >> *127*0# </span></h5>
-       
-        <h5 style="color:#940798"><img src="{{ asset('backend/img/airtel.png') }}" style="border-radius: 50%;" height="30px"> AirTel
-            (CG & Direct) >> *140# </h5>
-
-        <h5 style="color:#940798"><img src="{{ asset('backend/img/mobile.png') }}" style="border-radius: 50%;" height="30px"> 9mobile
-            (Direct & SME) >> *228#</span></h5>
-        <br>
-    </div> --}}
 </div>
 
 <div id="myModal2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -135,8 +86,9 @@
         <h3 id="myModalLabel"></h3>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
       </div>
-      <div class="modal-body"> </div>
+      <div class="modal-body"> 
 
+      </div>
     </div>
   </div>
 </div>
@@ -147,7 +99,6 @@
   
   function reset(){
     $('#dataplanloader').find('option').remove();
-    $('#mobile_no').val();
   }
 
   $("#network_module").change(function() {
@@ -162,15 +113,7 @@
     var slug = $('#network_module').find(':selected').data('slug');
 
     var amount = $('#amount').val();
-    if (slug.includes('nin')) {
-      $("#billersCode").attr("placeholder", "Enter NIN");
-    }
-
-    if (slug.includes('bvn')) {
-      $("#billersCode").attr("placeholder", "Enter BVN");
-    }
-
-
+    
     if ($("#network_module").val() != "") {
       var network_module = $("#network_module").val();
       $.LoadingOverlay("show");
@@ -179,41 +122,58 @@
         method: 'GET',
         success: function(RES_data) {
           $.LoadingOverlay("hide");
-          if ($("#network_module").val() == 'SMILE-DATA') {
-            $("#smile-verify-email").show();
-          } else {
-            $("#smile-verify-email").hide();
 
-          }
-
+        
           $("#ask_pins").hide();
           $("#quantity").attr("required", false);
           $("#quantity").val("1");
           $("#ask_pins_small").hide();
-          $("#how_to_load").hide();
-          $("#mobile_no").attr("required", true);
 
-          $("#dataplanloader").html(RES_data);
+          $("#dataplanloader").html(
+            '<option value="">--Select Version--</option>' + RES_data
+          );
         }
       })
     }else{
       $('#dataplanloader').find('option').remove();
-      $('#mobile_no').val();
     }
   })
+
+  $("#dataplanloader").change(function () {
+    const selectedValue = $(this).find(':selected').data('slug');
+    const $billersCodeDiv = $("#billersCode-div");
+    const $billersCode = $("#billersCode");
+
+    if (selectedValue === 'ninv1') {
+      $billersCodeDiv.show();
+      $billersCode
+        .attr("placeholder", "Enter NIN")
+        .attr("required", true);
+    } else if (selectedValue === 'ninv1-phone') {
+      $billersCodeDiv.show();
+      $billersCode
+        .attr("placeholder", "Enter Phone number")
+        .attr("required", true);
+    } else {
+      $billersCodeDiv.hide();
+      $billersCode
+        .removeAttr("required")
+        .val("")
+        .attr("placeholder", "");
+    }
+  });
+
 
   $("#form-data").submit(function(event) {
     var formData = {
       network_module: $("#network_module").val(),
       dataplanloader: $("#dataplanloader").val(),
-      mobile_no: $("#mobile_no").val(),
       billersCode: $("#billersCode").val(),
       security_pin: $("#security_pin").val(),
       req_token: $("#req_token").val(),
-      quantity: $("#quantity").val()
     };
 
-    // $.LoadingOverlay("show");
+    $.LoadingOverlay("show");
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -230,19 +190,11 @@
           $("#successModal").modal("show");
           $("#successModal .modal-body").html(response_fd.message);
 
-          if ($("#network_module").val() == 'mtn-datacard') {
-            if (response_fd.extra) {
-              $("#extra").html(response_fd.extra);
-              $("#extra").show();
-              $("#how_to_load").show();
+          document.getElementById("form-data").reset();
 
-              document.getElementById("form-data").reset();
-            }
-          } else {
-            setTimeout(function() {
-              window.location.reload();
-            }, 2000);
-          }
+          setTimeout(function () {
+            window.location.reload();
+          }, 3000);
 
         } else {
           $("#errorModal").modal("show");

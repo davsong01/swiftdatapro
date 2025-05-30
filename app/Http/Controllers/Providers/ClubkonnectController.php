@@ -58,7 +58,7 @@ class ClubkonnectController extends Controller
             'url' =>  $postdata['url'],
             'payload' => $postdata,
         ];
-       
+        
         $params = [
             'url' => $postdata['url'],
             'postfields' => $pstfields,

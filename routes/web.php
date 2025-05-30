@@ -195,6 +195,11 @@ Route::middleware(['auth', 'verify_email', 'ipcheck'])->group(function () {
             Route::get('customer-transaction_status/{transaction_id}', [TransactionsController::class, 'transactionStatus'])->name('transaction.status');
             Route::get('download-transaction-receipt/{transaction_id}', [TransactionsController::class, 'transactionReceipt'])->name('transaction.receipt.download');
             Route::get('download-verification-slip/{transaction}', [TransactionsController::class, 'verificationSlip'])->name('transaction.generateslip');
+            Route::get('download-verification-plastic/{transaction}', [TransactionsController::class, 'verificationPlastic'])->name('transaction.plastic');
+            Route::get('download-verification-response/{transaction}', [TransactionsController::class, 'verificationResponse'])->name('transaction.response');
+            Route::get('download-verification-standard/{transaction}', [TransactionsController::class, 'verificationStandard'])->name('transaction.standard');
+
+            
 
             
         });

@@ -106,7 +106,7 @@
                         <div class="col-md-12">
                             <div class="row">
                                 @foreach ($transactions as $transaction)
-                                
+                                {{-- {{dd($transaction)}} --}}
                                 <?php 
                                     $colors = buyerStatusColors($transaction);
                                 ?>
@@ -193,12 +193,14 @@
                                     </div>
                                     <div class="statistics-date">
                                         <small class="text-muted">
-                                            <a target="_blank" href="{{ route('transaction.receipt.download', $transaction->id) }}" class="btn btn-sm btn-info glow mt-md-2 mb-1">Transaction Receipt</a>
-                                             @if(isset($transaction->product->slug) && in_array($transaction->product->slug, ['nin-verification']) && $transaction->buyer_status == 'SUCCESSFUL' )
-                                                <a target="_blank" href="{{ route('transaction.generateslip', $transaction->id) }}" class="btn btn-sm btn-dark glow mt-md-2 mb-1">BVN/NIN Slip</a>
+                                            <a target="_blank" href="{{ route('transaction.receipt.download', $transaction->id) }}" class="btn btn-sm btn-info glow mt-md-2 mb-1">Receipt</a>
+                                            @if(isset($transaction->product->slug) && in_array($transaction->product->slug, ['nin-verification']) && $transaction->buyer_status == 'SUCCESSFUL' )
+                                            {{-- <a target="_blank" href="{{ route('transaction.response', $transaction->id) }}" class="btn btn-sm btn-primary glow mt-md-2 mb-1">Verification Response</a> --}}
+                                                <a target="_blank" href="{{ route('transaction.generateslip', $transaction->id) }}" class="btn btn-sm btn-info glow mt-md-2 mb-1">Slip</a>
+                                                <a target="_blank" href="{{ route('transaction.plastic', $transaction->id) }}" class="btn btn-sm btn-dark glow mt-md-2 mb-1">Plastic Card</a>
+                                                <a target="_blank" href="{{ route('transaction.standard', $transaction->id) }}" class="btn btn-sm btn-dark glow mt-md-2 mb-1">Standard</a>
                                             @endif
-                                            
-                                        
+
                                         </small>
                                     </div>
                                 </div>
