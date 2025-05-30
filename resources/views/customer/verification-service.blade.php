@@ -1,4 +1,32 @@
 @extends('includes.customer_dashboard.app')
+@section('extra-css')
+    <style>
+      .image-box {
+          position: relative;
+          margin-bottom: 20px;
+      }
+
+      .zoom-image {
+          max-height: 150px;
+          object-fit: contain;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+          border-radius: 8px;
+          transition: transform 0.3s;
+          cursor: pointer;
+      }
+
+      .zoom-image:hover {
+          transform: scale(1.05);
+      }
+
+      .caption {
+          margin-top: 8px;
+          font-weight: 500;
+          text-align: center;
+          color: #333;
+      }
+    </style>
+@endsection
 @section('header')
 <div class="col-xl-12">
     <div class="alert" style="background-color: #fff;color: blue;">
@@ -70,14 +98,37 @@
           </div>
           <input type="password" class="form-control" placeholder="Transaction PIN" id="security_pin" required>
       </div>
-
-      <br>
-
+      
       <button class="btn btn-success btn-block" style="width: 100%" id="submitBtn">BUY NOW</button>
-      <br>
-      <br>
     </form>
-</div>
+
+
+    <div class="row" style="margin:5px 0;margin-top:20px">
+      <div class="col-12 col-sm-6 col-md-4 text-center image-box">
+          <img src="{{ asset('frontend/nin-samples/nin_slip.jpg') }}" class="img-fluid zoom-image" onclick="zoomImage(this)" alt="Nin Slip">
+          <div class="caption">NIN Slip</div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4 text-center image-box">
+          <img src="{{ asset('frontend/nin-samples/plastic.jpg') }}" class="img-fluid zoom-image" onclick="zoomImage(this)" alt="Plastic">
+          <div class="caption">Plastic</div>
+      </div>
+      <div class="col-12 col-sm-6 col-md-4 text-center image-box">
+          <img src="{{ asset('frontend/nin-samples/standard.jpg') }}" class="img-fluid zoom-image" onclick="zoomImage(this)" alt="Standard">
+          <div class="caption">Standard</div>
+      </div>
+  </div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="zoomModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+      <div class="modal-content bg-transparent border-0">
+        <div class="modal-body text-center">
+          <img src="" id="zoomedImage" class="img-fluid" style="max-height: 90vh;">
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 <div id="myModal2" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -208,6 +259,12 @@
 
   function closeModal() {
     $("#myModal2").modal("hide");
+  }
+
+
+  function zoomImage(img) {
+      $('#zoomedImage').attr('src', img.src);
+      $('#zoomModal').modal('show');
   }
 </script>
 
