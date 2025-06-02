@@ -123,6 +123,7 @@ class PaymentGatewayController extends Controller
             "businessid" => $gateway->merchant_id
         ]);
 
+        
         $headers = [
             'api-key:' . $api_key,
             'api-secret:' . 'Bearer ' . $secret_key,
