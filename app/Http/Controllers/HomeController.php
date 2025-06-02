@@ -611,8 +611,8 @@ class HomeController extends Controller
         if (!empty($user->kycData->nin)) {
             $data['nin'] =  $user->kycData->nin;
         }
-
-        if ($payvesel->status == 'active' && $user->filter_accounts($payvesel->id)->count() < 1) {
+        
+        if ($payvesel->status == 'active' && $user->filter_accounts($payvesel->id)->count() < 2) {
             $account = new PaymentGatewayController();
             $accounts = $account->createPayVesselReservedAccount($payvesel, $data);
             

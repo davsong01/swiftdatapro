@@ -120,10 +120,11 @@ class PaymentGatewayController extends Controller
             "email" => auth()->user()->email,
             "phoneNumber" => auth()->user()->mobile,
             "bankcode" => ["101", "120001", "999991"],
-            "businessid" => $gateway->merchant_id
+            "businessid" => $gateway->merchant_id,
+            "nin" => $data['nin'] ?? '',
+            "bvn" => $data['bvn'] ?? '',
         ]);
 
-        
         $headers = [
             'api-key:' . $api_key,
             'api-secret:' . 'Bearer ' . $secret_key,
@@ -138,6 +139,7 @@ class PaymentGatewayController extends Controller
 
         $res = $this->advancedApiCall($url, $payload, $headers);
         $res = json_decode($res, true);
+        
         $status = !empty($res['banks']) && $res['status'] == true ? 'success' : 'failed';
         
         if($status == 'success'){
