@@ -119,7 +119,7 @@ class PaymentGatewayController extends Controller
             "name" => auth()->user()->full_name,
             "email" => auth()->user()->email,
             "phoneNumber" => auth()->user()->mobile,
-            "bankcode" => ["101", "120001"],
+            "bankcode" => ["101", "120001", "999991"],
             "businessid" => $gateway->merchant_id
         ]);
 
