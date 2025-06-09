@@ -32,10 +32,10 @@
             </div>
 
             <form action="{{ route('kyc.update') }}" method="POST" enctype="multipart/form-data">
-                {{-- <label class="label-title">BVN</label>
+                <label class="label-title">BVN</label>
                 <div class="input-group mb-3">
                     <input type="text" class="form-control {{ isset(auth()->user()->kycData->bvn) ? 'disabled-input' : ''}}" placeholder="{{auth()->user()->kyc_status == 0 && isset(auth()->user()->kycData->bvn) ? mask(auth()->user()->kycData->bvn) : 'Enter bvn'}}" id="contract" name="bvn" value="{{ old('bvn')}}">
-                </div> --}}
+                </div>
 
                 <label class="label-title">NIN</label>
                 <div class="input-group mb-3">

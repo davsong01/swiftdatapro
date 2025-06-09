@@ -113,6 +113,7 @@
                             <td>{{$count++}}</td>
                             <td><strong>Email:</strong> {{$deposit->customer->email}} <br>
                                 <strong>Account No: </strong>{{ $deposit->account_number }} <br>
+                                {{-- <strong>Bank Name: </strong>{{ $deposit->account_number }} <br> --}}
                                 @if( $deposit->user_status == 'SUCCESSFUL')
                                 <button class="btn btn-success btn-sm" readonly>{{ucfirst($deposit->user_status) }}</button>
                                 @else
