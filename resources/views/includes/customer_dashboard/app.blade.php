@@ -205,7 +205,7 @@
                     </div>
                 </a>
             </li>
-            @if(env('ENT') == 'local' || in_array(auth()->user()->id, [1]))
+            {{-- @if(env('ENT') == 'local' || in_array(auth()->user()->id, [1])) --}}
             <li>
                 <a href="{{ route('buy', 'verification-service')}}" aria-expanded="false">
                     <div class="nav_icon_small">
@@ -216,7 +216,7 @@
                     </div>
                 </a>
             </li>
-            @endif
+            {{-- @endif --}}
             <li>
                 <a href="{{ route('buy', 'exam-epins')}}" aria-expanded="false">
                     <div class="nav_icon_small">
